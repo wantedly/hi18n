@@ -1,0 +1,27 @@
+{
+  "name": "hi18n",
+  "version": "0.1.0",
+  "description": "Stateless message catalog for internationalization",
+  "main": "dist/index.js",
+  "repository": "https://github.com/qnighy/hi18n",
+  "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
+  "license": "MIT",
+  "packageManager": "yarn@3.1.0",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "tslib": "^2.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-typescript": "^7.16.0",
+    "@jest/globals": "^27.3.1",
+    "babel-jest": "^27.3.1",
+    "expect": "^27.3.1",
+    "jest": "^27.3.1",
+    "typescript": "^4.4.4"
+  }
+}
