@@ -1720,7 +1720,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14":
+"@types/babel__code-frame@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "@types/babel__code-frame@npm:7.0.3"
+  checksum: 543bd933e5ffdfbf75dfee0a36461c8a9d9283d5a95ceae0e021b2aef7fe774f1f251ea56f507faedf9d3574894b4774636f2b125f5cc5f6759503e1e56feb93
+  languageName: node
+  linkType: hard
+
+"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.1.16":
   version: 7.1.16
   resolution: "@types/babel__core@npm:7.1.16"
   dependencies:
@@ -1752,7 +1759,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__traverse@npm:*, @types/babel__traverse@npm:^7.0.4, @types/babel__traverse@npm:^7.0.6":
+"@types/babel__traverse@npm:*, @types/babel__traverse@npm:^7.0.4, @types/babel__traverse@npm:^7.0.6, @types/babel__traverse@npm:^7.14.2":
   version: 7.14.2
   resolution: "@types/babel__traverse@npm:7.14.2"
   dependencies:
@@ -3068,10 +3075,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "hi18n@workspace:packages/hi18n"
   dependencies:
+    "@babel/code-frame": ^7.16.0
     "@babel/core": ^7.16.0
     "@babel/preset-env": ^7.16.4
     "@babel/preset-typescript": ^7.16.0
+    "@babel/traverse": ^7.16.3
+    "@babel/types": ^7.16.0
     "@jest/globals": ^27.3.1
+    "@types/babel__code-frame": ^7.0.3
+    "@types/babel__core": ^7.1.16
+    "@types/babel__traverse": ^7.14.2
     babel-jest: ^27.3.1
     expect: ^27.3.1
     jest: ^27.3.1

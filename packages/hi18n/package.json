@@ -12,13 +12,19 @@
     "test": "jest"
   },
   "dependencies": {
+    "@babel/code-frame": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/traverse": "^7.16.3",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.16.4",
     "@babel/preset-typescript": "^7.16.0",
+    "@babel/types": "^7.16.0",
     "@jest/globals": "^27.3.1",
+    "@types/babel__code-frame": "^7.0.3",
+    "@types/babel__core": "^7.1.16",
+    "@types/babel__traverse": "^7.14.2",
     "babel-jest": "^27.3.1",
     "expect": "^27.3.1",
     "jest": "^27.3.1",
