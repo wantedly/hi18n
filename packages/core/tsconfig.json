@@ -2,14 +2,14 @@
   "extends": "./configs/tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "tsBuildInfoFile": "../dist/tsconfig.tsbuildinfo",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
     "noEmit": true
   },
   "references": [
     { "path": "./configs/tsconfig.main.json" }
   ],
   "include": [
-    "./src/**/*.test.ts",
-    "./src/**/*.test.tsx"
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
   ]
 }

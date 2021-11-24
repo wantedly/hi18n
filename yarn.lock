@@ -1376,6 +1376,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hi18n/core@workspace:packages/core":
+  version: 0.0.0-use.local
+  resolution: "@hi18n/core@workspace:packages/core"
+  dependencies:
+    "@babel/core": ^7.16.0
+    "@babel/preset-env": ^7.16.4
+    "@babel/preset-react": ^7.16.0
+    "@babel/preset-typescript": ^7.16.0
+    "@jest/globals": ^27.3.1
+    "@testing-library/jest-dom": ^5.15.0
+    "@testing-library/react": ^12.1.2
+    "@types/react": ^17.0.35
+    "@types/react-dom": ^17.0.11
+    "@types/testing-library__jest-dom": ^5.14.1
+    babel-jest: ^27.3.1
+    expect: ^27.3.1
+    jest: ^27.3.1
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    ts-jest: ^27.0.7
+    tslib: ^2.3.1
+    typescript: ^4.4.4
+  languageName: unknown
+  linkType: soft
+
 "@istanbuljs/load-nyc-config@npm:^1.0.0":
   version: 1.1.0
   resolution: "@istanbuljs/load-nyc-config@npm:1.1.0"
@@ -3038,31 +3063,6 @@ __metadata:
   checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
   languageName: node
   linkType: hard
-
-"hi18n@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "hi18n@workspace:."
-  dependencies:
-    "@babel/core": ^7.16.0
-    "@babel/preset-env": ^7.16.4
-    "@babel/preset-react": ^7.16.0
-    "@babel/preset-typescript": ^7.16.0
-    "@jest/globals": ^27.3.1
-    "@testing-library/jest-dom": ^5.15.0
-    "@testing-library/react": ^12.1.2
-    "@types/react": ^17.0.35
-    "@types/react-dom": ^17.0.11
-    "@types/testing-library__jest-dom": ^5.14.1
-    babel-jest: ^27.3.1
-    expect: ^27.3.1
-    jest: ^27.3.1
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    ts-jest: ^27.0.7
-    tslib: ^2.3.1
-    typescript: ^4.4.4
-  languageName: unknown
-  linkType: soft
 
 "html-encoding-sniffer@npm:^2.0.1":
   version: 2.0.1
@@ -4734,6 +4734,12 @@ __metadata:
   checksum: 87f4164e396f0171b0a3386cc1877a817f572148ee13a7e113b238e48e8a9f2f31d009a92ec38a591ff1567d9662c6b67fd8818a2dbbaed74bc26a87a2a4a9a0
   languageName: node
   linkType: hard
+
+"root-workspace-0b6124@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "root-workspace-0b6124@workspace:."
+  languageName: unknown
+  linkType: soft
 
 "safe-buffer@npm:~5.1.0, safe-buffer@npm:~5.1.1":
   version: 5.1.2
