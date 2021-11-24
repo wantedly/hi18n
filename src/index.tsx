@@ -19,17 +19,19 @@ export class MessageCatalog<M extends Record<string, Message>> {
     const messages = this._catalog[locale];
     if (!messages) throw new Error(`Missing locale: ${locale}`);
     return {
-      t: (key: keyof M) => {
+      t: (key: keyof M, options: Record<string, string> = {}) => {
         const msg = messages[key];
         if (!msg) throw new Error(`Missing translation in ${locale} for ${key}`);
-        return msg;
+        return msg.replace(/{(\w+)}/g, (_match, name?: string) => {
+          return options[name!]!;
+        });
       }
     };
   }
 }
 
 interface I18n<M extends Record<string, Message>> {
-  t(key: keyof M): string;
+  t(key: keyof M, options?: Record<string, string>): string;
 }
 
 export const Translate: React.FC = () => {

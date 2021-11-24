@@ -9,13 +9,16 @@ declare module "expect/build/types" {
 
 type Messages = {
   "example/greeting": Message,
+  "example/greeting2": Message,
 };
 
 const catalogJa: Messages = {
   "example/greeting": msg("こんにちは!"),
+  "example/greeting2": msg("こんにちは、{name}さん!"),
 };
 const catalogEn: Messages = {
   "example/greeting": msg("Hello!"),
+  "example/greeting2": msg("Hello, {name}!"),
 };
 const catalog = new MessageCatalog({
   ja: catalogJa,
@@ -45,6 +48,17 @@ describe ("MessageCatalog", () => {
     expect(() => {
       t("example/non-existent-key" as any)
     }).toThrow("Missing translation in en for example/non-existent-key");
+  });
+
+  it("does a simple interpolation", () => {
+    {
+      const { t } = catalog.getI18n("ja");
+      expect(t("example/greeting2", { name: "太郎"})).toBe("こんにちは、太郎さん!");
+    }
+    {
+      const { t } = catalog.getI18n("en");
+      expect(t("example/greeting2", { name: "Taro"})).toBe("Hello, Taro!");
+    }
   });
 });
 
