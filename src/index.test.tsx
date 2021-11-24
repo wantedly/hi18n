@@ -83,6 +83,35 @@ describe ("MessageCatalog", () => {
   });
 });
 
+function expectType<T>(_x: T) {}
+expectType<Message>(msg("foo"));
+
+// Translation with unintended arguments
+{
+  // @ts-expect-error
+  expectType<Message>(msg("{name}"));
+  // @ts-expect-error
+  expectType<Message<{ value: string }>>(msg("{name}"));
+}
+
+// Too general translation
+{
+  // @ts-expect-error
+  expectType<Message>(msg("message" as string));
+}
+
+// Broken translation
+{
+  // @ts-expect-error
+  expectType<Message>(msg("{}"));
+  // @ts-expect-error
+  expectType<Message>(msg("{nam"));
+  // @ts-expect-error
+  expectType<Message<any>>(msg("{2nd}"));
+  // @ts-expect-error
+  expectType<Message<any>>(msg("{name foo}"));
+}
+
 describe("Translate", () => {
   it("renders", () => {
     const { container } = render(<Translate />);
