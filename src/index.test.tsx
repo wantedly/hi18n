@@ -9,7 +9,7 @@ declare module "expect/build/types" {
 
 type Messages = {
   "example/greeting": Message,
-  "example/greeting2": Message,
+  "example/greeting2": Message<{ name: string }>,
 };
 
 const catalogJa: Messages = {
@@ -46,7 +46,8 @@ describe ("MessageCatalog", () => {
   it("raises an error for missing key", () => {
     const { t } = catalog.getI18n("en")
     expect(() => {
-      t("example/non-existent-key" as any)
+      // @ts-expect-error
+      t("example/non-existent-key")
     }).toThrow("Missing translation in en for example/non-existent-key");
   });
 
@@ -59,6 +60,26 @@ describe ("MessageCatalog", () => {
       const { t } = catalog.getI18n("en");
       expect(t("example/greeting2", { name: "Taro"})).toBe("Hello, Taro!");
     }
+  });
+
+  it("raises an error for missing arguments", () => {
+    const { t } = catalog.getI18n("en")
+    expect(() => {
+      // @ts-expect-error
+      t("example/greeting2")
+    }).toThrow("Missing argument for example/greeting2: name");
+    expect(() => {
+      // @ts-expect-error
+      t("example/greeting2", {})
+    }).toThrow("Missing argument for example/greeting2: name");
+  });
+
+  it("raises an error for invalid argument types", () => {
+    const { t } = catalog.getI18n("en")
+    expect(() => {
+      // @ts-expect-error
+      t("example/greeting2", { name: 42 })
+    }).toThrow("Invalid argument for example/greeting2: name: 42");
   });
 });
 
