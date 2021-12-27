@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { getCatalog } from "./catalog";
+import { getCatalog } from "./scanner";
 import { parseAsync } from "@babel/core";
 
 describe("getCatalog", () => {
