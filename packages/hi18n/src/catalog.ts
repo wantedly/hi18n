@@ -13,19 +13,27 @@ export function getCatalog(code: string, program: File | Program, options: Enric
   traverse(program, {
     ImportDeclaration(path) {
       if (path.node.source.value !== "@hi18n/core") return;
+      // import { ... } from "@hi18n/core";
+
       for (const specifier of path.get("specifiers")) {
         if (specifier.isImportDefaultSpecifier()) continue;
         if (!specifier.isImportSpecifier()) {
           throw specifier.buildCodeFrameError("Cannot track this usage");
         }
         if (importName(specifier.node.imported) !== "MessageCatalog") continue;
+
+        // import { MessageCatalog } from "@hi18n/core";
         const binding = path.scope.getBinding(specifier.node.local.name)!;
         for (const refPath of binding.referencePaths) {
+          // ... MessageCatalog ...
+
           const newExprPath = refPath.parentPath;
           if (!newExprPath) continue;
           if (!(newExprPath.isNewExpression() && newExprPath.node.callee === refPath.node)) {
             continue;
           }
+
+          // new MessageCatalog(...)
 
           const declaratorPath = newExprPath.parentPath;
           if (!declaratorPath) continue;
@@ -33,17 +41,23 @@ export function getCatalog(code: string, program: File | Program, options: Enric
             continue;
           }
 
+          // ... = new MessageCatalog(...)
+
           const declPath = declaratorPath.parentPath;
           if (!declPath) continue;
           if (!(declPath.isVariableDeclaration())) {
             continue;
           }
 
+          // const catalog = new MessageCatalog(...)
+
           const exportDeclPath = declPath.parentPath;
           if (!exportDeclPath) continue;
           if (!(exportDeclPath.isExportNamedDeclaration())) {
             continue;
           }
+
+          // export const catalog = new MessageCatalog(...);
 
           const lval = declaratorPath.node.id;
           if (lval.type !== "Identifier") continue;
