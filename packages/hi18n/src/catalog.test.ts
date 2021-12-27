@@ -9,7 +9,7 @@ import { MessageCatalog } from "@hi18n/core";
 export const catalog = new MessageCatalog();
 `;
     const program = await parseAsync(code, { sourceType: "module", configFile: false });
-    const catalogs = getCatalog(code, program!, { highlightCode: false });
+    const catalogs = getCatalog(code, program!, { highlightCode: false }).exportedCatalogs;
     expect(catalogs).toEqual(["catalog"]);
   });
   describe("export declarations", () => {

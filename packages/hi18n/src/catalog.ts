@@ -7,7 +7,11 @@ function importName(node: Identifier | StringLiteral): string {
   else return node.value;
 }
 
-export function getCatalog(code: string, program: File | Program, options: EnrichOptions = {}): string[] {
+type ScannerResult = {
+  exportedCatalogs: string[]
+};
+
+export function getCatalog(code: string, program: File | Program, options: EnrichOptions = {}): ScannerResult {
   const { scope } = enrichContext(code, program, options);
   const exportedCatalogs: string[] = [];
   traverse(program, {
@@ -71,5 +75,5 @@ export function getCatalog(code: string, program: File | Program, options: Enric
       throw path.buildCodeFrameError("Cannot track this usage");
     },
   }, scope);
-  return exportedCatalogs;
+  return { exportedCatalogs };
 }
