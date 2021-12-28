@@ -12,4 +12,19 @@ export const catalog = new MessageCatalog();
     const catalogs = getCatalog(code, program!, { highlightCode: false }).exportedCatalogs;
     expect(catalogs).toEqual(["catalog"]);
   });
+
+  it("detects MessageCatalog usage", async () => {
+    const code = `
+import { catalog } from "./locale";
+const { t } = catalog.getI18n("ja");
+const str = t("example/greeting");
+`;
+    const program = await parseAsync(code, { sourceType: "module", configFile: false });
+    const catalogs = getCatalog(code, program!, { highlightCode: false }).importedCatalogs;
+    expect(catalogs).toEqual({
+      "./locale": {
+        usedKeys: ["example/greeting"]
+      },
+    });
+  });
 });
