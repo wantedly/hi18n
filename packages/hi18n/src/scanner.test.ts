@@ -12,15 +12,4 @@ export const catalog = new MessageCatalog();
     const catalogs = getCatalog(code, program!, { highlightCode: false }).exportedCatalogs;
     expect(catalogs).toEqual(["catalog"]);
   });
-  describe("export declarations", () => {
-    it("throws error on untrackable re-exports", async () => {
-      const code = `
-export * from "@hi18n/core";
-`;
-      const program = await parseAsync(code, { sourceType: "module", configFile: false });
-      expect(() => {
-        getCatalog(code, program!, { highlightCode: false });
-      }).toThrowErrorMatchingSnapshot();
-    });
-  });
 });

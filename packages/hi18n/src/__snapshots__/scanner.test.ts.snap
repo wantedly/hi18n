@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`getCatalog export declarations throws error on untrackable re-exports 1`] = `
-"Cannot track this usage
-  1 |
-> 2 | export * from \\"@hi18n/core\\";
-    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  3 |"
-`;
