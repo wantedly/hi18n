@@ -9,7 +9,7 @@
     "test": "yarn build && yarn workspaces foreach -t run test"
   },
   "devDependencies": {
-    "@yarnpkg/sdks": "^2.5.1-rc.6",
+    "@yarnpkg/sdks": "^2.6.0",
     "typescript": "^4.5.4"
   }
 }
