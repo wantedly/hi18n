@@ -18,9 +18,9 @@
     "tslib": "^2.3.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.5",
-    "@babel/preset-typescript": "^7.16.5",
-    "@babel/types": "^7.16.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@babel/types": "^7.17.0",
     "@jest/globals": "^27.4.4",
     "@types/babel__code-frame": "^7.0.3",
     "@types/babel__core": "^7.1.19",
