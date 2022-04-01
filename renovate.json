@@ -1,5 +1,20 @@
 {
   "extends": [
     "config:base"
+  ],
+  "postUpdateOptions": [
+    "yarnDedupeHighest"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies", "peerDependencies"],
+      "rangeStrategy": "widen"
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "rangeStrategy": "bump"
+    }
   ]
 }
