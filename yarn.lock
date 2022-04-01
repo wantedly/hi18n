@@ -1797,16 +1797,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.1.17":
-  version: 7.1.17
-  resolution: "@types/babel__core@npm:7.1.17"
+"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.1.19":
+  version: 7.1.19
+  resolution: "@types/babel__core@npm:7.1.19"
   dependencies:
     "@babel/parser": ^7.1.0
     "@babel/types": ^7.0.0
     "@types/babel__generator": "*"
     "@types/babel__template": "*"
     "@types/babel__traverse": "*"
-  checksum: 0108efab8acb6a8e0aab6f8113d5ef1fc4b58d40737aa70a3ee83112959e0880e5548374e7edb562e4e837cde4ae47265348b04eb7e684283b0dea418d013420
+  checksum: 8c9fa87a1c2224cbec251683a58bebb0d74c497118034166aaa0491a4e2627998a6621fc71f8a60ffd27d9c0c52097defedf7637adc6618d0331c15adb302338
   languageName: node
   linkType: hard
 
@@ -3577,7 +3577,7 @@ __metadata:
     "@babel/types": ^7.16.0
     "@jest/globals": ^27.4.4
     "@types/babel__code-frame": ^7.0.3
-    "@types/babel__core": ^7.1.17
+    "@types/babel__core": ^7.1.19
     "@types/babel__traverse": ^7.14.2
     babel-jest: ^27.4.5
     expect: ^27.4.2
