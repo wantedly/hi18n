@@ -4,7 +4,7 @@ export type CompiledMessage =
   /* concatenation */
   | CompiledMessage[]
   /* interpolation for noneArg ("{foo}") */
-  | { type: "Var", name: string }
+  | { type: "Var", name: string | number }
   ;
 
 export function evaluateMessage(msg: CompiledMessage, params: Record<string, unknown>): string {

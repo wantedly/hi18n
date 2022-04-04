@@ -17,15 +17,31 @@ class Parser {
   constructor(public readonly src: string) {}
 
   public parseMessageEOF(): CompiledMessage {
-    return this.parseMessage();
+    const msg = this.parseMessage();
+    if (this.pos < this.src.length) {
+      throw new Error("Found an unmatching }");
+    }
+    return msg;
   }
 
   // message = messageText (argument messageText)*
+  // The grammar doesn't mention it but it should also have '#' as a special interpolation.
   private parseMessage(): CompiledMessage {
     const buf: CompiledMessage[] = [];
     pushString(buf, this.parseMessageText(true, true));
-    if (this.pos < this.src.length) {
-      throw new Error(`Unimplemented: syntax: ${this.src[this.pos]}`);
+    while (this.pos < this.src.length && this.src[this.pos] !== "}") {
+      switch (this.src[this.pos]) {
+        case "{":
+          buf.push(this.parseArgument());
+          break;
+        case "|":
+          throw new Error(`Unimplemented: syntax: |`);
+        case "#":
+          throw new Error(`Unimplemented: syntax: #`);
+        default:
+          throw new Error(`Bug: invalid syntax character: ${this.src[this.pos]}`);
+      }
+      pushString(buf, this.parseMessageText(true, true));
     }
     return reduceMessage(buf);
   }
@@ -76,6 +92,56 @@ class Parser {
     const text = re.exec(this.src)![0]!;
     this.pos += text.length;
     return text;
+  }
+
+  // Something enclosed within {}.
+  // argument = noneArg | simpleArg | complexArg
+  // complexArg = choiceArg | pluralArg | selectArg | selectordinalArg
+  private parseArgument(): CompiledMessage {
+    this.pos++; // Eat the open brace
+    this.skipWhitespace();
+    const name = this.parseArgNameOrNumber();
+    if (this.pos >= this.src.length) {
+      throw new Error("Unclosed argument")
+    } else if (this.src[this.pos] === "}") {
+      this.pos++;
+      return { type: "Var", name };
+    } else if (this.src[this.pos] === ",") {
+      throw new Error("Unimplemented: simpleArg and complexArg");
+    } else {
+      throw new Error("Invalid character after argument name");
+    }
+  }
+
+  // argNameOrNumber = argName | argNumber
+  // argName = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
+  // argNumber = '0' | ('1'..'9' ('0'..'9')*)
+  private parseArgNameOrNumber(): number | string {
+    const start = this.pos;
+    // It should be /[\p{Pattern_Syntax}\p{Pattern_White_Space}]/u
+    // but for compatibility reasons I'm not yet sure we can use it now.
+    while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
+      this.pos++;
+    }
+    const token = this.src.substring(start, this.pos);
+    if (token === "") {
+      throw new Error("Unexpected token after {");
+    } else if (/^[0-9]/.test(token)) {
+      if (!/^[0-9]+$/.test(token)) {
+        throw new Error("Invalid character in a number");
+      } else if (token.startsWith("0") && token !== "0") {
+        throw new Error("Numbers cannot start with 0");
+      } else {
+        this.skipWhitespace();
+        return parseInt(token);
+      }
+    }
+    this.skipWhitespace();
+    return token;
+  }
+
+  private skipWhitespace() {
+    while (this.pos < this.src.length && /\s/.test(this.src[this.pos]!)) this.pos++;
   }
 }
 
