@@ -12,7 +12,7 @@ export function parseMessage(msg: string): CompiledMessage {
 // https://unicode-org.github.io/icu/userguide/format_parse/messages/
 class Parser {
   private pos = 0;
-  private reText = /[^'{}#|]*/y;
+  private reText = /[^'{}#]*/y;
   private reQuotedText = /[^']*/y;
   constructor(public readonly src: string) {}
 
@@ -28,20 +28,18 @@ class Parser {
   // The grammar doesn't mention it but it should also have '#' as a special interpolation.
   private parseMessage(): CompiledMessage {
     const buf: CompiledMessage[] = [];
-    pushString(buf, this.parseMessageText(true, true));
+    pushString(buf, this.parseMessageText(true));
     while (this.pos < this.src.length && this.src[this.pos] !== "}") {
       switch (this.src[this.pos]) {
         case "{":
           buf.push(this.parseArgument());
           break;
-        case "|":
-          throw new Error(`Unimplemented: syntax: |`);
         case "#":
           throw new Error(`Unimplemented: syntax: #`);
         default:
           throw new Error(`Bug: invalid syntax character: ${this.src[this.pos]}`);
       }
-      pushString(buf, this.parseMessageText(true, true));
+      pushString(buf, this.parseMessageText(true));
     }
     return reduceMessage(buf);
   }
@@ -51,7 +49,7 @@ class Parser {
   // - plain message text
   // - quoted message text
   // - escaped quotes
-  private parseMessageText(allowHash: boolean, allowBar: boolean): string {
+  private parseMessageText(allowHash: boolean): string {
     let inQuote = false;
     let buf = this.parseRawMessageText(inQuote);
     while (this.pos < this.src.length) {
@@ -69,10 +67,6 @@ class Parser {
         // A plain '#' character. It is special only within pluralStyle.
         buf += "#";
         this.pos++;
-      } else if (this.src[this.pos] === "|" && allowBar) {
-        // A plain '|' character. It is special only within choiceStyle.
-        buf += "|";
-        this.pos++;
       } else {
         // Syntax character ({, }, #, |)
         break;
@@ -84,8 +78,8 @@ class Parser {
     }
     return buf;
   }
-  // Eats up the text until it encounters a syntax character ('{', '}', '#', '|'), a quote ("'"), or EOF.
-  // In quoted mode, the four syntax characters ('{', '}', '#', '|') are considered part of the text.
+  // Eats up the text until it encounters a syntax character ('{', '}', '#'), a quote ("'"), or EOF.
+  // In quoted mode, the four syntax characters ('{', '}', '#') are considered part of the text.
   private parseRawMessageText(inQuote: boolean): string {
     const re = inQuote ? this.reQuotedText : this.reText;
     re.lastIndex = this.pos;
