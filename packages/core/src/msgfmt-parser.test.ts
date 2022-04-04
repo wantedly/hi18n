@@ -7,6 +7,7 @@ describe("parseMessage", () => {
     expect(parseMessage("Hello, world!")).toBe("Hello, world!");
     expect(parseMessage("こんにちは世界!")).toBe("こんにちは世界!");
     expect(parseMessage("1 + 1 = 2")).toBe("1 + 1 = 2");
+    expect(parseMessage("#")).toBe("#");
   });
 
   it("parses texts with double quotes", () => {
