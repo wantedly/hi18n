@@ -7,13 +7,16 @@ export type CompiledMessage =
   | { type: "Var", name: string | number }
   ;
 
-export function evaluateMessage(msg: CompiledMessage, params: Record<string, unknown>): string {
+export function evaluateMessage(msg: CompiledMessage, key: string, params: Record<string, unknown>): string {
   if (typeof msg === "string") {
     return msg;
   } else if (Array.isArray(msg)) {
-    return msg.map((part) => evaluateMessage(part, params)).join("");
+    return msg.map((part) => evaluateMessage(part, key, params)).join("");
   } else if (msg.type === "Var") {
-    return `${params[msg.name]}`;
+    const value = params[msg.name];
+    if (value === undefined) throw new Error(`Missing argument for ${key}: ${msg.name}`);
+    if (typeof value !== "string") throw new Error(`Invalid argument for ${key}: ${msg.name}: ${value}`);
+    return value;
   }
   throw new Error("Invalid message");
 }
