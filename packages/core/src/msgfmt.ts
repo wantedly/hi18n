@@ -1,8 +1,9 @@
 export type CompiledMessage =
-  /* plain message */
+  /* plain message. Quotations such as "It''s awsesome" are already unescaped. */
   | string
   /* concatenation */
   | CompiledMessage[]
+  /* interpolation for noneArg ("{foo}") */
   | { type: "Var", name: string }
   ;
 

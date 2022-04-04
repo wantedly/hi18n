@@ -7,6 +7,9 @@ export function parseMessage(msg: string): CompiledMessage {
   return new Parser(msg).parseMessageEOF();
 }
 
+// References for ICU MessageFormat syntax:
+// https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/MessageFormat.html
+// https://unicode-org.github.io/icu/userguide/format_parse/messages/
 class Parser {
   private pos = 0;
   private reText = /[^'{}#|]*/y;
@@ -16,6 +19,8 @@ class Parser {
   public parseMessageEOF(): CompiledMessage {
     return this.parseMessage();
   }
+
+  // message = messageText (argument messageText)*
   private parseMessage(): CompiledMessage {
     const buf: CompiledMessage[] = [];
     pushString(buf, this.parseMessageText(true, true));
@@ -24,6 +29,12 @@ class Parser {
     }
     return reduceMessage(buf);
   }
+
+  // messageText consists of three parts:
+  //
+  // - plain message text
+  // - quoted message text
+  // - escaped quotes
   private parseMessageText(allowHash: boolean, allowBar: boolean): string {
     let inQuote = false;
     let buf = this.parseRawMessageText(inQuote);
@@ -39,9 +50,11 @@ class Parser {
           this.pos++;
         }
       } else if (this.src[this.pos] === "#" && allowHash) {
+        // A plain '#' character. It is special only within pluralStyle.
         buf += "#";
         this.pos++;
       } else if (this.src[this.pos] === "|" && allowBar) {
+        // A plain '|' character. It is special only within choiceStyle.
         buf += "|";
         this.pos++;
       } else {
@@ -50,8 +63,13 @@ class Parser {
       }
       buf += this.parseRawMessageText(inQuote);
     }
+    if (inQuote) {
+      throw new Error("Unclosed quoted string");
+    }
     return buf;
   }
+  // Eats up the text until it encounters a syntax character ('{', '}', '#', '|'), a quote ("'"), or EOF.
+  // In quoted mode, the four syntax characters ('{', '}', '#', '|') are considered part of the text.
   private parseRawMessageText(inQuote: boolean): string {
     const re = inQuote ? this.reQuotedText : this.reText;
     re.lastIndex = this.pos;
