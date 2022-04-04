@@ -7,6 +7,12 @@ describe("InferredMessageType", () => {
     expectType<InferredMessageType<"foo">>().to(beTypeEqual<Message>());
   });
 
+  // TypeScript >= 4.6
+  it("infers long messages", () => {
+    expectType<InferredMessageType<"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz">>().to(beTypeEqual<Message>());
+    expectType<InferredMessageType<"{abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz}">>().to(beTypeEqual<Message<{ abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz: string }>>());
+  });
+
   it("infers simple arguments", () => {
     expectType<InferredMessageType<"{name}">>().to(beTypeEqual<Message<{ name: string }>>());
     expectType<InferredMessageType<"{name} {value}">>().to(beTypeEqual<Message<{ name: string, value: string }>>());
