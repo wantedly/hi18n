@@ -15,11 +15,12 @@ describe("parseMessage", () => {
   });
 
   it("parses quoted texts", () => {
-    expect(parseMessage("foo, 'bar', '{}#|', 'a''b', ''''")).toBe("foo, bar, {}#|, a'b, ''");
+    expect(parseMessage("'{foo}'")).toBe("{foo}");
+    expect(parseMessage("foo, '{bar}', '{}#|', '{a''b}', ''''")).toBe("foo, {bar}, {}#|, {a'b}, ''");
   });
 
   it("errors on unclosed quoted strings", () => {
-    expect(() => parseMessage("'foo")).toThrow(/Unclosed quoted string/);
+    expect(() => parseMessage("'{foo}")).toThrow(/Unclosed quoted string/);
   });
 
   it("parses noneArg", () => {

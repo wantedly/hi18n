@@ -58,9 +58,23 @@ class Parser {
           // Self-escaped quotation
           buf += "'";
           this.pos += 2;
+        } else if (inQuote) {
+          // End of quoted text
+          inQuote = false;
+          this.pos++;
+        } else if (
+          this.pos + 1 < this.src.length && (
+            this.src[this.pos + 1] === "{" ||
+            this.src[this.pos + 1] === "}" ||
+            (this.src[this.pos + 1] === "#" && allowHash)
+          )
+        ) {
+          // Beginning of quoted text
+          inQuote = true;
+          this.pos++;
         } else {
-          // Beginning or end of quoted text
-          inQuote = !inQuote;
+          // Literal quote
+          buf += "'";
           this.pos++;
         }
       } else if (this.src[this.pos] === "#" && allowHash) {
