@@ -1,4 +1,4 @@
-import { CompiledMessage } from "./msgfmt";
+import { ArgType, CompiledMessage } from "./msgfmt";
 
 const SIMPLE_MESSAGE = /^[^'{}]*$/;
 
@@ -6,6 +6,8 @@ export function parseMessage(msg: string): CompiledMessage {
   if (SIMPLE_MESSAGE.test(msg)) return msg;
   return new Parser(msg).parseMessageEOF();
 }
+
+const ARG_TYPES = ["number", "date", "time", "spellout", "ordinal", "duration"];
 
 // References for ICU MessageFormat syntax:
 // https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/MessageFormat.html
@@ -115,6 +117,37 @@ class Parser {
       this.pos++;
       return { type: "Var", name };
     } else if (this.src[this.pos] === ",") {
+      this.pos++;
+      this.skipWhitespace();
+      const argType = this.parseWord();
+      switch (argType) {
+        case "choice":
+          throw new Error("choice is not supported");
+          break;
+        case "plural":
+          throw new Error("Unimplemented: pluralArg");
+          break;
+        case "select":
+        case "selectordinal":
+          throw new Error("Unimplemented: selectArg");
+          break;
+        case "":
+          throw new Error("Missing argType");
+        default:
+          if (!ARG_TYPES.includes(argType)) {
+            throw new Error(`Invalid argType: ${argType}`);
+          }
+          if (this.pos >= this.src.length) {
+            throw new Error("Unclosed argument")
+          } else if (this.src[this.pos] === "}") {
+            this.pos++;
+            return { type: "Var", name, argType: argType as ArgType };
+          } else if (this.src[this.pos] === ",") {
+            throw new Error("Unimplemented: argStyle");
+          } else {
+            throw new Error("Invalid character after argument type");
+          }
+      }
       throw new Error("Unimplemented: simpleArg and complexArg");
     } else {
       throw new Error("Invalid character after argument name");
@@ -144,6 +177,16 @@ class Parser {
         return parseInt(token);
       }
     }
+    this.skipWhitespace();
+    return token;
+  }
+
+  private parseWord(): string {
+    const start = this.pos;
+    while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
+      this.pos++;
+    }
+    const token = this.src.substring(start, this.pos);
     this.skipWhitespace();
     return token;
   }

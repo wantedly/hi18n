@@ -58,6 +58,13 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{2}{ 0 }, {1}">>().to(beTypeEqual<Message<{ 0: string, 1: string, 2: string }>>());
     });
 
+    it("parses simpleArg", () => {
+      expectType<InferredMessageType<"{foo,number}">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<"foo { foo , number }">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<"foo { foo , date } bar { bar , time }">>().to(beTypeEqual<Message<{ foo: Date, bar: Date }>>());
+      expectType<InferredMessageType<"{2,spellout}{ 0 , ordinal }, {1,duration}">>().to(beTypeEqual<Message<{ 0: number, 1: number, 2: number }>>());
+    });
+
     it("errors on invalid noneArg", () => {
       expectType<InferredMessageType<"{">>().to(beTypeEqual<ParseError<"Unexpected token after {">>());
       expectType<InferredMessageType<"{$">>().to(beTypeEqual<ParseError<"Unexpected token after {">>());
@@ -65,6 +72,18 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{0123}">>().to(beTypeEqual<ParseError<"Numbers cannot start with 0">>());
       expectType<InferredMessageType<"{foo">>().to(beTypeEqual<ParseError<"Unclosed argument">>());
       expectType<InferredMessageType<"{foo%">>().to(beTypeEqual<ParseError<"Invalid character after argument name">>());
+    });
+
+    it("errors on invalid argType", () => {
+      expectType<InferredMessageType<"{foo,}">>().to(beTypeEqual<ParseError<"Missing argType">>());
+      expectType<InferredMessageType<"{foo,$}">>().to(beTypeEqual<ParseError<"Missing argType">>());
+      expectType<InferredMessageType<"{foo,integer}">>().to(beTypeEqual<ParseError<"Invalid argType: integer">>());
+      expectType<InferredMessageType<"{foo,number$}">>().to(beTypeEqual<ParseError<"Invalid character after argument type">>());
+      expectType<InferredMessageType<"{foo,number">>().to(beTypeEqual<ParseError<"Unclosed argument">>());
+    });
+
+    it("errors on choiceArg", () => {
+      expectType<InferredMessageType<"{foo,choice,0#zero|1#one}">>().to(beTypeEqual<ParseError<"choice is not supported">>());
     });
   });
 });

@@ -58,11 +58,16 @@ type ParseArgument2<S extends string, Name extends string, Accum> =
   S extends "" ? ParseResult<Accum, S, "Unclosed argument"> :
   ParseResult<never, S, undefined>;
 
-// After "{ foo " or "{ foo,"
+// After "{ foo " or "{ foo" (at the word boundary)
 type ParseArgument3<S extends string, Name extends string, Accum> =
   S extends `${infer SH}${infer ST}` ?
     SH extends Whitespace ? ParseArgument3<ST, Name, Accum> :
-    SH extends "," ? ParseResult<Accum, S, "Unimplemented: simpleArg and complexArg"> :
+    SH extends "," ?
+      CheckName<Name> extends infer Result ?
+        Result extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
+        Result extends string | number ?  ParseArgument4<SkipWhitespace<ST>, Name, "", Accum> :
+        never :
+      never :
     SH extends "}" ?
       CheckName<Name> extends infer Result ?
         Result extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
@@ -72,6 +77,29 @@ type ParseArgument3<S extends string, Name extends string, Accum> =
     ParseResult<Accum, S, "Invalid character after argument name"> :
   S extends "" ? ParseResult<Accum, S, "Unclosed argument"> :
   ParseResult<never, S, undefined>;
+
+// After "{foo,"
+type ParseArgument4<S extends string, Name extends string, ArgType extends string, Accum> =
+  S extends `${infer SH}${infer ST}` ?
+    SH extends Digit | Alpha ? ParseArgument4<ST, Name, `${ArgType}${SH}`, Accum> :
+    ParseArgument5<SkipWhitespace<S>, Name, ArgType, Accum> :
+  S extends "" ? ParseArgument5<S, Name, ArgType, Accum> :
+  ParseResult<never, S, undefined>;
+
+// After "{foo,number" (word boundary)
+type ParseArgument5<S extends string, Name extends string, ArgType extends string, Accum> =
+  ArgType extends "choice" ? ParseResult<Accum, S, "choice is not supported"> :
+  ArgType extends "plural" ? ParseResult<Accum, S, "Unimplemented: pluralArg"> :
+  ArgType extends "select" | "selectordinal" ? ParseResult<Accum, S, "Unimplemented: selectArg"> :
+  ArgType extends "" ? ParseResult<Accum, S, "Missing argType"> :
+  ArgType extends "number" | "date" | "time" | "spellout" | "ordinal" | "duration" ?
+    S extends `${infer SH}${infer ST}` ?
+      SH extends "}" ? ParseMessage<ST, Accum & Record<Name, ArgTypeMap[ArgType]>>:
+      SH extends "," ? ParseResult<Accum, S, "Unimplemented: argStyle"> :
+      ParseResult<Accum, S, "Invalid character after argument type"> :
+    S extends "" ? ParseResult<Accum, S, "Unclosed argument"> :
+    never :
+  ParseResult<Accum, S, `Invalid argType: ${ArgType}`> ;
 
 type CheckName<Name extends string> =
   Name extends "0" ? 0 :
@@ -85,6 +113,18 @@ type CheckNumber<Name extends string, N extends string = Name> =
     ParseError<"Invalid character in a number"> :
   N extends "" ? ParseNumber[Name] :
   never;
+
+type SkipWhitespace<S extends string> =
+  S extends `${Whitespace}${infer ST}` ? SkipWhitespace<ST> : S;
+
+type ArgTypeMap = {
+  number: number;
+  date: Date;
+  time: Date;
+  spellout: number;
+  ordinal: number;
+  duration: number;
+};
 
 type Whitespace = " " | "\n" | "\r" | "\t";
 type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
