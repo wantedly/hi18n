@@ -33,8 +33,8 @@ describe("parseMessage", () => {
   it("errors on invalid noneArg", () => {
     expect(() => parseMessage("{")).toThrow(/Unexpected token after {/);
     expect(() => parseMessage("{$")).toThrow(/Unexpected token after {/);
-    expect(() => parseMessage("{123foo")).toThrow(/Invalid character in a number/);
-    expect(() => parseMessage("{0123")).toThrow(/Numbers cannot start with 0/);
+    expect(() => parseMessage("{123foo}")).toThrow(/Invalid character in a number/);
+    expect(() => parseMessage("{0123}")).toThrow(/Numbers cannot start with 0/);
     expect(() => parseMessage("{foo")).toThrow(/Unclosed argument/);
     expect(() => parseMessage("{foo%")).toThrow(/Invalid character after argument name/);
   });
