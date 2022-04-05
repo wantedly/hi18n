@@ -1,4 +1,4 @@
-import { ArgType, CompiledMessage } from "./msgfmt";
+import { ArgType, CompiledMessage, PluralArg, PluralBranch } from "./msgfmt";
 
 const SIMPLE_MESSAGE = /^[^'{}]*$/;
 
@@ -125,8 +125,7 @@ class Parser {
           throw new Error("choice is not supported");
           break;
         case "plural":
-          throw new Error("Unimplemented: pluralArg");
-          break;
+          return this.parsePluralArgument(name);
         case "select":
         case "selectordinal":
           throw new Error("Unimplemented: selectArg");
@@ -152,6 +151,60 @@ class Parser {
     } else {
       throw new Error("Invalid character after argument name");
     }
+  }
+
+  // pluralStyle = [offsetValue] (selector '{' message '}')+
+  // offsetValue = "offset:" number
+  // selector = explicitValue | keyword
+  // explicitValue = '=' number  // adjacent, no white space in between
+  // keyword = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
+  private parsePluralArgument(name: string | number): PluralArg {
+    if (this.pos >= this.src.length) {
+      throw new Error("Unclosed argument")
+    } else if (this.src[this.pos] !== ",") {
+      throw new Error("Invalid character after plural");
+    }
+    this.pos++;
+    this.skipWhitespace();
+
+    let offset: number | undefined = undefined;
+    if (this.src.startsWith("offset:", this.pos)) {
+      this.pos += "offset:".length;
+      this.skipWhitespace();
+      const num = this.parseArgNameOrNumber();
+      if (typeof num !== "number") throw new Error("Offset must be a number");
+      offset = num;
+    }
+    const branches: PluralBranch[] = [];
+    while (this.pos < this.src.length && this.src[this.pos] !== "}") {
+      let selector: number | string;
+      if (this.src[this.pos] === "=") {
+        this.pos++;
+        if (this.pos < this.src.length && /\s/.test(this.src[this.pos]!)) throw new Error("= must not precede a whitespace");
+        const num = this.parseArgNameOrNumber();
+        if (typeof num !== "number") throw new Error("=selector must be a number");
+        selector = num;
+      } else {
+        const keyword = this.parseArgNameOrNumber();
+        if (typeof keyword === "number") throw new Error("selector keyword must not be a number");
+        if (keyword === "") throw new Error("Invalid selector");
+        selector = keyword;
+      }
+      if (this.pos >= this.src.length) throw new Error("Unclosed argument");
+      if (this.src[this.pos] !== "{") throw new Error("Plural branch must start with {");
+      this.pos++;
+      const message = this.parseMessage();
+      if (this.pos >= this.src.length) throw new Error("Unclosed argument");
+      if (this.src[this.pos] !== "}") throw new Error("Bug: invalid syntax character");
+      this.pos++;
+      this.skipWhitespace();
+      branches.push({ selector, message });
+    }
+    if (this.pos >= this.src.length) throw new Error("Unclosed argument");
+    this.pos++;
+    if (branches.length === 0) throw new Error("No branch found");
+    if (branches[branches.length - 1]!.selector !== "other") throw new Error("Last selector should be other");
+    return { type: "Plural", name, offset, branches };
   }
 
   // argNameOrNumber = argName | argNumber

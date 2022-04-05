@@ -57,4 +57,25 @@ describe("parseMessage", () => {
   it("errors on choiceArg", () => {
     expect(() => parseMessage("{foo,choice,0#zero|1#one}")).toThrow(/choice is not supported/);
   });
+
+  it("parses pluralArg", () => {
+    expect(parseMessage("{foo,plural,one{an apple}other{apples}}")).toEqual(
+      {
+        type: "Plural",
+        name: "foo",
+        offset: undefined,
+        branches: [
+          {
+            selector: "one",
+            message: "an apple",
+          },
+          {
+            selector: "other",
+            message: "apples",
+          },
+        ],
+      }
+    );
+    // TODO: add more tests
+  });
 });
