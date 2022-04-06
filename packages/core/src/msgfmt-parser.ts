@@ -111,45 +111,33 @@ class Parser {
     this.pos++; // Eat the open brace
     this.skipWhitespace();
     const name = this.parseArgNameOrNumber();
-    if (this.pos >= this.src.length) {
-      throw new Error("Unclosed argument")
-    } else if (this.src[this.pos] === "}") {
-      this.pos++;
-      return { type: "Var", name };
-    } else if (this.src[this.pos] === ",") {
-      this.pos++;
-      this.skipWhitespace();
-      const argType = this.parseWord();
-      switch (argType) {
-        case "choice":
-          throw new Error("choice is not supported");
-          break;
-        case "plural":
-          return this.parsePluralArgument(name);
-        case "select":
-        case "selectordinal":
-          throw new Error("Unimplemented: selectArg");
-          break;
-        case "":
-          throw new Error("Missing argType");
-        default:
-          if (!ARG_TYPES.includes(argType)) {
-            throw new Error(`Invalid argType: ${argType}`);
-          }
-          if (this.pos >= this.src.length) {
-            throw new Error("Unclosed argument")
-          } else if (this.src[this.pos] === "}") {
-            this.pos++;
-            return { type: "Var", name, argType: argType as ArgType };
-          } else if (this.src[this.pos] === ",") {
-            throw new Error("Unimplemented: argStyle");
-          } else {
-            throw new Error("Invalid character after argument type");
-          }
+    switch (this.nextToken(["}", ","] as const, ["}"])[0]) {
+      case "}":
+        return { type: "Var", name };
+      case ",": {
+        const argType = this.nextToken(["identifier"] as const)[1];
+        switch (argType) {
+          case "choice":
+            throw new Error("choice is not supported");
+            break;
+          case "plural":
+            return this.parsePluralArgument(name);
+          case "select":
+          case "selectordinal":
+            throw new Error("Unimplemented: selectArg");
+            break;
+          default:
+            if (!ARG_TYPES.includes(argType)) {
+              throw new Error(`Invalid argType: ${argType}`);
+            }
+            switch (this.nextToken(["}", ","] as const, ["}"])[0]) {
+              case "}":
+                return { type: "Var", name, argType: argType as ArgType };
+              case ",":
+                throw new Error("Unimplemented: argStyle");
+            }
+        }
       }
-      throw new Error("Unimplemented: simpleArg and complexArg");
-    } else {
-      throw new Error("Invalid character after argument name");
     }
   }
 
@@ -159,49 +147,22 @@ class Parser {
   // explicitValue = '=' number  // adjacent, no white space in between
   // keyword = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   private parsePluralArgument(name: string | number): PluralArg {
-    if (this.pos >= this.src.length) {
-      throw new Error("Unclosed argument")
-    } else if (this.src[this.pos] !== ",") {
-      throw new Error("Invalid character after plural");
-    }
-    this.pos++;
-    this.skipWhitespace();
-
+    this.nextToken([","]);
+    let token = this.nextToken(["offset:", "identifier", "=number", "}"] as const, ["}"]);
     let offset: number | undefined = undefined;
-    if (this.src.startsWith("offset:", this.pos)) {
-      this.pos += "offset:".length;
-      this.skipWhitespace();
-      const num = this.parseArgNameOrNumber();
-      if (typeof num !== "number") throw new Error("Offset must be a number");
-      offset = num;
+    if (token[0] === "offset:") {
+      offset = parseNumber(this.nextToken(["number"] as const)[1]);
+      token = this.nextToken(["identifier", "=number", "}"] as const, ["}"]);
     }
     const branches: PluralBranch[] = [];
-    while (this.pos < this.src.length && this.src[this.pos] !== "}") {
-      let selector: number | string;
-      if (this.src[this.pos] === "=") {
-        this.pos++;
-        if (this.pos < this.src.length && /\s/.test(this.src[this.pos]!)) throw new Error("= must not precede a whitespace");
-        const num = this.parseArgNameOrNumber();
-        if (typeof num !== "number") throw new Error("=selector must be a number");
-        selector = num;
-      } else {
-        const keyword = this.parseArgNameOrNumber();
-        if (typeof keyword === "number") throw new Error("selector keyword must not be a number");
-        if (keyword === "") throw new Error("Invalid selector");
-        selector = keyword;
-      }
-      if (this.pos >= this.src.length) throw new Error("Unclosed argument");
-      if (this.src[this.pos] !== "{") throw new Error("Plural branch must start with {");
-      this.pos++;
+    while (token[0] !== "}") {
+      const selector = token[0] === "=number" ? parseNumber(token[1].substring(1)) : token[1];
+      this.nextToken(["{"], ["{"]);
       const message = this.parseMessage();
-      if (this.pos >= this.src.length) throw new Error("Unclosed argument");
-      if (this.src[this.pos] !== "}") throw new Error("Bug: invalid syntax character");
-      this.pos++;
-      this.skipWhitespace();
+      this.nextToken(["}"]);
       branches.push({ selector, message });
+      token = this.nextToken(["identifier", "=number", "}"] as const, ["}"]);
     }
-    if (this.pos >= this.src.length) throw new Error("Unclosed argument");
-    this.pos++;
     if (branches.length === 0) throw new Error("No branch found");
     if (branches[branches.length - 1]!.selector !== "other") throw new Error("Last selector should be other");
     return { type: "Plural", name, offset, branches };
@@ -211,42 +172,54 @@ class Parser {
   // argName = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   // argNumber = '0' | ('1'..'9' ('0'..'9')*)
   private parseArgNameOrNumber(): number | string {
-    const start = this.pos;
-    // It should be /[\p{Pattern_Syntax}\p{Pattern_White_Space}]/u
-    // but for compatibility reasons I'm not yet sure we can use it now.
-    while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
-      this.pos++;
-    }
-    const token = this.src.substring(start, this.pos);
-    if (token === "") {
-      throw new Error("Unexpected token after {");
-    } else if (/^[0-9]/.test(token)) {
-      if (!/^[0-9]+$/.test(token)) {
-        throw new Error("Invalid character in a number");
-      } else if (token.startsWith("0") && token !== "0") {
-        throw new Error("Numbers cannot start with 0");
-      } else {
-        this.skipWhitespace();
-        return parseInt(token);
-      }
-    }
-    this.skipWhitespace();
+    const [kind, token] = this.nextToken(["number", "identifier"] as const);
+    if (kind === "number") return parseNumber(token);
     return token;
   }
 
-  private parseWord(): string {
+  private nextToken<E extends readonly string[]>(expected: E, spaceSensitive?: string[]): [E[number], string] {
+    const [kind, token] = this.nextTokenImpl();
+    if (!expected.includes(kind)) throw new Error(`Unexpected token ${kind} (expected ${expected.join(", ")})`);
+    if (!spaceSensitive || !spaceSensitive.includes(kind)) this.skipWhitespace();
+    return [kind, token];
+  }
+
+  private nextTokenImpl(): [string, string] {
+    if (this.pos >= this.src.length) return ["EOF", ""];
+    const ch = this.src[this.pos]!;
     const start = this.pos;
-    while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
+    let kind: string;
+    if (this.src.startsWith("offset:", this.pos)) {
+      kind = "offset:";
+      this.pos += "offset:".length;
+    // It should be /[\p{Pattern_Syntax}\p{Pattern_White_Space}]/u
+    // but for compatibility reasons I'm not yet sure we can use it now.
+    } else if (/[0-9A-Z_a-z]/.test(ch)) {
+      kind = /[0-9]/.test(ch) ? "number" : "identifier";
+      while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
+        this.pos++;
+      }
+    } else if (ch === "=" && this.pos + 1 < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos + 1]!)) {
+      kind = "=number";
+      this.pos++;
+      while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
+        this.pos++;
+      }
+    } else {
+      kind = ch;
       this.pos++;
     }
-    const token = this.src.substring(start, this.pos);
-    this.skipWhitespace();
-    return token;
+    return [kind, this.src.substring(start, this.pos)];
   }
 
   private skipWhitespace() {
     while (this.pos < this.src.length && /\s/.test(this.src[this.pos]!)) this.pos++;
   }
+}
+
+function parseNumber(token: string): number {
+  if (!/^(?:0|[1-9][0-9]*)$/.test(token)) throw new Error(`Invalid number: ${token}`);
+  return parseInt(token);
 }
 
 function reduceMessage(msg: CompiledMessage[]): CompiledMessage {
