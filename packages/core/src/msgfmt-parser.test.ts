@@ -76,6 +76,129 @@ describe("parseMessage", () => {
         ],
       }
     );
-    // TODO: add more tests
+    expect(parseMessage(" { foo , plural , one { an apple } other { apples } } ")).toEqual(
+      [
+        " ",
+        {
+          type: "Plural",
+          name: "foo",
+          offset: undefined,
+          branches: [
+            {
+              selector: "one",
+              message: " an apple ",
+            },
+            {
+              selector: "other",
+              message: " apples ",
+            },
+          ],
+        },
+        " ",
+      ]
+    );
+    expect(parseMessage("{foo,plural,=1{bar}=2{barbar}other{barbarbar}}")).toEqual(
+      {
+        type: "Plural",
+        name: "foo",
+        offset: undefined,
+        branches: [
+          {
+            selector: 1,
+            message: "bar",
+          },
+          {
+            selector: 2,
+            message: "barbar",
+          },
+          {
+            selector: "other",
+            message: "barbarbar",
+          },
+        ],
+      }
+    );
+    expect(parseMessage(" { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } ")).toEqual(
+      [
+        " ",
+        {
+          type: "Plural",
+          name: "foo",
+          offset: undefined,
+          branches: [
+            {
+              selector: 1,
+              message: " bar ",
+            },
+            {
+              selector: 2,
+              message: " barbar ",
+            },
+            {
+              selector: "other",
+              message: " barbarbar ",
+            },
+          ],
+        },
+        " ",
+      ]
+    );
+    expect(parseMessage("{foo,plural,offset:1 one{an apple}other{apples}}")).toEqual(
+      {
+        type: "Plural",
+        name: "foo",
+        offset: 1,
+        branches: [
+          {
+            selector: "one",
+            message: "an apple",
+          },
+          {
+            selector: "other",
+            message: "apples",
+          },
+        ],
+      }
+    );
+    expect(parseMessage(" { foo , plural , offset:1 one { an apple } other { apples } } ")).toEqual(
+      [
+        " ",
+        {
+          type: "Plural",
+          name: "foo",
+          offset: 1,
+          branches: [
+            {
+              selector: "one",
+              message: " an apple ",
+            },
+            {
+              selector: "other",
+              message: " apples ",
+            },
+          ],
+        },
+        " ",
+      ]
+    );
+  });
+
+  it("errors on invalid pluralArg", () => {
+    expect(() => parseMessage("{foo,plural")).toThrow(/Unclosed argument/);
+    expect(() => parseMessage("{foo,plural%")).toThrow(/Invalid character after plural/);
+    expect(() => parseMessage("{foo,plural}")).toThrow(/Invalid character after plural/);
+    expect(() => parseMessage("{foo,plural,}")).toThrow(/No branch found/);
+    expect(() => parseMessage("{foo,plural,=foo{}other{}}")).toThrow(/=selector must be a number/);
+    expect(() => parseMessage("{foo,plural,= 42{}other{}}")).toThrow(/= must not precede a whitespace/);
+    expect(() => parseMessage("{foo,plural,one other{}}")).toThrow(/Plural branch must start with {/);
+    expect(() => parseMessage("{foo,plural,=42 other{}")).toThrow(/Plural branch must start with {/);
+    expect(() => parseMessage("{foo,plural,one?{}other{}}")).toThrow(/Plural branch must start with {/);
+    expect(() => parseMessage("{foo,plural,42{}other{}}")).toThrow(/selector keyword must not be a number/);
+    expect(() => parseMessage("{foo,plural,one{},other{}}")).toThrow(/Unexpected token after {/);
+    expect(() => parseMessage("{foo,plural,one{}other{")).toThrow(/Unclosed argument/);
+    expect(() => parseMessage("{foo,plural,one{}other{'}}")).toThrow(/Unclosed quoted string/);
+    // expect(() => parseMessage("{foo,plural,one{}other{},}")).toThrow(/Unexpected token after }/);
+    expect(() => parseMessage("{foo,plural,one{}other}")).toThrow(/Plural branch must start with {/);
+    expect(() => parseMessage("{foo,plural,one{}}")).toThrow(/Last selector should be other/);
   });
 });
