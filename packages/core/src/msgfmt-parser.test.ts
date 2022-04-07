@@ -187,6 +187,7 @@ describe("parseMessage", () => {
     expect(() => parseMessage("{foo,plural")).toThrow("Unexpected token EOF (expected ,)");
     expect(() => parseMessage("{foo,plural%")).toThrow("Unexpected token % (expected ,)");
     expect(() => parseMessage("{foo,plural}")).toThrow("Unexpected token } (expected ,)");
+    expect(() => parseMessage("{foo,plural,$}")).toThrow("Unexpected token $ (expected offset:, identifier, =number, })");
     expect(() => parseMessage("{foo,plural,}")).toThrow("No branch found");
     expect(() => parseMessage("{foo,plural,=foo{}other{}}")).toThrow("Invalid number: foo");
     expect(() => parseMessage("{foo,plural,= 42{}other{}}")).toThrow("Unexpected token = (expected offset:, identifier, =number, })");

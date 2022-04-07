@@ -85,6 +85,35 @@ describe("InferredMessageType", () => {
     it("errors on choiceArg", () => {
       expectType<InferredMessageType<"{foo,choice,0#zero|1#one}">>().to(beTypeEqual<ParseError<"choice is not supported">>());
     });
+
+    it("parses pluralArg", () => {
+      expectType<InferredMessageType<"{foo,plural,one{an apple}other{apples}}">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<" { foo , plural , one { an apple } other { apples } } ">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<"{foo,plural,=1{bar}=2{barbar}other{barbarbar}}">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<" { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } ">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<"{foo,plural,offset:1 one{an apple}other{apples}}">>().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<InferredMessageType<" { foo , plural , offset:1 one { an apple } other { apples } } ">>().to(beTypeEqual<Message<{ foo: number }>>());
+    });
+
+    it("errors on invalid pluralArg", () => {
+      expectType<InferredMessageType<"{foo,plural">>().to(beTypeEqual<ParseError<"Unexpected token EOF (expected ,)">>());
+      expectType<InferredMessageType<"{foo,plural%">>().to(beTypeEqual<ParseError<"Unexpected token % (expected ,)">>());
+      expectType<InferredMessageType<"{foo,plural}">>().to(beTypeEqual<ParseError<"Unexpected token } (expected ,)">>());
+      expectType<InferredMessageType<"{foo,plural,$}">>().to(beTypeEqual<ParseError<"Unexpected token $ (expected offset:, identifier, =number, })">>());
+      expectType<InferredMessageType<"{foo,plural,}">>().to(beTypeEqual<ParseError<"No branch found">>());
+      expectType<InferredMessageType<"{foo,plural,=foo{}other{}}">>().to(beTypeEqual<ParseError<"Invalid number: foo">>());
+      expectType<InferredMessageType<"{foo,plural,= 42{}other{}}">>().to(beTypeEqual<ParseError<"Unexpected token = (expected offset:, identifier, =number, })">>());
+      expectType<InferredMessageType<"{foo,plural,one other{}}">>().to(beTypeEqual<ParseError<"Unexpected token identifier (expected {)">>());
+      expectType<InferredMessageType<"{foo,plural,=42 other{}">>().to(beTypeEqual<ParseError<"Unexpected token identifier (expected {)">>());
+      expectType<InferredMessageType<"{foo,plural,one?{}other{}}">>().to(beTypeEqual<ParseError<"Unexpected token ? (expected {)">>());
+      expectType<InferredMessageType<"{foo,plural,42{}other{}}">>().to(beTypeEqual<ParseError<"Unexpected token number (expected offset:, identifier, =number, })">>());
+      expectType<InferredMessageType<"{foo,plural,one{},other{}}">>().to(beTypeEqual<ParseError<"Unexpected token , (expected identifier, =number, })">>());
+      expectType<InferredMessageType<"{foo,plural,one{}other{">>().to(beTypeEqual<ParseError<"Unexpected token EOF (expected })">>());
+      expectType<InferredMessageType<"{foo,plural,one{}other{'}}">>().to(beTypeEqual<ParseError<"Unclosed quoted string">>());
+      expectType<InferredMessageType<"{foo,plural,one{}other{},}">>().to(beTypeEqual<ParseError<"Unexpected token , (expected identifier, =number, })">>());
+      expectType<InferredMessageType<"{foo,plural,one{}other}">>().to(beTypeEqual<ParseError<"Unexpected token } (expected {)">>());
+      expectType<InferredMessageType<"{foo,plural,one{}}">>().to(beTypeEqual<ParseError<"Last selector should be other">>());
+    });
   });
 });
 

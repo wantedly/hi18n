@@ -1,3 +1,5 @@
+// The parser algorithm is written to vastly match what is implemented in ./msgfmt-parser.ts, but with a few differences.
+
 import type { Message } from "./index";
 
 export type ParseResult<Accum, Rem extends string, Error extends string | undefined> = {
@@ -43,14 +45,13 @@ type ParseQuoted<S extends string, Accum> =
   S extends `${string}${infer ST}` ? ParseQuoted<ST, Accum> :
   ParseResult<never, S, undefined>;
 
-// After '{ '
 type ParseArgument<S extends string, Accum> =
   NextToken<S> extends Token<"identifier" | "number", infer Name, infer ST> ?
     CheckName<Name> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
     NextToken<SkipWhitespace<ST>> extends Token<"}", any, infer STT> ? ParseMessage<STT, Accum & Record<CheckName<Name>, string>> :
     NextToken<SkipWhitespace<ST>> extends Token<",", any, infer STT> ?
       NextToken<SkipWhitespace<STT>> extends Token<"identifier", "choice", any> ? ParseResult<Accum, S, "choice is not supported"> :
-      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "plural", any> ? ParseResult<Accum, S, "Unimplemented: pluralArg"> :
+      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "plural", infer STTT> ? ParsePluralArgument<SkipWhitespace<STTT>, CheckName<Name>, Accum> :
       NextToken<SkipWhitespace<STT>> extends Token<"identifier", "select" | "selectordinal", any> ? ParseResult<Accum, S, "Unimplemented: selectArg"> :
       NextToken<SkipWhitespace<STT>> extends Token<"identifier", ValidArgType, infer STTT> ?
         NextToken<SkipWhitespace<STTT>> extends Token<"}", any, infer STTTT> ? ParseMessage<STTTT, Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<SkipWhitespace<STT>>[1]]>> :
@@ -61,15 +62,50 @@ type ParseArgument<S extends string, Accum> =
     ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected }, ,)`> :
   ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected number, identifier)`>;
 
+type ParsePluralArgument<S extends string, Name extends string | number, Accum> =
+  NextToken<S> extends Token<",", any, infer ST> ?
+    NextToken<SkipWhitespace<ST>> extends Token<"offset:", any, infer STT> ?
+      NextToken<SkipWhitespace<STT>> extends Token<"number", infer Offset, infer STTT> ?
+        CheckNumber<Offset> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
+        ParsePluralArgument2<SkipWhitespace<STTT>, Name, undefined, Accum> :
+      ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<STT>>[0]} (expected number)`> :
+    NextToken<SkipWhitespace<ST>> extends Token<"identifier" | "=number" | "}", any, any> ? ParsePluralArgument2<SkipWhitespace<ST>, Name, undefined, Accum> :
+    ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected offset:, identifier, =number, })`> :
+  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected ,)`>;
+
+type ParsePluralArgument2<S extends string, Name extends string | number, LastSelector extends string | undefined, Accum> =
+  NextToken<S> extends Token<"identifier" | "=number", infer Selector, infer ST> ?
+    CheckNumber<Selector extends `=${infer ExactValue}` ? ExactValue : "0"> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
+    NextToken<SkipWhitespace<ST>> extends Token<"{", any, infer STT> ?
+      ParseMessage<STT, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
+        Error extends string ? ParseResult<Accum, Rem, Error> :
+        NextToken<Rem> extends Token<"}", any, infer RemT> ?
+          ParsePluralArgument2<SkipWhitespace<RemT>, Name, Selector, Accum>
+        :
+        ParseResult<Accum, Rem, `Unexpected token ${NextToken<Rem>[0]} (expected })`> :
+      never :
+    ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected {)`> :
+  NextToken<S> extends Token<"}", any, infer ST> ?
+    LastSelector extends "other" ? ParseMessage<ST, Accum & Record<Name, number>> :
+    LastSelector extends string ? ParseResult<Accum, S, "Last selector should be other"> :
+    ParseResult<Accum, S, "No branch found"> :
+  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected identifier, =number, })`>;
+
 type CheckName<Name extends string> =
   Name extends "0" ? 0 :
   Name extends `0${string}` ? ParseError<`Invalid number: ${Name}`> :
-  Name extends `${Digit}${string}` ? CheckNumber<Name> :
+  Name extends `${Digit}${string}` ? CheckNumberImpl<Name> :
   Name;
 
-type CheckNumber<Name extends string, N extends string = Name> =
+type CheckNumber<Name extends string> =
+  Name extends "0" ? 0 :
+  Name extends `0${string}` ? ParseError<`Invalid number: ${Name}`> :
+  Name extends `${Digit}${string}` ? CheckNumberImpl<Name> :
+  ParseError<`Invalid number: ${Name}`>;
+
+type CheckNumberImpl<Name extends string, N extends string = Name> =
   N extends `${infer NH}${infer NT}` ?
-    NH extends Digit ? CheckNumber<Name, NT> :
+    NH extends Digit ? CheckNumberImpl<Name, NT> :
     ParseError<`Invalid number: ${Name}`> :
   N extends "" ? ParseNumber[Name] :
   never;
