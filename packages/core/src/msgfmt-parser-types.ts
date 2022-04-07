@@ -15,6 +15,8 @@ export type InferredMessageType<S extends string> =
   Message<Accum> :
   unknown;
 
+type ValidArgType = "number" | "date" | "time" | "spellout" | "ordinal" | "duration";
+
 type ParseMessageEOF<S extends string, Accum> =
   ParseMessage<S, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
     Error extends string ? ParseResult<Accum, Rem, Error> :
@@ -25,7 +27,7 @@ type ParseMessageEOF<S extends string, Accum> =
 
 type ParseMessage<S extends string, Accum> =
   S extends `}${string}` | "" ? ParseResult<Accum, S, undefined> :
-  S extends `{${infer ST}` ? ParseArgument<ST, Accum> :
+  S extends `{${infer ST}` ? ParseArgument<SkipWhitespace<ST>, Accum> :
   S extends `'${infer ST}` ?
     ST extends `'${infer STT}` ? ParseMessage<STT, Accum> :
     ST extends `{${string}` | `}${string}` ? ParseQuoted<ST, Accum> :
@@ -43,75 +45,53 @@ type ParseQuoted<S extends string, Accum> =
 
 // After '{ '
 type ParseArgument<S extends string, Accum> =
-  S extends `${infer SH}${infer ST}` ?
-    SH extends Whitespace ? ParseArgument<ST, Accum> :
-    SH extends Alpha | Digit ? ParseArgument2<ST, SH, Accum> :
-    ParseResult<Accum, S, "Unexpected token after {"> :
-  S extends "" ? ParseResult<Accum, S, "Unexpected token after {"> :
-  ParseResult<never, S, undefined>;
-
-// After "{ foo"
-type ParseArgument2<S extends string, Name extends string, Accum> =
-  S extends `${infer SH}${infer ST}` ?
-    SH extends Digit | Alpha ? ParseArgument2<ST, `${Name}${SH}`, Accum> :
-    ParseArgument3<S, Name, Accum> :
-  S extends "" ? ParseResult<Accum, S, "Unclosed argument"> :
-  ParseResult<never, S, undefined>;
-
-// After "{ foo " or "{ foo" (at the word boundary)
-type ParseArgument3<S extends string, Name extends string, Accum> =
-  S extends `${infer SH}${infer ST}` ?
-    SH extends Whitespace ? ParseArgument3<ST, Name, Accum> :
-    SH extends "," ?
-      CheckName<Name> extends infer Result ?
-        Result extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
-        Result extends string | number ?  ParseArgument4<SkipWhitespace<ST>, Name, "", Accum> :
-        never :
-      never :
-    SH extends "}" ?
-      CheckName<Name> extends infer Result ?
-        Result extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
-        Result extends string | number ?  ParseMessage<ST, Accum & Record<Result, string>> :
-        never :
-      never :
-    ParseResult<Accum, S, "Invalid character after argument name"> :
-  S extends "" ? ParseResult<Accum, S, "Unclosed argument"> :
-  ParseResult<never, S, undefined>;
-
-// After "{foo,"
-type ParseArgument4<S extends string, Name extends string, ArgType extends string, Accum> =
-  S extends `${infer SH}${infer ST}` ?
-    SH extends Digit | Alpha ? ParseArgument4<ST, Name, `${ArgType}${SH}`, Accum> :
-    ParseArgument5<SkipWhitespace<S>, Name, ArgType, Accum> :
-  S extends "" ? ParseArgument5<S, Name, ArgType, Accum> :
-  ParseResult<never, S, undefined>;
-
-// After "{foo,number" (word boundary)
-type ParseArgument5<S extends string, Name extends string, ArgType extends string, Accum> =
-  ArgType extends "choice" ? ParseResult<Accum, S, "choice is not supported"> :
-  ArgType extends "plural" ? ParseResult<Accum, S, "Unimplemented: pluralArg"> :
-  ArgType extends "select" | "selectordinal" ? ParseResult<Accum, S, "Unimplemented: selectArg"> :
-  ArgType extends "" ? ParseResult<Accum, S, "Missing argType"> :
-  ArgType extends "number" | "date" | "time" | "spellout" | "ordinal" | "duration" ?
-    S extends `${infer SH}${infer ST}` ?
-      SH extends "}" ? ParseMessage<ST, Accum & Record<Name, ArgTypeMap[ArgType]>>:
-      SH extends "," ? ParseResult<Accum, S, "Unimplemented: argStyle"> :
-      ParseResult<Accum, S, "Invalid character after argument type"> :
-    S extends "" ? ParseResult<Accum, S, "Unclosed argument"> :
-    never :
-  ParseResult<Accum, S, `Invalid argType: ${ArgType}`> ;
+  NextToken<S> extends Token<"identifier" | "number", infer Name, infer ST> ?
+    CheckName<Name> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
+    NextToken<SkipWhitespace<ST>> extends Token<"}", any, infer STT> ? ParseMessage<STT, Accum & Record<CheckName<Name>, string>> :
+    NextToken<SkipWhitespace<ST>> extends Token<",", any, infer STT> ?
+      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "choice", any> ? ParseResult<Accum, S, "choice is not supported"> :
+      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "plural", any> ? ParseResult<Accum, S, "Unimplemented: pluralArg"> :
+      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "select" | "selectordinal", any> ? ParseResult<Accum, S, "Unimplemented: selectArg"> :
+      NextToken<SkipWhitespace<STT>> extends Token<"identifier", ValidArgType, infer STTT> ?
+        NextToken<SkipWhitespace<STTT>> extends Token<"}", any, infer STTTT> ? ParseMessage<STTTT, Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<SkipWhitespace<STT>>[1]]>> :
+        NextToken<SkipWhitespace<STTT>> extends Token<",", any, any> ? ParseResult<Accum, S, "Unimplemented: argStyle"> :
+        ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<STTT>>[0]} (expected }, ,)`> :
+      NextToken<SkipWhitespace<STT>> extends Token<"identifier", any, any> ? ParseResult<Accum, S, `Invalid argType: ${NextToken<SkipWhitespace<STT>>[1]}`> :
+      ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<STT>>[0]} (expected identifier)`>:
+    ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected }, ,)`> :
+  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected number, identifier)`>;
 
 type CheckName<Name extends string> =
   Name extends "0" ? 0 :
-  Name extends `0${string}` ? ParseError<"Numbers cannot start with 0"> :
+  Name extends `0${string}` ? ParseError<`Invalid number: ${Name}`> :
   Name extends `${Digit}${string}` ? CheckNumber<Name> :
   Name;
 
 type CheckNumber<Name extends string, N extends string = Name> =
   N extends `${infer NH}${infer NT}` ?
     NH extends Digit ? CheckNumber<Name, NT> :
-    ParseError<"Invalid character in a number"> :
+    ParseError<`Invalid number: ${Name}`> :
   N extends "" ? ParseNumber[Name] :
+  never;
+
+type Token<Kind extends string, Value extends string, S extends string> =
+  [Kind, Value, S];
+
+type NextToken<S extends string> =
+  S extends `offset:${infer ST}` ? Token<"offset:", "offset:", ST> :
+  S extends `${Alpha}${string}` ? NextWord<S, "", "identifier"> :
+  S extends `${Digit}${string}` ? NextWord<S, "", "number"> :
+  S extends `=${Alpha | Digit}${string}` ?
+    S extends `=${infer ST}` ? NextWord<ST, "=", "=number"> : never :
+  S extends `${infer SH}${infer ST}` ? Token<SH, SH, ST> :
+  S extends "" ? Token<"EOF", "", ""> :
+  never;
+
+type NextWord<S extends string, Name extends string, Kind extends string> =
+  S extends `${infer SH}${infer ST}` ?
+    SH extends Alpha | Digit ? NextWord<ST, `${Name}${SH}`, Kind> :
+    Token<Kind, Name, S> :
+  S extends "" ? Token<Kind, Name, S> :
   never;
 
 type SkipWhitespace<S extends string> =
