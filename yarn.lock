@@ -1414,7 +1414,7 @@ __metadata:
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.0.0
     "@types/react": ^18.0.0
-    "@types/react-dom": ^17.0.14
+    "@types/react-dom": ^18.0.0
     "@types/testing-library__jest-dom": ^5.14.3
     babel-jest: ^27.5.1
     expect: ^27.5.1
@@ -1983,12 +1983,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:*, @types/react-dom@npm:^17.0.14":
-  version: 17.0.14
-  resolution: "@types/react-dom@npm:17.0.14"
+"@types/react-dom@npm:*, @types/react-dom@npm:^18.0.0":
+  version: 18.0.0
+  resolution: "@types/react-dom@npm:18.0.0"
   dependencies:
     "@types/react": "*"
-  checksum: b54cd0ef573236b3d87fe7493e6d1c36d8b4ca37a3b46364272a5c91ac178e3296b68ea1aeb299ce68f12ad663c5720ee890d0539b14881c6754bdcbdb0befa0
+  checksum: 0d8c9cb3e72aefe0dd2b58a49845a200369f01ae92f3f11f642e04efc95dfd1c9380b6592d4273dd6113fb8707947d15b66d56c75c41f39f28bd897f0c08dfa9
   languageName: node
   linkType: hard
 
