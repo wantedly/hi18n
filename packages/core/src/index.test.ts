@@ -1,10 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { Message, MessageCatalog, msg } from "./index";
 
-declare module "expect/build/types" {
-  export interface Matchers<R, T> extends globalThis.jest.Matchers<R, T> {}
-}
-
 type Messages = {
   "example/greeting": Message,
   "example/greeting2": Message<{ name: string }>,
