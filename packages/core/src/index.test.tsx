@@ -67,11 +67,11 @@ describe ("MessageCatalog", () => {
     expect(() => {
       // @ts-expect-error
       t("example/greeting2")
-    }).toThrow("Missing argument for example/greeting2: name");
+    }).toThrow("Missing argument name (locale=en, key=example/greeting2)");
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", {})
-    }).toThrow("Missing argument for example/greeting2: name");
+    }).toThrow("Missing argument name (locale=en, key=example/greeting2)");
   });
 
   it("raises an error for invalid argument types", () => {
@@ -79,7 +79,7 @@ describe ("MessageCatalog", () => {
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", { name: 42 })
-    }).toThrow("Invalid argument for example/greeting2: name: 42");
+    }).toThrow("Invalid argument name: expected string, got 42 (locale=en, key=example/greeting2)");
   });
 });
 

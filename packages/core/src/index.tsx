@@ -41,7 +41,7 @@ export class MessageCatalog<M extends CatalogBase> {
           const msg = messages[key]!;
           compiledMessages[key as string] = parseMessage(msg);
         }
-        return evaluateMessage(compiledMessages[key as string]!, key as string, options);
+        return evaluateMessage(compiledMessages[key as string]!, { key: key as string, locale, params: options });
       }
     };
   }
