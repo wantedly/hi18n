@@ -1,4 +1,3 @@
-import React from 'react';
 import { CompiledMessage } from './msgfmt';
 import { evaluateMessage } from './msgfmt-eval';
 import { parseMessage } from './msgfmt-parser';
@@ -47,19 +46,7 @@ export class MessageCatalog<M extends CatalogBase> {
   }
 }
 
-interface I18n<M extends CatalogBase> {
+export interface I18n<M extends CatalogBase> {
   t(key: SimpleMessageKeys<M>): string;
   t<K extends keyof M>(key: K, options: MessageArguments<M[K]>): string;
 }
-
-export const LocaleContext = /* #__PURE__ */ React.createContext<string>("");
-/* #__PURE__ */ (LocaleContext.displayName = "LocaleContext");
-
-export function useI18n<M extends CatalogBase>(catalog: MessageCatalog<M>): I18n<M> {
-  const locale = React.useContext(LocaleContext);
-  return catalog.getI18n(locale);
-}
-
-export const Translate: React.FC = () => {
-  return <>Hello, world!</>;
-};
