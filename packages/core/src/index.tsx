@@ -1,5 +1,6 @@
 import React from 'react';
-import { CompiledMessage, evaluateMessage } from './msgfmt';
+import { CompiledMessage } from './msgfmt';
+import { evaluateMessage } from './msgfmt-eval';
 import { parseMessage } from './msgfmt-parser';
 import type { InferredMessageType } from "./msgfmt-parser-types";
 
