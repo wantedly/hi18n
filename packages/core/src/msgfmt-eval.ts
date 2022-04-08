@@ -18,12 +18,27 @@ export function evaluateMessage(msg: CompiledMessage, options: EvalOption): stri
       case "string":
         if (typeof value !== "string") throw new MessageError(`Invalid argument ${msg.name}: expected string, got ${value}`, options);
         return value;
-        break;
+      case "number":
+        if (typeof value !== "number" && typeof value !== "bigint") throw new MessageError(`Invalid argument ${msg.name}: expected number, got ${value}`, options);
+        // TODO: allow injecting polyfill
+        return new Intl.NumberFormat(options.locale).format(value);
       default:
         throw new Error(`Unimplemented: argType=${msg.argType}`);
     }
   } else if (msg.type === "Plural") {
-    throw new Error("Unimplemented: plural form interpretation");
+    const value = (options.params ?? {})[msg.name];
+    if (value === undefined) throw new MessageError(`Missing argument ${msg.name}`, options);
+    if (typeof value !== "number" && typeof value !== "bigint") throw new MessageError(`Invalid argument ${msg.name}: expected number, got ${value}`, options);
+    // TODO: allow injecting polyfill
+    const pluralRules = new Intl.PluralRules(options.locale);
+    const rule: string = pluralRules.select(Number(value));
+    for (const branch of msg.branches) {
+      if (branch.selector === value || branch.selector === rule || branch.selector === "other") {
+        // TODO: support #
+        return evaluateMessage(branch.message, options);
+      }
+    }
+    throw new MessageError(`Non-exhaustive plural branches for ${value}`, options);
   }
   throw new Error("Invalid message");
 }

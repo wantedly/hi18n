@@ -10,15 +10,18 @@ declare module "expect/build/types" {
 type Messages = {
   "example/greeting": Message,
   "example/greeting2": Message<{ name: string }>,
+  "example/apples": Message<{ count: number }>,
 };
 
 const catalogJa: Messages = {
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
+  "example/apples": msg("リンゴは{count,number}個あります。"),
 };
 const catalogEn: Messages = {
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
+  "example/apples": msg("{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"),
 };
 const catalog = new MessageCatalog({
   ja: catalogJa,
@@ -59,6 +62,19 @@ describe ("MessageCatalog", () => {
     {
       const { t } = catalog.getI18n("en");
       expect(t("example/greeting2", { name: "Taro"})).toBe("Hello, Taro!");
+    }
+  });
+
+  it("does plural interpolation", () => {
+    {
+      const { t } = catalog.getI18n("ja");
+      expect(t("example/apples", { count: 1 })).toBe("リンゴは1個あります。");
+      expect(t("example/apples", { count: 12345 })).toBe("リンゴは12,345個あります。");
+    }
+    {
+      const { t } = catalog.getI18n("en");
+      expect(t("example/apples", { count: 1 })).toBe("There is 1 apple.");
+      expect(t("example/apples", { count: 12345 })).toBe("There are 12,345 apples.");
     }
   });
 
