@@ -1,6 +1,6 @@
 import { describe, it } from "@jest/globals";
 import type { Message } from "./index";
-import type { InferredMessageType, ParseError } from "./msgfmt-parser-types";
+import type { ComponentPlaceholder, InferredMessageType, ParseError } from "./msgfmt-parser-types";
 
 describe("InferredMessageType", () => {
   it("infers no arguments", () => {
@@ -52,6 +52,7 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"foo, '{bar}', '{}#|', '{a''b}', ''''">>().to(beTypeEqual<Message>());
       // They are always quotable although conditional
       expectType<InferredMessageType<"'# {}' '| {}'">>().to(beTypeEqual<Message>());
+      expectType<InferredMessageType<"'< {}'">>().to(beTypeEqual<Message>());
     });
 
     it("errors on unclosed quoted strings", () => {
@@ -120,6 +121,30 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{foo,plural,one{}other{},}">>().to(beTypeEqual<ParseError<"Unexpected token , (expected identifier, =, })">>());
       expectType<InferredMessageType<"{foo,plural,one{}other}">>().to(beTypeEqual<ParseError<"Unexpected token } (expected {)">>());
       expectType<InferredMessageType<"{foo,plural,one{}}">>().to(beTypeEqual<ParseError<"Last selector should be other">>());
+    });
+
+    it("parses elementArg", () => {
+      expectType<InferredMessageType<"Click <0>here</0>!">>().to(beTypeEqual<Message<{ 0: ComponentPlaceholder }>>());
+      expectType<InferredMessageType<"Click <0 > here </0 > !">>().to(beTypeEqual<Message<{ 0: ComponentPlaceholder }>>());
+      expectType<InferredMessageType<"<foo><3></3></foo>">>().to(beTypeEqual<Message<{ 3: ComponentPlaceholder, foo: ComponentPlaceholder }>>());
+      expectType<InferredMessageType<"<foo/> and <bar />">>().to(beTypeEqual<Message<{ foo: ComponentPlaceholder, bar: ComponentPlaceholder }>>());
+    });
+
+    it("errors on invalid elementArg", () => {
+      expectType<InferredMessageType<"<$foo></foo>">>().to(beTypeEqual<ParseError<"Unexpected token $ (expected number, identifier)">>());
+      expectType<InferredMessageType<"<foo$></foo>">>().to(beTypeEqual<ParseError<"Unexpected token $ (expected /, >)">>());
+      expectType<InferredMessageType<"<foo></$foo>">>().to(beTypeEqual<ParseError<"Unexpected token $ (expected number, identifier)">>());
+      expectType<InferredMessageType<"<foo></foo$>">>().to(beTypeEqual<ParseError<"Unexpected token $ (expected >)">>());
+      expectType<InferredMessageType<"<foo/$>">>().to(beTypeEqual<ParseError<"Unexpected token $ (expected >)">>());
+      expectType<InferredMessageType<"<foo>">>().to(beTypeEqual<ParseError<"Unexpected token EOF (expected <)">>());
+      expectType<InferredMessageType<"</foo>">>().to(beTypeEqual<ParseError<"Found an unmatching <">>());
+      expectType<InferredMessageType<"< foo></foo>">>().to(beTypeEqual<ParseError<"No space allowed here">>());
+      expectType<InferredMessageType<"<foo></ foo>">>().to(beTypeEqual<ParseError<"No space allowed here">>());
+      expectType<InferredMessageType<"<foo>< /foo>">>().to(beTypeEqual<ParseError<"Unexpected token / (expected number, identifier)">>());
+      expectType<InferredMessageType<"<foo/ >">>().to(beTypeEqual<ParseError<"No space allowed here">>());
+      expectType<InferredMessageType<"<foo></bar>">>().to(beTypeEqual<ParseError<"Tag foo closed with a different name: bar">>());
+      expectType<InferredMessageType<"<0123/>">>().to(beTypeEqual<ParseError<"Invalid number: 0123">>());
+      expectType<InferredMessageType<"<123foo/>">>().to(beTypeEqual<ParseError<"Invalid number: 123foo">>());
     });
   });
 });

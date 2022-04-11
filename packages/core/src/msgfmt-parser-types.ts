@@ -2,6 +2,9 @@
 
 import type { Message } from "./index";
 
+declare const componentPlaceholderSymbol: unique symbol;
+export type ComponentPlaceholder = typeof componentPlaceholderSymbol;
+
 export type ParseResult<Accum, Rem extends string, Error extends string | undefined> = {
   AccumRev: (x: Accum) => void,
   Rem: Rem,
@@ -22,18 +25,19 @@ type ValidArgType = "number" | "date" | "time" | "spellout" | "ordinal" | "durat
 type ParseMessageEOF<S extends string, Accum> =
   ParseMessage<S, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
     Error extends string ? ParseResult<Accum, Rem, Error> :
-    Rem extends `${string}${infer _Rem}` ? ParseResult<Accum, Rem, "Found an unmatching }"> :
+    Rem extends `${infer RemH}${infer _Rem}` ? ParseResult<Accum, Rem, `Found an unmatching ${RemH}`> :
     Rem extends "" ? ParseResult<Accum, Rem, Error> :
     ParseResult<never, Rem, Error> :
   never;
 
 type ParseMessage<S extends string, Accum> =
-  S extends `}${string}` | "" ? ParseResult<Accum, S, undefined> :
-  S extends `{${infer ST}` ? ParseArgument<SkipWhitespace<ST>, Accum> :
+  S extends `}${string}` | `</${string}` | "" ? ParseResult<Accum, S, undefined> :
+  S extends `{${infer ST}` ? ParseArgument<ST, Accum> :
   S extends `''${infer STT}` ? ParseMessage<STT, Accum> :
   S extends `'${infer ST}` ?
-    ST extends `${"{" | "}" | "#" | "|"}${string}` ? ParseQuoted<ST, Accum> :
+    ST extends `${"{" | "}" | "#" | "|" | "<"}${string}` ? ParseQuoted<ST, Accum> :
     ParseMessage<ST, Accum> :
+  S extends `<${infer ST}` ? ParseElement<ST, Accum> :
   S extends `${string}${infer ST}` ? ParseMessage<ST, Accum> :
   ParseResult<never, S, undefined>;
 
@@ -99,6 +103,35 @@ type ParsePluralArgument3<S extends string, Name extends string | number, Select
     never :
   ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected {)`>;
 
+type ParseElement<S extends string, Accum> =
+  NextToken<S> extends Token<"identifier" | "number", infer Name, infer ST> ?
+    S extends HasWhitespace ? ParseResult<Accum, S, "No space allowed here"> :
+    CheckName<Name> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
+    NextToken<ST> extends Token<"/", any, infer STT> ?
+      NextToken<STT> extends Token<">", any, infer STTT> ?
+        STT extends HasWhitespace ? ParseResult<Accum, S, "No space allowed here"> :
+        ParseMessage<STTT, Accum & Record<CheckName<Name>, ComponentPlaceholder>> :
+      ParseResult<Accum, S, `Unexpected token ${NextToken<STT>[0]} (expected >)`> :
+    NextToken<ST> extends Token<">", any, infer STT> ?
+      ParseMessage<STT, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
+        Error extends string ? ParseResult<Accum, Rem, Error> :
+        NextToken<Rem> extends Token<"<", any, infer RemT> ?
+          NextToken<RemT> extends Token<"/", any, infer RemTT> ?
+            RemT extends HasWhitespace ? ParseResult<Accum, S, "No space allowed here"> :
+            NextToken<RemTT> extends Token<"identifier" | "number", infer ClosingName, infer RemTTT> ?
+              RemTT extends HasWhitespace ? ParseResult<Accum, S, "No space allowed here"> :
+              NextToken<RemTTT> extends Token<">", any, infer RemTTTT> ?
+                NameEqual<Name, ClosingName> extends true ?
+                  ParseMessage<RemTTTT, Accum & Record<CheckName<Name>, ComponentPlaceholder>> :
+                ParseResult<Accum, Rem, `Tag ${Name} closed with a different name: ${ClosingName}`> :
+              ParseResult<Accum, Rem, `Unexpected token ${NextToken<RemTTT>[0]} (expected >)`> :
+            ParseResult<Accum, Rem, `Unexpected token ${NextToken<RemTT>[0]} (expected number, identifier)`> :
+          ParseResult<Accum, Rem, `Unexpected token ${NextToken<RemT>[0]} (expected /)`> :
+        ParseResult<Accum, Rem, `Unexpected token ${NextToken<Rem>[0]} (expected <)`> :
+      never :
+    ParseResult<Accum, S, `Unexpected token ${NextToken<ST>[0]} (expected /, >)`> :
+  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected number, identifier)`>;
+
 type CheckName<Name extends string> =
   Name extends "0" ? 0 :
   Name extends `0${string}` ? ParseError<`Invalid number: ${Name}`> :
@@ -140,6 +173,9 @@ type HasWhitespace = `${Whitespace}${string}`;
 
 type SkipWhitespace<S extends string> =
   S extends `${Whitespace}${infer ST}` ? SkipWhitespace<ST> : S;
+
+type NameEqual<N1 extends string, N2 extends string> =
+  N1 extends N2 ?  N2 extends N1 ? true : false : false;
 
 type ArgTypeMap = {
   number: number;

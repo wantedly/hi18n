@@ -19,6 +19,7 @@ describe("parseMessage", () => {
     expect(parseMessage("foo, '{bar}', '{}#|', '{a''b}', ''''")).toBe("foo, {bar}, {}#|, {a'b}, ''");
     // They are always quotable although conditional
     expect(parseMessage("'# {}' '| {}'")).toBe("# {} | {}");
+    expect(parseMessage("'< {}'")).toBe("< {}");
   });
 
   it("errors on unclosed quoted strings", () => {
@@ -203,5 +204,57 @@ describe("parseMessage", () => {
     expect(() => parseMessage("{foo,plural,one{}other{},}")).toThrow("Unexpected token , (expected identifier, =, })");
     expect(() => parseMessage("{foo,plural,one{}other}")).toThrow("Unexpected token } (expected {)");
     expect(() => parseMessage("{foo,plural,one{}}")).toThrow(/Last selector should be other/);
+  });
+
+  it("parses elementArg", () => {
+    expect(parseMessage("Click <0>here</0>!")).toEqual(
+      ["Click ", { type: "Element", name: 0, message: "here" }, "!"]
+    );
+    expect(parseMessage("Click <0 > here </0 > !")).toEqual(
+      ["Click ", { type: "Element", name: 0, message: " here " }, " !"]
+    );
+    expect(parseMessage("<foo><3></3></foo>")).toEqual(
+      {
+        type: "Element",
+        name: "foo",
+        message: {
+          type: "Element",
+          name: 3,
+          message: "",
+        },
+      }
+    );
+    expect(parseMessage("<foo/> and <bar />")).toEqual(
+      [
+        {
+          type: "Element",
+          name: "foo",
+          message: undefined,
+        },
+        " and ",
+        {
+          type: "Element",
+          name: "bar",
+          message: undefined,
+        },
+      ]
+    )
+  });
+
+  it("errors on invalid elementArg", () => {
+    expect(() => parseMessage("<$foo></foo>")).toThrow("Unexpected token $ (expected number, identifier)");
+    expect(() => parseMessage("<foo$></foo>")).toThrow("Unexpected token $ (expected /, >)");
+    expect(() => parseMessage("<foo></$foo>")).toThrow("Unexpected token $ (expected number, identifier)");
+    expect(() => parseMessage("<foo></foo$>")).toThrow("Unexpected token $ (expected >)");
+    expect(() => parseMessage("<foo/$>")).toThrow("Unexpected token $ (expected >)");
+    expect(() => parseMessage("<foo>")).toThrow("Unexpected token EOF (expected <)");
+    expect(() => parseMessage("</foo>")).toThrow("Found an unmatching <");
+    expect(() => parseMessage("< foo></foo>")).toThrow("No space allowed here");
+    expect(() => parseMessage("<foo></ foo>")).toThrow("No space allowed here");
+    expect(() => parseMessage("<foo>< /foo>")).toThrow("Unexpected token / (expected number, identifier)");
+    expect(() => parseMessage("<foo/ >")).toThrow("No space allowed here");
+    expect(() => parseMessage("<foo></bar>")).toThrow("Tag foo closed with a different name: bar");
+    expect(() => parseMessage("<0123/>")).toThrow("Invalid number: 0123");
+    expect(() => parseMessage("<123foo/>")).toThrow("Invalid number: 123foo");
   });
 });

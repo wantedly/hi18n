@@ -1,6 +1,6 @@
-import { ArgType, CompiledMessage, PluralArg, PluralBranch } from "./msgfmt";
+import { ArgType, CompiledMessage, ElementArg, PluralArg, PluralBranch } from "./msgfmt";
 
-const SIMPLE_MESSAGE = /^[^'{}]*$/;
+const SIMPLE_MESSAGE = /^[^'{}<]*$/;
 
 export function parseMessage(msg: string): CompiledMessage {
   if (SIMPLE_MESSAGE.test(msg)) return msg;
@@ -14,14 +14,14 @@ const ARG_TYPES = ["number", "date", "time", "spellout", "ordinal", "duration"];
 // https://unicode-org.github.io/icu/userguide/format_parse/messages/
 class Parser {
   private pos = 0;
-  private reText = /[^'{}#]*/y;
+  private reText = /[^'{}#<]*/y;
   private reQuotedText = /[^']*/y;
   constructor(public readonly src: string) {}
 
   public parseMessageEOF(): CompiledMessage {
     const msg = this.parseMessage();
     if (this.pos < this.src.length) {
-      throw new Error("Found an unmatching }");
+      throw new Error(`Found an unmatching ${this.src[this.pos]}`);
     }
     return msg;
   }
@@ -31,6 +31,7 @@ class Parser {
   private parseMessage(): CompiledMessage {
     const buf: CompiledMessage[] = [];
     pushString(buf, this.parseMessageText(true));
+  outer:
     while (this.pos < this.src.length && this.src[this.pos] !== "}") {
       switch (this.src[this.pos]) {
         case "{":
@@ -38,6 +39,15 @@ class Parser {
           break;
         case "#":
           throw new Error(`Unimplemented: syntax: #`);
+        case "<":
+          if (this.pos + 1 < this.src.length && this.src[this.pos + 1] === "/") {
+            // </tag>
+            break outer;
+          } else {
+            // <tag> or <tag/>
+            buf.push(this.parseElement());
+          }
+          break;
         default:
           throw new Error(`Bug: invalid syntax character: ${this.src[this.pos]}`);
       }
@@ -64,7 +74,7 @@ class Parser {
           // End of quoted text
           inQuote = false;
           this.pos++;
-        } else if (this.pos + 1 < this.src.length && /[{}#|]/.test(this.src[this.pos + 1]!)) {
+        } else if (this.pos + 1 < this.src.length && /[{}#|<]/.test(this.src[this.pos + 1]!)) {
           // Beginning of quoted text
           inQuote = true;
           this.pos++;
@@ -78,7 +88,7 @@ class Parser {
         buf += "#";
         this.pos++;
       } else {
-        // Syntax character ({, }, #, |)
+        // Syntax character ({, }, #, <)
         break;
       }
       buf += this.parseRawMessageText(inQuote);
@@ -88,8 +98,8 @@ class Parser {
     }
     return buf;
   }
-  // Eats up the text until it encounters a syntax character ('{', '}', '#'), a quote ("'"), or EOF.
-  // In quoted mode, the four syntax characters ('{', '}', '#') are considered part of the text.
+  // Eats up the text until it encounters a syntax character ('{', '}', '#', '<'), a quote ("'"), or EOF.
+  // In quoted mode, the four syntax characters ('{', '}', '#', '<') are considered part of the text.
   private parseRawMessageText(inQuote: boolean): string {
     const re = inQuote ? this.reQuotedText : this.reText;
     re.lastIndex = this.pos;
@@ -166,11 +176,40 @@ class Parser {
     return { type: "Plural", name, offset, branches };
   }
 
+  // <tag>message</tag> or <tag/>
+  private parseElement(): ElementArg {
+    this.pos++; // Eat <
+    const name = this.parseArgNameOrNumber(true);
+    if (this.nextToken(["/", ">"] as const)[0] === "/") {
+      // <tag/>
+      this.nextToken([">"], [">"]);
+      return {
+        type: "Element",
+        name,
+        message: undefined,
+      };
+    }
+    // <tag>message</tag>
+    const message = this.parseMessage();
+    this.nextToken(["<"]);
+    this.nextToken(["/"], ["/"]);
+    const closingName = this.parseArgNameOrNumber(true);
+    this.nextToken([">"]);
+    if (name !== closingName) {
+      throw new Error(`Tag ${name} closed with a different name: ${closingName}`);
+    }
+    return {
+      type: "Element",
+      name,
+      message,
+    };
+  }
+
   // argNameOrNumber = argName | argNumber
   // argName = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   // argNumber = '0' | ('1'..'9' ('0'..'9')*)
-  private parseArgNameOrNumber(): number | string {
-    const [kind, token] = this.nextToken(["number", "identifier"] as const);
+  private parseArgNameOrNumber(noSpace = false): number | string {
+    const [kind, token] = this.nextToken(["number", "identifier"] as const, noSpace ? ["number", "identifier"]: undefined);
     if (kind === "number") return parseNumber(token);
     return token;
   }
