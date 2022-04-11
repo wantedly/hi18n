@@ -7,6 +7,11 @@ describe("InferredMessageType", () => {
     expectType<InferredMessageType<"foo">>().to(beTypeEqual<Message>());
   });
 
+  // Just in case. This is not a recommended usage because it disrupts usage detection.
+  it("distributes union", () => {
+    expectType<InferredMessageType<"{foo}" | "{bar}">>().to(beTypeEqual<Message<{ foo: string, bar: string }>>());
+  });
+
   // TypeScript >= 4.6
   it("infers long messages", () => {
     expectType<InferredMessageType<"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz">>().to(beTypeEqual<Message>());

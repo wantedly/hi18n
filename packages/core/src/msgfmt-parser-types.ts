@@ -3,7 +3,7 @@
 import type { Message } from "./index";
 
 export type ParseResult<Accum, Rem extends string, Error extends string | undefined> = {
-  Accum: Accum,
+  AccumRev: (x: Accum) => void,
   Rem: Rem,
   Error: Error,
 };
