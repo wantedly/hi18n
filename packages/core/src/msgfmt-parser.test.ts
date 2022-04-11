@@ -17,6 +17,8 @@ describe("parseMessage", () => {
   it("parses quoted texts", () => {
     expect(parseMessage("'{foo}'")).toBe("{foo}");
     expect(parseMessage("foo, '{bar}', '{}#|', '{a''b}', ''''")).toBe("foo, {bar}, {}#|, {a'b}, ''");
+    // They are always quotable although conditional
+    expect(parseMessage("'# {}' '| {}'")).toBe("# {} | {}");
   });
 
   it("errors on unclosed quoted strings", () => {

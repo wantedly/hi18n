@@ -45,6 +45,8 @@ describe("InferredMessageType", () => {
     it("parses quoted texts", () => {
       expectType<InferredMessageType<"'{foo}'">>().to(beTypeEqual<Message>());
       expectType<InferredMessageType<"foo, '{bar}', '{}#|', '{a''b}', ''''">>().to(beTypeEqual<Message>());
+      // They are always quotable although conditional
+      expectType<InferredMessageType<"'# {}' '| {}'">>().to(beTypeEqual<Message>());
     });
 
     it("errors on unclosed quoted strings", () => {

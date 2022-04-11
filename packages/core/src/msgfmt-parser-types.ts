@@ -30,9 +30,9 @@ type ParseMessageEOF<S extends string, Accum> =
 type ParseMessage<S extends string, Accum> =
   S extends `}${string}` | "" ? ParseResult<Accum, S, undefined> :
   S extends `{${infer ST}` ? ParseArgument<SkipWhitespace<ST>, Accum> :
+  S extends `''${infer STT}` ? ParseMessage<STT, Accum> :
   S extends `'${infer ST}` ?
-    ST extends `'${infer STT}` ? ParseMessage<STT, Accum> :
-    ST extends `{${string}` | `}${string}` ? ParseQuoted<ST, Accum> :
+    ST extends `${"{" | "}" | "#" | "|"}${string}` ? ParseQuoted<ST, Accum> :
     ParseMessage<ST, Accum> :
   S extends `${string}${infer ST}` ? ParseMessage<ST, Accum> :
   ParseResult<never, S, undefined>;

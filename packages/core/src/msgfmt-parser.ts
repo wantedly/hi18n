@@ -64,13 +64,7 @@ class Parser {
           // End of quoted text
           inQuote = false;
           this.pos++;
-        } else if (
-          this.pos + 1 < this.src.length && (
-            this.src[this.pos + 1] === "{" ||
-            this.src[this.pos + 1] === "}" ||
-            (this.src[this.pos + 1] === "#" && allowHash)
-          )
-        ) {
+        } else if (this.pos + 1 < this.src.length && /[{}#|]/.test(this.src[this.pos + 1]!)) {
           // Beginning of quoted text
           inQuote = true;
           this.pos++;
