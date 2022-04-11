@@ -141,20 +141,25 @@ class Parser {
   // keyword = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   private parsePluralArgument(name: string | number): PluralArg {
     this.nextToken([","]);
-    let token = this.nextToken(["offset:", "identifier", "=number", "}"] as const);
+    let token = this.nextToken(["offset:", "identifier", "=", "}"] as const);
     let offset: number | undefined = undefined;
     if (token[0] === "offset:") {
       offset = parseNumber(this.nextToken(["number"] as const)[1]);
-      token = this.nextToken(["identifier", "=number", "}"] as const);
+      token = this.nextToken(["identifier", "=", "}"] as const);
     }
     const branches: PluralBranch[] = [];
     while (token[0] !== "}") {
-      const selector = token[0] === "=number" ? parseNumber(token[1].substring(1)) : token[1];
+      let selector: string | number;
+      if (token[0] === "=") {
+        selector = parseNumber(this.nextToken(["number"], ["number"])[1]);
+      } else {
+        selector = token[1];
+      }
       this.nextToken(["{"]);
       const message = this.parseMessage();
       this.nextToken(["}"]);
       branches.push({ selector, message });
-      token = this.nextToken(["identifier", "=number", "}"] as const);
+      token = this.nextToken(["identifier", "=", "}"] as const);
     }
     if (branches.length === 0) throw new Error("No branch found");
     if (branches[branches.length - 1]!.selector !== "other") throw new Error("Last selector should be other");
@@ -170,15 +175,16 @@ class Parser {
     return token;
   }
 
-  private nextToken<E extends readonly string[]>(expected: E): [E[number], string] {
-    const [kind, token] = this.nextTokenImpl();
+  private nextToken<E extends readonly string[]>(expected: E, noWhitespace?: string[]): [E[number], string] {
+    const [kind, token, foundWhitespace] = this.nextTokenImpl();
     if (!expected.includes(kind)) throw new Error(`Unexpected token ${kind} (expected ${expected.join(", ")})`);
+    if (noWhitespace && foundWhitespace && noWhitespace.includes(kind)) throw new Error("No space allowed here");
     return [kind, token];
   }
 
-  private nextTokenImpl(): [string, string] {
-    this.skipWhitespace();
-    if (this.pos >= this.src.length) return ["EOF", ""];
+  private nextTokenImpl(): [string, string, boolean] {
+    const foundWhitespace = this.skipWhitespace();
+    if (this.pos >= this.src.length) return ["EOF", "", foundWhitespace];
     const ch = this.src[this.pos]!;
     const start = this.pos;
     let kind: string;
@@ -192,21 +198,17 @@ class Parser {
       while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
         this.pos++;
       }
-    } else if (ch === "=" && this.pos + 1 < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos + 1]!)) {
-      kind = "=number";
-      this.pos++;
-      while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
-        this.pos++;
-      }
     } else {
       kind = ch;
       this.pos++;
     }
-    return [kind, this.src.substring(start, this.pos)];
+    return [kind, this.src.substring(start, this.pos), foundWhitespace];
   }
 
-  private skipWhitespace() {
+  private skipWhitespace(): boolean {
+    const oldPos = this.pos;
     while (this.pos < this.src.length && /\s/.test(this.src[this.pos]!)) this.pos++;
+    return this.pos > oldPos;
   }
 }
 
