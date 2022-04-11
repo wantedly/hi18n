@@ -48,48 +48,56 @@ type ParseQuoted<S extends string, Accum> =
 type ParseArgument<S extends string, Accum> =
   NextToken<S> extends Token<"identifier" | "number", infer Name, infer ST> ?
     CheckName<Name> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
-    NextToken<SkipWhitespace<ST>> extends Token<"}", any, infer STT> ? ParseMessage<STT, Accum & Record<CheckName<Name>, string>> :
-    NextToken<SkipWhitespace<ST>> extends Token<",", any, infer STT> ?
-      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "choice", any> ? ParseResult<Accum, S, "choice is not supported"> :
-      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "plural", infer STTT> ? ParsePluralArgument<SkipWhitespace<STTT>, CheckName<Name>, Accum> :
-      NextToken<SkipWhitespace<STT>> extends Token<"identifier", "select" | "selectordinal", any> ? ParseResult<Accum, S, "Unimplemented: selectArg"> :
-      NextToken<SkipWhitespace<STT>> extends Token<"identifier", ValidArgType, infer STTT> ?
-        NextToken<SkipWhitespace<STTT>> extends Token<"}", any, infer STTTT> ? ParseMessage<STTTT, Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<SkipWhitespace<STT>>[1]]>> :
-        NextToken<SkipWhitespace<STTT>> extends Token<",", any, any> ? ParseResult<Accum, S, "Unimplemented: argStyle"> :
-        ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<STTT>>[0]} (expected }, ,)`> :
-      NextToken<SkipWhitespace<STT>> extends Token<"identifier", any, any> ? ParseResult<Accum, S, `Invalid argType: ${NextToken<SkipWhitespace<STT>>[1]}`> :
-      ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<STT>>[0]} (expected identifier)`>:
-    ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected }, ,)`> :
+    NextToken<ST> extends Token<"}", any, infer STT> ? ParseMessage<STT, Accum & Record<CheckName<Name>, string>> :
+    NextToken<ST> extends Token<",", any, infer STT> ?
+      NextToken<STT> extends Token<"identifier", "choice", any> ? ParseResult<Accum, S, "choice is not supported"> :
+      NextToken<STT> extends Token<"identifier", "plural", infer STTT> ? ParsePluralArgument<STTT, CheckName<Name>, Accum> :
+      NextToken<STT> extends Token<"identifier", "select" | "selectordinal", any> ? ParseResult<Accum, S, "Unimplemented: selectArg"> :
+      NextToken<STT> extends Token<"identifier", ValidArgType, infer STTT> ?
+        NextToken<STTT> extends Token<"}", any, infer STTTT> ? ParseMessage<STTTT, Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>> :
+        NextToken<STTT> extends Token<",", any, any> ? ParseResult<Accum, S, "Unimplemented: argStyle"> :
+        ParseResult<Accum, S, `Unexpected token ${NextToken<STTT>[0]} (expected }, ,)`> :
+      NextToken<STT> extends Token<"identifier", any, any> ? ParseResult<Accum, S, `Invalid argType: ${NextToken<STT>[1]}`> :
+      ParseResult<Accum, S, `Unexpected token ${NextToken<STT>[0]} (expected identifier)`>:
+    ParseResult<Accum, S, `Unexpected token ${NextToken<ST>[0]} (expected }, ,)`> :
   ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected number, identifier)`>;
 
 type ParsePluralArgument<S extends string, Name extends string | number, Accum> =
   NextToken<S> extends Token<",", any, infer ST> ?
-    NextToken<SkipWhitespace<ST>> extends Token<"offset:", any, infer STT> ?
-      NextToken<SkipWhitespace<STT>> extends Token<"number", infer Offset, infer STTT> ?
+    NextToken<ST> extends Token<"offset:", any, infer STT> ?
+      NextToken<STT> extends Token<"number", infer Offset, infer STTT> ?
         CheckNumber<Offset> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
-        ParsePluralArgument2<SkipWhitespace<STTT>, Name, undefined, Accum> :
-      ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<STT>>[0]} (expected number)`> :
-    NextToken<SkipWhitespace<ST>> extends Token<"identifier" | "=number" | "}", any, any> ? ParsePluralArgument2<SkipWhitespace<ST>, Name, undefined, Accum> :
-    ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected offset:, identifier, =number, })`> :
+        ParsePluralArgument2<STTT, Name, undefined, Accum> :
+      ParseResult<Accum, S, `Unexpected token ${NextToken<STT>[0]} (expected number)`> :
+    NextToken<ST> extends Token<"identifier" | "=" | "}", any, any> ? ParsePluralArgument2<ST, Name, undefined, Accum> :
+    ParseResult<Accum, S, `Unexpected token ${NextToken<ST>[0]} (expected offset:, identifier, =, })`> :
   ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected ,)`>;
 
 type ParsePluralArgument2<S extends string, Name extends string | number, LastSelector extends string | undefined, Accum> =
-  NextToken<S> extends Token<"identifier" | "=number", infer Selector, infer ST> ?
-    CheckNumber<Selector extends `=${infer ExactValue}` ? ExactValue : "0"> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
-    NextToken<SkipWhitespace<ST>> extends Token<"{", any, infer STT> ?
-      ParseMessage<STT, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
-        Error extends string ? ParseResult<Accum, Rem, Error> :
-        NextToken<Rem> extends Token<"}", any, infer RemT> ?
-          ParsePluralArgument2<SkipWhitespace<RemT>, Name, Selector, Accum>
-        :
-        ParseResult<Accum, Rem, `Unexpected token ${NextToken<Rem>[0]} (expected })`> :
-      never :
-    ParseResult<Accum, S, `Unexpected token ${NextToken<SkipWhitespace<ST>>[0]} (expected {)`> :
+  NextToken<S> extends Token<"=", any, infer ST> ?
+    NextToken<ST> extends Token<"number", infer Selector, infer STT> ?
+      ST extends HasWhitespace ? ParseResult<Accum, S, "No space allowed here"> :
+      CheckNumber<Selector> extends ParseError<infer Error> ? ParseResult<Accum, S, Error> :
+      ParsePluralArgument3<STT, Name, Selector, Accum> :
+    ParseResult<Accum, S, `Unexpected token ${NextToken<ST>[0]} (expected number)`> :
+  NextToken<S> extends Token<"identifier", infer Selector, infer ST> ?
+    ParsePluralArgument3<ST, Name, Selector, Accum> :
   NextToken<S> extends Token<"}", any, infer ST> ?
     LastSelector extends "other" ? ParseMessage<ST, Accum & Record<Name, number>> :
     LastSelector extends string ? ParseResult<Accum, S, "Last selector should be other"> :
     ParseResult<Accum, S, "No branch found"> :
-  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected identifier, =number, })`>;
+  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected identifier, =, })`>;
+
+type ParsePluralArgument3<S extends string, Name extends string | number, Selector extends string | undefined, Accum> =
+  NextToken<S> extends Token<"{", any, infer STT> ?
+    ParseMessage<STT, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
+      Error extends string ? ParseResult<Accum, Rem, Error> :
+      NextToken<Rem> extends Token<"}", any, infer RemT> ?
+        ParsePluralArgument2<RemT, Name, Selector, Accum>
+      :
+      ParseResult<Accum, Rem, `Unexpected token ${NextToken<Rem>[0]} (expected })`> :
+    never :
+  ParseResult<Accum, S, `Unexpected token ${NextToken<S>[0]} (expected {)`>;
 
 type CheckName<Name extends string> =
   Name extends "0" ? 0 :
@@ -114,13 +122,11 @@ type Token<Kind extends string, Value extends string, S extends string> =
   [Kind, Value, S];
 
 type NextToken<S extends string> =
-  S extends `offset:${infer ST}` ? Token<"offset:", "offset:", ST> :
-  S extends `${Alpha}${string}` ? NextWord<S, "", "identifier"> :
-  S extends `${Digit}${string}` ? NextWord<S, "", "number"> :
-  S extends `=${Alpha | Digit}${string}` ?
-    S extends `=${infer ST}` ? NextWord<ST, "=", "=number"> : never :
-  S extends `${infer SH}${infer ST}` ? Token<SH, SH, ST> :
-  S extends "" ? Token<"EOF", "", ""> :
+  SkipWhitespace<S> extends `offset:${infer ST}` ? Token<"offset:", "offset:", ST> :
+  SkipWhitespace<S> extends `${Alpha}${string}` ? NextWord<SkipWhitespace<S>, "", "identifier"> :
+  SkipWhitespace<S> extends `${Digit}${string}` ? NextWord<SkipWhitespace<S>, "", "number"> :
+  SkipWhitespace<S> extends `${infer SH}${infer ST}` ? Token<SH, SH, ST> :
+  SkipWhitespace<S> extends "" ? Token<"EOF", "", ""> :
   never;
 
 type NextWord<S extends string, Name extends string, Kind extends string> =
@@ -129,6 +135,8 @@ type NextWord<S extends string, Name extends string, Kind extends string> =
     Token<Kind, Name, S> :
   S extends "" ? Token<Kind, Name, S> :
   never;
+
+type HasWhitespace = `${Whitespace}${string}`;
 
 type SkipWhitespace<S extends string> =
   S extends `${Whitespace}${infer ST}` ? SkipWhitespace<ST> : S;
