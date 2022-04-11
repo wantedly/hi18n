@@ -103,9 +103,8 @@ class Parser {
   // complexArg = choiceArg | pluralArg | selectArg | selectordinalArg
   private parseArgument(): CompiledMessage {
     this.pos++; // Eat the open brace
-    this.skipWhitespace();
     const name = this.parseArgNameOrNumber();
-    switch (this.nextToken(["}", ","] as const, ["}"])[0]) {
+    switch (this.nextToken(["}", ","] as const)[0]) {
       case "}":
         return { type: "Var", name };
       case ",": {
@@ -124,7 +123,7 @@ class Parser {
             if (!ARG_TYPES.includes(argType)) {
               throw new Error(`Invalid argType: ${argType}`);
             }
-            switch (this.nextToken(["}", ","] as const, ["}"])[0]) {
+            switch (this.nextToken(["}", ","] as const)[0]) {
               case "}":
                 return { type: "Var", name, argType: argType as ArgType };
               case ",":
@@ -142,20 +141,20 @@ class Parser {
   // keyword = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   private parsePluralArgument(name: string | number): PluralArg {
     this.nextToken([","]);
-    let token = this.nextToken(["offset:", "identifier", "=number", "}"] as const, ["}"]);
+    let token = this.nextToken(["offset:", "identifier", "=number", "}"] as const);
     let offset: number | undefined = undefined;
     if (token[0] === "offset:") {
       offset = parseNumber(this.nextToken(["number"] as const)[1]);
-      token = this.nextToken(["identifier", "=number", "}"] as const, ["}"]);
+      token = this.nextToken(["identifier", "=number", "}"] as const);
     }
     const branches: PluralBranch[] = [];
     while (token[0] !== "}") {
       const selector = token[0] === "=number" ? parseNumber(token[1].substring(1)) : token[1];
-      this.nextToken(["{"], ["{"]);
+      this.nextToken(["{"]);
       const message = this.parseMessage();
       this.nextToken(["}"]);
       branches.push({ selector, message });
-      token = this.nextToken(["identifier", "=number", "}"] as const, ["}"]);
+      token = this.nextToken(["identifier", "=number", "}"] as const);
     }
     if (branches.length === 0) throw new Error("No branch found");
     if (branches[branches.length - 1]!.selector !== "other") throw new Error("Last selector should be other");
@@ -171,14 +170,14 @@ class Parser {
     return token;
   }
 
-  private nextToken<E extends readonly string[]>(expected: E, spaceSensitive?: string[]): [E[number], string] {
+  private nextToken<E extends readonly string[]>(expected: E): [E[number], string] {
     const [kind, token] = this.nextTokenImpl();
     if (!expected.includes(kind)) throw new Error(`Unexpected token ${kind} (expected ${expected.join(", ")})`);
-    if (!spaceSensitive || !spaceSensitive.includes(kind)) this.skipWhitespace();
     return [kind, token];
   }
 
   private nextTokenImpl(): [string, string] {
+    this.skipWhitespace();
     if (this.pos >= this.src.length) return ["EOF", ""];
     const ch = this.src[this.pos]!;
     const start = this.pos;
