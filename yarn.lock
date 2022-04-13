@@ -3608,9 +3608,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hi18n@workspace:packages/hi18n":
+"hi18n@workspace:packages/cli":
   version: 0.0.0-use.local
-  resolution: "hi18n@workspace:packages/hi18n"
+  resolution: "hi18n@workspace:packages/cli"
   dependencies:
     "@babel/code-frame": ^7.16.0
     "@babel/core": ^7.16.5
