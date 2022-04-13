@@ -102,4 +102,181 @@ describe("evaluageMessage", () => {
     expect(evaluateMessage(msg2, { locale: "ru", params: { count: 12343 } })).toBe("Там 12\xA0343 яблока.");
     expect(evaluateMessage(msg2, { locale: "ru", params: { count: 12345 } })).toBe("Там 12\xA0345 яблок.");
   });
+
+  it("evaluates component interpolation", () => {
+    type DOMLike = string | DOMLike[] | ElementLike;
+    type ElementLike = {
+      tag: "a";
+      href?: string;
+      children?: DOMLike | undefined;
+    } | {
+      tag: "strong";
+      children?: DOMLike | undefined;
+    };
+    function collect(children: DOMLike): DOMLike {
+      return children;
+    }
+    function wrap(component: unknown, message: DOMLike | undefined): DOMLike {
+      return {
+        ...(component as ElementLike),
+        children: message,
+      };
+    }
+    const msg1: CompiledMessage = [
+      "Click ",
+      {
+        type: "Element",
+        name: 0,
+        message: "here",
+      },
+      "!"
+    ];
+    expect(
+      evaluateMessage<DOMLike>(msg1, {
+        locale: "en",
+        params: {
+          0: { tag: "a", href: "https://example.com" }
+        },
+        collect,
+        wrap,
+      })
+    ).toEqual([
+      "Click ",
+      {
+        tag: "a",
+        href: "https://example.com",
+        children: "here"
+      },
+      "!"
+    ]);
+
+    const msg2: CompiledMessage = [
+      "You have ",
+      {
+        type: "Plural",
+        name: "newMessages",
+        branches: [
+          {
+            selector: "one",
+            message: [
+              {
+                type: "Var",
+                name: "newMessages",
+                argType: "number",
+              },
+              " new message"
+            ],
+          },
+          {
+            selector: "other",
+            message: [
+              {
+                type: "Var",
+                name: "newMessages",
+                argType: "number",
+              },
+              " new messages"
+            ],
+          },
+        ],
+      },
+      ". ",
+      {
+        type: "Element",
+        name: 0,
+        message: [
+          "See all the ",
+          {
+            type: "Plural",
+            name: "messages",
+            branches: [
+              {
+                selector: "one",
+                message: [
+                  {
+                    type: "Var",
+                    name: "messages",
+                    argType: "number",
+                  },
+                  " message"
+                ],
+              },
+              {
+                selector: "other",
+                message: [
+                  {
+                    type: "Var",
+                    name: "messages",
+                    argType: "number",
+                  },
+                  " messages"
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      ".",
+    ];
+    expect(
+      evaluateMessage<DOMLike>(msg2, {
+        locale: "en",
+        params: {
+          0: { tag: "a", href: "https://example.com" },
+          newMessages: 1,
+          messages: 1,
+        },
+        collect,
+        wrap,
+      })
+    ).toEqual([
+      "You have 1 new message. ",
+      {
+        tag: "a",
+        href: "https://example.com",
+        children: "See all the 1 message",
+      },
+      "."
+    ]);
+    expect(
+      evaluateMessage<DOMLike>(msg2, {
+        locale: "en",
+        params: {
+          0: { tag: "a", href: "https://example.com" },
+          newMessages: 1,
+          messages: 2,
+        },
+        collect,
+        wrap,
+      })
+    ).toEqual([
+      "You have 1 new message. ",
+      {
+        tag: "a",
+        href: "https://example.com",
+        children: "See all the 2 messages",
+      },
+      "."
+    ]);
+    expect(
+      evaluateMessage<DOMLike>(msg2, {
+        locale: "en",
+        params: {
+          0: { tag: "a", href: "https://example.com" },
+          newMessages: 2,
+          messages: 2,
+        },
+        collect,
+        wrap,
+      })
+    ).toEqual([
+      "You have 2 new messages. ",
+      {
+        tag: "a",
+        href: "https://example.com",
+        children: "See all the 2 messages",
+      },
+      "."
+    ]);
+  });
 });

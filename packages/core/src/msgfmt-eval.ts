@@ -1,16 +1,24 @@
 import { CompiledMessage } from "./msgfmt";
 
-export type EvalOption = {
+export type EvalOption<T> = {
   key?: string;
   locale: string;
   params?: Record<string, unknown>;
+  collect?: ((submessages: (T | string)[]) => T | string) | undefined;
+  wrap?: ((component: unknown, message: T | string | undefined) => T | string) | undefined;
 };
 
-export function evaluateMessage(msg: CompiledMessage, options: EvalOption): string {
+export function evaluateMessage<T = string>(msg: CompiledMessage, options: EvalOption<T>): T | string {
   if (typeof msg === "string") {
     return msg;
   } else if (Array.isArray(msg)) {
-    return msg.map((part) => evaluateMessage(part, options)).join("");
+    const reduced = reduceSubmessages(msg.map((part) => evaluateMessage(part, options)));
+    if (typeof reduced === "string") {
+      return reduced;
+    }
+    const { collect } = options;
+    if (!collect) throw new MessageError("Invalid message: not a default-collectable message", options);
+    return collect(reduced);
   } else if (msg.type === "Var") {
     const value = (options.params ?? {})[msg.name];
     if (value === undefined) throw new MessageError(`Missing argument ${msg.name}`, options);
@@ -39,12 +47,34 @@ export function evaluateMessage(msg: CompiledMessage, options: EvalOption): stri
       }
     }
     throw new MessageError(`Non-exhaustive plural branches for ${value}`, options);
+  } else if (msg.type === "Element") {
+    const { wrap } = options;
+    if (!wrap) throw new MessageError("Invalid message: unexpected elementArg", options);
+    const value = (options.params ?? {})[msg.name];
+    if (value === undefined) throw new MessageError(`Missing argument ${msg.name}`, options);
+    return wrap(value, msg.message !== undefined ? evaluateMessage(msg.message, options) : undefined);
   }
   throw new Error("Invalid message");
 }
 
+function reduceSubmessages<T>(submessages: (T | string)[]): string | (T | string)[] {
+  if (submessages.every((x): x is string => typeof x === "string")) {
+    return submessages.join("");
+  }
+  const reduced: (T | string)[] = [];
+  for (const x of submessages) {
+    if (x === "") continue;
+    if (typeof x === "string" && typeof reduced[reduced.length - 1] === "string") {
+      reduced[reduced.length - 1] += x;
+    } else {
+      reduced.push(x);
+    }
+  }
+  return reduced;
+}
+
 export class MessageError extends Error {
-  constructor(message: string, options: EvalOption) {
+  constructor(message: string, options: EvalOption<any>) {
     const info: string[] = [];
     info.push(`locale=${options.locale}`);
     if (options.key != null) info.push(`key=${options.key}`);
