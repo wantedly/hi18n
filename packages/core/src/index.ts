@@ -28,29 +28,6 @@ export class MessageCatalog<Messages extends CatalogBase> {
       localCatalog.locale = locale;
     }
   }
-
-  getI18n(locale: string): I18n<Messages> {
-    const localCatalog = this.localCatalogs[locale];
-    if (!localCatalog) throw new Error(`Missing locale: ${locale}`);
-
-    return {
-      t: <K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never> = {} as any) => {
-        return evaluateMessage(localCatalog.getCompiledMessage(key), { key, locale, params: options });
-      },
-      translateWithComponents: <T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>) => {
-        return evaluateMessage<T>(
-          localCatalog.getCompiledMessage(key),
-          {
-            key,
-            locale,
-            params: options,
-            collect: interpolator.collect,
-            wrap: interpolator.wrap as ComponentInterpolator<T, unknown>["wrap"],
-          }
-        );
-      },
-    };
-  }
 }
 
 export class LocalCatalog<Messages extends CatalogBase> {
@@ -80,3 +57,26 @@ export type ComponentInterpolator<T, C> = {
   collect: (submessages: (T | string)[]) => T | string;
   wrap: (component: C, message: T | string | undefined) => T | string;
 };
+
+export function getI18n<Messages extends CatalogBase>(catalog: MessageCatalog<Messages>, locale: string): I18n<Messages> {
+  const localCatalog = catalog.localCatalogs[locale];
+  if (!localCatalog) throw new Error(`Missing locale: ${locale}`);
+
+  return {
+    t: <K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never> = {} as any) => {
+      return evaluateMessage(localCatalog.getCompiledMessage(key), { key, locale, params: options });
+    },
+    translateWithComponents: <T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>) => {
+      return evaluateMessage<T>(
+        localCatalog.getCompiledMessage(key),
+        {
+          key,
+          locale,
+          params: options,
+          collect: interpolator.collect,
+          wrap: interpolator.wrap as ComponentInterpolator<T, unknown>["wrap"],
+        }
+      );
+    },
+  };
+}

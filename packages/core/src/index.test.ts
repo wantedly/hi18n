@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { LocalCatalog, Message, MessageCatalog, msg } from "./index";
+import { LocalCatalog, Message, MessageCatalog, getI18n, msg } from "./index";
 
 type Messages = {
   "example/greeting": Message,
@@ -25,23 +25,23 @@ const catalog = new MessageCatalog<Messages>({
 describe ("MessageCatalog", () => {
   it("generates translation", () => {
     {
-      const { t } = catalog.getI18n("ja");
+      const { t } = getI18n(catalog, "ja");
       expect(t("example/greeting")).toBe("こんにちは!")
     }
     {
-      const { t } = catalog.getI18n("en");
+      const { t } = getI18n(catalog, "en");
       expect(t("example/greeting")).toBe("Hello!")
     }
   });
 
   it("raises an error for missing translation", () => {
     expect(() => {
-      catalog.getI18n("zh")
+      getI18n(catalog, "zh")
     }).toThrow("Missing locale: zh");
   });
 
   it("raises an error for missing key", () => {
-    const { t } = catalog.getI18n("en")
+    const { t } = getI18n(catalog, "en")
     expect(() => {
       // @ts-expect-error
       t("example/non-existent-key")
@@ -50,30 +50,30 @@ describe ("MessageCatalog", () => {
 
   it("does a simple interpolation", () => {
     {
-      const { t } = catalog.getI18n("ja");
+      const { t } = getI18n(catalog, "ja");
       expect(t("example/greeting2", { name: "太郎"})).toBe("こんにちは、太郎さん!");
     }
     {
-      const { t } = catalog.getI18n("en");
+      const { t } = getI18n(catalog, "en");
       expect(t("example/greeting2", { name: "Taro"})).toBe("Hello, Taro!");
     }
   });
 
   it("does plural interpolation", () => {
     {
-      const { t } = catalog.getI18n("ja");
+      const { t } = getI18n(catalog, "ja");
       expect(t("example/apples", { count: 1 })).toBe("リンゴは1個あります。");
       expect(t("example/apples", { count: 12345 })).toBe("リンゴは12,345個あります。");
     }
     {
-      const { t } = catalog.getI18n("en");
+      const { t } = getI18n(catalog, "en");
       expect(t("example/apples", { count: 1 })).toBe("There is 1 apple.");
       expect(t("example/apples", { count: 12345 })).toBe("There are 12,345 apples.");
     }
   });
 
   it("raises an error for missing arguments", () => {
-    const { t } = catalog.getI18n("en")
+    const { t } = getI18n(catalog, "en")
     expect(() => {
       // @ts-expect-error
       t("example/greeting2")
@@ -85,7 +85,7 @@ describe ("MessageCatalog", () => {
   });
 
   it("raises an error for invalid argument types", () => {
-    const { t } = catalog.getI18n("en")
+    const { t } = getI18n(catalog, "en")
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", { name: 42 })
