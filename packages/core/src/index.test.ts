@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { Message, MessageCatalog, msg } from "./index";
+import { LocalCatalog, Message, MessageCatalog, msg } from "./index";
 
 type Messages = {
   "example/greeting": Message,
@@ -7,17 +7,17 @@ type Messages = {
   "example/apples": Message<{ count: number }>,
 };
 
-const catalogJa: Messages = {
+const catalogJa = new LocalCatalog<Messages>({
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
-};
-const catalogEn: Messages = {
+});
+const catalogEn = new LocalCatalog<Messages>({
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg("{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"),
-};
-const catalog = new MessageCatalog({
+});
+const catalog = new MessageCatalog<Messages>({
   ja: catalogJa,
   en: catalogEn,
 });

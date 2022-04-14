@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from "@jest/globals";
-import { Message, MessageCatalog, msg } from '@hi18n/core';
+import { LocalCatalog, Message, MessageCatalog, msg } from '@hi18n/core';
 import { LocaleContext, Translate, useI18n } from "./index";
 import { ComponentPlaceholder } from '@hi18n/core';
 
@@ -18,23 +18,23 @@ type Messages = {
   "example/message-link": Message<{ newMessages: number, messages: number, 0: ComponentPlaceholder }>,
 };
 
-const catalogJa: Messages = {
+const catalogJa = new LocalCatalog<Messages>({
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
   "example/link": msg("<0>こちら</0>をクリック!"),
   "example/link2": msg("<link>こちら</link>をクリック!"),
   "example/message-link": msg("{newMessages,number}件のメッセージがあります。 <0>{messages,number}件の全てのメッセージを見る</0>"),
-};
-const catalogEn: Messages = {
+});
+const catalogEn = new LocalCatalog<Messages>({
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg("{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"),
   "example/link": msg("Click <0>here</0>!"),
   "example/link2": msg("Click <link>here</link>!"),
   "example/message-link": msg("You have {newMessages,plural,one{{newMessages,number} new message}other{{newMessages,number} new messages}}. <0>See all the {messages,plural,one{{messages,number} message}other{{messages,number} messages}}</0>."),
-};
-const catalog = new MessageCatalog({
+});
+const catalog = new MessageCatalog<Messages>({
   ja: catalogJa,
   en: catalogEn,
 });

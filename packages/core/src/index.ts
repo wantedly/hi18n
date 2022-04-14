@@ -15,7 +15,7 @@ export type InstantiateComponentTypes<Args, C> = {
   [K in keyof Args]: InstantiateComponentType<Args[K], C>;
 };
 export type InstantiateComponentType<T, C> = T extends ComponentPlaceholder ? C : T;
-export type SimpleMessageKeys<Messages extends CatalogBase, K extends keyof Messages = keyof Messages> =
+export type SimpleMessageKeys<Messages extends CatalogBase, K extends string & keyof Messages = string & keyof Messages> =
   K extends unknown ? {} extends MessageArguments<Messages[K], never> ? K : never : never;
 
 export function msg<S extends string>(s: S): InferredMessageType<S> {
@@ -23,41 +23,25 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
 }
 
 export class MessageCatalog<Messages extends CatalogBase> {
-  private _catalog: Record<string, Messages>;
-  private _compiledMessages: Record<string, Record<string, CompiledMessage>>;
-  constructor(catalog: Record<string, Messages>) {
-    this._catalog = catalog;
-    this._compiledMessages = {};
-    for (const locale of Object.keys(catalog)) {
-      this._compiledMessages[locale] = {};
+  constructor(public readonly localCatalogs: Readonly<Record<string, LocalCatalog<Messages>>>) {
+    for (const [locale, localCatalog] of Object.entries(localCatalogs)) {
+      localCatalog.locale = locale;
     }
   }
 
   getI18n(locale: string): I18n<Messages> {
-    const messages = this._catalog[locale];
-    if (!messages) throw new Error(`Missing locale: ${locale}`);
-    const compiledMessages = this._compiledMessages[locale]!;
-
-    const getCompiledMessage = (key: string) => {
-      if (!Object.prototype.hasOwnProperty.call(compiledMessages, key)) {
-        if (!Object.prototype.hasOwnProperty.call(messages, key)) {
-          throw new Error(`Missing translation in ${locale} for ${key}`);
-        }
-        const msg = messages[key]!;
-        compiledMessages[key] = parseMessage(msg);
-      }
-      return compiledMessages[key]!;
-    };
+    const localCatalog = this.localCatalogs[locale];
+    if (!localCatalog) throw new Error(`Missing locale: ${locale}`);
 
     return {
-      t: <K extends keyof Messages>(key: K, options: MessageArguments<Messages[K], never> = {} as any) => {
-        return evaluateMessage(getCompiledMessage(key as string), { key: key as string, locale, params: options });
+      t: <K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never> = {} as any) => {
+        return evaluateMessage(localCatalog.getCompiledMessage(key), { key, locale, params: options });
       },
-      translateWithComponents: <T, C, K extends keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>) => {
+      translateWithComponents: <T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>) => {
         return evaluateMessage<T>(
-          getCompiledMessage(key as string),
+          localCatalog.getCompiledMessage(key),
           {
-            key: key as string,
+            key,
             locale,
             params: options,
             collect: interpolator.collect,
@@ -69,10 +53,27 @@ export class MessageCatalog<Messages extends CatalogBase> {
   }
 }
 
+export class LocalCatalog<Messages extends CatalogBase> {
+  public locale?: string | undefined;
+  private _compiled: Record<string, CompiledMessage> = {};
+  constructor(public readonly data: Readonly<Messages>) {}
+
+  getCompiledMessage(key: string & keyof Messages): CompiledMessage {
+    if (!Object.prototype.hasOwnProperty.call(this._compiled, key)) {
+      if (!Object.prototype.hasOwnProperty.call(this.data, key)) {
+        throw new Error(`Missing translation in ${this.locale} for ${key}`);
+      }
+      const msg = this.data[key]!;
+      this._compiled[key] = parseMessage(msg);
+    }
+    return this._compiled[key]!;
+  }
+}
+
 export interface I18n<Messages extends CatalogBase> {
   t(key: SimpleMessageKeys<Messages>): string;
-  t<K extends keyof Messages>(key: K, options: MessageArguments<Messages[K], never>): string;
-  translateWithComponents<T, C, K extends keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>): T | string;
+  t<K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never>): string;
+  translateWithComponents<T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>): T | string;
 }
 
 export type ComponentInterpolator<T, C> = {

@@ -19,7 +19,7 @@ type PartialForComponents<T> = Partial<T> & Omit<T, ComponentKeys<T>>;
 type ComponentKeys<T, K extends keyof T = keyof T> =
   K extends unknown ? T[K] extends React.ReactElement ? K : never : never;
 
-export function Translate<M extends CatalogBase, K extends keyof M>(props: TranslateProps<M, K>): React.ReactElement | null {
+export function Translate<M extends CatalogBase, K extends string & keyof M>(props: TranslateProps<M, K>): React.ReactElement | null {
   const { catalog, id, children, ...params } = props;
   extractComponents(children, params, { length: 0 });
   fillComponentKeys(params);
