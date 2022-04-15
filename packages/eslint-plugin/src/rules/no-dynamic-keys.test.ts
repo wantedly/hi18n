@@ -72,5 +72,16 @@ new RuleTester({
       `,
       errors: ["Don't use dynamic translation keys"],
     },
+    {
+      code: `
+        import { useI18n } from "@hi18n/react";
+        import { catalog } from "../locale/catalog";
+
+        const { t } = useI18n(catalog);
+        const id = "example.greeting";
+        t(id);
+      `,
+      errors: ["Don't use dynamic translation keys"],
+    },
   ],
 })
