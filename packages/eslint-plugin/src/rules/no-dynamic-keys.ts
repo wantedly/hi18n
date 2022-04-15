@@ -37,6 +37,17 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       path: ["0"],
     },
   ]);
+  tracker.watchMember("import(\"@hi18n/react\")", "Translate");
+  tracker.watchJSXElement("import(\"@hi18n/react\").Translate", [
+    {
+      captureAs: "catalog",
+      path: ["catalog"],
+    },
+    {
+      captureAs: "id",
+      path: ["id"],
+    },
+  ], "i18n.t()");
   tracker.listen("i18n.t()", (_node, captured) => {
     const idNode = captured["id"]!;
     if (idNode.type !== "Literal" || typeof idNode.value !== "string") {

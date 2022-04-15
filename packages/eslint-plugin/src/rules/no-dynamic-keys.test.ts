@@ -5,6 +5,7 @@ new RuleTester({
   parserOptions: {
     ecmaVersion: 2015,
     sourceType: "module",
+    ecmaFeatures: { jsx: true },
   },
 }).run("no-dynamic-keys", rule, {
   valid: [
@@ -80,6 +81,16 @@ new RuleTester({
         const { t } = useI18n(catalog);
         const id = "example.greeting";
         t(id);
+      `,
+      errors: ["Don't use dynamic translation keys"],
+    },
+    {
+      code: `
+        import { Translate } from "@hi18n/react";
+        import { catalog } from "../locale/catalog";
+
+        const id = "example.greeting";
+        <Translate id={id} catalog={catalog} />;
       `,
       errors: ["Don't use dynamic translation keys"],
     },

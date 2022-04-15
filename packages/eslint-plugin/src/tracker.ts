@@ -1,10 +1,14 @@
-import { Rule } from "eslint";
-import { AssignmentProperty, CallExpression, Expression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportSpecifier, MemberExpression, NewExpression, Node, Pattern, Property, VariableDeclarator } from "estree";
+import { Rule, Scope } from "eslint";
+import { ArrowFunctionExpression, AssignmentProperty, BlockStatement, CallExpression, CatchClause, ClassDeclaration, ClassExpression, Directive, Expression, FunctionDeclaration, FunctionExpression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, MemberExpression, ModuleDeclaration, NewExpression, Node, Pattern, Program, Property, Statement, StaticBlock, VariableDeclaration, VariableDeclarator } from "estree";
+import { JSXElement, JSXFragment, JSXIdentifier, JSXMemberExpression, JSXNamespacedName, Node as NodeWithJSX } from "estree-jsx";
+import * as evk from "eslint-visitor-keys";
 
 export class Tracker {
   watchingImports: Record<string, string[]> = {};
   resources: Record<string, ResourceHooks> = {};
   visited: Set<Node> = new Set<Node>();
+  hasJSX = false;
+  jsxBindings?: Map<Scope.Variable, JSXIdentifier[]>;
   
   watchImport(source: string, watchAs: string = `import("${source}")`) {
     if (Object.prototype.hasOwnProperty.call(this.watchingImports, source)) {
@@ -30,21 +34,26 @@ export class Tracker {
     const resHooks = this.getResourceHooks(resName);
     resHooks.constructs.push({ resName: watchAs, captures });
   }
+  watchJSXElement(resName: string, captures: CaptureSpec[] = [], watchAs: string = `<${resName} />`) {
+    const resHooks = this.getResourceHooks(resName);
+    resHooks.jsxElements.push({ resName: watchAs, captures });
+    this.hasJSX = true;
+  }
   private getResourceHooks(resName: string): ResourceHooks {
     if (Object.prototype.hasOwnProperty.call(this.resources, resName)) {
       return this.resources[resName]!;
     } else {
-      return this.resources[resName] = { members: {}, calls: [], constructs: [], listeners: [] };
+      return this.resources[resName] = { members: {}, calls: [], constructs: [], jsxElements: [], listeners: [] };
     }
   }
 
-  listen(resName: string, listener: (node: Rule.Node, captured: CaptureMap) => void) {
+  listen(resName: string, listener: (node: NodeWithJSX & Rule.NodeParentExtension, captured: CaptureMap) => void) {
     this.getResourceHooks(resName).listeners.push(listener);
   }
-  private fire(res: Resource, node: Node) {
+  private fire(res: Resource, node: NodeWithJSX) {
     for (const resName of res.resNames) {
       for (const listener of this.getResourceHooks(resName).listeners) {
-        listener(node as Rule.Node, res.captured);
+        listener(node as NodeWithJSX & Rule.NodeParentExtension, res.captured);
       }
     }
   }
@@ -74,39 +83,64 @@ export class Tracker {
       if (isPattern(varRef.identifier as Identifier & Rule.NodeParentExtension)) continue;
       this.trackExpression(context, varRef.identifier as Identifier & Rule.NodeParentExtension, res);
     }
+    if (this.hasJSX) {
+      if (!this.jsxBindings) {
+        this.jsxBindings = collectReactJSXVars(context, context.getSourceCode().ast);
+      }
+      const refs = this.jsxBindings.get(varDecl) ?? [];
+      for (const varRef of refs) {
+        this.trackExpression(context, varRef as JSXIdentifier & Rule.NodeParentExtension, res);
+      }
+    }
   }
-  private trackExpression(context: Rule.RuleContext, expr: Expression & Rule.NodeParentExtension, res: Resource) {
+  private trackExpression(context: Rule.RuleContext, expr: (Expression | JSXElement | JSXIdentifier) & Rule.NodeParentExtension, res: Resource) {
     this.fire(res, expr);
     if (!expr.parent) return;
-    switch (expr.parent.type) {
+    const parent = expr.parent as NodeWithJSX & Rule.NodeParentExtension;
+    switch (parent.type) {
       case "VariableDeclarator":
-        if (expr.parent.init === expr) {
-          this.trackPattern(context, expr.parent, expr.parent.id, res);
+        if (parent.init === expr) {
+          this.trackPattern(context, parent, parent.id, res);
         }
         break;
       case "MemberExpression":
-        if (expr.parent.object === expr) {
-          const key = getStaticMemKey(expr.parent);
+        if (parent.object === expr) {
+          const key = getStaticMemKey(parent);
           if (key !== null) {
             const subRes = this.memberResource(res, key);
             if (subRes) {
-              this.trackExpression(context, expr.parent, subRes);
+              this.trackExpression(context, parent, subRes);
             }
           }
         }
         break;
       case "CallExpression":
       case "NewExpression":
-        if (expr.parent.callee === expr) {
+        if (parent.callee === expr) {
           for (const resName of res.resNames) {
             const resHooks = this.getResourceHooks(resName);
-            const callCaptureSpecs = expr.parent.type === "NewExpression" ? resHooks.constructs : resHooks.calls;
+            const callCaptureSpecs = parent.type === "NewExpression" ? resHooks.constructs : resHooks.calls;
             for (const { resName: subResName, captures } of callCaptureSpecs) {
               const newCaptured = {
                 ...res.captured,
-                ...captureArguments(expr.parent, captures),
+                ...captureArguments(parent, captures),
               };
-              this.trackExpression(context, expr.parent, { resNames: [subResName], captured: newCaptured });
+              this.trackExpression(context, parent, { resNames: [subResName], captured: newCaptured });
+            }
+          }
+        }
+        break;
+      case "JSXOpeningElement":
+        if (parent.name === expr) {
+          const elem = parent.parent as NodeWithJSX & Rule.NodeParentExtension as JSXElement & Rule.NodeParentExtension;
+          for (const resName of res.resNames) {
+            const resHooks = this.getResourceHooks(resName);
+            for (const { resName: subResName, captures } of resHooks.jsxElements) {
+              const newCaptured = {
+                ...res.captured,
+                ...captureProps(elem, captures),
+              };
+              this.trackExpression(context, elem, { resNames: [subResName], captured: newCaptured });
             }
           }
         }
@@ -185,7 +219,8 @@ type ResourceHooks = {
   members: Record<string, string[]>;
   calls: CallCaptureSpec[];
   constructs: CallCaptureSpec[];
-  listeners: ((node: Rule.Node, captured: CaptureMap) => void)[];
+  jsxElements: CallCaptureSpec[];
+  listeners: ((node: NodeWithJSX & Rule.NodeParentExtension, captured: CaptureMap) => void)[];
 };
 
 type Resource = {
@@ -194,7 +229,7 @@ type Resource = {
 };
 
 type CaptureMap = Record<string, GeneralizedNode>;
-type GeneralizedNode = Node | ArgumentsOf | CaptureFailure;
+type GeneralizedNode = Node | JSXElement | JSXFragment | ArgumentsOf | PropsOf | CaptureFailure;
 
 type CaptureFailure = {
   type: "CaptureFailure",
@@ -207,11 +242,16 @@ type ArgumentsOf = {
   node: CallExpression | NewExpression,
 };
 
+type PropsOf = {
+  type: "PropsOf",
+  node: JSXElement,
+};
+
 export function capturedRoot(node: GeneralizedNode): Node {
-  if (node.type === "CaptureFailure" || node.type === "ArgumentsOf") {
+  if (node.type === "CaptureFailure" || node.type === "ArgumentsOf" || node.type === "PropsOf") {
     return capturedRoot(node.node);
   } else {
-    return node;
+    return node as Node;
   }
 }
 
@@ -219,6 +259,18 @@ function captureArguments(expr: CallExpression | NewExpression, captures: Captur
   const captured: CaptureMap = {};
   for (const { captureAs, path } of captures) {
     let current: GeneralizedNode = { type: "ArgumentsOf", node: expr };
+    for (const segment of path) {
+      current = iterateCapture(current, segment);
+    }
+    captured[captureAs] = current;
+  }
+  return captured;
+}
+
+function captureProps(elem: JSXElement, captures: CaptureSpec[]): CaptureMap {
+  const captured: CaptureMap = {};
+  for (const { captureAs, path } of captures) {
+    let current: GeneralizedNode = { type: "PropsOf", node: elem };
     for (const segment of path) {
       current = iterateCapture(current, segment);
     }
@@ -256,6 +308,18 @@ function iterateCapture(current: GeneralizedNode, segment: string): GeneralizedN
         return prop.value;
       }
     }
+  } else if (current.type === "PropsOf") {
+    for (const attr of current.node.openingElement.attributes) {
+      if (attr.type !== "JSXAttribute") continue;
+      if (attr.name.type !== "JSXIdentifier") continue;
+      if (attr.name.name === segment) {
+        if (attr.value !== null && attr.value.type === "JSXExpressionContainer") {
+          return attr.value.expression as Expression;
+        } else if (attr.value !== null) {
+          return attr.value;
+        }
+      }
+    }
   }
   return { type: "CaptureFailure", node: current, memberName: segment };
 }
@@ -284,6 +348,152 @@ function isPattern(node: Rule.Node): boolean {
       return node.parent.argument === node;
   }
   return false;
+}
+
+function collectReactJSXVars(context: Rule.RuleContext, root: Node): Map<Scope.Variable, JSXIdentifier[]> {
+  const referenceMap = new Map<Scope.Variable, JSXIdentifier[]>();
+  collect(root, {});
+  return referenceMap;
+
+  function collect(node: NodeWithJSX, bindings: Record<string, Scope.Variable>) {
+    let newBindings: Record<string, Scope.Variable> | undefined = undefined;
+    switch (node.type) {
+      case "Program":
+      case "StaticBlock":
+      case "BlockStatement": {
+        newBindings = { ...bindings };
+        for (const stmtOrLabel of node.body) {
+          const stmt = unLabel(stmtOrLabel);
+          switch (stmt.type) {
+            case "ClassDeclaration":
+            case "FunctionDeclaration":
+            case "ImportDeclaration":
+              addVariablesFrom(newBindings, stmt);
+              break;
+            case "VariableDeclaration":
+              if (stmt.kind !== "var") {
+                addVariablesFrom(newBindings, stmt);
+              }
+              break;
+          }
+        }
+        if (node.type === "Program" || node.type === "StaticBlock" || isFunctionLikeBlock(node)) {
+          addVarScopedVariablesFrom(newBindings, node);
+        }
+        break;
+      }
+      case "ForInStatement":
+      case "ForOfStatement":
+        if (node.left.type === "VariableDeclaration" && node.left.kind !== "var") {
+          newBindings = { ...bindings };
+          addVariablesFrom(newBindings, node.left);
+        }
+        break;
+      case "ForStatement":
+        if (node.init && node.init.type === "VariableDeclaration" && node.init.kind !== "var") {
+          newBindings = { ...bindings };
+          addVariablesFrom(newBindings, node.init);
+        }
+        break;
+      case "ClassExpression":
+      case "FunctionExpression":
+      case "ArrowFunctionExpression":
+      case "CatchClause":
+        newBindings = { ...bindings };
+        addVariablesFrom(newBindings, node);
+        break;
+      case "JSXOpeningElement": {
+        const ident = findInitIdentifier(node.name);
+        if (ident) {
+          if (Object.prototype.hasOwnProperty.call(bindings, ident.name)) {
+            const binding = bindings[ident.name]!;
+            if (!referenceMap.has(binding)) referenceMap.set(binding, []);
+            referenceMap.get(binding)!.push(ident);
+          }
+        }
+        break;
+      }
+    }
+    for (const key of evk.getKeys(node)) {
+      const val = (node as unknown as Record<string, Node | Node[]>)[key]!;
+      if (Array.isArray(val)) {
+        for (const elem of val) {
+          collect(elem, newBindings ?? bindings);
+        }
+      } else if (typeof val === "object" && val !== null && typeof val.type === "string") {
+        collect(val, newBindings ?? bindings);
+      }
+    }
+  }
+
+  function findInitIdentifier(node: JSXIdentifier | JSXNamespacedName | JSXMemberExpression): JSXIdentifier | null {
+    if (node.type === "JSXIdentifier") return node;
+    else if (node.type === "JSXMemberExpression") return findInitIdentifier(node.object);
+    else return null;
+  }
+
+  function addVarScopedVariablesFrom(bindings: Record<string, Scope.Variable>, node: Program | BlockStatement | StaticBlock) {
+    for (const stmtOrLabel of node.body) {
+      const stmt = unLabel(stmtOrLabel);
+      switch (stmt.type) {
+        case "BlockStatement":
+          addVarScopedVariablesFrom(bindings, stmt);
+          break;
+        case "ForInStatement":
+        case "ForOfStatement":
+          if (stmt.left.type === "VariableDeclaration" && stmt.left.kind === "var") {
+            addVariablesFrom(bindings, stmt.left);
+          }
+          break;
+        case "ForStatement":
+          if (stmt.init && stmt.init.type === "VariableDeclaration" && stmt.init.kind === "var") {
+            addVariablesFrom(bindings, stmt.init);
+          }
+          break;
+        case "VariableDeclaration":
+          if (stmt.kind === "var") {
+            addVariablesFrom(bindings, stmt);
+          }
+          break;
+      }
+    }
+  }
+
+  function addVariablesFrom(
+    bindings: Record<string, Scope.Variable>,
+    node:
+      | VariableDeclaration
+      | VariableDeclarator
+      | FunctionDeclaration
+      | FunctionExpression
+      | ArrowFunctionExpression
+      | ClassDeclaration
+      | ClassExpression
+      | CatchClause
+      | ImportDeclaration
+      | ImportSpecifier
+      | ImportDefaultSpecifier
+      | ImportNamespaceSpecifier,
+  ) {
+    for (const v of context.getDeclaredVariables(node)) {
+      bindings[v.name] = v;
+    }
+  }
+
+  function unLabel<T extends Statement | ModuleDeclaration | Directive>(node: T): T | Statement {
+    return node.type === "LabeledStatement" ? unLabel(node.body) : node;
+  }
+
+  function isFunctionLikeBlock(node: BlockStatement) {
+    const parent = (node as BlockStatement & Rule.NodeParentExtension).parent ?? { type: "NoParent" };
+    switch (parent.type) {
+      case "FunctionExpression":
+      case "FunctionDeclaration":
+      case "ArrowFunctionExpression":
+        return parent.body === node;
+    }
+    return false;
+  }
 }
 
 function getImportName(spec: ImportSpecifier | ImportDefaultSpecifier): string {

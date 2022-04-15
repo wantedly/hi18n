@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "eslint-visitor-keys": "^3.3.0",
     "tslib": "^2.3.1"
   },
   "peerDependencies": {
@@ -23,6 +24,7 @@
     "@jest/globals": "^27.5.1",
     "@types/eslint": "^8.4.1",
     "@types/estree": "^0.0.51",
+    "@types/estree-jsx": "^0.0.1",
     "babel-jest": "^27.5.1",
     "eslint": "^8.13.0",
     "jest": "^27.5.1",

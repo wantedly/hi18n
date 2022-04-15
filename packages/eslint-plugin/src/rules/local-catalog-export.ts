@@ -20,7 +20,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   tracker.listen("new import(\"@hi18n/core\").LocalCatalog()", (node) => {
     if (node.parent.type === "ExportDefaultDeclaration" && node.parent.declaration === node) return;
     context.report({
-      node: node,
+      node: node as Rule.Node,
       messageId: "local-catalog-export",
     });
   });
