@@ -8,7 +8,7 @@ export const meta: Rule.RuleMetaData = {
     recommended: true,
   },
   messages: {
-    "dynamic-keys": "Don't use dynamic translation keys",
+    "no-dynamic-keys": "Don't use dynamic translation keys",
   },
 };
 
@@ -34,7 +34,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
     if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
       context.report({
         node: capturedRoot(idNode),
-        messageId: "dynamic-keys",
+        messageId: "no-dynamic-keys",
       });
     }
   });

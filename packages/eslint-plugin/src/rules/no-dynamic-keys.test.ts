@@ -1,12 +1,12 @@
 import { RuleTester } from "eslint";
-import * as rule from "./dynamic-keys";
+import * as rule from "./no-dynamic-keys";
 
 new RuleTester({
   parserOptions: {
     ecmaVersion: 2015,
     sourceType: "module",
   },
-}).run("dynamic-keys", rule, {
+}).run("no-dynamic-keys", rule, {
   valid: [
     `
       import { getI18n } from "@hi18n/core";
