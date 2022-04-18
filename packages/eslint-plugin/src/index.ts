@@ -7,3 +7,6 @@ export const rules: Record<string, Rule.RuleModule> = {
   "no-dynamic-keys": ruleNoDynamicKeys,
   "local-catalog-export": ruleLocalCatalogExport,
 };
+
+export { createCollectTranslationIds } from "./collect-translation-ids";
+export type { TranslationUsage } from "./collect-translation-ids";
