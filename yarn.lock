@@ -1455,7 +1455,7 @@ __metadata:
     "@jest/globals": ^27.5.1
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.1.1
-    "@types/react": ^18.0.4
+    "@types/react": ^18.0.5
     "@types/react-dom": ^18.0.1
     "@types/testing-library__jest-dom": ^5.14.3
     babel-jest: ^27.5.1
@@ -2080,14 +2080,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.0.4":
-  version: 18.0.4
-  resolution: "@types/react@npm:18.0.4"
+"@types/react@npm:*, @types/react@npm:^18.0.5":
+  version: 18.0.5
+  resolution: "@types/react@npm:18.0.5"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: a82ccb4b386a8be9edd0381093ebbccfb0cca94fdb772fd0b0221421efbdf304d76641a218d99b1be62bd2e037e25316a7203e7065e0fd8eca14ab568d4af307
+  checksum: 70d3336d43ef25509fa89ef3278f57fdf1945fc921e69b7890a78ab9a52a55ee38e2f13aa71eb4f6032b7311e7557860ce8836c1acf3028304989571c9736a96
   languageName: node
   linkType: hard
 
