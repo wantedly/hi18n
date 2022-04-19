@@ -5,16 +5,16 @@ import path from "node:path";
 import util from "node:util";
 import eslintParser from "@babel/eslint-parser";
 import resolve from "resolve";
-import { createCollectTranslationIds, TranslationUsage } from "@hi18n/eslint-plugin";
+import { createCollectTranslationIds, createFindCatalogLinks, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
 
 export async function fixTranslations(projectPath: string) {
   const collectLinter = new Linter({ cwd: projectPath });
-  const translationUsages: TranslationUsage[] = [];
-  function collectCallback(u: TranslationUsage) {
-    translationUsages.push(u);
-  }
-  collectLinter.defineRule("collect-translation-ids", createCollectTranslationIds(collectCallback));
   collectLinter.defineParser("@babel/eslint-parser", eslintParser);
+
+  const translationUsages: TranslationUsage[] = [];
+  collectLinter.defineRule("collect-translation-ids", createCollectTranslationIds((u) => translationUsages.push(u)));
+  const catalogLinks: CatalogLink[] = [];
+  collectLinter.defineRule("find-catalog-links", createFindCatalogLinks((l) => catalogLinks.push(l)));
 
   const files = await util.promisify(glob)("src/**/*.ts", {
     cwd: projectPath,
@@ -33,6 +33,7 @@ export async function fixTranslations(projectPath: string) {
       },
       rules: {
         "collect-translation-ids": "error",
+        "find-catalog-links": "error",
       },
     }, { filename: filepath });
     for (const message of messages) {
@@ -49,8 +50,16 @@ export async function fixTranslations(projectPath: string) {
     const relative = path.relative(projectPath, resolved);
     result += `${u.id} in ${relative}\n`;
   }
+  for (const l of catalogLinks) {
+    const { resolved } = await resolveAsPromise(l.localCatalogSource, {
+      basedir: path.dirname(path.resolve(projectPath, l.catalogFilename)),
+      extensions: [".js", ".cjs", ".mjs", ".ts", ".cts", ".mts", ".jsx", ".tsx"],
+    });
+    const relative = path.relative(projectPath, resolved);
+    result += `${l.locale} in ${relative}\n`;
+  }
   // TODO: use the collected keys for autofix
-  if (result !== "example/greeting in src/locale/catalog.ts\n") {
+  if (result !== "example/greeting in src/locale/catalog.ts\nen in src/locale/catalog-en.ts\nja in src/locale/catalog-ja.ts\n") {
     throw new Error(`Unexpected result: ${result}`);
   }
 }

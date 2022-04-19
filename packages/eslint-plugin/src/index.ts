@@ -10,3 +10,5 @@ export const rules: Record<string, Rule.RuleModule> = {
 
 export { createCollectTranslationIds } from "./collect-translation-ids";
 export type { TranslationUsage } from "./collect-translation-ids";
+export { createFindCatalogLinks } from "./find-catalog-links";
+export type { CatalogLink } from "./find-catalog-links";

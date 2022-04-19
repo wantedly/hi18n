@@ -1,5 +1,5 @@
-import type { Rule, Scope } from "eslint";
-import { ImportDeclaration } from "estree";
+import type { Rule } from "eslint";
+import { resolveImportedVariable } from "./util";
 import { Tracker } from "./tracker";
 
 export type TranslationUsage = {
@@ -65,12 +65,9 @@ export function createCollectTranslationIds(cb: CollectTranslationIdsCallback): 
       if (catalogNode.type !== "Identifier") {
         return;
       }
-      const scope = nearestScope(context.getSourceCode().scopeManager, catalogNode as Rule.Node);
-      const catalogVar = findVariable(scope, catalogNode.name);
-      if (!catalogVar) return;
-      const catalogDef = catalogVar.defs.find((def) => def.parent && def.parent.type === "ImportDeclaration");
+      const catalogDef = resolveImportedVariable(context.getSourceCode().scopeManager, catalogNode);
       if (!catalogDef) return;
-      const catalogSource: string = `${(catalogDef.parent as ImportDeclaration).source.value}`;
+      const catalogSource: string = `${catalogDef.parent.source.value}`;
       cb({
         id,
         catalogSource,
@@ -85,26 +82,4 @@ export function createCollectTranslationIds(cb: CollectTranslationIdsCallback): 
   };
 
   return { meta, create };
-}
-
-function findVariable(scope: Scope.Scope, name: string): Scope.Variable | undefined {
-  let currentScope: Scope.Scope | null = scope;
-  while (currentScope) {
-    const v = currentScope.variables.find((v) => v.name === name);
-    if (v) return v;
-    currentScope = currentScope.upper;
-  }
-  return undefined;
-}
-
-function nearestScope(scopeManager: Scope.ScopeManager, node: Rule.Node): Scope.Scope {
-  let currentNode = node;
-  while (currentNode) {
-    const innerScope = scopeManager.acquire(currentNode, true);
-    if (innerScope) return innerScope;
-    const outerScope = scopeManager.acquire(currentNode, false);
-    if (outerScope) return outerScope;
-    currentNode = currentNode.parent;
-  }
-  throw new Error("No scope found");
 }

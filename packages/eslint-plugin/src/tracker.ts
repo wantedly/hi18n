@@ -1,7 +1,8 @@
 import { Rule, Scope } from "eslint";
-import { ArrowFunctionExpression, AssignmentProperty, BlockStatement, CallExpression, CatchClause, ClassDeclaration, ClassExpression, Directive, Expression, FunctionDeclaration, FunctionExpression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, MemberExpression, ModuleDeclaration, NewExpression, Node, Pattern, Program, Property, Statement, StaticBlock, VariableDeclaration, VariableDeclarator } from "estree";
+import { ArrowFunctionExpression, BlockStatement, CallExpression, CatchClause, ClassDeclaration, ClassExpression, Directive, Expression, FunctionDeclaration, FunctionExpression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, ModuleDeclaration, NewExpression, Node, Pattern, Program, Statement, StaticBlock, VariableDeclaration, VariableDeclarator } from "estree";
 import { JSXElement, JSXFragment, JSXIdentifier, JSXMemberExpression, JSXNamespacedName, Node as NodeWithJSX } from "estree-jsx";
 import * as evk from "eslint-visitor-keys";
+import { getImportName, getStaticKey, getStaticMemKey } from "./util";
 
 export class Tracker {
   watchingImports: Record<string, string[]> = {};
@@ -494,44 +495,4 @@ function collectReactJSXVars(context: Rule.RuleContext, root: Node): Map<Scope.V
     }
     return false;
   }
-}
-
-function getImportName(spec: ImportSpecifier | ImportDefaultSpecifier): string {
-  if (spec.type === "ImportSpecifier") {
-    return spec.imported.name;
-  } else {
-    return "default";
-  }
-}
-
-function getStaticMemKey(mem: MemberExpression): string | null {
-  if (mem.computed) {
-    if (mem.property.type === "Literal" && typeof mem.property.value === "string") {
-      return mem.property.value;
-    } else if (mem.property.type === "Literal" && typeof mem.property.value === "number") {
-      return `${mem.property.value}`;
-    } else if (mem.property.type === "Literal" && typeof mem.property.value === "bigint") {
-      return `${mem.property.value}`;
-    }
-  } else {
-    if (mem.property.type === "Identifier") {
-      return mem.property.name;
-    }
-  }
-  return null;
-}
-
-function getStaticKey(prop: AssignmentProperty | Property): string | null {
-  if (prop.computed) {
-    return null;
-  } else {
-    if (prop.key.type === "Identifier") {
-      return prop.key.name;
-    } else if (prop.key.type === "Literal" && typeof prop.key.value === "string") {
-      return prop.key.value;
-    } else if (prop.key.type === "Literal" && typeof prop.key.value === "number") {
-      return `${prop.key.value}`;
-    }
-  }
-  return null;
 }
