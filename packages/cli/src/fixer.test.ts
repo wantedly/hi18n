@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, it } from "@jest/globals";
 import fs from "node:fs";
 import fse from "fs-extra";
 import os from "node:os";
