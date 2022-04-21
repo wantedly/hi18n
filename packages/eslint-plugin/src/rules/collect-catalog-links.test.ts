@@ -1,13 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
 import { Linter } from "eslint";
-import { createFindCatalogLinks, CatalogLink } from "./find-catalog-links";
+import * as rule from "./collect-catalog-links";
+import { CatalogLink } from "./collect-catalog-links";
 
 describe("collect-translation-ids", () => {
   it("detects translation ids", () => {
     const collected: CatalogLink[] = [];
-    const rule = createFindCatalogLinks((u) => collected.push(u));
     const linter = new Linter();
-    linter.defineRule("find-catalog-links", rule);
+    linter.defineRule("@hi18n/collect-catalog-links", rule);
     linter.verify(`
       import { MessageCatalog } from "@hi18n/core";
       import catalogEn from "./catalog-en";
@@ -26,7 +26,12 @@ describe("collect-translation-ids", () => {
         sourceType: "module",
       },
       rules: {
-        "find-catalog-links": "error",
+        "@hi18n/collect-catalog-links": "error",
+      },
+      settings: {
+        "@hi18n/collect-catalog-links-callback"(l: CatalogLink) {
+          collected.push(l);
+        },
       },
     });
     expect(collected).toEqual([
