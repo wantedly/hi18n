@@ -1,11 +1,11 @@
 import { describe, expect, it } from "@jest/globals";
 import { Linter } from "eslint";
-import { createCollectTranslationIds, TranslationUsage } from "./collect-translation-ids";
+import * as rule from "./collect-translation-ids";
+import { TranslationUsage } from "./collect-translation-ids";
 
 describe("collect-translation-ids", () => {
   it("detects translation ids", () => {
     const collected: TranslationUsage[] = [];
-    const rule = createCollectTranslationIds((u) => collected.push(u));
     const linter = new Linter();
     linter.defineRule("collect-translation-ids", rule);
     linter.verify(`
@@ -38,6 +38,11 @@ describe("collect-translation-ids", () => {
       },
       rules: {
         "collect-translation-ids": "error",
+      },
+      settings: {
+        "@hi18n/collect-ids-callback"(u: TranslationUsage) {
+          collected.push(u);
+        },
       },
     });
     expect(collected).toEqual([

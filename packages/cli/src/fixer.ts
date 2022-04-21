@@ -5,14 +5,14 @@ import path from "node:path";
 import util from "node:util";
 import eslintParser from "@babel/eslint-parser";
 import resolve from "resolve";
-import { createCollectTranslationIds, createFindCatalogLinks, rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
+import { createFindCatalogLinks, rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
 
 export async function fixTranslations(projectPath: string) {
   const collectLinter = new Linter({ cwd: projectPath });
   collectLinter.defineParser("@babel/eslint-parser", eslintParser);
 
   const translationUsages: TranslationUsage[] = [];
-  collectLinter.defineRule("collect-translation-ids", createCollectTranslationIds((u) => translationUsages.push(u)));
+  collectLinter.defineRule("@hi18n/collect-translation-ids", rules["collect-translation-ids"]);
   const catalogLinks: CatalogLink[] = [];
   collectLinter.defineRule("find-catalog-links", createFindCatalogLinks((l) => catalogLinks.push(l)));
 
@@ -32,8 +32,13 @@ export async function fixTranslations(projectPath: string) {
         sourceType: "module",
       },
       rules: {
-        "collect-translation-ids": "error",
+        "@hi18n/collect-translation-ids": "error",
         "find-catalog-links": "error",
+      },
+      settings: {
+        "@hi18n/collect-ids-callback"(u: TranslationUsage) {
+          translationUsages.push(u);
+        },
       },
     }, { filename: filepath });
     for (const message of messages) {
