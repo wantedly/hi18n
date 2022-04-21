@@ -25,7 +25,7 @@ new RuleTester({
         });
       `,
       settings: {
-        usedIds: [
+        "@hi18n/used-translation-ids": [
           "example/greeting",
           "example/greeting2",
           "example/greeting3",
@@ -52,7 +52,7 @@ new RuleTester({
         });
       `,
       settings: {
-        usedIds: [
+        "@hi18n/used-translation-ids": [
           "example/greeting",
           "example/greeting3",
           "example/greeting4",

@@ -104,7 +104,7 @@ export async function fixTranslations(projectPath: string) {
           "@hi18n/no-unused-translation-ids": "warn",
         },
         settings: {
-          usedIds: Array.from(catalog.translationIds),
+          "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
         },
       });
       for (const message of report.messages) {

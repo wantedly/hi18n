@@ -26,9 +26,9 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
     },
   ]);
   tracker.listen("new import(\"@hi18n/core\").LocalCatalog()", (_node, captured) => {
-    const usedIds: unknown = context.settings["usedIds"];
-    if (!Array.isArray(usedIds)) return;
-    if (!usedIds.every((k): k is string => typeof k === "string")) return;
+    const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
+    if (usedIds === undefined) throw new Error("settings[\"@hi18n/used-translation-ids\"] not found\nNote: this rule is for an internal use.");
+    if (!Array.isArray(usedIds) || !usedIds.every((k): k is string => typeof k === "string")) throw new Error("Invalid usedIds");
     const missingIdsSet = new Set(usedIds);
 
     const catalogData = captured["catalogData"]!;
