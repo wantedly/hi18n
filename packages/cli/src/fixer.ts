@@ -5,7 +5,7 @@ import path from "node:path";
 import util from "node:util";
 import eslintParser from "@babel/eslint-parser";
 import resolve from "resolve";
-import { createCollectTranslationIds, createFindCatalogLinks, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
+import { createCollectTranslationIds, createFindCatalogLinks, rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
 
 export async function fixTranslations(projectPath: string) {
   const collectLinter = new Linter({ cwd: projectPath });
@@ -41,14 +41,26 @@ export async function fixTranslations(projectPath: string) {
     }
   }
 
-  let result = "";
+  type CatalogData = {
+    catalogPath: string;
+    localCatalogPaths: string[];
+    translationIds: Set<string>;
+  };
+  const catalogs = new Map<string, CatalogData>();
   for (const u of translationUsages) {
     const { resolved } = await resolveAsPromise(u.catalogSource, {
       basedir: path.dirname(path.resolve(projectPath, u.filename)),
       extensions: [".js", ".cjs", ".mjs", ".ts", ".cts", ".mts", ".jsx", ".tsx"],
     });
     const relative = path.relative(projectPath, resolved);
-    result += `${u.id} in ${relative}\n`;
+    if (!catalogs.has(relative)) {
+      catalogs.set(relative, {
+        catalogPath: relative,
+        localCatalogPaths: [],
+        translationIds: new Set(),
+      });
+    }
+    catalogs.get(relative)!.translationIds.add(u.id);
   }
   for (const l of catalogLinks) {
     const { resolved } = await resolveAsPromise(l.localCatalogSource, {
@@ -56,11 +68,52 @@ export async function fixTranslations(projectPath: string) {
       extensions: [".js", ".cjs", ".mjs", ".ts", ".cts", ".mts", ".jsx", ".tsx"],
     });
     const relative = path.relative(projectPath, resolved);
-    result += `${l.locale} in ${relative}\n`;
+    if (!catalogs.has(l.catalogFilename)) {
+      catalogs.set(l.catalogFilename, {
+        catalogPath: l.catalogFilename,
+        localCatalogPaths: [],
+        translationIds: new Set(),
+      });
+    }
+    catalogs.get(l.catalogFilename)!.localCatalogPaths.push(relative);
   }
-  // TODO: use the collected keys for autofix
-  if (result !== "example/greeting in src/locale/catalog.ts\nen in src/locale/catalog-en.ts\nja in src/locale/catalog-ja.ts\n") {
-    throw new Error(`Unexpected result: ${result}`);
+  for (const [, catalog] of catalogs) {
+    for (const localCatalog of catalog.localCatalogPaths) {
+      const fixLinter = new Linter({ cwd: projectPath });
+      fixLinter.defineParser("@babel/eslint-parser", eslintParser);
+      fixLinter.defineRule("@hi18n/no-missing-translation-ids", rules["no-missing-translation-ids"]);
+      fixLinter.defineRule("@hi18n/no-unused-translation-ids", rules["no-unused-translation-ids"]);
+
+      const source = await fs.promises.readFile(path.resolve(projectPath, localCatalog), "utf-8");
+      const report = fixLinter.verifyAndFix(source, {
+        parser: "@babel/eslint-parser",
+        parserOptions: {
+          ecmaVersion: "latest",
+          ecmaFeatures: {
+            jsx: true,
+          },
+          sourceType: "module",
+          babelOptions: {
+            parserOpts: {
+              plugins: ["typescript"],
+            },
+          },
+        },
+        rules: {
+          "@hi18n/no-missing-translation-ids": "warn",
+          "@hi18n/no-unused-translation-ids": "warn",
+        },
+        settings: {
+          usedIds: Array.from(catalog.translationIds),
+        },
+      });
+      for (const message of report.messages) {
+        if (message.severity >= 2) throw new Error(`Error on ${localCatalog}: ${message.message}`);
+      }
+      if (report.fixed) {
+        await fs.promises.writeFile(path.resolve(projectPath, localCatalog), report.output, "utf-8");
+      }
+    }
   }
 }
 
