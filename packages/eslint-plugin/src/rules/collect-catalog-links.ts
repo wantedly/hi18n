@@ -1,6 +1,6 @@
 import type { Rule } from "eslint";
 import { getImportName, getStaticKey, resolveImportedVariable } from "../util";
-import { Tracker } from "../tracker";
+import { messageCatalogTracker } from "../common-trackers";
 
 export type CatalogLink = {
   locale: string;
@@ -23,15 +23,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   }
   if (typeof context.settings["@hi18n/collect-catalog-links-callback"] !== "function") throw new Error("invalid collectIdsCallback");
   const collectCatalogLinksCallback = context.settings["@hi18n/collect-catalog-links-callback"] as CollectCatalogLinksCallback;
-  const tracker = new Tracker();
-  tracker.watchImport("@hi18n/core");
-  tracker.watchMember("import(\"@hi18n/core\")", "MessageCatalog");
-  tracker.watchConstruct("import(\"@hi18n/core\").MessageCatalog", [
-    {
-      captureAs: "localCatalogs",
-      path: ["0"],
-    },
-  ], "messageCatalog");
+  const tracker = messageCatalogTracker();
   tracker.listen("messageCatalog", (_node, captured) => {
     const localCatalogs = captured["localCatalogs"]!;
     if (localCatalogs.type !== "ObjectExpression") {

@@ -1,5 +1,18 @@
 import { Tracker } from "./tracker";
 
+export function messageCatalogTracker(): Tracker {
+  const tracker = new Tracker();
+  tracker.watchImport("@hi18n/core");
+  tracker.watchMember("import(\"@hi18n/core\")", "MessageCatalog");
+  tracker.watchConstruct("import(\"@hi18n/core\").MessageCatalog", [
+    {
+      captureAs: "localCatalogs",
+      path: ["0"],
+    },
+  ], "messageCatalog");
+  return tracker;
+}
+
 export function localCatalogTracker(): Tracker {
   const tracker = new Tracker();
   tracker.watchImport("@hi18n/core");
