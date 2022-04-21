@@ -1,14 +1,14 @@
 import type { AST, Rule, SourceCode } from "eslint";
 import { getStaticKey } from "../util";
-import { Tracker } from "../tracker";
 import { Comment, Node, ObjectExpression, Property } from "estree";
+import { localCatalogTracker } from "../common-trackers";
 
 export const meta: Rule.RuleMetaData = {
   type: "suggestion",
   fixable: "code",
   docs: {
     description: "removes the unused translations and generates the skeletons for the undeclared translation ids",
-    recommended: true,
+    recommended: false,
   },
   messages: {
     "missing-translation-ids": "missing translation ids",
@@ -16,15 +16,7 @@ export const meta: Rule.RuleMetaData = {
 };
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
-  const tracker = new Tracker();
-  tracker.watchImport("@hi18n/core");
-  tracker.watchMember("import(\"@hi18n/core\")", "LocalCatalog");
-  tracker.watchConstruct("import(\"@hi18n/core\").LocalCatalog", [
-    {
-      captureAs: "catalogData",
-      path: ["0"],
-    },
-  ]);
+  const tracker = localCatalogTracker();
   tracker.listen("new import(\"@hi18n/core\").LocalCatalog()", (_node, captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
     if (usedIds === undefined) throw new Error("settings[\"@hi18n/used-translation-ids\"] not found\nNote: this rule is for an internal use.");
