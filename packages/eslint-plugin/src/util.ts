@@ -1,5 +1,6 @@
 import { Rule, Scope } from "eslint";
-import { AssignmentProperty, Identifier, ImportDefaultSpecifier, ImportSpecifier, MemberExpression, Property } from "estree";
+import { AssignmentProperty, ClassDeclaration, Declaration, Directive, Identifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, MemberExpression, ModuleDeclaration, Property } from "estree";
+import { DeclarationExt, StatementExt, TSInterfaceDeclaration, TSPropertySignature, TSTypeAliasDeclaration } from "./estree-ts";
 
 export function getImportName(spec: ImportSpecifier | ImportDefaultSpecifier): string {
   if (spec.type === "ImportSpecifier") {
@@ -26,7 +27,7 @@ export function getStaticMemKey(mem: MemberExpression): string | null {
   return null;
 }
 
-export function getStaticKey(prop: AssignmentProperty | Property): string | null {
+export function getStaticKey(prop: AssignmentProperty | Property | TSPropertySignature): string | null {
   if (prop.computed) {
     return null;
   } else {
@@ -57,6 +58,52 @@ function findVariable(scope: Scope.Scope, name: string): Scope.Variable | undefi
   while (currentScope) {
     const v = currentScope.variables.find((v) => v.name === name);
     if (v) return v;
+    currentScope = currentScope.upper;
+  }
+  return undefined;
+}
+
+export type TypeDeclarator = 
+  | TSInterfaceDeclaration
+  | TSTypeAliasDeclaration
+  | ClassDeclaration
+  | ImportSpecifier
+  | ImportDefaultSpecifier
+  | ImportNamespaceSpecifier;
+
+export function resolveTypeLevelVariable(scopeManager: Scope.ScopeManager, node: Identifier): TypeDeclarator | undefined {
+  const scope = nearestScope(scopeManager, node as Rule.Node);
+  return findTypeLevelVariable(scope, node.name);
+}
+
+function findTypeLevelVariable(scope: Scope.Scope, name: string): TypeDeclarator | undefined {
+  let currentScope: Scope.Scope | null = scope;
+  while (currentScope) {
+    switch (currentScope.block.type) {
+      case "BlockStatement":
+      case "Program":
+        for (const stmtBase of currentScope.block.body as (StatementExt | ModuleDeclaration | Directive)[]) {
+          const stmt =
+            stmtBase.type === "ExportNamedDeclaration" && stmtBase.declaration ?
+              stmtBase.declaration :
+            stmtBase.type === "ExportDefaultDeclaration" && ["ClassDeclaration", "TSInterfaceDeclaration"].includes(stmtBase.declaration.type) ?
+              stmtBase.declaration as DeclarationExt :
+            stmtBase;
+          switch (stmt.type) {
+            case "TSInterfaceDeclaration":
+            case "TSTypeAliasDeclaration":
+            case "ClassDeclaration":
+              if (stmt.id && stmt.id.name === name) return stmt;
+              break;
+            case "ImportDeclaration":
+              for (const spec of stmt.specifiers) {
+                if (spec.local.name === name) return spec;
+              }
+              break;
+          }
+        }
+        break;
+    }
     currentScope = currentScope.upper;
   }
   return undefined;

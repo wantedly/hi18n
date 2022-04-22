@@ -172,4 +172,125 @@ new RuleTester({
       errors: ["the catalog should be exported as \"catalog\""],
     },
   ],
-})
+});
+
+new RuleTester({
+  parser: require.resolve("@babel/eslint-parser"),
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+    babelOptions: {
+      parserOpts: {
+        plugins: ["typescript"],
+      },
+    },
+  },
+}).run("@hi18n/no-nonstandard-catalogs (with TypeScript)", rule, {
+  valid: [
+    `
+      import { MessageCatalog } from "@hi18n/core";
+      type Messages = {};
+      export const catalog = new MessageCatalog<Messages>({});
+    `,
+    `
+      import { MessageCatalog } from "@hi18n/core";
+      interface Messages {}
+      export const catalog = new MessageCatalog<Messages>({});
+    `,
+    `
+      import { MessageCatalog } from "@hi18n/core";
+      import catalogEn from "./catalog-en";
+      import catalogJa from "./catalog-ja";
+      type Messages = {};
+      export const catalog = new MessageCatalog<Messages>({
+        en: catalogEn,
+        ja: catalogJa,
+      });
+    `,
+    `
+      import { MessageCatalog } from "@hi18n/core";
+      import type { Message } from "@hi18n/core";
+      import catalogEn from "./catalog-en";
+      import catalogJa from "./catalog-ja";
+      type Messages = {
+        "example/greeting": Message,
+      };
+      export const catalog = new MessageCatalog<Messages>({
+        en: catalogEn,
+        ja: catalogJa,
+      });
+    `,
+  ],
+  invalid: [
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        export const catalog = new MessageCatalog<{}>({});
+      `,
+      errors: ["declare catalog type as type Messages = { ... }"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["declare catalog type as type Messages = { ... }"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        class Messages {}
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["declare catalog type as type Messages = { ... }"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        type Messages = {} & {};
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["declare catalog type as type Messages = { ... }"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        type Messages = {
+          "example/foo"(): number,
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["only simple signatures are allowed"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        type Messages = {
+          "example/foo"?: Message,
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["only simple signatures are allowed"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        type Messages = {
+          readonly "example/foo": Message,
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["only simple signatures are allowed"],
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        type Messages = {
+          [Symbol.toStringTag]: Message,
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      errors: ["only simple signatures are allowed"],
+    },
+  ],
+});

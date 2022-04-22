@@ -1,8 +1,9 @@
 import type { Rule } from "eslint";
-import { getImportName, getStaticKey, resolveImportedVariable } from "../util";
+import { getImportName, getStaticKey, resolveImportedVariable, resolveTypeLevelVariable, TypeDeclarator } from "../util";
 import { messageCatalogTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { Node, VariableDeclarator } from "estree";
+import { NewExpressionExt, TSInterfaceBody, TSSignature, TSTypeLiteral, TSTypeParameterInstantiation, TSTypeReference } from "../estree-ts";
 
 export type CatalogLink = {
   locale: string;
@@ -24,6 +25,8 @@ export const meta: Rule.RuleMetaData = {
     "local-catalogs-should-be-object": "the first argument should be an object literal",
     "local-catalogs-invalid-spread": "do not use spread in the catalog list",
     "local-catalogs-invalid-key": "do not use dynamic keys for the catalog list",
+    "catalog-type-must-be-type-alias": "declare catalog type as type Messages = { ... }",
+    "catalog-type-must-contain-only-simple-signatures": "only simple signatures are allowed",
   },
 };
 
@@ -37,6 +40,8 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
         messageId: "catalog-export-as-catalog",
       });
     }
+
+    checkTypeParameter(context, node as Rule.Node);
 
     const localCatalogs = captured["localCatalogs"]!;
     if (localCatalogs.type !== "ObjectExpression") {
@@ -75,14 +80,14 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
           node: prop.key,
           messageId: "import-local-catalogs",
         });
-        return;
+        continue;
       }
       if (valueDef.node.type === "ImportNamespaceSpecifier" || getImportName(valueDef.node) !== "default") {
         context.report({
           node: valueDef.node,
           messageId: "import-local-catalogs-as-default",
         });
-        return;
+        continue;
       }
     }
   });
@@ -92,6 +97,88 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
     },
   };
 };
+
+function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
+  const typeParameters = (node as NewExpressionExt).typeParameters;
+  if (!typeParameters) return;
+
+  const typeParam = findTypeParameter(node);
+  if (!typeParam) {
+    context.report({
+      node: typeParameters as (Rule.Node | TSTypeParameterInstantiation) as Rule.Node,
+      messageId: "catalog-type-must-be-type-alias",
+    });
+    return;
+  }
+  const resolved = resolveTypeLevelVariable(context.getSourceCode().scopeManager, typeParam.typeName);
+  if (!resolved) {
+    context.report({
+      node: typeParam as (Rule.Node | TSTypeReference) as Rule.Node,
+      messageId: "catalog-type-must-be-type-alias",
+    });
+    return;
+  }
+  const objinfo = extractAsObjectType(resolved);
+  if (!objinfo) {
+    context.report({
+      node: resolved as (Rule.Node | TypeDeclarator) as Rule.Node,
+      messageId: "catalog-type-must-be-type-alias",
+    });
+    return;
+  }
+  for (const signature of objinfo.signatures) {
+    if (signature.type !== "TSPropertySignature") {
+      context.report({
+        node: signature as (Rule.Node | TSSignature) as Rule.Node,
+        messageId: "catalog-type-must-contain-only-simple-signatures",
+      });
+      continue;
+    }
+    if (signature.computed || signature.optional || signature.readonly) {
+      context.report({
+        node: signature as (Rule.Node | TSSignature) as Rule.Node,
+        messageId: "catalog-type-must-contain-only-simple-signatures",
+      });
+      continue;
+    }
+    const key = getStaticKey(signature);
+    if (key === null) {
+      context.report({
+        node: signature as (Rule.Node | TSSignature) as Rule.Node,
+        messageId: "catalog-type-must-contain-only-simple-signatures",
+      });
+      continue;
+    }
+  }
+}
+
+function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBody | TSTypeLiteral, signatures: TSSignature[] } | undefined {
+  if (decl.type === "TSTypeAliasDeclaration") {
+    if (decl.typeAnnotation.type === "TSTypeLiteral") {
+      return {
+        body: decl.typeAnnotation,
+        signatures: decl.typeAnnotation.members,
+      };
+    }
+  } else if (decl.type === "TSInterfaceDeclaration") {
+    return {
+      body: decl.body,
+      signatures: decl.body.body,
+    };
+  }
+  return undefined;
+}
+
+function findTypeParameter(node: Rule.Node): TSTypeReference | null {
+  if (node.type !== "NewExpression") return null;
+  const typeParameters = (node as NewExpressionExt).typeParameters;
+  if (!typeParameters) return null;
+  if (typeParameters.type !== "TSTypeParameterInstantiation") return null;
+  if (typeParameters.params.length < 1) return null;
+  const typeParam = typeParameters.params[0]!;
+  if (typeParam.type !== "TSTypeReference") return null;
+  return typeParam;
+}
 
 function findExportedAs(node: Rule.Node): (VariableDeclarator & Rule.NodeParentExtension) | null {
   if (node.parent.type !== "VariableDeclarator" || node.parent.init !== node) {

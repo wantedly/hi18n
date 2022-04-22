@@ -1440,6 +1440,7 @@ __metadata:
   resolution: "@hi18n/eslint-plugin@workspace:packages/eslint-plugin"
   dependencies:
     "@babel/core": ^7.16.5
+    "@babel/eslint-parser": ^7.17.0
     "@babel/preset-env": ^7.16.11
     "@babel/preset-typescript": ^7.16.7
     "@jest/globals": ^27.5.1
