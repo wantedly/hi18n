@@ -25,7 +25,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
 
     const catalogData = captured["catalogData"]!;
     if (catalogData.type !== "ObjectExpression") return;
-    
+
     for (const prop of catalogData.properties) {
       if (prop.type !== "Property") continue;
       const key = getStaticKey(prop);
@@ -45,12 +45,36 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
           for (let i = 0; i < candidates.length; i++) {
             candidateIndices.set(candidates[i]!.id, i);
           }
+          const sortedCandidates: Candidate[] = candidates.slice().sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+
           for (const missingId of missingIds) {
             const candidateIndex = candidateIndices.get(missingId);
             if (candidateIndex !== undefined) {
               yield *unCommentCandidate(fixer, candidates[candidateIndex]!);
             } else {
-              throw new Error("TODO");
+              let lo = 0, hi = sortedCandidates.length;
+              while (lo < hi) {
+                let mid = lo + (0 | ((hi - lo) / 2));
+                if (missingId < sortedCandidates[mid]!.id) {
+                  hi = mid;
+                } else {
+                  lo = mid + 1;
+                }
+              }
+              const insertAt = lo;
+              if (insertAt === 0) {
+                const firstCandidate = sortedCandidates[0]!;
+                const indent = (firstCandidate.node ? firstCandidate.node : firstCandidate.commentedOut[0]!).loc!.start.column;
+                const text = `\n${" ".repeat(indent)}${JSON.stringify(missingId)}: msg(),`;
+                const token = context.getSourceCode().getFirstToken(catalogData)!;
+                yield fixer.insertTextAfter(token, text);
+              } else {
+                const lastCandidate = sortedCandidates[insertAt - 1]!;
+                const indent = (lastCandidate.node ? lastCandidate.node : lastCandidate.commentedOut[0]!).loc!.start.column;
+                const text = `\n${" ".repeat(indent)}${JSON.stringify(missingId)}: msg(),`;
+                const node = extendNode(context.getSourceCode(), lastCandidate.node ? lastCandidate.node : lastCandidate.commentedOut[lastCandidate.commentedOut.length - 1]!);
+                yield fixer.insertTextAfterRange(node.range!, text);
+              }
             }
           }
         },
@@ -185,7 +209,7 @@ function getLastComments(sourceCode: SourceCode, nodes: Node[]): Comment[] {
   if (nodes.length === 0) return [];
   const lastNode = nodes[nodes.length - 1]!;
   const maybeComma = sourceCode.getTokenAfter(lastNode, { includeComments: false });
-  let lastToken: Node | Comment | AST.Token = 
+  let lastToken: Node | Comment | AST.Token =
     maybeComma && maybeComma.type === "Punctuator" && maybeComma.value === "," ?
       maybeComma : lastNode;
   const lastLine = lastToken.loc!.end.line;
@@ -203,6 +227,23 @@ function getLastComments(sourceCode: SourceCode, nodes: Node[]): Comment[] {
     lastToken = nextToken;
   }
   return comments;
+}
+
+function extendNode(sourceCode: SourceCode, node: Node | Comment): Node | Comment | AST.Token {
+  const maybeComma = sourceCode.getTokenAfter(node, { includeComments: false });
+  let lastToken: Node | Comment | AST.Token =
+    maybeComma && maybeComma.type === "Punctuator" && maybeComma.value === "," ?
+      maybeComma : node;
+  const lastLine = lastToken.loc!.end.line;
+  while (true) {
+    const nextToken: Comment | AST.Token | null = sourceCode.getTokenAfter(lastToken, { includeComments: true });
+    if (nextToken && (nextToken.type === "Line" || nextToken.type === "Block") && nextToken.loc!.start.line === lastLine) {
+      lastToken = nextToken;
+    } else {
+      break;
+    }
+  }
+  return lastToken;
 }
 
 // Simplified parser to detect a subset of correct JavaScript construction.
