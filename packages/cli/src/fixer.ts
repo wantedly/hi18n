@@ -7,7 +7,13 @@ import eslintParser from "@babel/eslint-parser";
 import resolve from "resolve";
 import { rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
 
-export async function fixTranslations(projectPath: string) {
+export type Options = {
+  cwd: string;
+  include: string[];
+};
+
+export async function fixTranslations(options: Options) {
+  const { cwd: projectPath, include } = options;
   const linterConfig: Linter.Config = {
     parser: "@babel/eslint-parser",
     parserOptions: {
@@ -24,10 +30,13 @@ export async function fixTranslations(projectPath: string) {
   const catalogLinks: CatalogLink[] = [];
   collectLinter.defineRule("@hi18n/collect-catalog-links", rules["collect-catalog-links"]);
 
-  const files = await util.promisify(glob)("src/**/*.ts", {
-    cwd: projectPath,
-    nodir: true,
-  });
+  const files: string[] = [];
+  for (const includeGlob of include) {
+    files.push(...await util.promisify(glob)(includeGlob, {
+      cwd: projectPath,
+      nodir: true,
+    }));
+  }
   for (const filepath of files) {
     const source = await fs.promises.readFile(path.join(projectPath, filepath), "utf-8");
     const messages = collectLinter.verify(source, {

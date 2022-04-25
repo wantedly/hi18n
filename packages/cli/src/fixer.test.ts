@@ -13,7 +13,7 @@ describe("fixTranslations", () => {
     const expectDir = path.resolve(__dirname, "./__fixtures__/simple-project/expect");
     const outputDir = path.join(tempdir, "project");
     await fse.copy(inputDir, outputDir);
-    await fixTranslations(outputDir);
+    await fixTranslations({ cwd: outputDir, include: ["src/**/*.ts"] });
 
     const files1 = await util.promisify(glob)("**/*", { cwd: expectDir });
     const files2 = await util.promisify(glob)("**/*", { cwd: outputDir });
