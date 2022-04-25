@@ -9,3 +9,5 @@ t("example/greeting-todo");
 
 // @ts-ignore
 t("example/greeting-todo-newtranslation");
+
+/* eslint-disable-next-line a-nonexistent-rule */

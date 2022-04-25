@@ -45,9 +45,7 @@ export async function fixTranslations(projectPath: string) {
         },
       },
     }, { filename: filepath });
-    for (const message of messages) {
-      if (message.severity >= 2) throw new Error(`Error on ${filepath}: ${message.message}`);
-    }
+    checkMessages(filepath, messages);
   }
 
   type CatalogData = {
@@ -104,9 +102,7 @@ export async function fixTranslations(projectPath: string) {
           "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
         },
       }, { filename: path.resolve(projectPath, localCatalog) });
-      for (const message of report.messages) {
-        if (message.severity >= 2) throw new Error(`Error on ${localCatalog}: ${message.message}`);
-      }
+      checkMessages(localCatalog, report.messages);
       if (report.fixed) {
         await fs.promises.writeFile(path.resolve(projectPath, localCatalog), report.output, "utf-8");
       }
@@ -129,13 +125,21 @@ export async function fixTranslations(projectPath: string) {
           "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
         },
       }, { filename: path.resolve(projectPath, catalog.catalogPath) });
-      for (const message of report.messages) {
-        if (message.severity >= 2) throw new Error(`Error on ${catalog.catalogPath}: ${message.message}`);
-      }
+      checkMessages(catalog.catalogPath, report.messages);
       if (report.fixed) {
         await fs.promises.writeFile(path.resolve(projectPath, catalog.catalogPath), report.output, "utf-8");
       }
     }
+  }
+}
+
+function checkMessages(filepath: string, messages: Linter.LintMessage[]) {
+  for (const message of messages) {
+    if (/^Definition for rule .* was not found\.$/.test(message.message)) {
+      // We load ESLint with minimal rules. Ignore the "missing rule" error.
+      continue;
+    }
+    if (message.severity >= 2) throw new Error(`Error on ${filepath}: ${message.message}`);
   }
 }
 
