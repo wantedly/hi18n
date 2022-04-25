@@ -10,10 +10,11 @@ import { rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
 export type Options = {
   cwd: string;
   include: string[];
+  exclude?: string[] | undefined;
 };
 
 export async function fixTranslations(options: Options) {
-  const { cwd: projectPath, include } = options;
+  const { cwd: projectPath, include, exclude } = options;
   const linterConfig: Linter.Config = {
     parser: "@babel/eslint-parser",
     parserOptions: {
@@ -35,6 +36,7 @@ export async function fixTranslations(options: Options) {
     files.push(...await util.promisify(glob)(includeGlob, {
       cwd: projectPath,
       nodir: true,
+      ignore: exclude,
     }));
   }
   for (const filepath of files) {
