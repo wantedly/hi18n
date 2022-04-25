@@ -24,7 +24,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
 
     const catalogData = captured["catalogData"]!;
     if (catalogData.type !== "ObjectExpression") return;
-    
+
     for (const prop of catalogData.properties) {
       if (prop.type !== "Property") continue;
       const key = getStaticKey(prop);
@@ -49,7 +49,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   };
 };
 
-function commentOut(text: string, indent: number): string {
+export function commentOut(text: string, indent: number): string {
   return text.split(/^/m).map((line, i) => {
     if (i === 0) {
       return `// ${line}`;

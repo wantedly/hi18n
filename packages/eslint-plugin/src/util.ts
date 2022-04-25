@@ -1,5 +1,5 @@
 import { Rule, Scope } from "eslint";
-import { AssignmentProperty, ClassDeclaration, Declaration, Directive, Identifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, MemberExpression, ModuleDeclaration, Property } from "estree";
+import { AssignmentProperty, ClassDeclaration, Directive, Identifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, MemberExpression, ModuleDeclaration, Property } from "estree";
 import { DeclarationExt, StatementExt, TSInterfaceDeclaration, TSPropertySignature, TSTypeAliasDeclaration } from "./estree-ts";
 
 export function getImportName(spec: ImportSpecifier | ImportDefaultSpecifier): string {

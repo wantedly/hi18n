@@ -8,6 +8,14 @@ import resolve from "resolve";
 import { rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
 
 export async function fixTranslations(projectPath: string) {
+  const linterConfig: Linter.Config = {
+    parser: "@babel/eslint-parser",
+    parserOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+    },
+  };
+
   const collectLinter = new Linter({ cwd: projectPath });
   collectLinter.defineParser("@babel/eslint-parser", eslintParser);
 
@@ -23,14 +31,7 @@ export async function fixTranslations(projectPath: string) {
   for (const filepath of files) {
     const source = await fs.promises.readFile(path.join(projectPath, filepath), "utf-8");
     const messages = collectLinter.verify(source, {
-      parser: "@babel/eslint-parser",
-      parserOptions: {
-        ecmaVersion: "latest",
-        ecmaFeatures: {
-          jsx: true,
-        },
-        sourceType: "module",
-      },
+      ...linterConfig,
       rules: {
         "@hi18n/collect-translation-ids": "error",
         "@hi18n/collect-catalog-links": "error",
@@ -94,19 +95,7 @@ export async function fixTranslations(projectPath: string) {
 
       const source = await fs.promises.readFile(path.resolve(projectPath, localCatalog), "utf-8");
       const report = fixLinter.verifyAndFix(source, {
-        parser: "@babel/eslint-parser",
-        parserOptions: {
-          ecmaVersion: "latest",
-          ecmaFeatures: {
-            jsx: true,
-          },
-          sourceType: "module",
-          babelOptions: {
-            parserOpts: {
-              plugins: ["typescript"],
-            },
-          },
-        },
+        ...linterConfig,
         rules: {
           "@hi18n/no-missing-translation-ids": "warn",
           "@hi18n/no-unused-translation-ids": "warn",
@@ -114,12 +103,37 @@ export async function fixTranslations(projectPath: string) {
         settings: {
           "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
         },
-      });
+      }, { filename: path.resolve(projectPath, localCatalog) });
       for (const message of report.messages) {
         if (message.severity >= 2) throw new Error(`Error on ${localCatalog}: ${message.message}`);
       }
       if (report.fixed) {
         await fs.promises.writeFile(path.resolve(projectPath, localCatalog), report.output, "utf-8");
+      }
+    }
+
+    {
+      const fixLinter = new Linter({ cwd: projectPath });
+      fixLinter.defineParser("@babel/eslint-parser", eslintParser);
+      // fixLinter.defineRule("@hi18n/no-missing-translation-ids-in-types", rules["no-missing-translation-ids-in-types"]);
+      fixLinter.defineRule("@hi18n/no-unused-translation-ids-in-types", rules["no-unused-translation-ids-in-types"]);
+
+      const source = await fs.promises.readFile(path.resolve(projectPath, catalog.catalogPath), "utf-8");
+      const report = fixLinter.verifyAndFix(source, {
+        ...linterConfig,
+        rules: {
+          // "@hi18n/no-missing-translation-ids-in-types": "warn",
+          "@hi18n/no-unused-translation-ids-in-types": "warn",
+        },
+        settings: {
+          "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
+        },
+      }, { filename: path.resolve(projectPath, catalog.catalogPath) });
+      for (const message of report.messages) {
+        if (message.severity >= 2) throw new Error(`Error on ${catalog.catalogPath}: ${message.message}`);
+      }
+      if (report.fixed) {
+        await fs.promises.writeFile(path.resolve(projectPath, catalog.catalogPath), report.output, "utf-8");
       }
     }
   }

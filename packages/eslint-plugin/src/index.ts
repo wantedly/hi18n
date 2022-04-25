@@ -7,6 +7,7 @@ import * as ruleNoNonstandardCatalogReferences from "./rules/no-nonstandard-cata
 import * as ruleNoNonstandardCatalogs from "./rules/no-nonstandard-catalogs";
 import * as ruleNoNonstandardLocalCatalogs from "./rules/no-nonstandard-local-catalogs";
 import * as ruleNoUnusedTranslationIds from "./rules/no-unused-translation-ids";
+import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translation-ids-in-types";
 
 type RuleName =
   | "collect-catalog-links"
@@ -16,7 +17,8 @@ type RuleName =
   | "no-nonstandard-catalog-references"
   | "no-nonstandard-catalogs"
   | "no-nonstandard-local-catalogs"
-  | "no-unused-translation-ids";
+  | "no-unused-translation-ids"
+  | "no-unused-translation-ids-in-types";
 
 export const configs: Record<string, Linter.Config> = {};
 export const rules: Record<RuleName, Rule.RuleModule> = {
@@ -28,6 +30,7 @@ export const rules: Record<RuleName, Rule.RuleModule> = {
   "no-nonstandard-catalogs": ruleNoNonstandardCatalogs,
   "no-nonstandard-local-catalogs": ruleNoNonstandardLocalCatalogs,
   "no-unused-translation-ids": ruleNoUnusedTranslationIds,
+  "no-unused-translation-ids-in-types": ruleNoUnusedTranslationIdsInTypes,
 };
 
 export type { TranslationUsage } from "./rules/collect-translation-ids";

@@ -152,7 +152,7 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
   }
 }
 
-function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBody | TSTypeLiteral, signatures: TSSignature[] } | undefined {
+export function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBody | TSTypeLiteral, signatures: TSSignature[] } | undefined {
   if (decl.type === "TSTypeAliasDeclaration") {
     if (decl.typeAnnotation.type === "TSTypeLiteral") {
       return {
@@ -169,7 +169,7 @@ function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBody | TS
   return undefined;
 }
 
-function findTypeParameter(node: Rule.Node): TSTypeReference | null {
+export function findTypeParameter(node: Rule.Node): TSTypeReference | null {
   if (node.type !== "NewExpression") return null;
   const typeParameters = (node as NewExpressionExt).typeParameters;
   if (!typeParameters) return null;

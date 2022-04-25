@@ -4,7 +4,7 @@ import catalogJa from "./catalog-ja";
 
 export type Messages = {
   "example/greeting": Message,
-  "example/greeting-unused": Message,
+  // "example/greeting-unused": Message,
   // "example/greeting-todo": Message,
 };
 
