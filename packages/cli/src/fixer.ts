@@ -115,14 +115,14 @@ export async function fixTranslations(projectPath: string) {
     {
       const fixLinter = new Linter({ cwd: projectPath });
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
-      // fixLinter.defineRule("@hi18n/no-missing-translation-ids-in-types", rules["no-missing-translation-ids-in-types"]);
+      fixLinter.defineRule("@hi18n/no-missing-translation-ids-in-types", rules["no-missing-translation-ids-in-types"]);
       fixLinter.defineRule("@hi18n/no-unused-translation-ids-in-types", rules["no-unused-translation-ids-in-types"]);
 
       const source = await fs.promises.readFile(path.resolve(projectPath, catalog.catalogPath), "utf-8");
       const report = fixLinter.verifyAndFix(source, {
         ...linterConfig,
         rules: {
-          // "@hi18n/no-missing-translation-ids-in-types": "warn",
+          "@hi18n/no-missing-translation-ids-in-types": "warn",
           "@hi18n/no-unused-translation-ids-in-types": "warn",
         },
         settings: {

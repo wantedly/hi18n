@@ -4,8 +4,9 @@ import catalogJa from "./catalog-ja";
 
 export type Messages = {
   "example/greeting": Message,
+  "example/greeting-todo-newtranslation": Message;
   // "example/greeting-unused": Message,
-  // "example/greeting-todo": Message,
+  "example/greeting-todo": Message,
 };
 
 export const catalog = new MessageCatalog<Messages>({

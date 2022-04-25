@@ -3,6 +3,7 @@ import * as ruleCollectCatalogLinks from "./rules/collect-catalog-links";
 import * as ruleCollectTranslationIds from "./rules/collect-translation-ids";
 import * as ruleNoDynamicKeys from "./rules/no-dynamic-keys";
 import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids";
+import * as ruleNoMissingTranslationIdsInTypes from "./rules/no-missing-translation-ids-in-types";
 import * as ruleNoNonstandardCatalogReferences from "./rules/no-nonstandard-catalog-references";
 import * as ruleNoNonstandardCatalogs from "./rules/no-nonstandard-catalogs";
 import * as ruleNoNonstandardLocalCatalogs from "./rules/no-nonstandard-local-catalogs";
@@ -14,6 +15,7 @@ type RuleName =
   | "collect-translation-ids"
   | "no-dynamic-keys"
   | "no-missing-translation-ids"
+  | "no-missing-translation-ids-in-types"
   | "no-nonstandard-catalog-references"
   | "no-nonstandard-catalogs"
   | "no-nonstandard-local-catalogs"
@@ -26,6 +28,7 @@ export const rules: Record<RuleName, Rule.RuleModule> = {
   "collect-translation-ids": ruleCollectTranslationIds,
   "no-dynamic-keys": ruleNoDynamicKeys,
   "no-missing-translation-ids": ruleNoMissingTranslationIds,
+  "no-missing-translation-ids-in-types": ruleNoMissingTranslationIdsInTypes,
   "no-nonstandard-catalog-references": ruleNoNonstandardCatalogReferences,
   "no-nonstandard-catalogs": ruleNoNonstandardCatalogs,
   "no-nonstandard-local-catalogs": ruleNoNonstandardLocalCatalogs,

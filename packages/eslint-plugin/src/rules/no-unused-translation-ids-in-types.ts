@@ -20,14 +20,11 @@ export const meta: Rule.RuleMetaData = {
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
   const tracker = messageCatalogTracker();
-  tracker.listen("messageCatalog", (node, captured) => {
+  tracker.listen("messageCatalog", (node, _captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
     if (usedIds === undefined) throw new Error("settings[\"@hi18n/used-translation-ids\"] not found\nNote: this rule is for an internal use.");
     if (!Array.isArray(usedIds) || !usedIds.every((k): k is string => typeof k === "string")) throw new Error("Invalid usedIds");
     const usedIdsSet = new Set(usedIds);
-
-    const localCatalogs = captured["localCatalogs"]!;
-    if (localCatalogs.type !== "ObjectExpression") return;
 
     const objinfo = findTypeDefinition(context.getSourceCode().scopeManager, node as Rule.Node);
     if (!objinfo) return;
@@ -57,7 +54,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   };
 };
 
-function findTypeDefinition(scopeManager: Scope.ScopeManager, node: Rule.Node): { body: TSInterfaceBody | TSTypeLiteral, signatures: TSSignature[] } | null {
+export function findTypeDefinition(scopeManager: Scope.ScopeManager, node: Rule.Node): { body: TSInterfaceBody | TSTypeLiteral, signatures: TSSignature[] } | null {
   const typeParameters = (node as NewExpressionExt).typeParameters;
   if (!typeParameters) return null;
 

@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint";
-import * as rule from "./no-unused-translation-ids-in-types";
+import * as rule from "./no-missing-translation-ids-in-types";
 
 new RuleTester({
   parser: require.resolve("@babel/eslint-parser"),
@@ -12,7 +12,7 @@ new RuleTester({
       },
     },
   },
-}).run("@hi18n/no-unused-translation-ids-in-types", rule, {
+}).run("@hi18n/no-missing-translation-ids-in-types", rule, {
   valid: [
     {
       code: `
@@ -108,25 +108,25 @@ new RuleTester({
           "example/multiline2",
         ],
       },
-      errors: ["unused translation id", "unused translation id"],
+      errors: ["missing translation ids"],
       output: `
         import { MessageCatalog } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
-          // "example/greeting2": Message,
+          "example/greeting2": Message,
           "example/greeting3": Message,
-          // "example/greeting4": Message,
-          // "example/multiline": Message<{
-          //   param1: number;
-          //   param2: number;
-          //   param3: number;
-          // }>,
-          // "example/multiline2": Message<{
-          //   param1: number;
-          //   param2: number;
-          //   param3: number;
-          // }>,
+          "example/greeting4": Message,
+          "example/multiline": Message<{
+            param1: number;
+            param2: number;
+            param3: number;
+          }>,
+          "example/multiline2": Message<{
+            param1: number;
+            param2: number;
+            param3: number;
+          }>,
         };
         export const catalog = new MessageCatalog<Messages>({});
       `,
@@ -161,25 +161,131 @@ new RuleTester({
           "example/multiline2",
         ],
       },
-      errors: ["unused translation id", "unused translation id"],
+      errors: ["missing translation ids"],
       output: `
         import { MessageCatalog } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
-          // "example/greeting2": Message;
+          "example/greeting2": Message;
           "example/greeting3": Message;
-          // "example/greeting4": Message;
-          // "example/multiline": Message<{
-          //   param1: number;
-          //   param2: number;
-          //   param3: number;
-          // }>;
-          // "example/multiline2": Message<{
-          //   param1: number;
-          //   param2: number;
-          //   param3: number;
-          // }>;
+          "example/greeting4": Message;
+          "example/multiline": Message<{
+            param1: number;
+            param2: number;
+            param3: number;
+          }>;
+          "example/multiline2": Message<{
+            param1: number;
+            param2: number;
+            param3: number;
+          }>;
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        import type { Message } from "@hi18n/core";
+        export type Messages = {
+          "example/c": Message,
+          "example/g": Message,
+          "example/k": Message,
+          "example/e": Message,
+          "example/i": Message,
+          "example/m": Message,
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      settings: {
+        "@hi18n/used-translation-ids": [
+          "example/b",
+          "example/c",
+          "example/d",
+          "example/e",
+          "example/f",
+          "example/g",
+          "example/h",
+          "example/i",
+          "example/j",
+          "example/k",
+          "example/l",
+          "example/m",
+          "example/n",
+        ],
+      },
+      errors: ["missing translation ids"],
+      output: `
+        import { MessageCatalog } from "@hi18n/core";
+        import type { Message } from "@hi18n/core";
+        export type Messages = {
+          "example/b": Message;
+          "example/c": Message,
+          "example/d": Message;
+          "example/g": Message,
+          "example/k": Message,
+          "example/e": Message,
+          "example/f": Message;
+          "example/h": Message;
+          "example/i": Message,
+          "example/j": Message;
+          "example/l": Message;
+          "example/m": Message,
+          "example/n": Message;
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+    },
+    {
+      code: `
+        import { MessageCatalog } from "@hi18n/core";
+        import type { Message } from "@hi18n/core";
+        export type Messages = {
+          "example/c": Message;
+          "example/g": Message;
+          "example/k": Message;
+          "example/e": Message;
+          "example/i": Message;
+          "example/m": Message;
+        };
+        export const catalog = new MessageCatalog<Messages>({});
+      `,
+      settings: {
+        "@hi18n/used-translation-ids": [
+          "example/b",
+          "example/c",
+          "example/d",
+          "example/e",
+          "example/f",
+          "example/g",
+          "example/h",
+          "example/i",
+          "example/j",
+          "example/k",
+          "example/l",
+          "example/m",
+          "example/n",
+        ],
+      },
+      errors: ["missing translation ids"],
+      output: `
+        import { MessageCatalog } from "@hi18n/core";
+        import type { Message } from "@hi18n/core";
+        export type Messages = {
+          "example/b": Message;
+          "example/c": Message;
+          "example/d": Message;
+          "example/g": Message;
+          "example/k": Message;
+          "example/e": Message;
+          "example/f": Message;
+          "example/h": Message;
+          "example/i": Message;
+          "example/j": Message;
+          "example/l": Message;
+          "example/m": Message;
+          "example/n": Message;
         };
         export const catalog = new MessageCatalog<Messages>({});
       `,
