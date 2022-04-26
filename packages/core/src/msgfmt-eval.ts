@@ -1,7 +1,7 @@
 import { CompiledMessage } from "./msgfmt";
 
 export type EvalOption<T> = {
-  key?: string;
+  id?: string;
   locale: string;
   params?: Record<string, unknown>;
   collect?: ((submessages: (T | string)[]) => T | string) | undefined;
@@ -77,7 +77,7 @@ export class MessageError extends Error {
   constructor(message: string, options: EvalOption<any>) {
     const info: string[] = [];
     info.push(`locale=${options.locale}`);
-    if (options.key != null) info.push(`key=${options.key}`);
+    if (options.id != null) info.push(`id=${options.id}`);
 
     super(`${message} (${info.join(", ")})`);
 

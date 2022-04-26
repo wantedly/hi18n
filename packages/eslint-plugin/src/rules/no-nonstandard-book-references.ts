@@ -6,7 +6,7 @@ import { getImportName, resolveImportedVariable } from "../util";
 export const meta: ruleNoNonstandardBookReferences.RuleMetaData = {
   type: "problem",
   docs: {
-    description: "disallow dynamic keys where hi18n cannot correctly detect used keys",
+    description: "disallow dynamic translation ids where hi18n cannot correctly detect used translation ids",
     recommended: true,
   },
   messages: {

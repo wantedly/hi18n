@@ -3,7 +3,7 @@ import { hideBin } from "yargs/helpers";
 import { fixTranslations } from "./fixer";
 
 yargs(hideBin(process.argv))
-  .command("sync <files...>", "synchronize translation keys", (yargs) => {
+  .command("sync <files...>", "synchronize translation ids", (yargs) => {
     return yargs
       .positional("files", {
         required: true,

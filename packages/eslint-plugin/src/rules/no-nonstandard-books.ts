@@ -17,7 +17,7 @@ export const meta: ruleNoNonstandardBooks.RuleMetaData = {
     "import-catalogs-as-default": "the catalog should be exported as default",
     "catalogs-should-be-object": "the first argument should be an object literal",
     "catalogs-invalid-spread": "do not use spread in the catalog list",
-    "catalogs-invalid-key": "do not use dynamic keys for the catalog list",
+    "catalogs-invalid-id": "do not use dynamic translation ids for the catalog list",
     "catalog-type-must-be-type-alias": "declare catalog type as type Vocabulary = { ... }",
     "catalog-type-must-contain-only-simple-signatures": "only simple signatures are allowed",
   },
@@ -56,7 +56,7 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
       if (key === null) {
         context.report({
           node: prop.key,
-          messageId: "catalogs-invalid-key",
+          messageId: "catalogs-invalid-id",
         });
         continue;
       }

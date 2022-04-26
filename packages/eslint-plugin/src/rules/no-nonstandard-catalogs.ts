@@ -15,7 +15,7 @@ export const meta: ruleNoNonstandardCatalogs.RuleMetaData = {
     "catalog-export-as-default": "the catalog should be exported as default",
     "catalog-data-should-be-object": "the catalog data should be an object literal",
     "catalog-data-invalid-spread": "do not use spread in the catalog data",
-    "catalog-data-invalid-key": "do not use dynamic keys for the catalog data",
+    "catalog-data-invalid-id": "do not use dynamic translation ids for the catalog data",
   },
 };
 
@@ -51,7 +51,7 @@ export function create(context: ruleNoNonstandardCatalogs.RuleContext): ruleNoNo
       if (key === null) {
         context.report({
           node: prop.key,
-          messageId: "catalog-data-invalid-key",
+          messageId: "catalog-data-invalid-id",
         });
         continue;
       }

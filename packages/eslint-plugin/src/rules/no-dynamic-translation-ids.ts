@@ -1,8 +1,8 @@
-import type { Rule } from "eslint";
+import type { Rule as ruleNoDynamicTranslationIds } from "eslint";
 import { translationCallTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 
-export const meta: Rule.RuleMetaData = {
+export const meta: ruleNoDynamicTranslationIds.RuleMetaData = {
   type: "problem",
   docs: {
     description: "disallow dynamic keys where hi18n cannot correctly detect used keys",
@@ -13,7 +13,7 @@ export const meta: Rule.RuleMetaData = {
   },
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(context: ruleNoDynamicTranslationIds.RuleContext): ruleNoDynamicTranslationIds.RuleListener {
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
     const idNode = captured["id"]!;

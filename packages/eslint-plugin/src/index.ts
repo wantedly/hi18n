@@ -1,7 +1,7 @@
 import type { Linter, Rule } from "eslint";
 import * as ruleCollectCatalogLinks from "./rules/collect-catalog-links";
 import * as ruleCollectTranslationIds from "./rules/collect-translation-ids";
-import * as ruleNoDynamicKeys from "./rules/no-dynamic-keys";
+import * as ruleNoDynamicTranslationIds from "./rules/no-dynamic-translation-ids";
 import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids";
 import * as ruleNoMissingTranslationIdsInTypes from "./rules/no-missing-translation-ids-in-types";
 import * as ruleNoNonstandardBookReferences from "./rules/no-nonstandard-book-references";
@@ -13,7 +13,7 @@ import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translatio
 type RuleName =
   | "collect-catalog-links"
   | "collect-translation-ids"
-  | "no-dynamic-keys"
+  | "no-dynamic-translation-ids"
   | "no-missing-translation-ids"
   | "no-missing-translation-ids-in-types"
   | "no-nonstandard-book-references"
@@ -26,7 +26,7 @@ export const configs: Record<string, Linter.Config> = {};
 export const rules: Record<RuleName, Rule.RuleModule> = {
   "collect-catalog-links": ruleCollectCatalogLinks,
   "collect-translation-ids": ruleCollectTranslationIds,
-  "no-dynamic-keys": ruleNoDynamicKeys,
+  "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
   "no-missing-translation-ids": ruleNoMissingTranslationIds,
   "no-missing-translation-ids-in-types": ruleNoMissingTranslationIdsInTypes,
   "no-nonstandard-book-references": ruleNoNonstandardBookReferences,

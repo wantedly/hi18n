@@ -15,8 +15,8 @@ describe("evaluageMessage", () => {
 
   it("evaluates simple interpolation", () => {
     expect(evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], { locale: "en", params: { name: "John" } })).toBe("Hello, John!");
-    expect(() => evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], { key: "greeting.named", locale: "en", params: {} })).toThrow("Missing argument name (locale=en, key=greeting.named)");
-    expect(() => evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], { key: "greeting.named", locale: "en", params: { name: 42 } })).toThrow("Invalid argument name: expected string, got 42 (locale=en, key=greeting.named)");
+    expect(() => evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], { id: "greeting.named", locale: "en", params: {} })).toThrow("Missing argument name (locale=en, id=greeting.named)");
+    expect(() => evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], { id: "greeting.named", locale: "en", params: { name: 42 } })).toThrow("Invalid argument name: expected string, got 42 (locale=en, id=greeting.named)");
   });
 
   it("evaluates number interpolation", () => {

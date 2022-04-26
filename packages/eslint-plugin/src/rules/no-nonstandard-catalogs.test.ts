@@ -69,7 +69,7 @@ new RuleTester({
           [dynamicKey]: msg("Hello"),
         });
       `,
-      errors: ["do not use dynamic keys for the catalog data"],
+      errors: ["do not use dynamic translation ids for the catalog data"],
     },
   ],
 })

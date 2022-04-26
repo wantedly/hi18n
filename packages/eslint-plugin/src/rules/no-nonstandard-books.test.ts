@@ -74,7 +74,7 @@ new RuleTester({
           [otherName]: catalogOther,
         });
       `,
-      errors: ["do not use dynamic keys for the catalog list"],
+      errors: ["do not use dynamic translation ids for the catalog list"],
     },
     {
       code: `

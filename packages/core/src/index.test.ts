@@ -34,18 +34,18 @@ describe ("Book", () => {
     }
   });
 
-  it("raises an error for missing translation", () => {
+  it("raises an error for missing translation language", () => {
     expect(() => {
       getTranslator(book, "zh")
     }).toThrow("Missing locale: zh");
   });
 
-  it("raises an error for missing key", () => {
+  it("raises an error for missing translation id", () => {
     const { t } = getTranslator(book, "en")
     expect(() => {
       // @ts-expect-error
-      t("example/non-existent-key")
-    }).toThrow("Missing translation in en for example/non-existent-key");
+      t("example/non-existent-translation-id")
+    }).toThrow("Missing translation in en for example/non-existent-translation-id");
   });
 
   it("does a simple interpolation", () => {
@@ -77,11 +77,11 @@ describe ("Book", () => {
     expect(() => {
       // @ts-expect-error
       t("example/greeting2")
-    }).toThrow("Missing argument name (locale=en, key=example/greeting2)");
+    }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", {})
-    }).toThrow("Missing argument name (locale=en, key=example/greeting2)");
+    }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
   });
 
   it("raises an error for invalid argument types", () => {
@@ -89,7 +89,7 @@ describe ("Book", () => {
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", { name: 42 })
-    }).toThrow("Invalid argument name: expected string, got 42 (locale=en, key=example/greeting2)");
+    }).toThrow("Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)");
   });
 });
 

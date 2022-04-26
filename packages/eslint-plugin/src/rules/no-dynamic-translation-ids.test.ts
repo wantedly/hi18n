@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint";
-import * as rule from "./no-dynamic-keys";
+import * as rule from "./no-dynamic-translation-ids";
 
 new RuleTester({
   parserOptions: {
@@ -7,7 +7,7 @@ new RuleTester({
     sourceType: "module",
     ecmaFeatures: { jsx: true },
   },
-}).run("no-dynamic-keys", rule, {
+}).run("@hi18n/no-dynamic-translation-ids", rule, {
   valid: [
     `
       import { getTranslator } from "@hi18n/core";
