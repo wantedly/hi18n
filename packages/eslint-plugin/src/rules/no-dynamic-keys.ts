@@ -15,7 +15,7 @@ export const meta: Rule.RuleMetaData = {
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
   const tracker = translationCallTracker();
-  tracker.listen("i18n.t()", (_node, captured) => {
+  tracker.listen("translation", (_node, captured) => {
     const idNode = captured["id"]!;
     if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
       context.report({

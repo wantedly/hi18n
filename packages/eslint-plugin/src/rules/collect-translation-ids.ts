@@ -24,7 +24,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   if (typeof context.settings["@hi18n/collect-ids-callback"] !== "function") throw new Error("invalid collectIdsCallback");
   const collectIdsCallback = context.settings["@hi18n/collect-ids-callback"] as CollectTranslationIdsCallback;
   const tracker = translationCallTracker();
-  tracker.listen("i18n.t()", (_node, captured) => {
+  tracker.listen("translation", (_node, captured) => {
     const idNode = captured["id"]!;
     if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
       return;

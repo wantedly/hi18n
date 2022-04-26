@@ -47,18 +47,18 @@ export class LocalCatalog<Messages extends CatalogBase> {
   }
 }
 
-export interface I18n<Messages extends CatalogBase> {
+export type TranslatorObject<Messages extends CatalogBase> = {
   t(key: SimpleMessageKeys<Messages>): string;
   t<K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never>): string;
   translateWithComponents<T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>): T | string;
-}
+};
 
 export type ComponentInterpolator<T, C> = {
   collect: (submessages: (T | string)[]) => T | string;
   wrap: (component: C, message: T | string | undefined) => T | string;
 };
 
-export function getI18n<Messages extends CatalogBase>(catalog: MessageCatalog<Messages>, locale: string): I18n<Messages> {
+export function getTranslator<Messages extends CatalogBase>(catalog: MessageCatalog<Messages>, locale: string): TranslatorObject<Messages> {
   const localCatalog = catalog.localCatalogs[locale];
   if (!localCatalog) throw new Error(`Missing locale: ${locale}`);
 

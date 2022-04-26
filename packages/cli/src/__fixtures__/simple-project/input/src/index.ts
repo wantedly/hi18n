@@ -1,7 +1,7 @@
-import { getI18n } from "@hi18n/core";
+import { getTranslator } from "@hi18n/core";
 import { catalog } from "./locale/catalog";
 
-const { t } = getI18n(catalog, "ja");
+const { t } = getTranslator(catalog, "ja");
 t("example/greeting");
 
 // @ts-ignore

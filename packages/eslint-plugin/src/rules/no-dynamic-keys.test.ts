@@ -10,31 +10,31 @@ new RuleTester({
 }).run("no-dynamic-keys", rule, {
   valid: [
     `
-      import { getI18n } from "@hi18n/core";
+      import { getTranslator } from "@hi18n/core";
       import { catalog } from "../locale/catalog";
 
-      const { t } = getI18n(catalog, "en");
+      const { t } = getTranslator(catalog, "en");
       t("example.greeting");
     `,
     `
-      import { getI18n } from "@hi18n/core";
+      import { getTranslator } from "@hi18n/core";
       import { catalog } from "../locale/catalog";
 
-      const { t: translate } = getI18n(catalog, "en");
+      const { t: translate } = getTranslator(catalog, "en");
       translate("example.greeting");
     `,
     `
-      import { getI18n } from "@hi18n/core";
+      import { getTranslator } from "@hi18n/core";
       import { catalog } from "../locale/catalog";
 
-      const translate = getI18n(catalog, "en").t;
+      const translate = getTranslator(catalog, "en").t;
       translate("example.greeting");
     `,
     `
-      import { getI18n } from "@hi18n/core";
+      import { getTranslator } from "@hi18n/core";
       import { catalog } from "../locale/catalog";
 
-      const { t: translate } = getI18n(catalog, "en");
+      const { t: translate } = getTranslator(catalog, "en");
       const id = "example.greeting";
       t(id);
     `,
@@ -42,10 +42,10 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { getI18n } from "@hi18n/core";
+        import { getTranslator } from "@hi18n/core";
         import { catalog } from "../locale/catalog";
 
-        const { t } = getI18n(catalog, "en");
+        const { t } = getTranslator(catalog, "en");
         const id = "example.greeting";
         t(id);
       `,
@@ -53,10 +53,10 @@ new RuleTester({
     },
     {
       code: `
-        import { getI18n } from "@hi18n/core";
+        import { getTranslator } from "@hi18n/core";
         import { catalog } from "../locale/catalog";
 
-        const { t: translate } = getI18n(catalog, "en");
+        const { t: translate } = getTranslator(catalog, "en");
         const id = "example.greeting";
         translate(id);
       `,
@@ -64,10 +64,10 @@ new RuleTester({
     },
     {
       code: `
-        import { getI18n } from "@hi18n/core";
+        import { getTranslator } from "@hi18n/core";
         import { catalog } from "../locale/catalog";
 
-        const translate = getI18n(catalog, "en").t;
+        const translate = getTranslator(catalog, "en").t;
         const id = "example.greeting";
         translate(id);
       `,

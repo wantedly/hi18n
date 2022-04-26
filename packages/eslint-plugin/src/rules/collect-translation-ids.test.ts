@@ -9,12 +9,12 @@ describe("collect-translation-ids", () => {
     const linter = new Linter();
     linter.defineRule("collect-translation-ids", rule);
     linter.verify(`
-      import { getI18n } from "@hi18n/core";
+      import { getTranslator } from "@hi18n/core";
       import { useI18n, Translate } from "@hi18n/react";
       import { catalog } from "../locale/catalog";
 
       {
-        const { t } = getI18n(catalog, "en");
+        const { t } = getTranslator(catalog, "en");
         t("example.greeting");
         t("example.greeting2", { name: "Taro" });
       }
@@ -26,7 +26,7 @@ describe("collect-translation-ids", () => {
       }
 
       // Module scope
-      const { t: ttt } = getI18n(catalog, "en");
+      const { t: ttt } = getTranslator(catalog, "en");
       ttt("example.greeting3");
     `, {
       parserOptions: {

@@ -1,12 +1,12 @@
 import React from 'react';
-import { CatalogBase, I18n, MessageArguments, MessageCatalog, getI18n } from '@hi18n/core';
+import { CatalogBase, TranslatorObject, MessageArguments, MessageCatalog, getTranslator } from '@hi18n/core';
 
 export const LocaleContext = /* #__PURE__ */ React.createContext<string>("");
 /* #__PURE__ */ (LocaleContext.displayName = "LocaleContext");
 
-export function useI18n<M extends CatalogBase>(catalog: MessageCatalog<M>): I18n<M> {
+export function useI18n<M extends CatalogBase>(catalog: MessageCatalog<M>): TranslatorObject<M> {
   const locale = React.useContext(LocaleContext);
-  return getI18n(catalog, locale);
+  return getTranslator(catalog, locale);
 }
 
 export type TranslateProps<M extends CatalogBase, K extends keyof M> = {
@@ -23,11 +23,11 @@ export function Translate<M extends CatalogBase, K extends string & keyof M>(pro
   const { catalog, id, children, ...params } = props;
   extractComponents(children, params, { length: 0 });
   fillComponentKeys(params);
-  const I18n = useI18n(catalog);
+  const translator = useI18n(catalog);
   return (
     <>
       {
-        I18n.translateWithComponents<React.ReactNode, React.ReactElement, K>(
+        translator.translateWithComponents<React.ReactNode, React.ReactElement, K>(
           id,
           { collect, wrap },
           params as any,
