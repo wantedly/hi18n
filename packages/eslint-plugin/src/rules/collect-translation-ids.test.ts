@@ -37,12 +37,9 @@ describe("collect-translation-ids", () => {
         sourceType: "module",
       },
       rules: {
-        "collect-translation-ids": "error",
-      },
-      settings: {
-        "@hi18n/collect-ids-callback"(u: TranslationUsage) {
+        "collect-translation-ids": ["error", (u: TranslationUsage) => {
           collected.push(u);
-        },
+        }],
       },
     });
     expect(collected).toEqual([

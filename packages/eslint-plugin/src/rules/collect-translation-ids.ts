@@ -18,11 +18,11 @@ export const meta: Rule.RuleMetaData = {
 };
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
-  if (context.settings["@hi18n/collect-ids-callback"] === undefined) {
-    throw new Error("settings[\"@hi18n/collect-ids-callback\"] not found\nNote: this rule is for an internal use.");
+  if (context.options[0] === undefined) {
+    throw new Error("Callback not found\nNote: this rule is for an internal use.");
   }
-  if (typeof context.settings["@hi18n/collect-ids-callback"] !== "function") throw new Error("invalid collectIdsCallback");
-  const collectIdsCallback = context.settings["@hi18n/collect-ids-callback"] as CollectTranslationIdsCallback;
+  if (typeof context.options[0] !== "function") throw new Error("invalid callback");
+  const collectIdsCallback = context.options[0] as CollectTranslationIdsCallback;
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
     const idNode = captured["id"]!;

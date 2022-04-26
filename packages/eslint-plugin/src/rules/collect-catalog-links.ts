@@ -18,11 +18,11 @@ export const meta: Rule.RuleMetaData = {
 };
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
-  if (context.settings["@hi18n/collect-catalog-links-callback"] === undefined) {
-    throw new Error("settings[\"@hi18n/collect-catalog-links-callback\"] not found\nNote: this rule is for an internal use.");
+  if (context.options[0] === undefined) {
+    throw new Error("Callback not found\nNote: this rule is for an internal use.");
   }
-  if (typeof context.settings["@hi18n/collect-catalog-links-callback"] !== "function") throw new Error("invalid collectIdsCallback");
-  const collectCatalogLinksCallback = context.settings["@hi18n/collect-catalog-links-callback"] as CollectCatalogLinksCallback;
+  if (typeof context.options[0] !== "function") throw new Error("invalid callback");
+  const collectCatalogLinksCallback = context.options[0] as CollectCatalogLinksCallback;
   const tracker = bookTracker();
   tracker.listen("book", (_node, captured) => {
     const catalogs = captured["catalogs"]!;

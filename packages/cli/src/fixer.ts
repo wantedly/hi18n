@@ -44,16 +44,12 @@ export async function fixTranslations(options: Options) {
     const messages = collectLinter.verify(source, {
       ...linterConfig,
       rules: {
-        "@hi18n/collect-translation-ids": "error",
-        "@hi18n/collect-catalog-links": "error",
-      },
-      settings: {
-        "@hi18n/collect-ids-callback"(u: TranslationUsage) {
+        "@hi18n/collect-translation-ids": ["error", (u: TranslationUsage) => {
           translationUsages.push(u);
-        },
-        "@hi18n/collect-catalog-links-callback"(l: CatalogLink) {
+        }],
+        "@hi18n/collect-catalog-links": ["error", (l: CatalogLink) => {
           catalogLinks.push(l);
-        },
+        }],
       },
     }, { filename: filepath });
     checkMessages(filepath, messages);

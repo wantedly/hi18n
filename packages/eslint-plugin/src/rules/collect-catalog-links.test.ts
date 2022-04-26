@@ -26,12 +26,9 @@ describe("collect-translation-ids", () => {
         sourceType: "module",
       },
       rules: {
-        "@hi18n/collect-catalog-links": "error",
-      },
-      settings: {
-        "@hi18n/collect-catalog-links-callback"(l: CatalogLink) {
+        "@hi18n/collect-catalog-links": ["error", (l: CatalogLink) => {
           collected.push(l);
-        },
+        }],
       },
     });
     expect(collected).toEqual([
