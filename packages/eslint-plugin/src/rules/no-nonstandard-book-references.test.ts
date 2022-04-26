@@ -11,14 +11,14 @@ new RuleTester({
   valid: [
     `
       import { getTranslator } from "@hi18n/core";
-      import { book } from "../locale/catalog";
+      import { book } from "../locale";
 
       const { t } = getTranslator(book, "en");
       t("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { book as book2 } from "../locale/catalog";
+      import { book as book2 } from "../locale";
 
       const { t } = getTranslator(book2, "en");
       t("example.greeting");
@@ -56,7 +56,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { book2 } from "../locale/catalog";
+        import { book2 } from "../locale";
 
         const { t } = getTranslator(book2, "en");
         t("example.greeting");
@@ -66,7 +66,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { book2 as book } from "../locale/catalog";
+        import { book2 as book } from "../locale";
 
         const { t } = getTranslator(book, "en");
         t("example.greeting");
@@ -76,7 +76,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import book from "../locale/catalog";
+        import book from "../locale";
 
         const { t } = getTranslator(book, "en");
         t("example.greeting");
@@ -86,7 +86,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import * as book from "../locale/catalog";
+        import * as book from "../locale";
 
         const { t } = getTranslator(book, "en");
         t("example.greeting");

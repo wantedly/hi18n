@@ -1,6 +1,6 @@
 import { Message, Book } from "@hi18n/core";
-import catalogEn from "./catalog-en";
-import catalogJa from "./catalog-ja";
+import catalogEn from "./en";
+import catalogJa from "./ja";
 
 export type Vocabulary = {
   "example/greeting": Message,

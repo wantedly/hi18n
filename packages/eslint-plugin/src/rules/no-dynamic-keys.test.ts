@@ -11,28 +11,28 @@ new RuleTester({
   valid: [
     `
       import { getTranslator } from "@hi18n/core";
-      import { book } from "../locale/catalog";
+      import { book } from "../locale";
 
       const { t } = getTranslator(book, "en");
       t("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { book } from "../locale/catalog";
+      import { book } from "../locale";
 
       const { t: translate } = getTranslator(book, "en");
       translate("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { book } from "../locale/catalog";
+      import { book } from "../locale";
 
       const translate = getTranslator(book, "en").t;
       translate("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { book } from "../locale/catalog";
+      import { book } from "../locale";
 
       const { t: translate } = getTranslator(book, "en");
       const id = "example.greeting";
@@ -43,7 +43,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { book } from "../locale/catalog";
+        import { book } from "../locale";
 
         const { t } = getTranslator(book, "en");
         const id = "example.greeting";
@@ -54,7 +54,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { book } from "../locale/catalog";
+        import { book } from "../locale";
 
         const { t: translate } = getTranslator(book, "en");
         const id = "example.greeting";
@@ -65,7 +65,7 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { book } from "../locale/catalog";
+        import { book } from "../locale";
 
         const translate = getTranslator(book, "en").t;
         const id = "example.greeting";
@@ -76,7 +76,7 @@ new RuleTester({
     {
       code: `
         import { useI18n } from "@hi18n/react";
-        import { book } from "../locale/catalog";
+        import { book } from "../locale";
 
         const { t } = useI18n(book);
         const id = "example.greeting";
@@ -87,7 +87,7 @@ new RuleTester({
     {
       code: `
         import { Translate } from "@hi18n/react";
-        import { book } from "../locale/catalog";
+        import { book } from "../locale";
 
         const id = "example.greeting";
         <Translate id={id} book={book} />;

@@ -14,8 +14,8 @@ new RuleTester({
     `,
     `
       import { Book } from "@hi18n/core";
-      import catalogEn from "./catalog-en";
-      import catalogJa from "./catalog-ja";
+      import catalogEn from "./en";
+      import catalogJa from "./ja";
       export const book = new Book({
         en: catalogEn,
         ja: catalogJa,
@@ -23,8 +23,8 @@ new RuleTester({
     `,
     `
       import { Book } from "@hi18n/core";
-      import { default as catalogEn } from "./catalog-en";
-      import { default as catalogJa } from "./catalog-ja";
+      import { default as catalogEn } from "./en";
+      import { default as catalogJa } from "./ja";
       export const book = new Book({
         en: catalogEn,
         ja: catalogJa,
@@ -35,8 +35,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         export const book = new Book(42);
       `,
       errors: ["the first argument should be an object literal"],
@@ -44,8 +44,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         export const book = new Book(...others);
       `,
       errors: ["the first argument should be an object literal"],
@@ -53,8 +53,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -66,8 +66,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -79,7 +79,7 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
+        import catalogEn from "./en";
         export const book = new Book({
           en: catalogEn,
           ja: {},
@@ -90,7 +90,7 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
+        import catalogEn from "./en";
         const catalogJa = {};
         export const book = new Book({
           en: catalogEn,
@@ -102,8 +102,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import { something as catalogJa } from "./catalog-ja";
+        import catalogEn from "./en";
+        import { something as catalogJa } from "./ja";
         export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -114,8 +114,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import * as catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import * as catalogJa from "./ja";
         export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -126,8 +126,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         export default new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -138,8 +138,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         const book = new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -150,8 +150,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -162,8 +162,8 @@ new RuleTester({
     {
       code: `
         import { Book } from "@hi18n/core";
-        import catalogEn from "./catalog-en";
-        import catalogJa from "./catalog-ja";
+        import catalogEn from "./en";
+        import catalogJa from "./ja";
         export const foo = new Book({
           en: catalogEn,
           ja: catalogJa,
@@ -199,8 +199,8 @@ new RuleTester({
     `,
     `
       import { Book } from "@hi18n/core";
-      import catalogEn from "./catalog-en";
-      import catalogJa from "./catalog-ja";
+      import catalogEn from "./en";
+      import catalogJa from "./ja";
       type Vocabulary = {};
       export const book = new Book<Vocabulary>({
         en: catalogEn,
@@ -210,8 +210,8 @@ new RuleTester({
     `
       import { Book } from "@hi18n/core";
       import type { Message } from "@hi18n/core";
-      import catalogEn from "./catalog-en";
-      import catalogJa from "./catalog-ja";
+      import catalogEn from "./en";
+      import catalogJa from "./ja";
       type Vocabulary = {
         "example/greeting": Message,
       };
