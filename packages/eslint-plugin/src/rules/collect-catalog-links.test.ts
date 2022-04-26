@@ -35,8 +35,8 @@ describe("collect-translation-ids", () => {
       },
     });
     expect(collected).toEqual([
-      { locale: "en", localCatalogSource: "./catalog-en", bookFilename: "<input>" },
-      { locale: "ja", localCatalogSource: "./catalog-ja", bookFilename: "<input>" },
+      { locale: "en", catalogSource: "./catalog-en", bookFilename: "<input>" },
+      { locale: "ja", catalogSource: "./catalog-ja", bookFilename: "<input>" },
     ]);
   });
 });

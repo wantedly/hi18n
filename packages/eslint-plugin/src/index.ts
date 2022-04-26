@@ -6,7 +6,7 @@ import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids
 import * as ruleNoMissingTranslationIdsInTypes from "./rules/no-missing-translation-ids-in-types";
 import * as ruleNoNonstandardBookReferences from "./rules/no-nonstandard-book-references";
 import * as ruleNoNonstandardBooks from "./rules/no-nonstandard-books";
-import * as ruleNoNonstandardLocalCatalogs from "./rules/no-nonstandard-local-catalogs";
+import * as ruleNoNonstandardCatalogs from "./rules/no-nonstandard-catalogs";
 import * as ruleNoUnusedTranslationIds from "./rules/no-unused-translation-ids";
 import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translation-ids-in-types";
 
@@ -18,7 +18,7 @@ type RuleName =
   | "no-missing-translation-ids-in-types"
   | "no-nonstandard-book-references"
   | "no-nonstandard-books"
-  | "no-nonstandard-local-catalogs"
+  | "no-nonstandard-catalogs"
   | "no-unused-translation-ids"
   | "no-unused-translation-ids-in-types";
 
@@ -31,7 +31,7 @@ export const rules: Record<RuleName, Rule.RuleModule> = {
   "no-missing-translation-ids-in-types": ruleNoMissingTranslationIdsInTypes,
   "no-nonstandard-book-references": ruleNoNonstandardBookReferences,
   "no-nonstandard-books": ruleNoNonstandardBooks,
-  "no-nonstandard-local-catalogs": ruleNoNonstandardLocalCatalogs,
+  "no-nonstandard-catalogs": ruleNoNonstandardCatalogs,
   "no-unused-translation-ids": ruleNoUnusedTranslationIds,
   "no-unused-translation-ids-in-types": ruleNoUnusedTranslationIdsInTypes,
 };

@@ -1,7 +1,7 @@
 import type { AST, Rule, SourceCode } from "eslint";
 import { getStaticKey } from "../util";
 import { Comment, Node, ObjectExpression, Property } from "estree";
-import { localCatalogTracker } from "../common-trackers";
+import { catalogTracker } from "../common-trackers";
 
 export const meta: Rule.RuleMetaData = {
   type: "suggestion",
@@ -16,8 +16,8 @@ export const meta: Rule.RuleMetaData = {
 };
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
-  const tracker = localCatalogTracker();
-  tracker.listen("new import(\"@hi18n/core\").LocalCatalog()", (_node, captured) => {
+  const tracker = catalogTracker();
+  tracker.listen("new import(\"@hi18n/core\").Catalog()", (_node, captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
     if (usedIds === undefined) throw new Error("settings[\"@hi18n/used-translation-ids\"] not found\nNote: this rule is for an internal use.");
     if (!Array.isArray(usedIds) || !usedIds.every((k): k is string => typeof k === "string")) throw new Error("Invalid usedIds");

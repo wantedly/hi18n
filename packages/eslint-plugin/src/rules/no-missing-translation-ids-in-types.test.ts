@@ -18,7 +18,7 @@ new RuleTester({
       code: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/greeting": Message,
           "example/greeting2": Message,
           "example/greeting3": Message,
@@ -34,7 +34,7 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -49,7 +49,7 @@ new RuleTester({
       code: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/greeting": Message;
           "example/greeting2": Message;
           "example/greeting3": Message;
@@ -65,7 +65,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -82,7 +82,7 @@ new RuleTester({
       code: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/greeting": Message,
           "example/greeting2": Message,
           "example/greeting3": Message,
@@ -98,7 +98,7 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -112,7 +112,7 @@ new RuleTester({
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/greeting": Message,
           "example/greeting2": Message,
           "example/greeting3": Message,
@@ -128,14 +128,14 @@ new RuleTester({
             param3: number;
           }>,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
     },
     {
       code: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/greeting": Message;
           "example/greeting2": Message;
           "example/greeting3": Message;
@@ -151,7 +151,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -165,7 +165,7 @@ new RuleTester({
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/greeting": Message;
           "example/greeting2": Message;
           "example/greeting3": Message;
@@ -181,14 +181,14 @@ new RuleTester({
             param3: number;
           }>;
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
     },
     {
       code: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/c": Message,
           "example/g": Message,
           "example/k": Message,
@@ -196,7 +196,7 @@ new RuleTester({
           "example/i": Message,
           "example/m": Message,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -219,7 +219,7 @@ new RuleTester({
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/b": Message;
           "example/c": Message,
           "example/d": Message;
@@ -234,14 +234,14 @@ new RuleTester({
           "example/m": Message,
           "example/n": Message;
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
     },
     {
       code: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/c": Message;
           "example/g": Message;
           "example/k": Message;
@@ -249,7 +249,7 @@ new RuleTester({
           "example/i": Message;
           "example/m": Message;
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -272,7 +272,7 @@ new RuleTester({
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
-        export type Messages = {
+        export type Vocabulary = {
           "example/b": Message;
           "example/c": Message;
           "example/d": Message;
@@ -287,7 +287,7 @@ new RuleTester({
           "example/m": Message;
           "example/n": Message;
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
     },
   ],

@@ -1,23 +1,23 @@
 import { describe, expect, it } from "@jest/globals";
-import { Book, LocalCatalog, Message, getTranslator, msg } from "./index";
+import { Book, Catalog, Message, getTranslator, msg } from "./index";
 
-type Messages = {
+type Vocabulary = {
   "example/greeting": Message,
   "example/greeting2": Message<{ name: string }>,
   "example/apples": Message<{ count: number }>,
 };
 
-const catalogJa = new LocalCatalog<Messages>({
+const catalogJa = new Catalog<Vocabulary>({
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
 });
-const catalogEn = new LocalCatalog<Messages>({
+const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg("{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"),
 });
-const book = new Book<Messages>({
+const book = new Book<Vocabulary>({
   ja: catalogJa,
   en: catalogEn,
 });

@@ -10,8 +10,8 @@ new RuleTester({
   valid: [
     {
       code: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/greeting": msg("Hello!"),
           "example/greeting2": msg("Hello, world!"),
           "example/greeting3": msg("Hello again!"),
@@ -37,8 +37,8 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/greeting": msg("Hello!"),
           "example/greeting2": msg("Hello, world!"),
           "example/greeting3": msg("Hello again!"),
@@ -61,8 +61,8 @@ new RuleTester({
       },
       errors: ["missing translation ids"],
       output: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/greeting": msg("Hello!"),
           "example/greeting2": msg("Hello, world!"),
           "example/greeting3": msg("Hello again!"),
@@ -78,8 +78,8 @@ new RuleTester({
     },
     {
       code: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/c": msg("Hello!"),
           "example/g": msg("Hello!"),
           "example/k": msg("Hello!"),
@@ -107,8 +107,8 @@ new RuleTester({
       },
       errors: ["missing translation ids"],
       output: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/b": msg(),
           "example/c": msg("Hello!"),
           "example/d": msg(),

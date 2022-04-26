@@ -85,7 +85,7 @@ new RuleTester({
           ja: {},
         });
       `,
-      errors: ["the local catalog should be directly imported from the corresponding module."],
+      errors: ["the catalog should be directly imported from the corresponding module."],
     },
     {
       code: `
@@ -97,7 +97,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the local catalog should be directly imported from the corresponding module."],
+      errors: ["the catalog should be directly imported from the corresponding module."],
     },
     {
       code: `
@@ -109,7 +109,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the local catalog should be exported as default"],
+      errors: ["the catalog should be exported as default"],
     },
     {
       code: `
@@ -121,7 +121,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the local catalog should be exported as default"],
+      errors: ["the catalog should be exported as default"],
     },
     {
       code: `
@@ -189,20 +189,20 @@ new RuleTester({
   valid: [
     `
       import { Book } from "@hi18n/core";
-      type Messages = {};
-      export const book = new Book<Messages>({});
+      type Vocabulary = {};
+      export const book = new Book<Vocabulary>({});
     `,
     `
       import { Book } from "@hi18n/core";
-      interface Messages {}
-      export const book = new Book<Messages>({});
+      interface Vocabulary {}
+      export const book = new Book<Vocabulary>({});
     `,
     `
       import { Book } from "@hi18n/core";
       import catalogEn from "./catalog-en";
       import catalogJa from "./catalog-ja";
-      type Messages = {};
-      export const book = new Book<Messages>({
+      type Vocabulary = {};
+      export const book = new Book<Vocabulary>({
         en: catalogEn,
         ja: catalogJa,
       });
@@ -212,10 +212,10 @@ new RuleTester({
       import type { Message } from "@hi18n/core";
       import catalogEn from "./catalog-en";
       import catalogJa from "./catalog-ja";
-      type Messages = {
+      type Vocabulary = {
         "example/greeting": Message,
       };
-      export const book = new Book<Messages>({
+      export const book = new Book<Vocabulary>({
         en: catalogEn,
         ja: catalogJa,
       });
@@ -227,68 +227,68 @@ new RuleTester({
         import { Book } from "@hi18n/core";
         export const book = new Book<{}>({});
       `,
-      errors: ["declare catalog type as type Messages = { ... }"],
+      errors: ["declare catalog type as type Vocabulary = { ... }"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
-      errors: ["declare catalog type as type Messages = { ... }"],
+      errors: ["declare catalog type as type Vocabulary = { ... }"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        class Messages {}
-        export const book = new Book<Messages>({});
+        class Vocabulary {}
+        export const book = new Book<Vocabulary>({});
       `,
-      errors: ["declare catalog type as type Messages = { ... }"],
+      errors: ["declare catalog type as type Vocabulary = { ... }"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        type Messages = {} & {};
-        export const book = new Book<Messages>({});
+        type Vocabulary = {} & {};
+        export const book = new Book<Vocabulary>({});
       `,
-      errors: ["declare catalog type as type Messages = { ... }"],
+      errors: ["declare catalog type as type Vocabulary = { ... }"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        type Messages = {
+        type Vocabulary = {
           "example/foo"(): number,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       errors: ["only simple signatures are allowed"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        type Messages = {
+        type Vocabulary = {
           "example/foo"?: Message,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       errors: ["only simple signatures are allowed"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        type Messages = {
+        type Vocabulary = {
           readonly "example/foo": Message,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       errors: ["only simple signatures are allowed"],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
-        type Messages = {
+        type Vocabulary = {
           [Symbol.toStringTag]: Message,
         };
-        export const book = new Book<Messages>({});
+        export const book = new Book<Vocabulary>({});
       `,
       errors: ["only simple signatures are allowed"],
     },

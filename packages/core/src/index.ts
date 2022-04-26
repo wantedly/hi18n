@@ -9,33 +9,33 @@ declare const messageBrandSymbol: unique symbol;
 export type Message<Args = {}> = string & {
   [messageBrandSymbol]: (args: Args) => void;
 };
-export type CatalogBase = Record<string, Message<any>>;
+export type VocabularyBase = Record<string, Message<any>>;
 export type MessageArguments<M extends Message<any>, C> = M extends Message<infer Args> ? InstantiateComponentTypes<Args, C> : never;
 export type InstantiateComponentTypes<Args, C> = {
   [K in keyof Args]: InstantiateComponentType<Args[K], C>;
 };
 export type InstantiateComponentType<T, C> = T extends ComponentPlaceholder ? C : T;
-export type SimpleMessageKeys<Messages extends CatalogBase, K extends string & keyof Messages = string & keyof Messages> =
-  K extends unknown ? {} extends MessageArguments<Messages[K], never> ? K : never : never;
+export type SimpleMessageKeys<Vocabulary extends VocabularyBase, K extends string & keyof Vocabulary = string & keyof Vocabulary> =
+  K extends unknown ? {} extends MessageArguments<Vocabulary[K], never> ? K : never : never;
 
 export function msg<S extends string>(s: S): InferredMessageType<S> {
   return s as any;
 }
 
-export class Book<Messages extends CatalogBase> {
-  constructor(public readonly localCatalogs: Readonly<Record<string, LocalCatalog<Messages>>>) {
-    for (const [locale, localCatalog] of Object.entries(localCatalogs)) {
-      localCatalog.locale = locale;
+export class Book<Vocabulary extends VocabularyBase> {
+  constructor(public readonly catalogs: Readonly<Record<string, Catalog<Vocabulary>>>) {
+    for (const [locale, catalog] of Object.entries(catalogs)) {
+      catalog.locale = locale;
     }
   }
 }
 
-export class LocalCatalog<Messages extends CatalogBase> {
+export class Catalog<Vocabulary extends VocabularyBase> {
   public locale?: string | undefined;
   private _compiled: Record<string, CompiledMessage> = {};
-  constructor(public readonly data: Readonly<Messages>) {}
+  constructor(public readonly data: Readonly<Vocabulary>) {}
 
-  getCompiledMessage(key: string & keyof Messages): CompiledMessage {
+  getCompiledMessage(key: string & keyof Vocabulary): CompiledMessage {
     if (!Object.prototype.hasOwnProperty.call(this._compiled, key)) {
       if (!Object.prototype.hasOwnProperty.call(this.data, key)) {
         throw new Error(`Missing translation in ${this.locale} for ${key}`);
@@ -47,10 +47,10 @@ export class LocalCatalog<Messages extends CatalogBase> {
   }
 }
 
-export type TranslatorObject<Messages extends CatalogBase> = {
-  t(key: SimpleMessageKeys<Messages>): string;
-  t<K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never>): string;
-  translateWithComponents<T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>): T | string;
+export type TranslatorObject<Vocabulary extends VocabularyBase> = {
+  t(key: SimpleMessageKeys<Vocabulary>): string;
+  t<K extends string & keyof Vocabulary>(key: K, options: MessageArguments<Vocabulary[K], never>): string;
+  translateWithComponents<T, C, K extends string & keyof Vocabulary>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Vocabulary[K], C>): T | string;
 };
 
 export type ComponentInterpolator<T, C> = {
@@ -58,17 +58,17 @@ export type ComponentInterpolator<T, C> = {
   wrap: (component: C, message: T | string | undefined) => T | string;
 };
 
-export function getTranslator<Messages extends CatalogBase>(book: Book<Messages>, locale: string): TranslatorObject<Messages> {
-  const localCatalog = book.localCatalogs[locale];
-  if (!localCatalog) throw new Error(`Missing locale: ${locale}`);
+export function getTranslator<Vocabulary extends VocabularyBase>(book: Book<Vocabulary>, locale: string): TranslatorObject<Vocabulary> {
+  const catalog = book.catalogs[locale];
+  if (!catalog) throw new Error(`Missing locale: ${locale}`);
 
   return {
-    t: <K extends string & keyof Messages>(key: K, options: MessageArguments<Messages[K], never> = {} as any) => {
-      return evaluateMessage(localCatalog.getCompiledMessage(key), { key, locale, params: options });
+    t: <K extends string & keyof Vocabulary>(key: K, options: MessageArguments<Vocabulary[K], never> = {} as any) => {
+      return evaluateMessage(catalog.getCompiledMessage(key), { key, locale, params: options });
     },
-    translateWithComponents: <T, C, K extends string & keyof Messages>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Messages[K], C>) => {
+    translateWithComponents: <T, C, K extends string & keyof Vocabulary>(key: K, interpolator: ComponentInterpolator<T, C>, options: MessageArguments<Vocabulary[K], C>) => {
       return evaluateMessage<T>(
-        localCatalog.getCompiledMessage(key),
+        catalog.getCompiledMessage(key),
         {
           key,
           locale,

@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from "@jest/globals";
-import { Book, LocalCatalog, Message, msg } from '@hi18n/core';
+import { Book, Catalog, Message, msg } from '@hi18n/core';
 import { LocaleContext, Translate, useI18n } from "./index";
 import { ComponentPlaceholder } from '@hi18n/core';
 
@@ -9,7 +9,7 @@ declare module "expect/build/types" {
   export interface Matchers<R, T> extends globalThis.jest.Matchers<R, T> {}
 }
 
-type Messages = {
+type Vocabulary = {
   "example/greeting": Message,
   "example/greeting2": Message<{ name: string }>,
   "example/apples": Message<{ count: number }>,
@@ -18,7 +18,7 @@ type Messages = {
   "example/message-link": Message<{ newMessages: number, messages: number, 0: ComponentPlaceholder }>,
 };
 
-const catalogJa = new LocalCatalog<Messages>({
+const catalogJa = new Catalog<Vocabulary>({
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
@@ -26,7 +26,7 @@ const catalogJa = new LocalCatalog<Messages>({
   "example/link2": msg("<link>こちら</link>をクリック!"),
   "example/message-link": msg("{newMessages,number}件のメッセージがあります。 <0>{messages,number}件の全てのメッセージを見る</0>"),
 });
-const catalogEn = new LocalCatalog<Messages>({
+const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg("{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"),
@@ -34,7 +34,7 @@ const catalogEn = new LocalCatalog<Messages>({
   "example/link2": msg("Click <link>here</link>!"),
   "example/message-link": msg("You have {newMessages,plural,one{{newMessages,number} new message}other{{newMessages,number} new messages}}. <0>See all the {messages,plural,one{{messages,number} message}other{{messages,number} messages}}</0>."),
 });
-const book = new Book<Messages>({
+const book = new Book<Vocabulary>({
   ja: catalogJa,
   en: catalogEn,
 });

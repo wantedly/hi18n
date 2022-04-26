@@ -10,8 +10,8 @@ new RuleTester({
   valid: [
     {
       code: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/greeting": msg("Hello!"),
           "example/greeting2": msg("Hello, world!"),
           "example/greeting3": msg("Hello again!"),
@@ -37,8 +37,8 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/greeting": msg("Hello!"),
           "example/greeting2": msg("Hello, world!"),
           "example/greeting3": msg("Hello again!"),
@@ -61,8 +61,8 @@ new RuleTester({
       },
       errors: ["unused translation id", "unused translation id"],
       output: `
-        import { LocalCatalog, msg } from "@hi18n/core";
-        export default new LocalCatalog({
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
           "example/greeting": msg("Hello!"),
           // "example/greeting2": msg("Hello, world!"),
           "example/greeting3": msg("Hello again!"),

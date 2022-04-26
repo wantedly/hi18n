@@ -61,7 +61,7 @@ export async function fixTranslations(options: Options) {
 
   type BookData = {
     bookPath: string;
-    localCatalogPaths: string[];
+    catalogPaths: string[];
     translationIds: Set<string>;
   };
   const books = new Map<string, BookData>();
@@ -74,14 +74,14 @@ export async function fixTranslations(options: Options) {
     if (!books.has(relative)) {
       books.set(relative, {
         bookPath: relative,
-        localCatalogPaths: [],
+        catalogPaths: [],
         translationIds: new Set(),
       });
     }
     books.get(relative)!.translationIds.add(u.id);
   }
   for (const l of catalogLinks) {
-    const { resolved } = await resolveAsPromise(l.localCatalogSource, {
+    const { resolved } = await resolveAsPromise(l.catalogSource, {
       basedir: path.dirname(path.resolve(projectPath, l.bookFilename)),
       extensions: [".js", ".cjs", ".mjs", ".ts", ".cts", ".mts", ".jsx", ".tsx"],
     });
@@ -89,20 +89,20 @@ export async function fixTranslations(options: Options) {
     if (!books.has(l.bookFilename)) {
       books.set(l.bookFilename, {
         bookPath: l.bookFilename,
-        localCatalogPaths: [],
+        catalogPaths: [],
         translationIds: new Set(),
       });
     }
-    books.get(l.bookFilename)!.localCatalogPaths.push(relative);
+    books.get(l.bookFilename)!.catalogPaths.push(relative);
   }
   for (const [, book] of books) {
-    for (const localCatalog of book.localCatalogPaths) {
+    for (const catalog of book.catalogPaths) {
       const fixLinter = new Linter({ cwd: projectPath });
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
       fixLinter.defineRule("@hi18n/no-missing-translation-ids", rules["no-missing-translation-ids"]);
       fixLinter.defineRule("@hi18n/no-unused-translation-ids", rules["no-unused-translation-ids"]);
 
-      const source = await fs.promises.readFile(path.resolve(projectPath, localCatalog), "utf-8");
+      const source = await fs.promises.readFile(path.resolve(projectPath, catalog), "utf-8");
       const report = fixLinter.verifyAndFix(source, {
         ...linterConfig,
         rules: {
@@ -112,10 +112,10 @@ export async function fixTranslations(options: Options) {
         settings: {
           "@hi18n/used-translation-ids": Array.from(book.translationIds),
         },
-      }, { filename: path.resolve(projectPath, localCatalog) });
-      checkMessages(localCatalog, report.messages);
+      }, { filename: path.resolve(projectPath, catalog) });
+      checkMessages(catalog, report.messages);
       if (report.fixed) {
-        await fs.promises.writeFile(path.resolve(projectPath, localCatalog), report.output, "utf-8");
+        await fs.promises.writeFile(path.resolve(projectPath, catalog), report.output, "utf-8");
       }
     }
 

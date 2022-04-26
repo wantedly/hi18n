@@ -6,18 +6,18 @@ export function bookTracker(): Tracker {
   tracker.watchMember("import(\"@hi18n/core\")", "Book");
   tracker.watchConstruct("import(\"@hi18n/core\").Book", [
     {
-      captureAs: "localCatalogs",
+      captureAs: "catalogs",
       path: ["0"],
     },
   ], "book");
   return tracker;
 }
 
-export function localCatalogTracker(): Tracker {
+export function catalogTracker(): Tracker {
   const tracker = new Tracker();
   tracker.watchImport("@hi18n/core");
-  tracker.watchMember("import(\"@hi18n/core\")", "LocalCatalog");
-  tracker.watchConstruct("import(\"@hi18n/core\").LocalCatalog", [
+  tracker.watchMember("import(\"@hi18n/core\")", "Catalog");
+  tracker.watchConstruct("import(\"@hi18n/core\").Catalog", [
     {
       captureAs: "catalogData",
       path: ["0"],

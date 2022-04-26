@@ -13,12 +13,12 @@ export const meta: ruleNoNonstandardBooks.RuleMetaData = {
   },
   messages: {
     "book-export-as-book": "the book should be exported as \"book\"",
-    "import-local-catalogs": "the local catalog should be directly imported from the corresponding module.",
-    "import-local-catalogs-as-default": "the local catalog should be exported as default",
-    "local-catalogs-should-be-object": "the first argument should be an object literal",
-    "local-catalogs-invalid-spread": "do not use spread in the catalog list",
-    "local-catalogs-invalid-key": "do not use dynamic keys for the catalog list",
-    "catalog-type-must-be-type-alias": "declare catalog type as type Messages = { ... }",
+    "import-catalogs": "the catalog should be directly imported from the corresponding module.",
+    "import-catalogs-as-default": "the catalog should be exported as default",
+    "catalogs-should-be-object": "the first argument should be an object literal",
+    "catalogs-invalid-spread": "do not use spread in the catalog list",
+    "catalogs-invalid-key": "do not use dynamic keys for the catalog list",
+    "catalog-type-must-be-type-alias": "declare catalog type as type Vocabulary = { ... }",
     "catalog-type-must-contain-only-simple-signatures": "only simple signatures are allowed",
   },
 };
@@ -36,19 +36,19 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
 
     checkTypeParameter(context, node as ruleNoNonstandardBooks.Node);
 
-    const localCatalogs = captured["localCatalogs"]!;
-    if (localCatalogs.type !== "ObjectExpression") {
+    const catalogss = captured["catalogs"]!;
+    if (catalogss.type !== "ObjectExpression") {
       context.report({
-        node: capturedRoot(localCatalogs),
-        messageId: "local-catalogs-should-be-object",
+        node: capturedRoot(catalogss),
+        messageId: "catalogs-should-be-object",
       });
       return;
     }
-    for (const prop of localCatalogs.properties) {
+    for (const prop of catalogss.properties) {
       if (prop.type !== "Property") {
         context.report({
           node: prop,
-          messageId: "local-catalogs-invalid-spread",
+          messageId: "catalogs-invalid-spread",
         });
         continue;
       }
@@ -56,14 +56,14 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
       if (key === null) {
         context.report({
           node: prop.key,
-          messageId: "local-catalogs-invalid-key",
+          messageId: "catalogs-invalid-key",
         });
         continue;
       }
       if (prop.value.type !== "Identifier") {
         context.report({
           node: prop.key,
-          messageId: "import-local-catalogs",
+          messageId: "import-catalogs",
         });
         continue;
       }
@@ -71,14 +71,14 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
       if (!valueDef) {
         context.report({
           node: prop.key,
-          messageId: "import-local-catalogs",
+          messageId: "import-catalogs",
         });
         continue;
       }
       if (valueDef.node.type === "ImportNamespaceSpecifier" || getImportName(valueDef.node) !== "default") {
         context.report({
           node: valueDef.node,
-          messageId: "import-local-catalogs-as-default",
+          messageId: "import-catalogs-as-default",
         });
         continue;
       }

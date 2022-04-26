@@ -1,15 +1,15 @@
 import React from 'react';
-import { Book, CatalogBase, TranslatorObject, MessageArguments, getTranslator } from '@hi18n/core';
+import { Book, VocabularyBase, TranslatorObject, MessageArguments, getTranslator } from '@hi18n/core';
 
 export const LocaleContext = /* #__PURE__ */ React.createContext<string>("");
 /* #__PURE__ */ (LocaleContext.displayName = "LocaleContext");
 
-export function useI18n<M extends CatalogBase>(book: Book<M>): TranslatorObject<M> {
+export function useI18n<M extends VocabularyBase>(book: Book<M>): TranslatorObject<M> {
   const locale = React.useContext(LocaleContext);
   return getTranslator(book, locale);
 }
 
-export type TranslateProps<M extends CatalogBase, K extends keyof M> = {
+export type TranslateProps<M extends VocabularyBase, K extends keyof M> = {
   book: Book<M>;
   id: K;
   children?: React.ReactNode | undefined;
@@ -19,7 +19,7 @@ type PartialForComponents<T> = Partial<T> & Omit<T, ComponentKeys<T>>;
 type ComponentKeys<T, K extends keyof T = keyof T> =
   K extends unknown ? T[K] extends React.ReactElement ? K : never : never;
 
-export function Translate<M extends CatalogBase, K extends string & keyof M>(props: TranslateProps<M, K>): React.ReactElement | null {
+export function Translate<M extends VocabularyBase, K extends string & keyof M>(props: TranslateProps<M, K>): React.ReactElement | null {
   const { book, id, children, ...params } = props;
   extractComponents(children, params, { length: 0 });
   fillComponentKeys(params);

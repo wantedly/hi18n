@@ -4,7 +4,7 @@ import { bookTracker } from "../common-trackers";
 
 export type CatalogLink = {
   locale: string;
-  localCatalogSource: string;
+  catalogSource: string;
   bookFilename: string;
 };
 export type CollectCatalogLinksCallback = (record: CatalogLink) => void;
@@ -12,7 +12,7 @@ export type CollectCatalogLinksCallback = (record: CatalogLink) => void;
 export const meta: Rule.RuleMetaData = {
   type: "problem",
   docs: {
-    description: "an internal rule to collect links between books and local catalogs",
+    description: "an internal rule to collect links between books and catalogs",
     recommended: false,
   },
 };
@@ -25,11 +25,11 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   const collectCatalogLinksCallback = context.settings["@hi18n/collect-catalog-links-callback"] as CollectCatalogLinksCallback;
   const tracker = bookTracker();
   tracker.listen("book", (_node, captured) => {
-    const localCatalogs = captured["localCatalogs"]!;
-    if (localCatalogs.type !== "ObjectExpression") {
+    const catalogs = captured["catalogs"]!;
+    if (catalogs.type !== "ObjectExpression") {
       return;
     }
-    for (const prop of localCatalogs.properties) {
+    for (const prop of catalogs.properties) {
       if (prop.type !== "Property") continue;
       const key = getStaticKey(prop);
       if (key === null) continue;
@@ -39,7 +39,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       if (valueDef.node.type === "ImportNamespaceSpecifier" || getImportName(valueDef.node) !== "default") return;
       collectCatalogLinksCallback({
         locale: key,
-        localCatalogSource: `${valueDef.parent.source.value}`,
+        catalogSource: `${valueDef.parent.source.value}`,
         bookFilename: context.getFilename(),
       });
     }

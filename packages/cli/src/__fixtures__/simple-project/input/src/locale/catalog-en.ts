@@ -1,7 +1,7 @@
-import { LocalCatalog, msg } from "@hi18n/core";
-import type { Messages } from "./catalog";
+import { Catalog, msg } from "@hi18n/core";
+import type { Vocabulary } from "./catalog";
 
-export default new LocalCatalog<Messages>({
+export default new Catalog<Vocabulary>({
   "example/greeting": msg("Hello, world!"),
   "example/greeting-unused": msg("Hello, world! (unused translation)"),
   // "example/greeting-todo": msg("Hello, world! (TODO)"),
