@@ -22,7 +22,16 @@ type RuleName =
   | "no-unused-translation-ids"
   | "no-unused-translation-ids-in-types";
 
-export const configs: Record<string, Linter.Config> = {};
+export const configs: Record<string, Linter.Config> = {
+  recommended: {
+    rules: {
+      "@hi18n/no-dynamic-translation-ids": "error",
+      "@hi18n/no-nonstandard-book-references": "error",
+      "@hi18n/no-nonstandard-books": "error",
+      "@hi18n/no-nonstandard-catalogs": "error",
+    },
+  },
+};
 export const rules: Record<RuleName, Rule.RuleModule> = {
   "collect-catalog-links": ruleCollectCatalogLinks,
   "collect-translation-ids": ruleCollectTranslationIds,
