@@ -9,11 +9,11 @@ describe("collect-translation-ids", () => {
     const linter = new Linter();
     linter.defineRule("@hi18n/collect-catalog-links", rule);
     linter.verify(`
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       import catalogEn from "./catalog-en";
       import catalogJa from "./catalog-ja";
 
-      export const catalog = new MessageCatalog({
+      export const book = new Book({
         en: catalogEn,
         ja: catalogJa,
       });
@@ -35,8 +35,8 @@ describe("collect-translation-ids", () => {
       },
     });
     expect(collected).toEqual([
-      { locale: "en", localCatalogSource: "./catalog-en", catalogFilename: "<input>" },
-      { locale: "ja", localCatalogSource: "./catalog-ja", catalogFilename: "<input>" },
+      { locale: "en", localCatalogSource: "./catalog-en", bookFilename: "<input>" },
+      { locale: "ja", localCatalogSource: "./catalog-ja", bookFilename: "<input>" },
     ]);
   });
 });

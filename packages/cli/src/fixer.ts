@@ -59,44 +59,44 @@ export async function fixTranslations(options: Options) {
     checkMessages(filepath, messages);
   }
 
-  type CatalogData = {
-    catalogPath: string;
+  type BookData = {
+    bookPath: string;
     localCatalogPaths: string[];
     translationIds: Set<string>;
   };
-  const catalogs = new Map<string, CatalogData>();
+  const books = new Map<string, BookData>();
   for (const u of translationUsages) {
-    const { resolved } = await resolveAsPromise(u.catalogSource, {
+    const { resolved } = await resolveAsPromise(u.bookSource, {
       basedir: path.dirname(path.resolve(projectPath, u.filename)),
       extensions: [".js", ".cjs", ".mjs", ".ts", ".cts", ".mts", ".jsx", ".tsx"],
     });
     const relative = path.relative(projectPath, resolved);
-    if (!catalogs.has(relative)) {
-      catalogs.set(relative, {
-        catalogPath: relative,
+    if (!books.has(relative)) {
+      books.set(relative, {
+        bookPath: relative,
         localCatalogPaths: [],
         translationIds: new Set(),
       });
     }
-    catalogs.get(relative)!.translationIds.add(u.id);
+    books.get(relative)!.translationIds.add(u.id);
   }
   for (const l of catalogLinks) {
     const { resolved } = await resolveAsPromise(l.localCatalogSource, {
-      basedir: path.dirname(path.resolve(projectPath, l.catalogFilename)),
+      basedir: path.dirname(path.resolve(projectPath, l.bookFilename)),
       extensions: [".js", ".cjs", ".mjs", ".ts", ".cts", ".mts", ".jsx", ".tsx"],
     });
     const relative = path.relative(projectPath, resolved);
-    if (!catalogs.has(l.catalogFilename)) {
-      catalogs.set(l.catalogFilename, {
-        catalogPath: l.catalogFilename,
+    if (!books.has(l.bookFilename)) {
+      books.set(l.bookFilename, {
+        bookPath: l.bookFilename,
         localCatalogPaths: [],
         translationIds: new Set(),
       });
     }
-    catalogs.get(l.catalogFilename)!.localCatalogPaths.push(relative);
+    books.get(l.bookFilename)!.localCatalogPaths.push(relative);
   }
-  for (const [, catalog] of catalogs) {
-    for (const localCatalog of catalog.localCatalogPaths) {
+  for (const [, book] of books) {
+    for (const localCatalog of book.localCatalogPaths) {
       const fixLinter = new Linter({ cwd: projectPath });
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
       fixLinter.defineRule("@hi18n/no-missing-translation-ids", rules["no-missing-translation-ids"]);
@@ -110,7 +110,7 @@ export async function fixTranslations(options: Options) {
           "@hi18n/no-unused-translation-ids": "warn",
         },
         settings: {
-          "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
+          "@hi18n/used-translation-ids": Array.from(book.translationIds),
         },
       }, { filename: path.resolve(projectPath, localCatalog) });
       checkMessages(localCatalog, report.messages);
@@ -125,7 +125,7 @@ export async function fixTranslations(options: Options) {
       fixLinter.defineRule("@hi18n/no-missing-translation-ids-in-types", rules["no-missing-translation-ids-in-types"]);
       fixLinter.defineRule("@hi18n/no-unused-translation-ids-in-types", rules["no-unused-translation-ids-in-types"]);
 
-      const source = await fs.promises.readFile(path.resolve(projectPath, catalog.catalogPath), "utf-8");
+      const source = await fs.promises.readFile(path.resolve(projectPath, book.bookPath), "utf-8");
       const report = fixLinter.verifyAndFix(source, {
         ...linterConfig,
         rules: {
@@ -133,12 +133,12 @@ export async function fixTranslations(options: Options) {
           "@hi18n/no-unused-translation-ids-in-types": "warn",
         },
         settings: {
-          "@hi18n/used-translation-ids": Array.from(catalog.translationIds),
+          "@hi18n/used-translation-ids": Array.from(book.translationIds),
         },
-      }, { filename: path.resolve(projectPath, catalog.catalogPath) });
-      checkMessages(catalog.catalogPath, report.messages);
+      }, { filename: path.resolve(projectPath, book.bookPath) });
+      checkMessages(book.bookPath, report.messages);
       if (report.fixed) {
-        await fs.promises.writeFile(path.resolve(projectPath, catalog.catalogPath), report.output, "utf-8");
+        await fs.promises.writeFile(path.resolve(projectPath, book.bookPath), report.output, "utf-8");
       }
     }
   }

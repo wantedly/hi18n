@@ -16,7 +16,7 @@ new RuleTester({
   valid: [
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
@@ -34,7 +34,7 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -47,7 +47,7 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
@@ -65,7 +65,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -80,7 +80,7 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
@@ -98,7 +98,7 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -110,7 +110,7 @@ new RuleTester({
       },
       errors: ["unused translation id", "unused translation id"],
       output: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
@@ -128,12 +128,12 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
@@ -151,7 +151,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -163,7 +163,7 @@ new RuleTester({
       },
       errors: ["unused translation id", "unused translation id"],
       output: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
@@ -181,7 +181,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
     },
   ],

@@ -1,7 +1,7 @@
 import type { AST, Rule, SourceCode } from "eslint";
 import { getStaticKey } from "../util";
 import { Comment, Node } from "estree";
-import { messageCatalogTracker } from "../common-trackers";
+import { bookTracker } from "../common-trackers";
 import { findTypeDefinition } from "./no-unused-translation-ids-in-types";
 import { TSInterfaceBody, TSPropertySignature, TSSignature, TSTypeLiteral } from "../estree-ts";
 
@@ -18,8 +18,8 @@ export const meta: Rule.RuleMetaData = {
 };
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
-  const tracker = messageCatalogTracker();
-  tracker.listen("messageCatalog", (node, _captured) => {
+  const tracker = bookTracker();
+  tracker.listen("book", (node, _captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
     if (usedIds === undefined) throw new Error("settings[\"@hi18n/used-translation-ids\"] not found\nNote: this rule is for an internal use.");
     if (!Array.isArray(usedIds) || !usedIds.every((k): k is string => typeof k === "string")) throw new Error("Invalid usedIds");

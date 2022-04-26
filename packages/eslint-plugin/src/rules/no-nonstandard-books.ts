@@ -1,25 +1,18 @@
-import type { Rule } from "eslint";
+import type { Rule as ruleNoNonstandardBooks } from "eslint";
 import { getImportName, getStaticKey, resolveImportedVariable, resolveTypeLevelVariable, TypeDeclarator } from "../util";
-import { messageCatalogTracker } from "../common-trackers";
+import { bookTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { Node, VariableDeclarator } from "estree";
 import { NewExpressionExt, TSInterfaceBody, TSSignature, TSTypeLiteral, TSTypeParameterInstantiation, TSTypeReference } from "../estree-ts";
 
-export type CatalogLink = {
-  locale: string;
-  localCatalogSource: string;
-  catalogFilename: string;
-};
-export type CollectCatalogLinksCallback = (record: CatalogLink) => void;
-
-export const meta: Rule.RuleMetaData = {
+export const meta: ruleNoNonstandardBooks.RuleMetaData = {
   type: "problem",
   docs: {
-    description: "warns the nonstandard uses of MessageCatalog that hi18n cannot properly process",
+    description: "warns the nonstandard uses of Book that hi18n cannot properly process",
     recommended: true,
   },
   messages: {
-    "catalog-export-as-catalog": "the catalog should be exported as \"catalog\"",
+    "book-export-as-book": "the book should be exported as \"book\"",
     "import-local-catalogs": "the local catalog should be directly imported from the corresponding module.",
     "import-local-catalogs-as-default": "the local catalog should be exported as default",
     "local-catalogs-should-be-object": "the first argument should be an object literal",
@@ -30,18 +23,18 @@ export const meta: Rule.RuleMetaData = {
   },
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
-  const tracker = messageCatalogTracker();
-  tracker.listen("messageCatalog", (node, captured) => {
-    const exportedAs = findExportedAs(node as Rule.Node);
-    if (!exportedAs || exportedAs.id.type !== "Identifier" || exportedAs.id.name !== "catalog") {
+export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonstandardBooks.RuleListener {
+  const tracker = bookTracker();
+  tracker.listen("book", (node, captured) => {
+    const exportedAs = findExportedAs(node as ruleNoNonstandardBooks.Node);
+    if (!exportedAs || exportedAs.id.type !== "Identifier" || exportedAs.id.name !== "book") {
       context.report({
         node: node as Node,
-        messageId: "catalog-export-as-catalog",
+        messageId: "book-export-as-book",
       });
     }
 
-    checkTypeParameter(context, node as Rule.Node);
+    checkTypeParameter(context, node as ruleNoNonstandardBooks.Node);
 
     const localCatalogs = captured["localCatalogs"]!;
     if (localCatalogs.type !== "ObjectExpression") {
@@ -98,14 +91,14 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   };
 };
 
-function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
+function checkTypeParameter(context: ruleNoNonstandardBooks.RuleContext, node: ruleNoNonstandardBooks.Node) {
   const typeParameters = (node as NewExpressionExt).typeParameters;
   if (!typeParameters) return;
 
   const typeParam = findTypeParameter(node);
   if (!typeParam) {
     context.report({
-      node: typeParameters as (Rule.Node | TSTypeParameterInstantiation) as Rule.Node,
+      node: typeParameters as (ruleNoNonstandardBooks.Node | TSTypeParameterInstantiation) as ruleNoNonstandardBooks.Node,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -113,7 +106,7 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
   const resolved = resolveTypeLevelVariable(context.getSourceCode().scopeManager, typeParam.typeName);
   if (!resolved) {
     context.report({
-      node: typeParam as (Rule.Node | TSTypeReference) as Rule.Node,
+      node: typeParam as (ruleNoNonstandardBooks.Node | TSTypeReference) as ruleNoNonstandardBooks.Node,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -121,7 +114,7 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
   const objinfo = extractAsObjectType(resolved);
   if (!objinfo) {
     context.report({
-      node: resolved as (Rule.Node | TypeDeclarator) as Rule.Node,
+      node: resolved as (ruleNoNonstandardBooks.Node | TypeDeclarator) as ruleNoNonstandardBooks.Node,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -129,14 +122,14 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
   for (const signature of objinfo.signatures) {
     if (signature.type !== "TSPropertySignature") {
       context.report({
-        node: signature as (Rule.Node | TSSignature) as Rule.Node,
+        node: signature as (ruleNoNonstandardBooks.Node | TSSignature) as ruleNoNonstandardBooks.Node,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
     }
     if (signature.computed || signature.optional || signature.readonly) {
       context.report({
-        node: signature as (Rule.Node | TSSignature) as Rule.Node,
+        node: signature as (ruleNoNonstandardBooks.Node | TSSignature) as ruleNoNonstandardBooks.Node,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
@@ -144,7 +137,7 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
     const key = getStaticKey(signature);
     if (key === null) {
       context.report({
-        node: signature as (Rule.Node | TSSignature) as Rule.Node,
+        node: signature as (ruleNoNonstandardBooks.Node | TSSignature) as ruleNoNonstandardBooks.Node,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
@@ -169,7 +162,7 @@ export function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBo
   return undefined;
 }
 
-export function findTypeParameter(node: Rule.Node): TSTypeReference | null {
+export function findTypeParameter(node: ruleNoNonstandardBooks.Node): TSTypeReference | null {
   if (node.type !== "NewExpression") return null;
   const typeParameters = (node as NewExpressionExt).typeParameters;
   if (!typeParameters) return null;
@@ -180,17 +173,17 @@ export function findTypeParameter(node: Rule.Node): TSTypeReference | null {
   return typeParam;
 }
 
-function findExportedAs(node: Rule.Node): (VariableDeclarator & Rule.NodeParentExtension) | null {
+function findExportedAs(node: ruleNoNonstandardBooks.Node): (VariableDeclarator & ruleNoNonstandardBooks.NodeParentExtension) | null {
   if (node.parent.type !== "VariableDeclarator" || node.parent.init !== node) {
-    // Not a part of `catalog = new MessageCatalog()`
+    // Not a part of `book = new Book()`
     return null;
   }
   if (node.parent.parent.type !== "VariableDeclaration" || !node.parent.parent.declarations.includes(node.parent)) {
-    // Not a part of `const catalog = new MessageCatalog()`
+    // Not a part of `const book = new Book()`
     return null;
   }
   if (node.parent.parent.parent.type !== "ExportNamedDeclaration" || node.parent.parent.parent.declaration !== node.parent.parent) {
-    // Not a part of `export const catalog = new MessageCatalog();`
+    // Not a part of `export const book = new Book();`
     return null;
   }
   return node.parent;

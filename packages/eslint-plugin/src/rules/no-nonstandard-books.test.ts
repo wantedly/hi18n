@@ -1,31 +1,31 @@
 import { RuleTester } from "eslint";
-import * as rule from "./no-nonstandard-catalogs";
+import * as rule from "./no-nonstandard-books";
 
 new RuleTester({
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-}).run("@hi18n/no-nonstandard-catalogs", rule, {
+}).run("@hi18n/no-nonstandard-books", rule, {
   valid: [
     `
-      import { MessageCatalog } from "@hi18n/core";
-      export const catalog = new MessageCatalog({});
+      import { Book } from "@hi18n/core";
+      export const book = new Book({});
     `,
     `
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       import catalogEn from "./catalog-en";
       import catalogJa from "./catalog-ja";
-      export const catalog = new MessageCatalog({
+      export const book = new Book({
         en: catalogEn,
         ja: catalogJa,
       });
     `,
     `
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       import { default as catalogEn } from "./catalog-en";
       import { default as catalogJa } from "./catalog-ja";
-      export const catalog = new MessageCatalog({
+      export const book = new Book({
         en: catalogEn,
         ja: catalogJa,
       });
@@ -34,28 +34,28 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        export const catalog = new MessageCatalog(42);
+        export const book = new Book(42);
       `,
       errors: ["the first argument should be an object literal"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        export const catalog = new MessageCatalog(...others);
+        export const book = new Book(...others);
       `,
       errors: ["the first argument should be an object literal"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        export const catalog = new MessageCatalog({
+        export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
           ...others,
@@ -65,10 +65,10 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        export const catalog = new MessageCatalog({
+        export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
           [otherName]: catalogOther,
@@ -78,9 +78,9 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
-        export const catalog = new MessageCatalog({
+        export const book = new Book({
           en: catalogEn,
           ja: {},
         });
@@ -89,10 +89,10 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         const catalogJa = {};
-        export const catalog = new MessageCatalog({
+        export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
         });
@@ -101,10 +101,10 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import { something as catalogJa } from "./catalog-ja";
-        export const catalog = new MessageCatalog({
+        export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
         });
@@ -113,10 +113,10 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import * as catalogJa from "./catalog-ja";
-        export const catalog = new MessageCatalog({
+        export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
         });
@@ -125,51 +125,51 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        export default new MessageCatalog({
+        export default new Book({
           en: catalogEn,
           ja: catalogJa,
         });
       `,
-      errors: ["the catalog should be exported as \"catalog\""],
+      errors: ["the book should be exported as \"book\""],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        const catalog = new MessageCatalog({
+        const book = new Book({
           en: catalogEn,
           ja: catalogJa,
         });
       `,
-      errors: ["the catalog should be exported as \"catalog\""],
+      errors: ["the book should be exported as \"book\""],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        new MessageCatalog({
+        new Book({
           en: catalogEn,
           ja: catalogJa,
         });
       `,
-      errors: ["the catalog should be exported as \"catalog\""],
+      errors: ["the book should be exported as \"book\""],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import catalogEn from "./catalog-en";
         import catalogJa from "./catalog-ja";
-        export const foo = new MessageCatalog({
+        export const foo = new Book({
           en: catalogEn,
           ja: catalogJa,
         });
       `,
-      errors: ["the catalog should be exported as \"catalog\""],
+      errors: ["the book should be exported as \"book\""],
     },
   ],
 });
@@ -185,37 +185,37 @@ new RuleTester({
       },
     },
   },
-}).run("@hi18n/no-nonstandard-catalogs (with TypeScript)", rule, {
+}).run("@hi18n/no-nonstandard-books (with TypeScript)", rule, {
   valid: [
     `
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       type Messages = {};
-      export const catalog = new MessageCatalog<Messages>({});
+      export const book = new Book<Messages>({});
     `,
     `
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       interface Messages {}
-      export const catalog = new MessageCatalog<Messages>({});
+      export const book = new Book<Messages>({});
     `,
     `
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       import catalogEn from "./catalog-en";
       import catalogJa from "./catalog-ja";
       type Messages = {};
-      export const catalog = new MessageCatalog<Messages>({
+      export const book = new Book<Messages>({
         en: catalogEn,
         ja: catalogJa,
       });
     `,
     `
-      import { MessageCatalog } from "@hi18n/core";
+      import { Book } from "@hi18n/core";
       import type { Message } from "@hi18n/core";
       import catalogEn from "./catalog-en";
       import catalogJa from "./catalog-ja";
       type Messages = {
         "example/greeting": Message,
       };
-      export const catalog = new MessageCatalog<Messages>({
+      export const book = new Book<Messages>({
         en: catalogEn,
         ja: catalogJa,
       });
@@ -224,71 +224,71 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
-        export const catalog = new MessageCatalog<{}>({});
+        import { Book } from "@hi18n/core";
+        export const book = new Book<{}>({});
       `,
       errors: ["declare catalog type as type Messages = { ... }"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
-        export const catalog = new MessageCatalog<Messages>({});
+        import { Book } from "@hi18n/core";
+        export const book = new Book<Messages>({});
       `,
       errors: ["declare catalog type as type Messages = { ... }"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         class Messages {}
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       errors: ["declare catalog type as type Messages = { ... }"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         type Messages = {} & {};
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       errors: ["declare catalog type as type Messages = { ... }"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         type Messages = {
           "example/foo"(): number,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       errors: ["only simple signatures are allowed"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         type Messages = {
           "example/foo"?: Message,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       errors: ["only simple signatures are allowed"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         type Messages = {
           readonly "example/foo": Message,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       errors: ["only simple signatures are allowed"],
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         type Messages = {
           [Symbol.toStringTag]: Message,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       errors: ["only simple signatures are allowed"],
     },

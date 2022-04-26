@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { LocalCatalog, Message, MessageCatalog, getTranslator, msg } from "./index";
+import { Book, LocalCatalog, Message, getTranslator, msg } from "./index";
 
 type Messages = {
   "example/greeting": Message,
@@ -17,31 +17,31 @@ const catalogEn = new LocalCatalog<Messages>({
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg("{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"),
 });
-const catalog = new MessageCatalog<Messages>({
+const book = new Book<Messages>({
   ja: catalogJa,
   en: catalogEn,
 });
 
-describe ("MessageCatalog", () => {
+describe ("Book", () => {
   it("generates translation", () => {
     {
-      const { t } = getTranslator(catalog, "ja");
+      const { t } = getTranslator(book, "ja");
       expect(t("example/greeting")).toBe("こんにちは!")
     }
     {
-      const { t } = getTranslator(catalog, "en");
+      const { t } = getTranslator(book, "en");
       expect(t("example/greeting")).toBe("Hello!")
     }
   });
 
   it("raises an error for missing translation", () => {
     expect(() => {
-      getTranslator(catalog, "zh")
+      getTranslator(book, "zh")
     }).toThrow("Missing locale: zh");
   });
 
   it("raises an error for missing key", () => {
-    const { t } = getTranslator(catalog, "en")
+    const { t } = getTranslator(book, "en")
     expect(() => {
       // @ts-expect-error
       t("example/non-existent-key")
@@ -50,30 +50,30 @@ describe ("MessageCatalog", () => {
 
   it("does a simple interpolation", () => {
     {
-      const { t } = getTranslator(catalog, "ja");
+      const { t } = getTranslator(book, "ja");
       expect(t("example/greeting2", { name: "太郎"})).toBe("こんにちは、太郎さん!");
     }
     {
-      const { t } = getTranslator(catalog, "en");
+      const { t } = getTranslator(book, "en");
       expect(t("example/greeting2", { name: "Taro"})).toBe("Hello, Taro!");
     }
   });
 
   it("does plural interpolation", () => {
     {
-      const { t } = getTranslator(catalog, "ja");
+      const { t } = getTranslator(book, "ja");
       expect(t("example/apples", { count: 1 })).toBe("リンゴは1個あります。");
       expect(t("example/apples", { count: 12345 })).toBe("リンゴは12,345個あります。");
     }
     {
-      const { t } = getTranslator(catalog, "en");
+      const { t } = getTranslator(book, "en");
       expect(t("example/apples", { count: 1 })).toBe("There is 1 apple.");
       expect(t("example/apples", { count: 12345 })).toBe("There are 12,345 apples.");
     }
   });
 
   it("raises an error for missing arguments", () => {
-    const { t } = getTranslator(catalog, "en")
+    const { t } = getTranslator(book, "en")
     expect(() => {
       // @ts-expect-error
       t("example/greeting2")
@@ -85,7 +85,7 @@ describe ("MessageCatalog", () => {
   });
 
   it("raises an error for invalid argument types", () => {
-    const { t } = getTranslator(catalog, "en")
+    const { t } = getTranslator(book, "en")
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", { name: 42 })

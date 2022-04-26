@@ -1,15 +1,15 @@
 import { Tracker } from "./tracker";
 
-export function messageCatalogTracker(): Tracker {
+export function bookTracker(): Tracker {
   const tracker = new Tracker();
   tracker.watchImport("@hi18n/core");
-  tracker.watchMember("import(\"@hi18n/core\")", "MessageCatalog");
-  tracker.watchConstruct("import(\"@hi18n/core\").MessageCatalog", [
+  tracker.watchMember("import(\"@hi18n/core\")", "Book");
+  tracker.watchConstruct("import(\"@hi18n/core\").Book", [
     {
       captureAs: "localCatalogs",
       path: ["0"],
     },
-  ], "messageCatalog");
+  ], "book");
   return tracker;
 }
 
@@ -33,14 +33,14 @@ export function translationCallTracker(): Tracker {
   tracker.watchMember("import(\"@hi18n/core\")", "getTranslator");
   tracker.watchCall("import(\"@hi18n/core\").getTranslator", [
     {
-      captureAs: "catalog",
+      captureAs: "book",
       path: ["0"],
     },
   ], "translatorObject");
   tracker.watchMember("import(\"@hi18n/react\")", "useI18n");
   tracker.watchCall("import(\"@hi18n/react\").useI18n", [
     {
-      captureAs: "catalog",
+      captureAs: "book",
       path: ["0"],
     },
   ], "translatorObject");
@@ -54,8 +54,8 @@ export function translationCallTracker(): Tracker {
   tracker.watchMember("import(\"@hi18n/react\")", "Translate");
   tracker.watchJSXElement("import(\"@hi18n/react\").Translate", [
     {
-      captureAs: "catalog",
-      path: ["catalog"],
+      captureAs: "book",
+      path: ["book"],
     },
     {
       captureAs: "id",

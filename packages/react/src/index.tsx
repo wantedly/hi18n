@@ -1,16 +1,16 @@
 import React from 'react';
-import { CatalogBase, TranslatorObject, MessageArguments, MessageCatalog, getTranslator } from '@hi18n/core';
+import { Book, CatalogBase, TranslatorObject, MessageArguments, getTranslator } from '@hi18n/core';
 
 export const LocaleContext = /* #__PURE__ */ React.createContext<string>("");
 /* #__PURE__ */ (LocaleContext.displayName = "LocaleContext");
 
-export function useI18n<M extends CatalogBase>(catalog: MessageCatalog<M>): TranslatorObject<M> {
+export function useI18n<M extends CatalogBase>(book: Book<M>): TranslatorObject<M> {
   const locale = React.useContext(LocaleContext);
-  return getTranslator(catalog, locale);
+  return getTranslator(book, locale);
 }
 
 export type TranslateProps<M extends CatalogBase, K extends keyof M> = {
-  catalog: MessageCatalog<M>;
+  book: Book<M>;
   id: K;
   children?: React.ReactNode | undefined;
 } & PartialForComponents<MessageArguments<M[K], React.ReactElement>>;
@@ -20,10 +20,10 @@ type ComponentKeys<T, K extends keyof T = keyof T> =
   K extends unknown ? T[K] extends React.ReactElement ? K : never : never;
 
 export function Translate<M extends CatalogBase, K extends string & keyof M>(props: TranslateProps<M, K>): React.ReactElement | null {
-  const { catalog, id, children, ...params } = props;
+  const { book, id, children, ...params } = props;
   extractComponents(children, params, { length: 0 });
   fillComponentKeys(params);
-  const translator = useI18n(catalog);
+  const translator = useI18n(book);
   return (
     <>
       {

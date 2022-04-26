@@ -11,30 +11,30 @@ new RuleTester({
   valid: [
     `
       import { getTranslator } from "@hi18n/core";
-      import { catalog } from "../locale/catalog";
+      import { book } from "../locale/catalog";
 
-      const { t } = getTranslator(catalog, "en");
+      const { t } = getTranslator(book, "en");
       t("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { catalog } from "../locale/catalog";
+      import { book } from "../locale/catalog";
 
-      const { t: translate } = getTranslator(catalog, "en");
+      const { t: translate } = getTranslator(book, "en");
       translate("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { catalog } from "../locale/catalog";
+      import { book } from "../locale/catalog";
 
-      const translate = getTranslator(catalog, "en").t;
+      const translate = getTranslator(book, "en").t;
       translate("example.greeting");
     `,
     `
       import { getTranslator } from "@hi18n/core";
-      import { catalog } from "../locale/catalog";
+      import { book } from "../locale/catalog";
 
-      const { t: translate } = getTranslator(catalog, "en");
+      const { t: translate } = getTranslator(book, "en");
       const id = "example.greeting";
       t(id);
     `,
@@ -43,9 +43,9 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { catalog } from "../locale/catalog";
+        import { book } from "../locale/catalog";
 
-        const { t } = getTranslator(catalog, "en");
+        const { t } = getTranslator(book, "en");
         const id = "example.greeting";
         t(id);
       `,
@@ -54,9 +54,9 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { catalog } from "../locale/catalog";
+        import { book } from "../locale/catalog";
 
-        const { t: translate } = getTranslator(catalog, "en");
+        const { t: translate } = getTranslator(book, "en");
         const id = "example.greeting";
         translate(id);
       `,
@@ -65,9 +65,9 @@ new RuleTester({
     {
       code: `
         import { getTranslator } from "@hi18n/core";
-        import { catalog } from "../locale/catalog";
+        import { book } from "../locale/catalog";
 
-        const translate = getTranslator(catalog, "en").t;
+        const translate = getTranslator(book, "en").t;
         const id = "example.greeting";
         translate(id);
       `,
@@ -76,9 +76,9 @@ new RuleTester({
     {
       code: `
         import { useI18n } from "@hi18n/react";
-        import { catalog } from "../locale/catalog";
+        import { book } from "../locale/catalog";
 
-        const { t } = useI18n(catalog);
+        const { t } = useI18n(book);
         const id = "example.greeting";
         t(id);
       `,
@@ -87,10 +87,10 @@ new RuleTester({
     {
       code: `
         import { Translate } from "@hi18n/react";
-        import { catalog } from "../locale/catalog";
+        import { book } from "../locale/catalog";
 
         const id = "example.greeting";
-        <Translate id={id} catalog={catalog} />;
+        <Translate id={id} book={book} />;
       `,
       errors: ["Don't use dynamic translation keys"],
     },

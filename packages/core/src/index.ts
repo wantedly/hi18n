@@ -22,7 +22,7 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
   return s as any;
 }
 
-export class MessageCatalog<Messages extends CatalogBase> {
+export class Book<Messages extends CatalogBase> {
   constructor(public readonly localCatalogs: Readonly<Record<string, LocalCatalog<Messages>>>) {
     for (const [locale, localCatalog] of Object.entries(localCatalogs)) {
       localCatalog.locale = locale;
@@ -58,8 +58,8 @@ export type ComponentInterpolator<T, C> = {
   wrap: (component: C, message: T | string | undefined) => T | string;
 };
 
-export function getTranslator<Messages extends CatalogBase>(catalog: MessageCatalog<Messages>, locale: string): TranslatorObject<Messages> {
-  const localCatalog = catalog.localCatalogs[locale];
+export function getTranslator<Messages extends CatalogBase>(book: Book<Messages>, locale: string): TranslatorObject<Messages> {
+  const localCatalog = book.localCatalogs[locale];
   if (!localCatalog) throw new Error(`Missing locale: ${locale}`);
 
   return {

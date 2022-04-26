@@ -16,7 +16,7 @@ new RuleTester({
   valid: [
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
@@ -34,7 +34,7 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -47,7 +47,7 @@ new RuleTester({
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
@@ -65,7 +65,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -80,7 +80,7 @@ new RuleTester({
   invalid: [
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
@@ -98,7 +98,7 @@ new RuleTester({
           //   param3: number;
           // }>,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -110,7 +110,7 @@ new RuleTester({
       },
       errors: ["missing translation ids"],
       output: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message,
@@ -128,12 +128,12 @@ new RuleTester({
             param3: number;
           }>,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
@@ -151,7 +151,7 @@ new RuleTester({
           //   param3: number;
           // }>;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -163,7 +163,7 @@ new RuleTester({
       },
       errors: ["missing translation ids"],
       output: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/greeting": Message;
@@ -181,12 +181,12 @@ new RuleTester({
             param3: number;
           }>;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/c": Message,
@@ -196,7 +196,7 @@ new RuleTester({
           "example/i": Message,
           "example/m": Message,
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -217,7 +217,7 @@ new RuleTester({
       },
       errors: ["missing translation ids"],
       output: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/b": Message;
@@ -234,12 +234,12 @@ new RuleTester({
           "example/m": Message,
           "example/n": Message;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
     },
     {
       code: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/c": Message;
@@ -249,7 +249,7 @@ new RuleTester({
           "example/i": Message;
           "example/m": Message;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
       settings: {
         "@hi18n/used-translation-ids": [
@@ -270,7 +270,7 @@ new RuleTester({
       },
       errors: ["missing translation ids"],
       output: `
-        import { MessageCatalog } from "@hi18n/core";
+        import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
         export type Messages = {
           "example/b": Message;
@@ -287,7 +287,7 @@ new RuleTester({
           "example/m": Message;
           "example/n": Message;
         };
-        export const catalog = new MessageCatalog<Messages>({});
+        export const book = new Book<Messages>({});
       `,
     },
   ],

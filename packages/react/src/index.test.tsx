@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from "@jest/globals";
-import { LocalCatalog, Message, MessageCatalog, msg } from '@hi18n/core';
+import { Book, LocalCatalog, Message, msg } from '@hi18n/core';
 import { LocaleContext, Translate, useI18n } from "./index";
 import { ComponentPlaceholder } from '@hi18n/core';
 
@@ -34,7 +34,7 @@ const catalogEn = new LocalCatalog<Messages>({
   "example/link2": msg("Click <link>here</link>!"),
   "example/message-link": msg("You have {newMessages,plural,one{{newMessages,number} new message}other{{newMessages,number} new messages}}. <0>See all the {messages,plural,one{{messages,number} message}other{{messages,number} messages}}</0>."),
 });
-const catalog = new MessageCatalog<Messages>({
+const book = new Book<Messages>({
   ja: catalogJa,
   en: catalogEn,
 });
@@ -42,7 +42,7 @@ const catalog = new MessageCatalog<Messages>({
 describe("useI18n", () => {
   it("returns the t function", () => {
     const Greeter: React.FC = () => {
-      const { t } = useI18n(catalog);
+      const { t } = useI18n(book);
       return <a href="#foo">{t("example/greeting")}</a>;
     };
     render(
@@ -59,7 +59,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="ja">
-          <Translate catalog={catalog} id="example/link">
+          <Translate book={book} id="example/link">
             <a href="https://example.com/" />
           </Translate>
         </LocaleContext.Provider>
@@ -74,7 +74,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="en">
-          <Translate catalog={catalog} id="example/link">
+          <Translate book={book} id="example/link">
             <a href="https://example.com/" />
           </Translate>
         </LocaleContext.Provider>
@@ -91,7 +91,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="ja">
-          <Translate catalog={catalog} id="example/link2">
+          <Translate book={book} id="example/link2">
             <a key="link" href="https://example.com/" />
           </Translate>
         </LocaleContext.Provider>
@@ -106,7 +106,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="en">
-          <Translate catalog={catalog} id="example/link2">
+          <Translate book={book} id="example/link2">
             <a key="link" href="https://example.com/" />
           </Translate>
         </LocaleContext.Provider>
@@ -121,7 +121,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="ja">
-          <Translate catalog={catalog} id="example/link2" link={<a href="https://example.com/" />} />
+          <Translate book={book} id="example/link2" link={<a href="https://example.com/" />} />
         </LocaleContext.Provider>
       );
 
@@ -134,7 +134,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="en">
-          <Translate catalog={catalog} id="example/link2" link={<a href="https://example.com/" />} />
+          <Translate book={book} id="example/link2" link={<a href="https://example.com/" />} />
         </LocaleContext.Provider>
       );
 
@@ -149,7 +149,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="ja">
-          <Translate catalog={catalog} id="example/message-link" messages={10} newMessages={5}>
+          <Translate book={book} id="example/message-link" messages={10} newMessages={5}>
             <a href="https://example.com/messages" />
           </Translate>
         </LocaleContext.Provider>
@@ -164,7 +164,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="en">
-          <Translate catalog={catalog} id="example/message-link" messages={1} newMessages={1}>
+          <Translate book={book} id="example/message-link" messages={1} newMessages={1}>
             <a href="https://example.com/messages" />
           </Translate>
         </LocaleContext.Provider>
@@ -179,7 +179,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="en">
-          <Translate catalog={catalog} id="example/message-link" messages={10} newMessages={1}>
+          <Translate book={book} id="example/message-link" messages={10} newMessages={1}>
             <a href="https://example.com/messages" />
           </Translate>
         </LocaleContext.Provider>
@@ -194,7 +194,7 @@ describe("Translate", () => {
     {
       const { container } = render(
         <LocaleContext.Provider value="en">
-          <Translate catalog={catalog} id="example/message-link" messages={10} newMessages={5}>
+          <Translate book={book} id="example/message-link" messages={10} newMessages={5}>
             <a href="https://example.com/messages" />
           </Translate>
         </LocaleContext.Provider>

@@ -4,7 +4,7 @@ import { translationCallTracker } from "../common-trackers";
 
 export type TranslationUsage = {
   id: string;
-  catalogSource: string;
+  bookSource: string;
   filename: string;
 };
 export type CollectTranslationIdsCallback = (record: TranslationUsage) => void;
@@ -31,16 +31,16 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
     }
     const id: string = idNode.value;
 
-    const catalogNode = captured["catalog"]!;
-    if (catalogNode.type !== "Identifier") {
+    const bookNode = captured["book"]!;
+    if (bookNode.type !== "Identifier") {
       return;
     }
-    const catalogDef = resolveImportedVariable(context.getSourceCode().scopeManager, catalogNode);
-    if (!catalogDef) return;
-    const catalogSource: string = `${catalogDef.parent.source.value}`;
+    const bookDef = resolveImportedVariable(context.getSourceCode().scopeManager, bookNode);
+    if (!bookDef) return;
+    const bookSource: string = `${bookDef.parent.source.value}`;
     collectIdsCallback({
       id,
-      catalogSource,
+      bookSource,
       filename: context.getFilename(),
     });
   });

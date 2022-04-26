@@ -1,4 +1,4 @@
-import { Message, MessageCatalog } from "@hi18n/core";
+import { Message, Book } from "@hi18n/core";
 import catalogEn from "./catalog-en";
 import catalogJa from "./catalog-ja";
 
@@ -8,7 +8,7 @@ export type Messages = {
   // "example/greeting-todo": Message,
 };
 
-export const catalog = new MessageCatalog<Messages>({
+export const book = new Book<Messages>({
   en: catalogEn,
   ja: catalogJa,
 });
