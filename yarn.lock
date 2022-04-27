@@ -1448,6 +1448,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.21.0
     babel-jest: ^27.5.1
     eslint: ^8.14.0
+    eslint-plugin-jest: ^26.1.5
     jest: ^27.5.1
     ts-jest: ^27.1.4
     tslib: ^2.3.1
@@ -2314,7 +2315,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:5.21.0":
+"@typescript-eslint/utils@npm:5.21.0, @typescript-eslint/utils@npm:^5.10.0":
   version: 5.21.0
   resolution: "@typescript-eslint/utils@npm:5.21.0"
   dependencies:
@@ -3501,6 +3502,23 @@ __metadata:
   bin:
     eslint-config-prettier: bin/cli.js
   checksum: 0d0f5c32e7a0ad91249467ce71ca92394ccd343178277d318baf32063b79ea90216f4c81d1065d60f96366fdc60f151d4d68ae7811a58bd37228b84c2083f893
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-jest@npm:^26.1.5":
+  version: 26.1.5
+  resolution: "eslint-plugin-jest@npm:26.1.5"
+  dependencies:
+    "@typescript-eslint/utils": ^5.10.0
+  peerDependencies:
+    "@typescript-eslint/eslint-plugin": ^5.0.0
+    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+  peerDependenciesMeta:
+    "@typescript-eslint/eslint-plugin":
+      optional: true
+    jest:
+      optional: true
+  checksum: 727487c6d0cc4aa66f8209fc187a2f4eb56ffea6569dacb04bb1e3272221d6238460fb967a12074acac50b0b545d2190c697bad64ebc6c8bdd4e8f3cc66d5a68
   languageName: node
   linkType: hard
 
@@ -6081,6 +6099,8 @@ __metadata:
     "@yarnpkg/sdks": ^3.0.0-rc.2
     eslint: ^8.14.0
     eslint-config-prettier: ^8.5.0
+    eslint-plugin-jest: ^26.1.5
+    jest: ^27.5.1
     typescript: ^4.6.3
   languageName: unknown
   linkType: soft

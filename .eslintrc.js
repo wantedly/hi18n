@@ -4,7 +4,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
     "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
-  plugins: ["@typescript-eslint/eslint-plugin"],
+  plugins: ["jest", "@typescript-eslint/eslint-plugin"],
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
@@ -22,6 +22,10 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       files: ["*.ts"],
       parser: "@typescript-eslint/parser",
       extends: ["plugin:@typescript-eslint/recommended-requiring-type-checking"],
+    },
+    {
+      files: ["*.test.ts"],
+      extends: ["plugin:jest/recommended"],
     },
     {
       files: [
