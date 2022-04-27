@@ -10,6 +10,8 @@
   ],
   "include": [
     "src/**/*.test.ts",
-    "src/**/*.test.tsx"
+    "src/**/*.test.tsx",
+    ".eslintrc.js",
+    "babel.config.js"
   ]
 }

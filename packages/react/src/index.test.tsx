@@ -6,6 +6,7 @@ import { LocaleContext, Translate, useI18n } from "./index";
 import { ComponentPlaceholder } from '@hi18n/core';
 
 declare module "expect/build/types" {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   export interface Matchers<R, T> extends globalThis.jest.Matchers<R, T> {}
 }
 

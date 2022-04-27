@@ -30,6 +30,7 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
         translator.translateWithComponents<React.ReactNode, React.ReactElement, K>(
           id,
           { collect, wrap },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           params as any,
         )
       }
@@ -40,7 +41,7 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
 // <Translate>foo<a/> <strong>bar</strong> </Translate> => { 0: <a/>, 1: <strong/> }
 // <Translate><strong><em></em></strong></Translate> => { 0: <strong/>, 1: <em/> }
 // <Translate><a key="foo" /> <button key="bar" /></Translate> => { foo: <a/>, bar: <button/> }
-function extractComponents(node: React.ReactNode, params: Record<string | number, any>, state: { length: number }) {
+function extractComponents(node: React.ReactNode, params: Record<string | number, unknown>, state: { length: number }) {
   if (React.isValidElement(node)) {
     if (node.key != null) {
       params[node.key] = React.cloneElement(node, { key: node.key });
@@ -56,8 +57,10 @@ function extractComponents(node: React.ReactNode, params: Record<string | number
   }
 }
 
-function fillComponentKeys(params: Record<string | number, any>) {
-  for (const [key, value] of Object.entries(params)) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fillComponentKeys(params: Record<string | number, unknown>) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  for (const [key, value] of Object.entries(params as Record<string | number, {} | null | undefined>)) {
     if (!React.isValidElement(value)) continue;
     if (value.key == null) {
       params[key] = React.cloneElement(value, { key });

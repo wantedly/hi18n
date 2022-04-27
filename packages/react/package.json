@@ -9,6 +9,7 @@
   "packageManager": "yarn@3.2.0",
   "scripts": {
     "build": "tsc --build",
+    "lint": "eslint src/**/*.tsx .eslintrc.js babel.config.js",
     "test": "jest"
   },
   "dependencies": {
@@ -29,7 +30,13 @@
     "@types/react": "^18.0.6",
     "@types/react-dom": "^18.0.2",
     "@types/testing-library__jest-dom": "^5.14.3",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "babel-jest": "^27.5.1",
+    "eslint": "^8.14.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
     "expect": "^27.5.1",
     "jest": "^27.5.1",
     "react": "^17.0.2 || ^18.0.0",
