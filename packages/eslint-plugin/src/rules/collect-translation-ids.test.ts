@@ -8,7 +8,8 @@ describe("collect-translation-ids", () => {
     const collected: TranslationUsage[] = [];
     const linter = new Linter();
     linter.defineRule("collect-translation-ids", rule);
-    linter.verify(`
+    linter.verify(
+      `
       import { getTranslator } from "@hi18n/core";
       import { useI18n, Translate } from "@hi18n/react";
       import { book } from "../locale";
@@ -28,26 +29,35 @@ describe("collect-translation-ids", () => {
       // Module scope
       const { t: ttt } = getTranslator(book, "en");
       ttt("example.greeting3");
-    `, {
-      parserOptions: {
-        ecmaVersion: "latest",
-        ecmaFeatures: {
-          jsx: true,
+    `,
+      {
+        parserOptions: {
+          ecmaVersion: "latest",
+          ecmaFeatures: {
+            jsx: true,
+          },
+          sourceType: "module",
         },
-        sourceType: "module",
-      },
-      rules: {
-        "collect-translation-ids": ["error", (u: TranslationUsage) => {
-          collected.push(u);
-        }],
-      },
-    });
+        rules: {
+          "collect-translation-ids": [
+            "error",
+            (u: TranslationUsage) => {
+              collected.push(u);
+            },
+          ],
+        },
+      }
+    );
     expect(collected).toEqual([
       { id: "example.greeting", bookSource: "../locale", filename: "<input>" },
       { id: "example.greeting2", bookSource: "../locale", filename: "<input>" },
       { id: "example.greeting3", bookSource: "../locale", filename: "<input>" },
       { id: "example.price", bookSource: "../locale", filename: "<input>" },
-      { id: "example.introduction", bookSource: "../locale", filename: "<input>" },
+      {
+        id: "example.introduction",
+        bookSource: "../locale",
+        filename: "<input>",
+      },
     ]);
   });
 });

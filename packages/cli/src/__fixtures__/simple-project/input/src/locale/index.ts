@@ -3,9 +3,9 @@ import catalogEn from "./en";
 import catalogJa from "./ja";
 
 export type Vocabulary = {
-  "example/greeting": Message,
-  "example/greeting-unused": Message,
-  // "example/greeting-todo": Message,
+  "example/greeting": Message;
+  "example/greeting-unused": Message;
+  // "example/greeting-todo": Message;
 };
 
 export const book = new Book<Vocabulary>({

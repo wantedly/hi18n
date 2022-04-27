@@ -8,7 +8,8 @@ describe("collect-translation-ids", () => {
     const collected: CatalogLink[] = [];
     const linter = new Linter();
     linter.defineRule("@hi18n/collect-catalog-links", rule);
-    linter.verify(`
+    linter.verify(
+      `
       import { Book } from "@hi18n/core";
       import catalogEn from "./en";
       import catalogJa from "./ja";
@@ -17,20 +18,25 @@ describe("collect-translation-ids", () => {
         en: catalogEn,
         ja: catalogJa,
       });
-    `, {
-      parserOptions: {
-        ecmaVersion: "latest",
-        ecmaFeatures: {
-          jsx: true,
+    `,
+      {
+        parserOptions: {
+          ecmaVersion: "latest",
+          ecmaFeatures: {
+            jsx: true,
+          },
+          sourceType: "module",
         },
-        sourceType: "module",
-      },
-      rules: {
-        "@hi18n/collect-catalog-links": ["error", (l: CatalogLink) => {
-          collected.push(l);
-        }],
-      },
-    });
+        rules: {
+          "@hi18n/collect-catalog-links": [
+            "error",
+            (l: CatalogLink) => {
+              collected.push(l);
+            },
+          ],
+        },
+      }
+    );
     expect(collected).toEqual([
       { locale: "en", catalogSource: "./en", bookFilename: "<input>" },
       { locale: "ja", catalogSource: "./ja", bookFilename: "<input>" },

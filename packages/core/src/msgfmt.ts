@@ -4,26 +4,31 @@ export type CompiledMessage =
   /* concatenation */
   | CompiledMessage[]
   /* interpolation for noneArg ("{foo}") */
-  | { type: "Var", name: string | number, argType?: ArgType | undefined }
+  | { type: "Var"; name: string | number; argType?: ArgType | undefined }
   /* plural form selection */
   | PluralArg
   /* component interpolation (<0>foo</0>) */
-  | ElementArg
-  ;
+  | ElementArg;
 
 export type PluralArg = {
   type: "Plural";
   name: string | number;
   offset?: number | undefined;
   branches: PluralBranch[];
-}
+};
 
 export type PluralBranch = {
   selector: number | string;
   message: CompiledMessage;
 };
 
-export type ArgType = "number" | "date" | "time" | "spellout" | "ordinal" | "duration";
+export type ArgType =
+  | "number"
+  | "date"
+  | "time"
+  | "spellout"
+  | "ordinal"
+  | "duration";
 
 export type ElementArg = {
   type: "Element";

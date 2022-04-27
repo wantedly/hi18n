@@ -1,33 +1,58 @@
 import type { Rule as ruleNoNonstandardBooks } from "eslint";
-import { getImportName, getStaticKey, resolveImportedVariable, resolveTypeLevelVariable, TypeDeclarator } from "../util";
+import {
+  getImportName,
+  getStaticKey,
+  resolveImportedVariable,
+  resolveTypeLevelVariable,
+  TypeDeclarator,
+} from "../util";
 import { bookTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { Node, VariableDeclarator } from "estree";
-import { NewExpressionExt, TSInterfaceBody, TSSignature, TSTypeLiteral, TSTypeParameterInstantiation, TSTypeReference } from "../estree-ts";
+import {
+  NewExpressionExt,
+  TSInterfaceBody,
+  TSSignature,
+  TSTypeLiteral,
+  TSTypeParameterInstantiation,
+  TSTypeReference,
+} from "../estree-ts";
 
 export const meta: ruleNoNonstandardBooks.RuleMetaData = {
   type: "problem",
   docs: {
-    description: "warns the nonstandard uses of Book that hi18n cannot properly process",
+    description:
+      "warns the nonstandard uses of Book that hi18n cannot properly process",
     recommended: true,
   },
   messages: {
-    "book-export-as-book": "the book should be exported as \"book\"",
-    "import-catalogs": "the catalog should be directly imported from the corresponding module.",
+    "book-export-as-book": 'the book should be exported as "book"',
+    "import-catalogs":
+      "the catalog should be directly imported from the corresponding module.",
     "import-catalogs-as-default": "the catalog should be exported as default",
-    "catalogs-should-be-object": "the first argument should be an object literal",
+    "catalogs-should-be-object":
+      "the first argument should be an object literal",
     "catalogs-invalid-spread": "do not use spread in the catalog list",
-    "catalogs-invalid-id": "do not use dynamic translation ids for the catalog list",
-    "catalog-type-must-be-type-alias": "declare catalog type as type Vocabulary = { ... }",
-    "catalog-type-must-contain-only-simple-signatures": "only simple signatures are allowed",
+    "catalogs-invalid-id":
+      "do not use dynamic translation ids for the catalog list",
+    "catalog-type-must-be-type-alias":
+      "declare catalog type as type Vocabulary = { ... }",
+    "catalog-type-must-contain-only-simple-signatures":
+      "only simple signatures are allowed",
   },
 };
 
-export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonstandardBooks.RuleListener {
+export function create(
+  context: ruleNoNonstandardBooks.RuleContext
+): ruleNoNonstandardBooks.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, captured) => {
     const exportedAs = findExportedAs(node as ruleNoNonstandardBooks.Node);
-    if (!exportedAs || exportedAs.id.type !== "Identifier" || exportedAs.id.name !== "book") {
+    if (
+      !exportedAs ||
+      exportedAs.id.type !== "Identifier" ||
+      exportedAs.id.name !== "book"
+    ) {
       context.report({
         node: node as Node,
         messageId: "book-export-as-book",
@@ -67,7 +92,10 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
         });
         continue;
       }
-      const valueDef = resolveImportedVariable(context.getSourceCode().scopeManager, prop.value);
+      const valueDef = resolveImportedVariable(
+        context.getSourceCode().scopeManager,
+        prop.value
+      );
       if (!valueDef) {
         context.report({
           node: prop.key,
@@ -75,7 +103,10 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
         });
         continue;
       }
-      if (valueDef.node.type === "ImportNamespaceSpecifier" || getImportName(valueDef.node) !== "default") {
+      if (
+        valueDef.node.type === "ImportNamespaceSpecifier" ||
+        getImportName(valueDef.node) !== "default"
+      ) {
         context.report({
           node: valueDef.node,
           messageId: "import-catalogs-as-default",
@@ -89,24 +120,34 @@ export function create(context: ruleNoNonstandardBooks.RuleContext): ruleNoNonst
       tracker.trackImport(context, node);
     },
   };
-};
+}
 
-function checkTypeParameter(context: ruleNoNonstandardBooks.RuleContext, node: ruleNoNonstandardBooks.Node) {
+function checkTypeParameter(
+  context: ruleNoNonstandardBooks.RuleContext,
+  node: ruleNoNonstandardBooks.Node
+) {
   const typeParameters = (node as NewExpressionExt).typeParameters;
   if (!typeParameters) return;
 
   const typeParam = findTypeParameter(node);
   if (!typeParam) {
     context.report({
-      node: typeParameters as (ruleNoNonstandardBooks.Node | TSTypeParameterInstantiation) as ruleNoNonstandardBooks.Node,
+      node: typeParameters as
+        | ruleNoNonstandardBooks.Node
+        | TSTypeParameterInstantiation as ruleNoNonstandardBooks.Node,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
   }
-  const resolved = resolveTypeLevelVariable(context.getSourceCode().scopeManager, typeParam.typeName);
+  const resolved = resolveTypeLevelVariable(
+    context.getSourceCode().scopeManager,
+    typeParam.typeName
+  );
   if (!resolved) {
     context.report({
-      node: typeParam as (ruleNoNonstandardBooks.Node | TSTypeReference) as ruleNoNonstandardBooks.Node,
+      node: typeParam as
+        | ruleNoNonstandardBooks.Node
+        | TSTypeReference as ruleNoNonstandardBooks.Node,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -114,7 +155,9 @@ function checkTypeParameter(context: ruleNoNonstandardBooks.RuleContext, node: r
   const objinfo = extractAsObjectType(resolved);
   if (!objinfo) {
     context.report({
-      node: resolved as (ruleNoNonstandardBooks.Node | TypeDeclarator) as ruleNoNonstandardBooks.Node,
+      node: resolved as
+        | ruleNoNonstandardBooks.Node
+        | TypeDeclarator as ruleNoNonstandardBooks.Node,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -122,14 +165,18 @@ function checkTypeParameter(context: ruleNoNonstandardBooks.RuleContext, node: r
   for (const signature of objinfo.signatures) {
     if (signature.type !== "TSPropertySignature") {
       context.report({
-        node: signature as (ruleNoNonstandardBooks.Node | TSSignature) as ruleNoNonstandardBooks.Node,
+        node: signature as
+          | ruleNoNonstandardBooks.Node
+          | TSSignature as ruleNoNonstandardBooks.Node,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
     }
     if (signature.computed || signature.optional || signature.readonly) {
       context.report({
-        node: signature as (ruleNoNonstandardBooks.Node | TSSignature) as ruleNoNonstandardBooks.Node,
+        node: signature as
+          | ruleNoNonstandardBooks.Node
+          | TSSignature as ruleNoNonstandardBooks.Node,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
@@ -137,7 +184,9 @@ function checkTypeParameter(context: ruleNoNonstandardBooks.RuleContext, node: r
     const key = getStaticKey(signature);
     if (key === null) {
       context.report({
-        node: signature as (ruleNoNonstandardBooks.Node | TSSignature) as ruleNoNonstandardBooks.Node,
+        node: signature as
+          | ruleNoNonstandardBooks.Node
+          | TSSignature as ruleNoNonstandardBooks.Node,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
@@ -145,7 +194,11 @@ function checkTypeParameter(context: ruleNoNonstandardBooks.RuleContext, node: r
   }
 }
 
-export function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBody | TSTypeLiteral, signatures: TSSignature[] } | undefined {
+export function extractAsObjectType(
+  decl: TypeDeclarator
+):
+  | { body: TSInterfaceBody | TSTypeLiteral; signatures: TSSignature[] }
+  | undefined {
   if (decl.type === "TSTypeAliasDeclaration") {
     if (decl.typeAnnotation.type === "TSTypeLiteral") {
       return {
@@ -162,7 +215,9 @@ export function extractAsObjectType(decl: TypeDeclarator): { body: TSInterfaceBo
   return undefined;
 }
 
-export function findTypeParameter(node: ruleNoNonstandardBooks.Node): TSTypeReference | null {
+export function findTypeParameter(
+  node: ruleNoNonstandardBooks.Node
+): TSTypeReference | null {
   if (node.type !== "NewExpression") return null;
   const typeParameters = (node as NewExpressionExt).typeParameters;
   if (!typeParameters) return null;
@@ -173,16 +228,24 @@ export function findTypeParameter(node: ruleNoNonstandardBooks.Node): TSTypeRefe
   return typeParam;
 }
 
-function findExportedAs(node: ruleNoNonstandardBooks.Node): (VariableDeclarator & ruleNoNonstandardBooks.NodeParentExtension) | null {
+function findExportedAs(
+  node: ruleNoNonstandardBooks.Node
+): (VariableDeclarator & ruleNoNonstandardBooks.NodeParentExtension) | null {
   if (node.parent.type !== "VariableDeclarator" || node.parent.init !== node) {
     // Not a part of `book = new Book()`
     return null;
   }
-  if (node.parent.parent.type !== "VariableDeclaration" || !node.parent.parent.declarations.includes(node.parent)) {
+  if (
+    node.parent.parent.type !== "VariableDeclaration" ||
+    !node.parent.parent.declarations.includes(node.parent)
+  ) {
     // Not a part of `const book = new Book()`
     return null;
   }
-  if (node.parent.parent.parent.type !== "ExportNamedDeclaration" || node.parent.parent.parent.declaration !== node.parent.parent) {
+  if (
+    node.parent.parent.parent.type !== "ExportNamedDeclaration" ||
+    node.parent.parent.parent.declaration !== node.parent.parent
+  ) {
     // Not a part of `export const book = new Book();`
     return null;
   }

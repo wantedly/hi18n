@@ -85,7 +85,9 @@ new RuleTester({
           ja: {},
         });
       `,
-      errors: ["the catalog should be directly imported from the corresponding module."],
+      errors: [
+        "the catalog should be directly imported from the corresponding module.",
+      ],
     },
     {
       code: `
@@ -97,7 +99,9 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the catalog should be directly imported from the corresponding module."],
+      errors: [
+        "the catalog should be directly imported from the corresponding module.",
+      ],
     },
     {
       code: `
@@ -133,7 +137,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -145,7 +149,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -157,7 +161,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -169,7 +173,7 @@ new RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
   ],
 });

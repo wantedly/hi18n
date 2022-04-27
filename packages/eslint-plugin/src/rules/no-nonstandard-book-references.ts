@@ -6,16 +6,20 @@ import { getImportName, resolveImportedVariable } from "../util";
 export const meta: ruleNoNonstandardBookReferences.RuleMetaData = {
   type: "problem",
   docs: {
-    description: "disallow dynamic translation ids where hi18n cannot correctly detect used translation ids",
+    description:
+      "disallow dynamic translation ids where hi18n cannot correctly detect used translation ids",
     recommended: true,
   },
   messages: {
-    "import-books": "the book should be directly imported from the corresponding module.",
-    "import-books-as-book": "the book should be exported as \"book\"",
+    "import-books":
+      "the book should be directly imported from the corresponding module.",
+    "import-books-as-book": 'the book should be exported as "book"',
   },
 };
 
-export function create(context: ruleNoNonstandardBookReferences.RuleContext): ruleNoNonstandardBookReferences.RuleListener {
+export function create(
+  context: ruleNoNonstandardBookReferences.RuleContext
+): ruleNoNonstandardBookReferences.RuleListener {
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
     const bookNode = captured["book"]!;
@@ -26,7 +30,10 @@ export function create(context: ruleNoNonstandardBookReferences.RuleContext): ru
       });
       return;
     }
-    const bookDef = resolveImportedVariable(context.getSourceCode().scopeManager, bookNode);
+    const bookDef = resolveImportedVariable(
+      context.getSourceCode().scopeManager,
+      bookNode
+    );
     if (!bookDef) {
       context.report({
         node: capturedRoot(bookNode),
@@ -34,7 +41,10 @@ export function create(context: ruleNoNonstandardBookReferences.RuleContext): ru
       });
       return;
     }
-    if (bookDef.node.type === "ImportNamespaceSpecifier" || getImportName(bookDef.node) !== "book") {
+    if (
+      bookDef.node.type === "ImportNamespaceSpecifier" ||
+      getImportName(bookDef.node) !== "book"
+    ) {
       context.report({
         node: bookDef.node,
         messageId: "import-books-as-book",
@@ -46,4 +56,4 @@ export function create(context: ruleNoNonstandardBookReferences.RuleContext): ru
       tracker.trackImport(context, node);
     },
   };
-};
+}

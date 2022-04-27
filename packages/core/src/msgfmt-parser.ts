@@ -1,4 +1,10 @@
-import { ArgType, CompiledMessage, ElementArg, PluralArg, PluralBranch } from "./msgfmt";
+import {
+  ArgType,
+  CompiledMessage,
+  ElementArg,
+  PluralArg,
+  PluralBranch,
+} from "./msgfmt";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
 
@@ -31,8 +37,7 @@ class Parser {
   private parseMessage(): CompiledMessage {
     const buf: CompiledMessage[] = [];
     pushString(buf, this.parseMessageText(true));
-  outer:
-    while (this.pos < this.src.length && this.src[this.pos] !== "}") {
+    outer: while (this.pos < this.src.length && this.src[this.pos] !== "}") {
       switch (this.src[this.pos]) {
         case "{":
           buf.push(this.parseArgument());
@@ -40,7 +45,10 @@ class Parser {
         case "#":
           throw new Error(`Unimplemented: syntax: #`);
         case "<":
-          if (this.pos + 1 < this.src.length && this.src[this.pos + 1] === "/") {
+          if (
+            this.pos + 1 < this.src.length &&
+            this.src[this.pos + 1] === "/"
+          ) {
             // </tag>
             break outer;
           } else {
@@ -49,7 +57,9 @@ class Parser {
           }
           break;
         default:
-          throw new Error(`Bug: invalid syntax character: ${this.src[this.pos]!}`);
+          throw new Error(
+            `Bug: invalid syntax character: ${this.src[this.pos]!}`
+          );
       }
       pushString(buf, this.parseMessageText(true));
     }
@@ -74,7 +84,10 @@ class Parser {
           // End of quoted text
           inQuote = false;
           this.pos++;
-        } else if (this.pos + 1 < this.src.length && /[{}#|<]/.test(this.src[this.pos + 1]!)) {
+        } else if (
+          this.pos + 1 < this.src.length &&
+          /[{}#|<]/.test(this.src[this.pos + 1]!)
+        ) {
           // Beginning of quoted text
           inQuote = true;
           this.pos++;
@@ -172,7 +185,8 @@ class Parser {
       token = this.nextToken(["identifier", "=", "}"] as const);
     }
     if (branches.length === 0) throw new Error("No branch found");
-    if (branches[branches.length - 1]!.selector !== "other") throw new Error("Last selector should be other");
+    if (branches[branches.length - 1]!.selector !== "other")
+      throw new Error("Last selector should be other");
     return { type: "Plural", name, offset, branches };
   }
 
@@ -196,7 +210,9 @@ class Parser {
     const closingName = this.parseArgNameOrNumber(true);
     this.nextToken([">"]);
     if (name !== closingName) {
-      throw new Error(`Tag ${name} closed with a different name: ${closingName}`);
+      throw new Error(
+        `Tag ${name} closed with a different name: ${closingName}`
+      );
     }
     return {
       type: "Element",
@@ -209,15 +225,25 @@ class Parser {
   // argName = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   // argNumber = '0' | ('1'..'9' ('0'..'9')*)
   private parseArgNameOrNumber(noSpace = false): number | string {
-    const [kind, token] = this.nextToken(["number", "identifier"] as const, noSpace ? ["number", "identifier"]: undefined);
+    const [kind, token] = this.nextToken(
+      ["number", "identifier"] as const,
+      noSpace ? ["number", "identifier"] : undefined
+    );
     if (kind === "number") return parseNumber(token);
     return token;
   }
 
-  private nextToken<E extends readonly string[]>(expected: E, noWhitespace?: string[]): [E[number], string] {
+  private nextToken<E extends readonly string[]>(
+    expected: E,
+    noWhitespace?: string[]
+  ): [E[number], string] {
     const [kind, token, foundWhitespace] = this.nextTokenImpl();
-    if (!expected.includes(kind)) throw new Error(`Unexpected token ${kind} (expected ${expected.join(", ")})`);
-    if (noWhitespace && foundWhitespace && noWhitespace.includes(kind)) throw new Error("No space allowed here");
+    if (!expected.includes(kind))
+      throw new Error(
+        `Unexpected token ${kind} (expected ${expected.join(", ")})`
+      );
+    if (noWhitespace && foundWhitespace && noWhitespace.includes(kind))
+      throw new Error("No space allowed here");
     return [kind, token];
   }
 
@@ -230,11 +256,14 @@ class Parser {
     if (this.src.startsWith("offset:", this.pos)) {
       kind = "offset:";
       this.pos += "offset:".length;
-    // It should be /[\p{Pattern_Syntax}\p{Pattern_White_Space}]/u
-    // but for compatibility reasons I'm not yet sure we can use it now.
+      // It should be /[\p{Pattern_Syntax}\p{Pattern_White_Space}]/u
+      // but for compatibility reasons I'm not yet sure we can use it now.
     } else if (/[0-9A-Z_a-z]/.test(ch)) {
       kind = /[0-9]/.test(ch) ? "number" : "identifier";
-      while (this.pos < this.src.length && /[0-9A-Z_a-z]/.test(this.src[this.pos]!)) {
+      while (
+        this.pos < this.src.length &&
+        /[0-9A-Z_a-z]/.test(this.src[this.pos]!)
+      ) {
         this.pos++;
       }
     } else {
@@ -246,13 +275,15 @@ class Parser {
 
   private skipWhitespace(): boolean {
     const oldPos = this.pos;
-    while (this.pos < this.src.length && /\s/.test(this.src[this.pos]!)) this.pos++;
+    while (this.pos < this.src.length && /\s/.test(this.src[this.pos]!))
+      this.pos++;
     return this.pos > oldPos;
   }
 }
 
 function parseNumber(token: string): number {
-  if (!/^(?:0|[1-9][0-9]*)$/.test(token)) throw new Error(`Invalid number: ${token}`);
+  if (!/^(?:0|[1-9][0-9]*)$/.test(token))
+    throw new Error(`Invalid number: ${token}`);
   return parseInt(token);
 }
 

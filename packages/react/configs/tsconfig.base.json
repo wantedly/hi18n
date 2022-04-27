@@ -3,6 +3,6 @@
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "jsx": "react-jsx",
-    "module": "esnext",
+    "module": "esnext"
   }
 }

@@ -32,7 +32,9 @@ new RuleTester({
         const { t } = getTranslator(...data);
         t("example.greeting");
       `,
-      errors: ["the book should be directly imported from the corresponding module."],
+      errors: [
+        "the book should be directly imported from the corresponding module.",
+      ],
     },
     {
       code: `
@@ -41,7 +43,9 @@ new RuleTester({
         const { t } = getTranslator(42, "en");
         t("example.greeting");
       `,
-      errors: ["the book should be directly imported from the corresponding module."],
+      errors: [
+        "the book should be directly imported from the corresponding module.",
+      ],
     },
     {
       code: `
@@ -51,7 +55,9 @@ new RuleTester({
         const { t } = getTranslator(book, "en");
         t("example.greeting");
       `,
-      errors: ["the book should be directly imported from the corresponding module."],
+      errors: [
+        "the book should be directly imported from the corresponding module.",
+      ],
     },
     {
       code: `
@@ -61,7 +67,7 @@ new RuleTester({
         const { t } = getTranslator(book2, "en");
         t("example.greeting");
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -71,7 +77,7 @@ new RuleTester({
         const { t } = getTranslator(book, "en");
         t("example.greeting");
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -81,7 +87,7 @@ new RuleTester({
         const { t } = getTranslator(book, "en");
         t("example.greeting");
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -91,7 +97,7 @@ new RuleTester({
         const { t } = getTranslator(book, "en");
         t("example.greeting");
       `,
-      errors: ["the book should be exported as \"book\""],
+      errors: ['the book should be exported as "book"'],
     },
   ],
-})
+});

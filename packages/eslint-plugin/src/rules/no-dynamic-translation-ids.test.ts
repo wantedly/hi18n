@@ -95,4 +95,4 @@ new RuleTester({
       errors: ["Don't use dynamic translation keys"],
     },
   ],
-})
+});

@@ -32,7 +32,7 @@ new RuleTester({
           "example/multiline",
         ],
       },
-    }
+    },
   ],
   invalid: [
     {
@@ -77,4 +77,4 @@ new RuleTester({
       `,
     },
   ],
-})
+});

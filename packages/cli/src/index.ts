@@ -4,18 +4,23 @@ import { fixTranslations } from "./fixer";
 
 const result = (async () => {
   await yargs(hideBin(process.argv))
-    .command("sync <files...>", "synchronize translation ids", (yargs) => {
-      return yargs
-        .positional("files", {
-          required: true,
-          type: "string",
-          array: true,
-        })
-        .option("exclude", {
-          type: "string",
-          array: true
-        });
-    }, syncCommand)
+    .command(
+      "sync <files...>",
+      "synchronize translation ids",
+      (yargs) => {
+        return yargs
+          .positional("files", {
+            required: true,
+            type: "string",
+            array: true,
+          })
+          .option("exclude", {
+            type: "string",
+            array: true,
+          });
+      },
+      syncCommand
+    )
     .strict()
     .demandCommand(1)
     .parse();
@@ -26,7 +31,12 @@ result.catch((e) => {
   process.exit(1);
 });
 
-async function syncCommand(args: yargs.ArgumentsCamelCase<{ files: string[] | undefined, exclude: string[] | undefined }>) {
+async function syncCommand(
+  args: yargs.ArgumentsCamelCase<{
+    files: string[] | undefined;
+    exclude: string[] | undefined;
+  }>
+) {
   await fixTranslations({
     cwd: process.cwd(),
     include: args.files ?? [],

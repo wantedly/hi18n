@@ -1,4 +1,12 @@
-import { BaseNode, Declaration, Expression, Identifier, NewExpression, Pattern, Statement } from "estree";
+import {
+  BaseNode,
+  Declaration,
+  Expression,
+  Identifier,
+  NewExpression,
+  Pattern,
+  Statement,
+} from "estree";
 export type TypeAnnotationExtension = {
   typeAnnotation?: TSTypeAnnotation | undefined;
 };
@@ -6,9 +14,16 @@ export type TypeParameterInstantiationExtension = {
   typeParameters?: TSTypeParameterInstantiation | undefined;
 };
 
-export type NewExpressionExt = NewExpression & TypeParameterInstantiationExtension;
-export type DeclarationExt = Declaration | TSTypeAliasDeclaration | TSInterfaceDeclaration;
-export type StatementExt = Statement | TSTypeAliasDeclaration | TSInterfaceDeclaration;
+export type NewExpressionExt = NewExpression &
+  TypeParameterInstantiationExtension;
+export type DeclarationExt =
+  | Declaration
+  | TSTypeAliasDeclaration
+  | TSInterfaceDeclaration;
+export type StatementExt =
+  | Statement
+  | TSTypeAliasDeclaration
+  | TSInterfaceDeclaration;
 
 export interface TSTypeAliasDeclaration extends BaseNode {
   type: "TSTypeAliasDeclaration";
@@ -75,7 +90,7 @@ export interface TSIndexSignature extends BaseNode {
 export interface TSTypeParameterDeclaration extends BaseNode {
   type: "TSTypeParameterDeclaration";
   params: TSTypeParameter[];
-};
+}
 
 export interface TSTypeParameter extends BaseNode {
   type: "TSTypeParameter";
@@ -87,29 +102,26 @@ export interface TSTypeParameter extends BaseNode {
 export interface TSTypeParameterInstantiation extends BaseNode {
   type: "TSTypeParameterInstantiation";
   params: TSType[];
-};
+}
 
 export interface TSTypeAnnotation extends BaseNode {
   type: "TSTypeAnnotation";
   typeAnnotation: TSType;
 }
 
-export type TSType =
-  | TSTypeReference
-  | TSUnionType
-  | TSTypeLiteral
-  /* | ... */;
+export type TSType = TSTypeReference | TSUnionType | TSTypeLiteral;
+/* | ... */
 
 export interface TSTypeReference extends BaseNode {
   type: "TSTypeReference";
   typeName: Identifier;
   typeParameters?: TSTypeParameterInstantiation | undefined;
-};
+}
 
 export interface TSUnionType extends BaseNode {
   type: "TSUnionType";
   types: TSType[];
-};
+}
 
 export interface TSTypeLiteral extends BaseNode {
   type: "TSTypeLiteral";

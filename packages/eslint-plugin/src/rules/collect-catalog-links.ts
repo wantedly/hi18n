@@ -19,10 +19,14 @@ export const meta: Rule.RuleMetaData = {
 
 export function create(context: Rule.RuleContext): Rule.RuleListener {
   if (context.options[0] === undefined) {
-    throw new Error("Callback not found\nNote: this rule is for an internal use.");
+    throw new Error(
+      "Callback not found\nNote: this rule is for an internal use."
+    );
   }
-  if (typeof context.options[0] !== "function") throw new Error("invalid callback");
-  const collectCatalogLinksCallback = context.options[0] as CollectCatalogLinksCallback;
+  if (typeof context.options[0] !== "function")
+    throw new Error("invalid callback");
+  const collectCatalogLinksCallback = context
+    .options[0] as CollectCatalogLinksCallback;
   const tracker = bookTracker();
   tracker.listen("book", (_node, captured) => {
     const catalogs = captured["catalogs"]!;
@@ -34,9 +38,16 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       const key = getStaticKey(prop);
       if (key === null) continue;
       if (prop.value.type !== "Identifier") continue;
-      const valueDef = resolveImportedVariable(context.getSourceCode().scopeManager, prop.value);
+      const valueDef = resolveImportedVariable(
+        context.getSourceCode().scopeManager,
+        prop.value
+      );
       if (!valueDef) return;
-      if (valueDef.node.type === "ImportNamespaceSpecifier" || getImportName(valueDef.node) !== "default") return;
+      if (
+        valueDef.node.type === "ImportNamespaceSpecifier" ||
+        getImportName(valueDef.node) !== "default"
+      )
+        return;
       collectCatalogLinksCallback({
         locale: key,
         catalogSource: `${valueDef.parent.source.value as string}`,
@@ -49,4 +60,4 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       tracker.trackImport(context, node);
     },
   };
-};
+}

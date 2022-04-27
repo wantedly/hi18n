@@ -72,4 +72,4 @@ new RuleTester({
       errors: ["do not use dynamic translation ids for the catalog data"],
     },
   ],
-})
+});

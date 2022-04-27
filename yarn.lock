@@ -1430,6 +1430,7 @@ __metadata:
     babel-jest: ^28.0.1
     eslint: ^8.14.0
     jest: ^28.0.1
+    prettier: ^2.6.2
     tslib: ^2.3.1
     typescript: ^4.6.3
   languageName: unknown
@@ -1453,6 +1454,7 @@ __metadata:
     eslint-plugin-node: ^11.1.0
     eslint-visitor-keys: ^3.3.0
     jest: ^28.0.1
+    prettier: ^2.6.2
     tslib: ^2.3.1
     typescript: ^4.6.3
   peerDependencies:
@@ -1482,6 +1484,7 @@ __metadata:
     expect: ^28.0.1
     jest: ^28.0.1
     jest-environment-jsdom: ^28.0.1
+    prettier: ^2.6.2
     react: ^17.0.2 || ^18.0.0
     react-dom: ^17.0.2 || ^18.0.0
     tslib: ^2.3.1
@@ -4356,6 +4359,7 @@ __metadata:
     fs-extra: ^10.1.0
     glob: ^8.0.1
     jest: ^28.0.1
+    prettier: ^2.6.2
     resolve: ^1.22.0
     tslib: ^2.3.1
     typescript: ^4.6.3
@@ -6105,6 +6109,15 @@ __metadata:
   version: 1.1.2
   resolution: "prelude-ls@npm:1.1.2"
   checksum: c4867c87488e4a0c233e158e4d0d5565b609b105d75e4c05dc760840475f06b731332eb93cc8c9cecb840aa8ec323ca3c9a56ad7820ad2e63f0261dadcb154e4
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.6.2":
+  version: 2.6.2
+  resolution: "prettier@npm:2.6.2"
+  bin:
+    prettier: bin-prettier.js
+  checksum: 48d08dde8e9fb1f5bccdd205baa7f192e9fc8bc98f86e1b97d919de804e28c806b0e6cc685e4a88211aa7987fa9668f30baae19580d87ced3ed0f2ec6572106f
   languageName: node
   linkType: hard
 

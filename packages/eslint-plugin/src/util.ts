@@ -1,8 +1,27 @@
 import { Rule, Scope } from "eslint";
-import { AssignmentProperty, ClassDeclaration, Directive, Identifier, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, MemberExpression, ModuleDeclaration, Property } from "estree";
-import { DeclarationExt, StatementExt, TSInterfaceDeclaration, TSPropertySignature, TSTypeAliasDeclaration } from "./estree-ts";
+import {
+  AssignmentProperty,
+  ClassDeclaration,
+  Directive,
+  Identifier,
+  ImportDefaultSpecifier,
+  ImportNamespaceSpecifier,
+  ImportSpecifier,
+  MemberExpression,
+  ModuleDeclaration,
+  Property,
+} from "estree";
+import {
+  DeclarationExt,
+  StatementExt,
+  TSInterfaceDeclaration,
+  TSPropertySignature,
+  TSTypeAliasDeclaration,
+} from "./estree-ts";
 
-export function getImportName(spec: ImportSpecifier | ImportDefaultSpecifier): string {
+export function getImportName(
+  spec: ImportSpecifier | ImportDefaultSpecifier
+): string {
   if (spec.type === "ImportSpecifier") {
     return spec.imported.name;
   } else {
@@ -12,11 +31,20 @@ export function getImportName(spec: ImportSpecifier | ImportDefaultSpecifier): s
 
 export function getStaticMemKey(mem: MemberExpression): string | null {
   if (mem.computed) {
-    if (mem.property.type === "Literal" && typeof mem.property.value === "string") {
+    if (
+      mem.property.type === "Literal" &&
+      typeof mem.property.value === "string"
+    ) {
       return mem.property.value;
-    } else if (mem.property.type === "Literal" && typeof mem.property.value === "number") {
+    } else if (
+      mem.property.type === "Literal" &&
+      typeof mem.property.value === "number"
+    ) {
       return `${mem.property.value}`;
-    } else if (mem.property.type === "Literal" && typeof mem.property.value === "bigint") {
+    } else if (
+      mem.property.type === "Literal" &&
+      typeof mem.property.value === "bigint"
+    ) {
       return `${mem.property.value}`;
     }
   } else {
@@ -27,33 +55,53 @@ export function getStaticMemKey(mem: MemberExpression): string | null {
   return null;
 }
 
-export function getStaticKey(prop: AssignmentProperty | Property | TSPropertySignature): string | null {
+export function getStaticKey(
+  prop: AssignmentProperty | Property | TSPropertySignature
+): string | null {
   if (prop.computed) {
     return null;
   } else {
     if (prop.key.type === "Identifier") {
       return prop.key.name;
-    } else if (prop.key.type === "Literal" && typeof prop.key.value === "string") {
+    } else if (
+      prop.key.type === "Literal" &&
+      typeof prop.key.value === "string"
+    ) {
       return prop.key.value;
-    } else if (prop.key.type === "Literal" && typeof prop.key.value === "number") {
+    } else if (
+      prop.key.type === "Literal" &&
+      typeof prop.key.value === "number"
+    ) {
       return `${prop.key.value}`;
     }
   }
   return null;
 }
 
-export function resolveImportedVariable(scopeManager: Scope.ScopeManager, node: Identifier): (Scope.Definition & { type: "ImportBinding" }) | undefined {
+export function resolveImportedVariable(
+  scopeManager: Scope.ScopeManager,
+  node: Identifier
+): (Scope.Definition & { type: "ImportBinding" }) | undefined {
   const variable = resolveVariable(scopeManager, node);
   if (!variable) return undefined;
-  return variable.defs.find((def): def is Scope.Definition & { type: "ImportBinding" } => def.type === "ImportBinding");
+  return variable.defs.find(
+    (def): def is Scope.Definition & { type: "ImportBinding" } =>
+      def.type === "ImportBinding"
+  );
 }
 
-export function resolveVariable(scopeManager: Scope.ScopeManager, node: Identifier): Scope.Variable | undefined {
+export function resolveVariable(
+  scopeManager: Scope.ScopeManager,
+  node: Identifier
+): Scope.Variable | undefined {
   const scope = nearestScope(scopeManager, node as Rule.Node);
   return findVariable(scope, node.name);
 }
 
-function findVariable(scope: Scope.Scope, name: string): Scope.Variable | undefined {
+function findVariable(
+  scope: Scope.Scope,
+  name: string
+): Scope.Variable | undefined {
   let currentScope: Scope.Scope | null = scope;
   while (currentScope) {
     const v = currentScope.variables.find((v) => v.name === name);
@@ -63,7 +111,7 @@ function findVariable(scope: Scope.Scope, name: string): Scope.Variable | undefi
   return undefined;
 }
 
-export type TypeDeclarator = 
+export type TypeDeclarator =
   | TSInterfaceDeclaration
   | TSTypeAliasDeclaration
   | ClassDeclaration
@@ -71,24 +119,37 @@ export type TypeDeclarator =
   | ImportDefaultSpecifier
   | ImportNamespaceSpecifier;
 
-export function resolveTypeLevelVariable(scopeManager: Scope.ScopeManager, node: Identifier): TypeDeclarator | undefined {
+export function resolveTypeLevelVariable(
+  scopeManager: Scope.ScopeManager,
+  node: Identifier
+): TypeDeclarator | undefined {
   const scope = nearestScope(scopeManager, node as Rule.Node);
   return findTypeLevelVariable(scope, node.name);
 }
 
-function findTypeLevelVariable(scope: Scope.Scope, name: string): TypeDeclarator | undefined {
+function findTypeLevelVariable(
+  scope: Scope.Scope,
+  name: string
+): TypeDeclarator | undefined {
   let currentScope: Scope.Scope | null = scope;
   while (currentScope) {
     switch (currentScope.block.type) {
       case "BlockStatement":
       case "Program":
-        for (const stmtBase of currentScope.block.body as (StatementExt | ModuleDeclaration | Directive)[]) {
+        for (const stmtBase of currentScope.block.body as (
+          | StatementExt
+          | ModuleDeclaration
+          | Directive
+        )[]) {
           const stmt =
-            stmtBase.type === "ExportNamedDeclaration" && stmtBase.declaration ?
-              stmtBase.declaration :
-            stmtBase.type === "ExportDefaultDeclaration" && ["ClassDeclaration", "TSInterfaceDeclaration"].includes(stmtBase.declaration.type) ?
-              stmtBase.declaration as DeclarationExt :
-            stmtBase;
+            stmtBase.type === "ExportNamedDeclaration" && stmtBase.declaration
+              ? stmtBase.declaration
+              : stmtBase.type === "ExportDefaultDeclaration" &&
+                ["ClassDeclaration", "TSInterfaceDeclaration"].includes(
+                  stmtBase.declaration.type
+                )
+              ? (stmtBase.declaration as DeclarationExt)
+              : stmtBase;
           switch (stmt.type) {
             case "TSInterfaceDeclaration":
             case "TSTypeAliasDeclaration":
@@ -109,7 +170,10 @@ function findTypeLevelVariable(scope: Scope.Scope, name: string): TypeDeclarator
   return undefined;
 }
 
-function nearestScope(scopeManager: Scope.ScopeManager, node: Rule.Node): Scope.Scope {
+function nearestScope(
+  scopeManager: Scope.ScopeManager,
+  node: Rule.Node
+): Scope.Scope {
   let currentNode = node;
   while (currentNode) {
     const innerScope = scopeManager.acquire(currentNode, true);
