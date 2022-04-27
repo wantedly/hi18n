@@ -53,7 +53,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context, node);
+      tracker.trackImport(context.getSourceCode().scopeManager, node);
     },
   };
 }

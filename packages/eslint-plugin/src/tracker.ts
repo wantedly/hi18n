@@ -108,7 +108,7 @@ export class Tracker {
     }
   }
 
-  trackImport(context: Rule.RuleContext, node: ImportDeclaration) {
+  trackImport(scopeManager: Scope.ScopeManager, node: ImportDeclaration) {
     if (typeof node.source.value !== "string") return;
     if (
       !Object.prototype.hasOwnProperty.call(
@@ -126,20 +126,20 @@ export class Tracker {
       ) {
         const subRes = this.memberResource(res, getImportName(spec));
         if (subRes) {
-          this.trackVariable(context, spec, spec.local.name, subRes);
+          this.trackVariable(scopeManager, spec, spec.local.name, subRes);
         }
       } else {
-        this.trackVariable(context, spec, spec.local.name, res);
+        this.trackVariable(scopeManager, spec, spec.local.name, res);
       }
     }
   }
   private trackVariable(
-    context: Rule.RuleContext,
+    scopeManager: Scope.ScopeManager,
     node: Node,
     varName: string,
     res: Resource
   ) {
-    const varDecl = context
+    const varDecl = scopeManager
       .getDeclaredVariables(node)
       .find((v) => v.name === varName);
     if (!varDecl) return;
@@ -149,22 +149,19 @@ export class Tracker {
       if (isPattern(varRef.identifier as Identifier & Rule.NodeParentExtension))
         continue;
       this.trackExpression(
-        context,
+        scopeManager,
         varRef.identifier as Identifier & Rule.NodeParentExtension,
         res
       );
     }
     if (this.hasJSX) {
       if (!this.jsxBindings) {
-        this.jsxBindings = collectReactJSXVars(
-          context.getSourceCode().scopeManager,
-          context.getSourceCode().ast
-        );
+        this.jsxBindings = collectReactJSXVars(scopeManager);
       }
       const refs = this.jsxBindings.get(varDecl) ?? [];
       for (const varRef of refs) {
         this.trackExpression(
-          context,
+          scopeManager,
           varRef as JSXIdentifier & Rule.NodeParentExtension,
           res
         );
@@ -172,7 +169,7 @@ export class Tracker {
     }
   }
   private trackExpression(
-    context: Rule.RuleContext,
+    scopeManager: Scope.ScopeManager,
     expr: (Expression | JSXElement | JSXIdentifier) & Rule.NodeParentExtension,
     res: Resource
   ) {
@@ -182,7 +179,7 @@ export class Tracker {
     switch (parent.type) {
       case "VariableDeclarator":
         if (parent.init === expr) {
-          this.trackPattern(context, parent, parent.id, res);
+          this.trackPattern(scopeManager, parent, parent.id, res);
         }
         break;
       case "MemberExpression":
@@ -191,7 +188,7 @@ export class Tracker {
           if (key !== null) {
             const subRes = this.memberResource(res, key);
             if (subRes) {
-              this.trackExpression(context, parent, subRes);
+              this.trackExpression(scopeManager, parent, subRes);
             }
           }
         }
@@ -210,7 +207,7 @@ export class Tracker {
                 ...res.captured,
                 ...captureArguments(parent, captures),
               };
-              this.trackExpression(context, parent, {
+              this.trackExpression(scopeManager, parent, {
                 resNames: [subResName],
                 captured: newCaptured,
               });
@@ -232,7 +229,7 @@ export class Tracker {
                 ...res.captured,
                 ...captureProps(elem, captures),
               };
-              this.trackExpression(context, elem, {
+              this.trackExpression(scopeManager, elem, {
                 resNames: [subResName],
                 captured: newCaptured,
               });
@@ -243,14 +240,14 @@ export class Tracker {
     }
   }
   private trackPattern(
-    context: Rule.RuleContext,
+    scopeManager: Scope.ScopeManager,
     decl: VariableDeclarator,
     pat: Pattern,
     res: Resource
   ) {
     switch (pat.type) {
       case "Identifier":
-        this.trackVariable(context, decl, pat.name, res);
+        this.trackVariable(scopeManager, decl, pat.name, res);
         break;
       case "ArrayPattern": {
         let i = 0;
@@ -262,7 +259,7 @@ export class Tracker {
           if (elem.type === "RestElement") break;
           const subRes = this.memberResource(res, `${i}`);
           if (subRes) {
-            this.trackPattern(context, decl, elem, subRes);
+            this.trackPattern(scopeManager, decl, elem, subRes);
           }
           i++;
         }
@@ -271,20 +268,20 @@ export class Tracker {
       case "ObjectPattern":
         for (const prop of pat.properties) {
           if (prop.type === "RestElement") {
-            this.trackPattern(context, decl, prop.argument, res);
+            this.trackPattern(scopeManager, decl, prop.argument, res);
           } else {
             const key = getStaticKey(prop);
             if (key !== null) {
               const subRes = this.memberResource(res, key);
               if (subRes) {
-                this.trackPattern(context, decl, prop.value, subRes);
+                this.trackPattern(scopeManager, decl, prop.value, subRes);
               }
             }
           }
         }
         break;
       case "AssignmentPattern":
-        this.trackPattern(context, decl, pat.left, res);
+        this.trackPattern(scopeManager, decl, pat.left, res);
         break;
     }
   }
@@ -479,9 +476,9 @@ function isPattern(node: Rule.Node): boolean {
 }
 
 function collectReactJSXVars(
-  scopeManager: Scope.ScopeManager,
-  root: Node
+  scopeManager: Scope.ScopeManager
 ): Map<Scope.Variable, JSXIdentifier[]> {
+  const root = scopeManager.globalScope!.block;
   const referenceMap = new Map<Scope.Variable, JSXIdentifier[]>();
   collect(root);
   return referenceMap;
