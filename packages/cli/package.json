@@ -1,11 +1,27 @@
 {
   "name": "hi18n",
   "version": "0.1.0",
-  "description": "Stateless message catalog for internationalization",
-  "repository": "https://github.com/qnighy/hi18n",
+  "description": "Message internationalization meets immutability and type-safety - command line tool",
+  "keywords": ["intl", "i18n", "internationalization", "locale", "localization", "globalization", "format", "formatting", "translate", "translation", "hi18n"],
+  "homepage": "https://github.com/wantedly/hi18n#readme",
+  "bugs": {
+    "url": "https://github.com/wantedly/hi18n/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wantedly/hi18n.git",
+    "directory": "packages/cli"
+  },
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "packageManager": "yarn@3.2.0",
+  "files": [
+    "dist/**/*",
+    "!dist/*.tsbuildinfo",
+    "src/**/*",
+    "!src/**/*.test.ts",
+    "!src/__fixtures__/**/*"
+  ],
   "bin": "./bin/hi18n.js",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +30,7 @@
     "default": "./dist/index.js"
   },
   "scripts": {
-    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts,src/__fixtures__/**/*'",
+    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,src/__fixtures__/**/*'",
     "build": "yarn babel && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",

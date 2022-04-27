@@ -1,11 +1,26 @@
 {
   "name": "@hi18n/core",
   "version": "0.1.0",
-  "description": "Stateless message catalog for internationalization",
-  "repository": "https://github.com/qnighy/hi18n",
+  "description": "Message internationalization meets immutability and type-safety - core runtime",
+  "keywords": ["intl", "i18n", "internationalization", "locale", "localization", "globalization", "format", "formatting", "translate", "translation", "hi18n"],
+  "homepage": "https://github.com/wantedly/hi18n#readme",
+  "bugs": {
+    "url": "https://github.com/wantedly/hi18n/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wantedly/hi18n.git",
+    "directory": "packages/core"
+  },
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "packageManager": "yarn@3.2.0",
+  "files": [
+    "dist/**/*",
+    "!dist/*.tsbuildinfo",
+    "src/**/*",
+    "!src/**/*.test.ts"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -14,8 +29,8 @@
     "require": "./dist/index.js"
   },
   "scripts": {
-    "babel:cjs": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts'",
-    "babel:esm": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts' --config-file ./babel-esm.config.js --out-file-extension .mjs",
+    "babel:cjs": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts'",
+    "babel:esm": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts' --config-file ./babel-esm.config.js --out-file-extension .mjs",
     "build": "yarn babel:cjs && yarn babel:esm && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",

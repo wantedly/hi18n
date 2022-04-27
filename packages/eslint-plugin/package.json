@@ -1,10 +1,26 @@
 {
   "name": "@hi18n/eslint-plugin",
   "version": "0.1.0",
-  "description": "Stateless message catalog for internationalization -- eslint plugin",
-  "repository": "https://github.com/qnighy/hi18n",
+  "description": "Message internationalization meets immutability and type-safety - ESLint plugin",
+  "keywords": ["intl", "i18n", "internationalization", "locale", "localization", "globalization", "format", "formatting", "translate", "translation", "hi18n", "eslint", "eslintplugin"],
+  "homepage": "https://github.com/wantedly/hi18n#readme",
+  "bugs": {
+    "url": "https://github.com/wantedly/hi18n/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wantedly/hi18n.git",
+    "directory": "packages/eslint-plugin"
+  },
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
+  "packageManager": "yarn@3.2.0",
+  "files": [
+    "dist/**/*",
+    "!dist/*.tsbuildinfo",
+    "src/**/*",
+    "!src/**/*.test.ts"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -12,7 +28,7 @@
     "default": "./dist/index.js"
   },
   "scripts": {
-    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts'",
+    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts'",
     "build": "yarn babel && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
