@@ -38,17 +38,17 @@ export function evaluateMessage<T = string>(
       throw new MessageError(`Missing argument ${msg.name}`, options);
     switch (msg.argType ?? "string") {
       case "string":
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         if (typeof value !== "string")
           throw new MessageError(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `Invalid argument ${msg.name}: expected string, got ${value}`,
             options
           );
         return value;
       case "number":
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         if (typeof value !== "number" && typeof value !== "bigint")
           throw new MessageError(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `Invalid argument ${msg.name}: expected number, got ${value}`,
             options
           );
@@ -61,9 +61,9 @@ export function evaluateMessage<T = string>(
     const value = (options.params ?? {})[msg.name];
     if (value === undefined)
       throw new MessageError(`Missing argument ${msg.name}`, options);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     if (typeof value !== "number" && typeof value !== "bigint")
       throw new MessageError(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Invalid argument ${msg.name}: expected number, got ${value}`,
         options
       );

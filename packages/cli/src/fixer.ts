@@ -227,12 +227,12 @@ function checkMessages(filepath: string, messages: Linter.LintMessage[]) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function resolveAsPromise(
   id: string,
   opts: resolve.AsyncOpts
 ): Promise<{
   resolved: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pkg: { name: string; version: string; [key: string]: any } | undefined;
 }> {
   return new Promise((resolvePromise, rejectPromise) => {

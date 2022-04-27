@@ -77,8 +77,8 @@ function extractComponents(
 }
 
 function fillComponentKeys(params: Record<string | number, unknown>) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   for (const [key, value] of Object.entries(
+    // eslint-disable-next-line @typescript-eslint/ban-types
     params as Record<string | number, {} | null | undefined>
   )) {
     if (!React.isValidElement(value)) continue;
