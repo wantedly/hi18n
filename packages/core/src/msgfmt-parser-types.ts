@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any */
+
 // The parser algorithm is written to vastly match what is implemented in ./msgfmt-parser.ts, but with a few differences.
 
 import type { Message } from "./index";
@@ -22,6 +24,7 @@ export type InferredMessageType<S extends string> =
 
 type ValidArgType = "number" | "date" | "time" | "spellout" | "ordinal" | "duration";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ParseMessageEOF<S extends string, Accum> =
   ParseMessage<S, Accum> extends ParseResult<infer Accum, infer Rem, infer Error> ?
     Error extends string ? ParseResult<Accum, Rem, Error> :

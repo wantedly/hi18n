@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { ArgType, CompiledMessage, ElementArg, PluralArg, PluralBranch } from "./msgfmt";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
@@ -21,7 +23,7 @@ class Parser {
   public parseMessageEOF(): CompiledMessage {
     const msg = this.parseMessage();
     if (this.pos < this.src.length) {
-      throw new Error(`Found an unmatching ${this.src[this.pos]}`);
+      throw new Error(`Found an unmatching ${this.src[this.pos]!}`);
     }
     return msg;
   }
@@ -49,7 +51,7 @@ class Parser {
           }
           break;
         default:
-          throw new Error(`Bug: invalid syntax character: ${this.src[this.pos]}`);
+          throw new Error(`Bug: invalid syntax character: ${this.src[this.pos]!}`);
       }
       pushString(buf, this.parseMessageText(true));
     }

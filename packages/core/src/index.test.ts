@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any, @typescript-eslint/unbound-method */
+
 import { describe, expect, it } from "@jest/globals";
 import { Book, Catalog, Message, getTranslator, msg } from "./index";
 
@@ -93,7 +95,7 @@ describe ("Book", () => {
   });
 });
 
-function expectType<T>(_x: T) {}
+function expectType<T>(_x: T) { /* Nothing to do */ }
 expectType<Message>(msg("foo"));
 
 // Translation with unintended arguments

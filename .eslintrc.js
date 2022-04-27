@@ -9,6 +9,14 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
     ecmaVersion: "latest",
     sourceType: "module",
   },
+  rules: {
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      varsIgnorePattern: "^_",
+      argsIgnorePattern: "^_",
+      destructuredArrayIgnorePattern: "^_",
+      caughtErrorsIgnorePattern: "^_",
+    }],
+  },
   overrides: [
     {
       files: ["*.ts"],

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-empty-function, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return */
+
 import { describe, it } from "@jest/globals";
 import type { Message } from "./index";
 import type { ComponentPlaceholder, InferredMessageType, ParseError } from "./msgfmt-parser-types";

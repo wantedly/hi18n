@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+
 import { CompiledMessage } from "./msgfmt";
 
 export type EvalOption<T> = {
@@ -24,18 +26,21 @@ export function evaluateMessage<T = string>(msg: CompiledMessage, options: EvalO
     if (value === undefined) throw new MessageError(`Missing argument ${msg.name}`, options);
     switch (msg.argType ?? "string") {
       case "string":
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         if (typeof value !== "string") throw new MessageError(`Invalid argument ${msg.name}: expected string, got ${value}`, options);
         return value;
       case "number":
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         if (typeof value !== "number" && typeof value !== "bigint") throw new MessageError(`Invalid argument ${msg.name}: expected number, got ${value}`, options);
         // TODO: allow injecting polyfill
         return new Intl.NumberFormat(options.locale).format(value);
       default:
-        throw new Error(`Unimplemented: argType=${msg.argType}`);
+        throw new Error(`Unimplemented: argType=${msg.argType ?? "string"}`);
     }
   } else if (msg.type === "Plural") {
     const value = (options.params ?? {})[msg.name];
     if (value === undefined) throw new MessageError(`Missing argument ${msg.name}`, options);
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     if (typeof value !== "number" && typeof value !== "bigint") throw new MessageError(`Invalid argument ${msg.name}: expected number, got ${value}`, options);
     // TODO: allow injecting polyfill
     const pluralRules = new Intl.PluralRules(options.locale);

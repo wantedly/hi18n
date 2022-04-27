@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
+
 import { CompiledMessage } from './msgfmt';
 import { evaluateMessage } from './msgfmt-eval';
 import { parseMessage } from './msgfmt-parser';
@@ -38,7 +40,7 @@ export class Catalog<Vocabulary extends VocabularyBase> {
   getCompiledMessage(id: string & keyof Vocabulary): CompiledMessage {
     if (!Object.prototype.hasOwnProperty.call(this._compiled, id)) {
       if (!Object.prototype.hasOwnProperty.call(this.data, id)) {
-        throw new Error(`Missing translation in ${this.locale} for ${id}`);
+        throw new Error(`Missing translation in ${this.locale ?? "<unknown locale>"} for ${id}`);
       }
       const msg = this.data[id]!;
       this._compiled[id] = parseMessage(msg);
