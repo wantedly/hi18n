@@ -1,5 +1,5 @@
 module.exports = /** @type {import("eslint").Linter.Config} */ ({
-  extends: ["../../.eslintrc.js", "plugin:react/recommended", "plugin:react/jsx-runtime", "plugin:react-hooks/recommended"],
+  extends: ["plugin:react/recommended", "plugin:react/jsx-runtime", "plugin:react-hooks/recommended"],
   parserOptions: {
     project: [
       require.resolve("./tsconfig.json"),
