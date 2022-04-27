@@ -29,7 +29,7 @@ export class Tracker {
   watchingImports: Record<string, string[]> = {};
   resources: Record<string, ResourceHooks> = {};
   visited: Set<Node> = new Set<Node>();
-  hasJSX = false;
+  jsxClosure?: Set<string> | undefined;
   jsxBindings?: Map<Scope.Variable, JSXIdentifier[]>;
 
   watchImport(source: string, watchAs: string = `import("${source}")`) {
@@ -51,6 +51,8 @@ export class Tracker {
     } else {
       res.members[memberName] = [watchAs];
     }
+    // Invalidate
+    this.jsxClosure = undefined;
   }
   watchCall(
     resName: string,
@@ -75,7 +77,8 @@ export class Tracker {
   ) {
     const resHooks = this.getResourceHooks(resName);
     resHooks.jsxElements.push({ resName: watchAs, captures });
-    this.hasJSX = true;
+    // Invalidate
+    this.jsxClosure = undefined;
   }
   private getResourceHooks(resName: string): ResourceHooks {
     if (Object.prototype.hasOwnProperty.call(this.resources, resName)) {
@@ -154,7 +157,7 @@ export class Tracker {
         res
       );
     }
-    if (this.hasJSX) {
+    if (res.resNames.some((resName) => this.getJsxClosure().has(resName))) {
       if (!this.jsxBindings) {
         this.jsxBindings = collectReactJSXVars(scopeManager);
       }
@@ -299,6 +302,33 @@ export class Tracker {
     } else {
       return null;
     }
+  }
+
+  private getJsxClosure(): Set<string> {
+    if (this.jsxClosure) return this.jsxClosure;
+    const reverseMembership = new Map<string, string[]>();
+    for (const [resName, res] of Object.entries(this.resources)) {
+      for (const subResName of Object.values(res.members).flat(1)) {
+        const mem = reverseMembership.get(subResName);
+        if (!mem) {
+          reverseMembership.set(subResName, [resName]);
+        } else if (!mem.includes(resName)) {
+          mem.push(resName);
+        }
+      }
+    }
+    const jsxClosure = new Set<string>();
+    function fill(resName: string) {
+      if (jsxClosure.has(resName)) return;
+      jsxClosure.add(resName);
+      for (const superResName of reverseMembership.get(resName) ?? []) {
+        fill(superResName);
+      }
+    }
+    for (const [resName, res] of Object.entries(this.resources)) {
+      if (res.jsxElements.length > 0) fill(resName);
+    }
+    return (this.jsxClosure = jsxClosure);
   }
 }
 
