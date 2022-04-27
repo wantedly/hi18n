@@ -9,6 +9,7 @@
   "packageManager": "yarn@3.2.0",
   "scripts": {
     "build": "tsc --build",
+    "lint": "eslint src/**/*.ts",
     "test": "jest"
   },
   "dependencies": {
@@ -19,7 +20,10 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@jest/globals": "^27.5.1",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "babel-jest": "^27.5.1",
+    "eslint": "^8.14.0",
     "jest": "^27.5.1",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"

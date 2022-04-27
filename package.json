@@ -9,7 +9,11 @@
     "test": "yarn build && yarn workspaces foreach -t run test"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "@yarnpkg/sdks": "^3.0.0-rc.2",
+    "eslint": "^8.14.0",
+    "eslint-config-prettier": "^8.5.0",
     "typescript": "^4.6.3"
   }
 }

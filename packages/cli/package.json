@@ -7,9 +7,7 @@
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "packageManager": "yarn@3.2.0",
-  "bin": {
-    "hi18n": "./bin/hi18n.js"
-  },
+  "bin": "./bin/hi18n.js",
   "scripts": {
     "build": "tsc --build",
     "test": "jest"
