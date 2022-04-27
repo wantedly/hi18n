@@ -12,15 +12,21 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
   },
   reportUnusedDisableDirectives: true,
   rules: {
-    "no-constant-condition": ["error", {
-      checkLoops: false,
-    }],
-    "@typescript-eslint/no-unused-vars": ["warn", {
-      varsIgnorePattern: "^_",
-      argsIgnorePattern: "^_",
-      destructuredArrayIgnorePattern: "^_",
-      caughtErrorsIgnorePattern: "^_",
-    }],
+    "no-constant-condition": [
+      "error",
+      {
+        checkLoops: false,
+      },
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        varsIgnorePattern: "^_",
+        argsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
+    ],
     "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
   },
@@ -28,7 +34,9 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
     {
       files: ["*.ts"],
       parser: "@typescript-eslint/parser",
-      extends: ["plugin:@typescript-eslint/recommended-requiring-type-checking"],
+      extends: [
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      ],
     },
     {
       files: ["*.test.ts"],
