@@ -19,10 +19,10 @@
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@jest/globals": "^27.5.1",
-    "babel-jest": "^27.5.1",
+    "@jest/globals": "^28.0.1",
+    "babel-jest": "^28.0.1",
     "eslint": "^8.14.0",
-    "jest": "^27.5.1",
+    "jest": "^28.0.1",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"
   }
