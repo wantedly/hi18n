@@ -6,5 +6,5 @@
     "noEmit": true
   },
   "references": [{ "path": "./configs/tsconfig.main.json" }],
-  "include": ["src/**/*.test.ts", ".eslintrc.js", "babel.config.js"]
+  "include": ["src/**/*.test.ts"]
 }

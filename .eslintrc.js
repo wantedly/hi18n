@@ -45,7 +45,9 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       env: {
         node: true,
       },
-      extends: ["plugin:@typescript-eslint/recommended-requiring-type-checking"],
+      rules: {
+        "@typescript-eslint/no-var-requires": "off",
+      },
     },
   ],
 });
