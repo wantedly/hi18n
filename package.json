@@ -12,7 +12,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
-    "@yarnpkg/sdks": "^3.0.0-rc.2",
+    "@yarnpkg/sdks": "^3.0.0-rc.3",
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-eslint-plugin": "^4.1.0",
