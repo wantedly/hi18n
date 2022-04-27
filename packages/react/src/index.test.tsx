@@ -5,9 +5,9 @@ import { Book, Catalog, Message, msg } from '@hi18n/core';
 import { LocaleContext, Translate, useI18n } from "./index";
 import { ComponentPlaceholder } from '@hi18n/core';
 
-declare module "expect/build/types" {
+declare module "expect/build" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  export interface Matchers<R, T> extends globalThis.jest.Matchers<R, T> {}
+  export interface Matchers<R extends void | Promise<void>> extends globalThis.jest.Matchers<R> {}
 }
 
 type Vocabulary = {
