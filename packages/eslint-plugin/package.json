@@ -2,7 +2,21 @@
   "name": "@hi18n/eslint-plugin",
   "version": "0.1.0",
   "description": "Message internationalization meets immutability and type-safety - ESLint plugin",
-  "keywords": ["intl", "i18n", "internationalization", "locale", "localization", "globalization", "format", "formatting", "translate", "translation", "hi18n", "eslint", "eslintplugin"],
+  "keywords": [
+    "intl",
+    "i18n",
+    "internationalization",
+    "locale",
+    "localization",
+    "globalization",
+    "format",
+    "formatting",
+    "translate",
+    "translation",
+    "hi18n",
+    "eslint",
+    "eslintplugin"
+  ],
   "homepage": "https://github.com/wantedly/hi18n#readme",
   "bugs": {
     "url": "https://github.com/wantedly/hi18n/issues"

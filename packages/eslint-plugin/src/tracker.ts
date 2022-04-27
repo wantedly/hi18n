@@ -1,28 +1,12 @@
 import { Rule, Scope } from "eslint";
 import {
-  ArrowFunctionExpression,
-  BlockStatement,
   CallExpression,
-  CatchClause,
-  ClassDeclaration,
-  ClassExpression,
-  Directive,
   Expression,
-  FunctionDeclaration,
-  FunctionExpression,
   Identifier,
   ImportDeclaration,
-  ImportDefaultSpecifier,
-  ImportNamespaceSpecifier,
-  ImportSpecifier,
-  ModuleDeclaration,
   NewExpression,
   Node,
   Pattern,
-  Program,
-  Statement,
-  StaticBlock,
-  VariableDeclaration,
   VariableDeclarator,
 } from "estree";
 import {
@@ -34,7 +18,12 @@ import {
   Node as NodeWithJSX,
 } from "estree-jsx";
 import { getKeys } from "eslint-visitor-keys";
-import { getImportName, getStaticKey, getStaticMemKey } from "./util";
+import {
+  getImportName,
+  getStaticKey,
+  getStaticMemKey,
+  resolveVariable,
+} from "./util";
 
 export class Tracker {
   watchingImports: Record<string, string[]> = {};
@@ -168,7 +157,7 @@ export class Tracker {
     if (this.hasJSX) {
       if (!this.jsxBindings) {
         this.jsxBindings = collectReactJSXVars(
-          context,
+          context.getSourceCode().scopeManager,
           context.getSourceCode().ast
         );
       }
@@ -490,79 +479,23 @@ function isPattern(node: Rule.Node): boolean {
 }
 
 function collectReactJSXVars(
-  context: Rule.RuleContext,
+  scopeManager: Scope.ScopeManager,
   root: Node
 ): Map<Scope.Variable, JSXIdentifier[]> {
   const referenceMap = new Map<Scope.Variable, JSXIdentifier[]>();
-  collect(root, {});
+  collect(root);
   return referenceMap;
 
-  function collect(
-    node: NodeWithJSX,
-    bindings: Record<string, Scope.Variable>
-  ) {
-    let newBindings: Record<string, Scope.Variable> | undefined = undefined;
+  function collect(node: NodeWithJSX) {
     switch (node.type) {
-      case "Program":
-      case "StaticBlock":
-      case "BlockStatement": {
-        newBindings = { ...bindings };
-        for (const stmtOrLabel of node.body) {
-          const stmt = unLabel(stmtOrLabel);
-          switch (stmt.type) {
-            case "ClassDeclaration":
-            case "FunctionDeclaration":
-            case "ImportDeclaration":
-              addVariablesFrom(newBindings, stmt);
-              break;
-            case "VariableDeclaration":
-              if (stmt.kind !== "var") {
-                addVariablesFrom(newBindings, stmt);
-              }
-              break;
-          }
-        }
-        if (
-          node.type === "Program" ||
-          node.type === "StaticBlock" ||
-          isFunctionLikeBlock(node)
-        ) {
-          addVarScopedVariablesFrom(newBindings, node);
-        }
-        break;
-      }
-      case "ForInStatement":
-      case "ForOfStatement":
-        if (
-          node.left.type === "VariableDeclaration" &&
-          node.left.kind !== "var"
-        ) {
-          newBindings = { ...bindings };
-          addVariablesFrom(newBindings, node.left);
-        }
-        break;
-      case "ForStatement":
-        if (
-          node.init &&
-          node.init.type === "VariableDeclaration" &&
-          node.init.kind !== "var"
-        ) {
-          newBindings = { ...bindings };
-          addVariablesFrom(newBindings, node.init);
-        }
-        break;
-      case "ClassExpression":
-      case "FunctionExpression":
-      case "ArrowFunctionExpression":
-      case "CatchClause":
-        newBindings = { ...bindings };
-        addVariablesFrom(newBindings, node);
-        break;
       case "JSXOpeningElement": {
         const ident = findInitIdentifier(node.name);
         if (ident) {
-          if (Object.prototype.hasOwnProperty.call(bindings, ident.name)) {
-            const binding = bindings[ident.name]!;
+          const binding = resolveVariable(
+            scopeManager,
+            ident as Identifier | JSXIdentifier as Identifier
+          );
+          if (binding) {
             if (!referenceMap.has(binding)) referenceMap.set(binding, []);
             referenceMap.get(binding)!.push(ident);
           }
@@ -574,14 +507,14 @@ function collectReactJSXVars(
       const val = (node as unknown as Record<string, Node | Node[]>)[key]!;
       if (Array.isArray(val)) {
         for (const elem of val) {
-          collect(elem, newBindings ?? bindings);
+          collect(elem);
         }
       } else if (
         typeof val === "object" &&
         val !== null &&
         typeof val.type === "string"
       ) {
-        collect(val, newBindings ?? bindings);
+        collect(val);
       }
     }
   }
@@ -593,81 +526,5 @@ function collectReactJSXVars(
     else if (node.type === "JSXMemberExpression")
       return findInitIdentifier(node.object);
     else return null;
-  }
-
-  function addVarScopedVariablesFrom(
-    bindings: Record<string, Scope.Variable>,
-    node: Program | BlockStatement | StaticBlock
-  ) {
-    for (const stmtOrLabel of node.body) {
-      const stmt = unLabel(stmtOrLabel);
-      switch (stmt.type) {
-        case "BlockStatement":
-          addVarScopedVariablesFrom(bindings, stmt);
-          break;
-        case "ForInStatement":
-        case "ForOfStatement":
-          if (
-            stmt.left.type === "VariableDeclaration" &&
-            stmt.left.kind === "var"
-          ) {
-            addVariablesFrom(bindings, stmt.left);
-          }
-          break;
-        case "ForStatement":
-          if (
-            stmt.init &&
-            stmt.init.type === "VariableDeclaration" &&
-            stmt.init.kind === "var"
-          ) {
-            addVariablesFrom(bindings, stmt.init);
-          }
-          break;
-        case "VariableDeclaration":
-          if (stmt.kind === "var") {
-            addVariablesFrom(bindings, stmt);
-          }
-          break;
-      }
-    }
-  }
-
-  function addVariablesFrom(
-    bindings: Record<string, Scope.Variable>,
-    node:
-      | VariableDeclaration
-      | VariableDeclarator
-      | FunctionDeclaration
-      | FunctionExpression
-      | ArrowFunctionExpression
-      | ClassDeclaration
-      | ClassExpression
-      | CatchClause
-      | ImportDeclaration
-      | ImportSpecifier
-      | ImportDefaultSpecifier
-      | ImportNamespaceSpecifier
-  ) {
-    for (const v of context.getDeclaredVariables(node)) {
-      bindings[v.name] = v;
-    }
-  }
-
-  function unLabel<T extends Statement | ModuleDeclaration | Directive>(
-    node: T
-  ): T | Statement {
-    return node.type === "LabeledStatement" ? unLabel(node.body) : node;
-  }
-
-  function isFunctionLikeBlock(node: BlockStatement) {
-    const parent = (node as BlockStatement & Rule.NodeParentExtension)
-      .parent ?? { type: "NoParent" };
-    switch (parent.type) {
-      case "FunctionExpression":
-      case "FunctionDeclaration":
-      case "ArrowFunctionExpression":
-        return parent.body === node;
-    }
-    return false;
   }
 }

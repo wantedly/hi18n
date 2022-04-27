@@ -2,7 +2,19 @@
   "name": "hi18n",
   "version": "0.1.0",
   "description": "Message internationalization meets immutability and type-safety - command line tool",
-  "keywords": ["intl", "i18n", "internationalization", "locale", "localization", "globalization", "format", "formatting", "translate", "translation", "hi18n"],
+  "keywords": [
+    "intl",
+    "i18n",
+    "internationalization",
+    "locale",
+    "localization",
+    "globalization",
+    "format",
+    "formatting",
+    "translate",
+    "translation",
+    "hi18n"
+  ],
   "homepage": "https://github.com/wantedly/hi18n#readme",
   "bugs": {
     "url": "https://github.com/wantedly/hi18n/issues"
