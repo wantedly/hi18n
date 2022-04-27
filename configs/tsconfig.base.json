@@ -29,14 +29,6 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
 
-    /* ESLint */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "allowUnusedLabels": true,
-    "allowUnreachableCode": true,
-
     /* Completeness */
     "skipLibCheck": true
   }
