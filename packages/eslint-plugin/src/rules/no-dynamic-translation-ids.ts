@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import type { Rule as ruleNoDynamicTranslationIds } from "eslint";
 import { translationCallTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";

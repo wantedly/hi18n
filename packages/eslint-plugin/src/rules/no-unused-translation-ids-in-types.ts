@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import type { Rule, Scope } from "eslint";
 import { getStaticKey, resolveTypeLevelVariable } from "../util";
 import { bookTracker } from "../common-trackers";

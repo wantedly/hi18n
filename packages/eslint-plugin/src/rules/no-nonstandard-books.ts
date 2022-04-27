@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import type { Rule as ruleNoNonstandardBooks } from "eslint";
 import { getImportName, getStaticKey, resolveImportedVariable, resolveTypeLevelVariable, TypeDeclarator } from "../util";
 import { bookTracker } from "../common-trackers";

@@ -22,6 +22,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       caughtErrorsIgnorePattern: "^_",
     }],
     "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
   },
   overrides: [
     {

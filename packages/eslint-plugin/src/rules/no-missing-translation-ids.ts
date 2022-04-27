@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import type { AST, Rule, SourceCode } from "eslint";
 import { getStaticKey } from "../util";
 import { Comment, Node, ObjectExpression, Property } from "estree";

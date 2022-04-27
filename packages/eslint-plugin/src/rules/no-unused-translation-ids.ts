@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import type { Rule } from "eslint";
 import { getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";

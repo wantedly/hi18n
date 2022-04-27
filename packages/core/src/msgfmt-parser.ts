@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { ArgType, CompiledMessage, ElementArg, PluralArg, PluralBranch } from "./msgfmt";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
