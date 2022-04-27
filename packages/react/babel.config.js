@@ -4,4 +4,7 @@ module.exports = {
     ["@babel/preset-react", { runtime: "automatic" }],
     ["@babel/preset-typescript", { allowDeclareFields: true }],
   ],
+  plugins: [
+    ["@babel/plugin-transform-runtime", { corejs: 3, version: "^7.17.9" }],
+  ],
 };

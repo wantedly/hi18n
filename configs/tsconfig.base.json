@@ -14,8 +14,8 @@
     "outDir": "../dist",
 
     /* Babel */
-    // "emitDeclarationOnly": true,
-    "importHelpers": true,
+    "emitDeclarationOnly": true,
+    // "importHelpers": true,
 
     /* Interop Constraints */
     "isolatedModules": true,

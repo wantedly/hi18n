@@ -7,22 +7,26 @@
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc --build",
+    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts'",
+    "build": "yarn babel && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
     "lint": "eslint 'src/**/*.ts' .eslintrc.js babel.config.js",
-    "test": "jest"
+    "test": "jest",
+    "tsc": "tsc --build"
   },
   "dependencies": {
-    "eslint-visitor-keys": "^3.3.0",
-    "tslib": "^2.3.1"
+    "@babel/runtime-corejs3": "^7.17.9",
+    "eslint-visitor-keys": "^3.3.0"
   },
   "peerDependencies": {
     "eslint": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
     "@babel/core": "^7.16.5",
     "@babel/eslint-parser": "^7.17.0",
+    "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@jest/globals": "^28.0.1",

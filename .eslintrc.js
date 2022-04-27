@@ -46,6 +46,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       files: [
         "**/.eslintrc.js",
         "**/babel.config.js",
+        "**/babel-esm.config.js",
       ],
       parserOptions: {
         sourceType: "script",

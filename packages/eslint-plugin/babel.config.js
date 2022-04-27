@@ -3,4 +3,7 @@ module.exports = {
     ["@babel/preset-env", { targets: { node: "12" }, modules: "commonjs" }],
     ["@babel/preset-typescript", { allowDeclareFields: true }],
   ],
+  plugins: [
+    ["@babel/plugin-transform-runtime", { corejs: 3, version: "^7.17.9" }],
+  ],
 };

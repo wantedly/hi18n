@@ -9,14 +9,17 @@
   "packageManager": "yarn@3.2.0",
   "bin": "./bin/hi18n.js",
   "scripts": {
-    "build": "tsc --build",
+    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts,src/__fixtures__/**/*'",
+    "build": "yarn babel && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
     "lint": "eslint 'src/**/*.ts' .eslintrc.js babel.config.js",
-    "test": "jest"
+    "test": "jest",
+    "tsc": "tsc --build"
   },
   "dependencies": {
     "@babel/eslint-parser": "^7.17.0",
+    "@babel/runtime-corejs3": "^7.17.9",
     "@hi18n/eslint-plugin": "workspace:^0.1.0",
     "eslint": "^8.13.0",
     "glob": "^8.0.1",
@@ -25,7 +28,9 @@
     "yargs": "^17.4.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
     "@babel/core": "^7.16.5",
+    "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@babel/types": "^7.17.0",

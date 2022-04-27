@@ -8,21 +8,26 @@
   "license": "MIT",
   "packageManager": "yarn@3.2.0",
   "scripts": {
-    "build": "tsc --build",
+    "babel:cjs": "babel -x .ts,.tsx src -d dist --source-maps --ignore '**/*.test.ts,**/*.test.tsx'",
+    "babel:esm": "babel -x .ts,.tsx src -d dist --source-maps --ignore '**/*.test.ts,**/*.test.tsx' --config-file ./babel-esm.config.js --out-file-extension .mjs",
+    "build": "yarn babel:cjs && yarn babel:esm && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
-    "lint": "eslint 'src/**/*.tsx' .eslintrc.js babel.config.js",
-    "test": "jest"
+    "lint": "eslint 'src/**/*.tsx' .eslintrc.js babel.config.js babel-esm.config.js",
+    "test": "jest",
+    "tsc": "tsc --build"
   },
   "dependencies": {
-    "@hi18n/core": "workspace:^0.1.0",
-    "tslib": "^2.3.1"
+    "@babel/runtime-corejs3": "^7.17.9",
+    "@hi18n/core": "workspace:^0.1.0"
   },
   "peerDependencies": {
     "react": "^17.0.2 || ^18.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.9",
+    "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",

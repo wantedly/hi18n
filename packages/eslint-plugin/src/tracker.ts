@@ -33,7 +33,7 @@ import {
   JSXNamespacedName,
   Node as NodeWithJSX,
 } from "estree-jsx";
-import * as evk from "eslint-visitor-keys";
+import { getKeys } from "eslint-visitor-keys";
 import { getImportName, getStaticKey, getStaticMemKey } from "./util";
 
 export class Tracker {
@@ -570,7 +570,7 @@ function collectReactJSXVars(
         break;
       }
     }
-    for (const key of evk.getKeys(node)) {
+    for (const key of getKeys(node)) {
       const val = (node as unknown as Record<string, Node | Node[]>)[key]!;
       if (Array.isArray(val)) {
         for (const elem of val) {

@@ -2,23 +2,34 @@
   "name": "@hi18n/core",
   "version": "0.1.0",
   "description": "Stateless message catalog for internationalization",
-  "main": "dist/index.js",
   "repository": "https://github.com/qnighy/hi18n",
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "packageManager": "yarn@3.2.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.js"
+  },
   "scripts": {
-    "build": "tsc --build",
+    "babel:cjs": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts'",
+    "babel:esm": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts' --config-file ./babel-esm.config.js --out-file-extension .mjs",
+    "build": "yarn babel:cjs && yarn babel:esm && yarn tsc",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
-    "lint": "eslint 'src/**/*.ts' .eslintrc.js babel.config.js",
-    "test": "jest"
+    "lint": "eslint 'src/**/*.ts' .eslintrc.js babel.config.js babel-esm.config.js",
+    "test": "jest",
+    "tsc": "tsc --build"
   },
   "dependencies": {
-    "tslib": "^2.3.1"
+    "@babel/runtime-corejs3": "^7.17.9"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.9",
+    "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@jest/globals": "^28.0.1",
