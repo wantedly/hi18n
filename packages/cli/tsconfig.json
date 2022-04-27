@@ -9,6 +9,8 @@
     { "path": "./configs/tsconfig.main.json" }
   ],
   "include": [
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    ".eslintrc.js",
+    "babel.config.js"
   ]
 }

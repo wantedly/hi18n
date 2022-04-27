@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { Linter } from "eslint";
 import fs from "node:fs";
 import glob from "glob";
@@ -24,6 +26,7 @@ export async function fixTranslations(options: Options) {
   };
 
   const collectLinter = new Linter({ cwd: projectPath });
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   collectLinter.defineParser("@babel/eslint-parser", eslintParser);
 
   const translationUsages: TranslationUsage[] = [];
@@ -94,6 +97,7 @@ export async function fixTranslations(options: Options) {
   for (const [, book] of books) {
     for (const catalog of book.catalogPaths) {
       const fixLinter = new Linter({ cwd: projectPath });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
       fixLinter.defineRule("@hi18n/no-missing-translation-ids", rules["no-missing-translation-ids"]);
       fixLinter.defineRule("@hi18n/no-unused-translation-ids", rules["no-unused-translation-ids"]);
@@ -117,6 +121,7 @@ export async function fixTranslations(options: Options) {
 
     {
       const fixLinter = new Linter({ cwd: projectPath });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
       fixLinter.defineRule("@hi18n/no-missing-translation-ids-in-types", rules["no-missing-translation-ids-in-types"]);
       fixLinter.defineRule("@hi18n/no-unused-translation-ids-in-types", rules["no-unused-translation-ids-in-types"]);
@@ -150,6 +155,7 @@ function checkMessages(filepath: string, messages: Linter.LintMessage[]) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function resolveAsPromise(id: string, opts: resolve.AsyncOpts): Promise<{ resolved: string, pkg: { name: string, version: string, [key: string]: any } | undefined }> {
   return new Promise((resolvePromise, rejectPromise) => {
     resolve(id, opts, (err, resolved, pkg) => {

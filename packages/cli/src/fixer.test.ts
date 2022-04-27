@@ -8,6 +8,7 @@ import util from "util";
 import { fixTranslations } from "./fixer";
 
 describe("fixTranslations", () => {
+  // eslint-disable-next-line jest/expect-expect
   it("works", () => withTemp(async (tempdir: string) => {
     const inputDir = path.resolve(__dirname, "./__fixtures__/simple-project/input");
     const expectDir = path.resolve(__dirname, "./__fixtures__/simple-project/expect");
