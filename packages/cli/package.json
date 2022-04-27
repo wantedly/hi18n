@@ -2,12 +2,17 @@
   "name": "hi18n",
   "version": "0.1.0",
   "description": "Stateless message catalog for internationalization",
-  "main": "dist/index.js",
   "repository": "https://github.com/qnighy/hi18n",
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "packageManager": "yarn@3.2.0",
   "bin": "./bin/hi18n.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "default": "./dist/index.js"
+  },
   "scripts": {
     "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.test.ts,src/__fixtures__/**/*'",
     "build": "yarn babel && yarn tsc",
