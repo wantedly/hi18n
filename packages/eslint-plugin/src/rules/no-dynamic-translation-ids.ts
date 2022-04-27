@@ -1,8 +1,8 @@
-import type { Rule as ruleNoDynamicTranslationIds } from "eslint";
+import type { Rule } from "eslint";
 import { translationCallTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 
-export const meta: ruleNoDynamicTranslationIds.RuleMetaData = {
+export const meta: Rule.RuleMetaData = {
   type: "problem",
   docs: {
     description:
@@ -14,9 +14,7 @@ export const meta: ruleNoDynamicTranslationIds.RuleMetaData = {
   },
 };
 
-export function create(
-  context: ruleNoDynamicTranslationIds.RuleContext
-): ruleNoDynamicTranslationIds.RuleListener {
+export function create(context: Rule.RuleContext): Rule.RuleListener {
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
     const idNode = captured["id"]!;

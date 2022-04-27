@@ -1,9 +1,9 @@
-import type { Rule as ruleNoNonstandardBookReferences } from "eslint";
+import type { Rule } from "eslint";
 import { translationCallTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { getImportName, resolveImportedVariable } from "../util";
 
-export const meta: ruleNoNonstandardBookReferences.RuleMetaData = {
+export const meta: Rule.RuleMetaData = {
   type: "problem",
   docs: {
     description:
@@ -17,9 +17,7 @@ export const meta: ruleNoNonstandardBookReferences.RuleMetaData = {
   },
 };
 
-export function create(
-  context: ruleNoNonstandardBookReferences.RuleContext
-): ruleNoNonstandardBookReferences.RuleListener {
+export function create(context: Rule.RuleContext): Rule.RuleListener {
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
     const bookNode = captured["book"]!;
