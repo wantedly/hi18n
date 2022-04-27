@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { Rule, Scope } from "eslint";
 import { ArrowFunctionExpression, BlockStatement, CallExpression, CatchClause, ClassDeclaration, ClassExpression, Directive, Expression, FunctionDeclaration, FunctionExpression, Identifier, ImportDeclaration, ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, ModuleDeclaration, NewExpression, Node, Pattern, Program, Statement, StaticBlock, VariableDeclaration, VariableDeclarator } from "estree";
 import { JSXElement, JSXFragment, JSXIdentifier, JSXMemberExpression, JSXNamespacedName, Node as NodeWithJSX } from "estree-jsx";

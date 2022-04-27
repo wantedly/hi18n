@@ -57,7 +57,6 @@ function extractComponents(node: React.ReactNode, params: Record<string | number
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fillComponentKeys(params: Record<string | number, unknown>) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   for (const [key, value] of Object.entries(params as Record<string | number, {} | null | undefined>)) {

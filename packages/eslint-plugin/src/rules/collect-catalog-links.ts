@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import type { Rule } from "eslint";
 import { getImportName, getStaticKey, resolveImportedVariable } from "../util";
 import { bookTracker } from "../common-trackers";
@@ -39,7 +41,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       if (valueDef.node.type === "ImportNamespaceSpecifier" || getImportName(valueDef.node) !== "default") return;
       collectCatalogLinksCallback({
         locale: key,
-        catalogSource: `${valueDef.parent.source.value}`,
+        catalogSource: `${valueDef.parent.source.value as string}`,
         bookFilename: context.getFilename(),
       });
     }

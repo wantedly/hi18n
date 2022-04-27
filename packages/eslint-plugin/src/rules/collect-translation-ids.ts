@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import type { Rule } from "eslint";
 import { resolveImportedVariable } from "../util";
 import { translationCallTracker } from "../common-trackers";
@@ -37,7 +39,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
     }
     const bookDef = resolveImportedVariable(context.getSourceCode().scopeManager, bookNode);
     if (!bookDef) return;
-    const bookSource: string = `${bookDef.parent.source.value}`;
+    const bookSource: string = `${bookDef.parent.source.value as string}`;
     collectIdsCallback({
       id,
       bookSource,

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import type { AST, Rule, SourceCode } from "eslint";
 import { getStaticKey } from "../util";
 import { Comment, Node, ObjectExpression, Property } from "estree";
@@ -54,7 +56,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
             } else {
               let lo = 0, hi = sortedCandidates.length;
               while (lo < hi) {
-                let mid = lo + (0 | ((hi - lo) / 2));
+                const mid = lo + (0 | ((hi - lo) / 2));
                 if (missingId < sortedCandidates[mid]!.id) {
                   hi = mid;
                 } else {
@@ -167,7 +169,7 @@ function parseComments(comments: Comment[]): [CommentedOutCandidate[], Comment[]
       try {
         new SimpleParser(simpleTokenize(text)).parseProp();
         ok = true;
-      } catch (_e) {}
+      } catch (_e) { /* assumes parse error */ }
       if (ok) {
         candidates.push({
           id,
@@ -295,15 +297,15 @@ function simpleTokenize(text: string): string[] {
         try {
           JSON.parse(match[0]!);
           token = match[0]!;
-        } catch (e) {}
+        } catch (e) { /* assumes JSON parse error */ }
       }
-    } else if (ch === "\'") {
+    } else if (ch === "'") {
       const match = /^'(?:[^'\\\n]|\\.|)*'/.exec(currentText);
       if (match) {
         try {
           JSON.parse(match[0]!);
           token = match[0]!;
-        } catch (e) {}
+        } catch (e) { /* assumes JSON parse error */ }
       }
     }
     tokens.push(token);

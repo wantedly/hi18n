@@ -1,4 +1,5 @@
 module.exports = /** @type {import("eslint").Linter.Config} */ ({
+  root: true,
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -9,13 +10,18 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
     ecmaVersion: "latest",
     sourceType: "module",
   },
+  reportUnusedDisableDirectives: true,
   rules: {
+    "no-constant-condition": ["error", {
+      checkLoops: false,
+    }],
     "@typescript-eslint/no-unused-vars": ["warn", {
       varsIgnorePattern: "^_",
       argsIgnorePattern: "^_",
       destructuredArrayIgnorePattern: "^_",
       caughtErrorsIgnorePattern: "^_",
     }],
+    "@typescript-eslint/no-inferrable-types": "off",
   },
   overrides: [
     {

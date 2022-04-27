@@ -8,6 +8,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc --build",
+    "lint": "eslint src/**/*.ts .eslintrc.js babel.config.js",
     "test": "jest"
   },
   "dependencies": {
@@ -26,8 +27,13 @@
     "@types/eslint": "^8.4.1",
     "@types/estree": "^0.0.51",
     "@types/estree-jsx": "^0.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "babel-jest": "^27.5.1",
-    "eslint": "^8.13.0",
+    "eslint": "^8.14.0",
+    "eslint-plugin-eslint-plugin": "^4.1.0",
+    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-node": "^11.1.0",
     "jest": "^27.5.1",
     "typescript": "^4.6.3"
   }
