@@ -2,7 +2,7 @@ import type { AST, Rule, SourceCode } from "eslint";
 import { getStaticKey } from "../util";
 import { Comment, Node } from "estree";
 import { bookTracker } from "../common-trackers";
-import { findTypeDefinition } from "./no-unused-translation-ids-in-types";
+import { findTypeDefinition } from "../ts-util";
 import {
   TSInterfaceBody,
   TSPropertySignature,

@@ -1,10 +1,10 @@
-import type { Rule as ruleNoNonstandardCatalogs } from "eslint";
+import type { Rule } from "eslint";
 import { getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { Node } from "estree";
 
-export const meta: ruleNoNonstandardCatalogs.RuleMetaData = {
+export const meta: Rule.RuleMetaData = {
   type: "problem",
   fixable: "code",
   docs: {
@@ -22,9 +22,7 @@ export const meta: ruleNoNonstandardCatalogs.RuleMetaData = {
   },
 };
 
-export function create(
-  context: ruleNoNonstandardCatalogs.RuleContext
-): ruleNoNonstandardCatalogs.RuleListener {
+export function create(context: Rule.RuleContext): Rule.RuleListener {
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (node, captured) => {
     if (

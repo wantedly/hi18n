@@ -1,23 +1,13 @@
 import { Rule, Scope } from "eslint";
 import {
   AssignmentProperty,
-  ClassDeclaration,
-  Directive,
   Identifier,
   ImportDefaultSpecifier,
-  ImportNamespaceSpecifier,
   ImportSpecifier,
   MemberExpression,
-  ModuleDeclaration,
   Property,
 } from "estree";
-import {
-  DeclarationExt,
-  StatementExt,
-  TSInterfaceDeclaration,
-  TSPropertySignature,
-  TSTypeAliasDeclaration,
-} from "./estree-ts";
+import { TSPropertySignature } from "./estree-ts";
 
 export function getImportName(
   spec: ImportSpecifier | ImportDefaultSpecifier
@@ -111,66 +101,7 @@ function findVariable(
   return undefined;
 }
 
-export type TypeDeclarator =
-  | TSInterfaceDeclaration
-  | TSTypeAliasDeclaration
-  | ClassDeclaration
-  | ImportSpecifier
-  | ImportDefaultSpecifier
-  | ImportNamespaceSpecifier;
-
-export function resolveTypeLevelVariable(
-  scopeManager: Scope.ScopeManager,
-  node: Identifier
-): TypeDeclarator | undefined {
-  const scope = nearestScope(scopeManager, node as Rule.Node);
-  return findTypeLevelVariable(scope, node.name);
-}
-
-function findTypeLevelVariable(
-  scope: Scope.Scope,
-  name: string
-): TypeDeclarator | undefined {
-  let currentScope: Scope.Scope | null = scope;
-  while (currentScope) {
-    switch (currentScope.block.type) {
-      case "BlockStatement":
-      case "Program":
-        for (const stmtBase of currentScope.block.body as (
-          | StatementExt
-          | ModuleDeclaration
-          | Directive
-        )[]) {
-          const stmt =
-            stmtBase.type === "ExportNamedDeclaration" && stmtBase.declaration
-              ? stmtBase.declaration
-              : stmtBase.type === "ExportDefaultDeclaration" &&
-                ["ClassDeclaration", "TSInterfaceDeclaration"].includes(
-                  stmtBase.declaration.type
-                )
-              ? (stmtBase.declaration as DeclarationExt)
-              : stmtBase;
-          switch (stmt.type) {
-            case "TSInterfaceDeclaration":
-            case "TSTypeAliasDeclaration":
-            case "ClassDeclaration":
-              if (stmt.id && stmt.id.name === name) return stmt;
-              break;
-            case "ImportDeclaration":
-              for (const spec of stmt.specifiers) {
-                if (spec.local.name === name) return spec;
-              }
-              break;
-          }
-        }
-        break;
-    }
-    currentScope = currentScope.upper;
-  }
-  return undefined;
-}
-
-function nearestScope(
+export function nearestScope(
   scopeManager: Scope.ScopeManager,
   node: Rule.Node
 ): Scope.Scope {
@@ -183,4 +114,19 @@ function nearestScope(
     currentNode = currentNode.parent;
   }
   throw new Error("No scope found");
+}
+
+export function commentOut(text: string, indent: number): string {
+  return text
+    .split(/^/m)
+    .map((line, i) => {
+      if (i === 0) {
+        return `// ${line}`;
+      } else {
+        const spaces = /^\s*/.exec(line)![0]!.length;
+        const cutAt = Math.min(spaces, indent);
+        return `${line.substring(0, cutAt)}// ${line.substring(cutAt)}`;
+      }
+    })
+    .join("");
 }

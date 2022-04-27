@@ -1,16 +1,9 @@
-import type { Rule, Scope } from "eslint";
-import { getStaticKey, resolveTypeLevelVariable } from "../util";
+import type { Rule } from "eslint";
+import { commentOut, getStaticKey } from "../util";
+import { findTypeDefinition } from "../ts-util";
 import { bookTracker } from "../common-trackers";
 import { Node } from "estree";
-import {
-  NewExpressionExt,
-  TSInterfaceBody,
-  TSPropertySignature,
-  TSSignature,
-  TSTypeLiteral,
-} from "../estree-ts";
-import { extractAsObjectType, findTypeParameter } from "./no-nonstandard-books";
-import { commentOut } from "./no-unused-translation-ids";
+import { TSPropertySignature } from "../estree-ts";
 
 export const meta: Rule.RuleMetaData = {
   type: "problem",
@@ -74,20 +67,4 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       tracker.trackImport(context.getSourceCode().scopeManager, node);
     },
   };
-}
-
-export function findTypeDefinition(
-  scopeManager: Scope.ScopeManager,
-  node: Rule.Node
-): { body: TSInterfaceBody | TSTypeLiteral; signatures: TSSignature[] } | null {
-  const typeParameters = (node as NewExpressionExt).typeParameters;
-  if (!typeParameters) return null;
-
-  const typeParam = findTypeParameter(node);
-  if (!typeParam) return null;
-  const resolved = resolveTypeLevelVariable(scopeManager, typeParam.typeName);
-  if (!resolved) return null;
-  const objinfo = extractAsObjectType(resolved);
-  if (!objinfo) return null;
-  return objinfo;
 }

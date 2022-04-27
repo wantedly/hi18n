@@ -1,5 +1,5 @@
 import type { Rule } from "eslint";
-import { getStaticKey } from "../util";
+import { commentOut, getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
 
 export const meta: Rule.RuleMetaData = {
@@ -55,19 +55,4 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       tracker.trackImport(context.getSourceCode().scopeManager, node);
     },
   };
-}
-
-export function commentOut(text: string, indent: number): string {
-  return text
-    .split(/^/m)
-    .map((line, i) => {
-      if (i === 0) {
-        return `// ${line}`;
-      } else {
-        const spaces = /^\s*/.exec(line)![0]!.length;
-        const cutAt = Math.min(spaces, indent);
-        return `${line.substring(0, cutAt)}// ${line.substring(cutAt)}`;
-      }
-    })
-    .join("");
 }
