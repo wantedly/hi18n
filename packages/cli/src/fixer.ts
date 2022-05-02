@@ -1,4 +1,4 @@
-import { Linter } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import fs from "node:fs";
 import glob from "glob";
 import path from "node:path";
@@ -15,7 +15,7 @@ export type Options = {
 
 export async function fixTranslations(options: Options) {
   const { cwd: projectPath, include, exclude } = options;
-  const linterConfig: Linter.Config = {
+  const linterConfig: TSESLint.Linter.Config = {
     parser: "@babel/eslint-parser",
     parserOptions: {
       ecmaVersion: "latest",
@@ -23,7 +23,7 @@ export async function fixTranslations(options: Options) {
     },
   };
 
-  const collectLinter = new Linter({ cwd: projectPath });
+  const collectLinter = new TSESLint.Linter({ cwd: projectPath });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   collectLinter.defineParser("@babel/eslint-parser", eslintParser);
 
@@ -133,7 +133,7 @@ export async function fixTranslations(options: Options) {
   }
   for (const [, book] of books) {
     for (const catalog of book.catalogPaths) {
-      const fixLinter = new Linter({ cwd: projectPath });
+      const fixLinter = new TSESLint.Linter({ cwd: projectPath });
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
       fixLinter.defineRule(
@@ -174,7 +174,7 @@ export async function fixTranslations(options: Options) {
     }
 
     {
-      const fixLinter = new Linter({ cwd: projectPath });
+      const fixLinter = new TSESLint.Linter({ cwd: projectPath });
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fixLinter.defineParser("@babel/eslint-parser", eslintParser);
       fixLinter.defineRule(
@@ -216,7 +216,10 @@ export async function fixTranslations(options: Options) {
   }
 }
 
-function checkMessages(filepath: string, messages: Linter.LintMessage[]) {
+function checkMessages(
+  filepath: string,
+  messages: TSESLint.Linter.LintMessage[]
+) {
   for (const message of messages) {
     if (/^Definition for rule .* was not found\.$/.test(message.message)) {
       // We load ESLint with minimal rules. Ignore the "missing rule" error.

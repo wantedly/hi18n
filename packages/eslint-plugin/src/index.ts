@@ -1,4 +1,5 @@
-import type { Linter, Rule } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint } from "@typescript-eslint/utils";
 import * as ruleCollectCatalogLinks from "./rules/collect-catalog-links";
 import * as ruleCollectTranslationIds from "./rules/collect-translation-ids";
 import * as ruleNoDynamicTranslationIds from "./rules/no-dynamic-translation-ids";
@@ -10,19 +11,7 @@ import * as ruleNoNonstandardCatalogs from "./rules/no-nonstandard-catalogs";
 import * as ruleNoUnusedTranslationIds from "./rules/no-unused-translation-ids";
 import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translation-ids-in-types";
 
-type RuleName =
-  | "collect-catalog-links"
-  | "collect-translation-ids"
-  | "no-dynamic-translation-ids"
-  | "no-missing-translation-ids"
-  | "no-missing-translation-ids-in-types"
-  | "no-nonstandard-book-references"
-  | "no-nonstandard-books"
-  | "no-nonstandard-catalogs"
-  | "no-unused-translation-ids"
-  | "no-unused-translation-ids-in-types";
-
-export const configs: Record<string, Linter.Config> = {
+export const configs: Record<string, TSESLint.Linter.Config> = {
   recommended: {
     rules: {
       "@hi18n/no-dynamic-translation-ids": "error",
@@ -32,7 +21,8 @@ export const configs: Record<string, Linter.Config> = {
     },
   },
 };
-export const rules: Record<RuleName, Rule.RuleModule> = {
+
+export const rules = {
   "collect-catalog-links": ruleCollectCatalogLinks,
   "collect-translation-ids": ruleCollectTranslationIds,
   "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
@@ -43,7 +33,9 @@ export const rules: Record<RuleName, Rule.RuleModule> = {
   "no-nonstandard-catalogs": ruleNoNonstandardCatalogs,
   "no-unused-translation-ids": ruleNoUnusedTranslationIds,
   "no-unused-translation-ids-in-types": ruleNoUnusedTranslationIdsInTypes,
-};
+} as const;
+
+const _test: TSESLint.Linter.Plugin = { configs, rules };
 
 export type { TranslationUsage } from "./rules/collect-translation-ids";
 export type { CatalogLink } from "./rules/collect-catalog-links";

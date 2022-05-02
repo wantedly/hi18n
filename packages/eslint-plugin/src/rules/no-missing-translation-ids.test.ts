@@ -1,7 +1,8 @@
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./no-missing-translation-ids";
 
-new RuleTester({
+new TSESLint.RuleTester({
+  parser: require.resolve("espree"),
   parserOptions: {
     ecmaVersion: 2015,
     sourceType: "module",
@@ -59,7 +60,8 @@ new RuleTester({
           "example/multiline2",
         ],
       },
-      errors: ["missing translation ids"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errors: ["missing translation ids" as any],
       output: `
         import { Catalog, msg } from "@hi18n/core";
         export default new Catalog({

@@ -1,45 +1,33 @@
 import {
-  Comment,
-  Expression,
-  Identifier,
-  Literal,
-  Position,
-  Property,
-  SpreadElement,
-} from "estree";
-import { AST } from "eslint";
-import {
-  TSSignature,
-  TSType,
-  TSTypeAnnotation,
-  TSTypeLiteral,
-  TSTypeParameterInstantiation,
-  TSTypeReference,
-} from "./estree-ts";
+  AST_NODE_TYPES,
+  AST_TOKEN_TYPES,
+  TSESTree,
+  // eslint-disable-next-line node/no-unpublished-import
+} from "@typescript-eslint/utils";
 
 export class ParseError extends Error {}
 
 type ParseCommentsResult<T> = {
   parts: ParsedPart<T>[];
-  rest: Comment[];
+  rest: TSESTree.Comment[];
 };
 
 type ParsedPart<T> = {
-  leadingComments: Comment[];
-  commentedOut: Comment[];
+  leadingComments: TSESTree.Comment[];
+  commentedOut: TSESTree.Comment[];
   node: T;
 };
 
 export function parseComments<T>(
-  comments: Comment[],
+  comments: TSESTree.Comment[],
   parse: (parser: Parser) => T
 ): ParseCommentsResult<T> {
-  const tokens: AST.Token[] = [];
+  const tokens: TSESTree.Token[] = [];
   const commentTokenIndex: number[] = [];
   const tokenCommentIndex: number[] = [];
   for (let i = 0; i < comments.length; i++) {
     const comment = comments[i]!;
-    let tokenized: AST.Token[];
+    let tokenized: TSESTree.Token[];
     try {
       tokenized = tokenizeComment(comment);
     } catch (e) {
@@ -128,9 +116,9 @@ export function isTSSignature(text: string): boolean {
 
 export class Parser {
   pos = 0;
-  constructor(public tokens: AST.Token[]) {}
+  constructor(public tokens: TSESTree.Token[]) {}
 
-  parseIdentifierName(): Identifier {
+  parseIdentifierName(): TSESTree.Identifier {
     const token = this.nextToken();
     if (!(token.type === "Identifier" || token.type === "Keyword")) {
       throw new ParseError();
@@ -138,13 +126,13 @@ export class Parser {
     const name = evalIdentifier(token.value);
     this.pos++;
     return {
-      type: "Identifier",
+      type: AST_NODE_TYPES.Identifier,
       name,
       loc: token.loc,
       range: token.range,
     };
   }
-  parsePrimaryExpression(): Expression {
+  parsePrimaryExpression(): TSESTree.LeftHandSideExpression {
     const token = this.nextToken();
     switch (token.type) {
       case "Identifier": {
@@ -152,7 +140,7 @@ export class Parser {
         if (KEYWORDS.includes(name)) throw new ParseError();
         this.pos++;
         return {
-          type: "Identifier",
+          type: AST_NODE_TYPES.Identifier,
           name,
           loc: token.loc,
           range: token.range,
@@ -162,7 +150,7 @@ export class Parser {
       case "Numeric":
         this.pos++;
         return {
-          type: "Literal",
+          type: AST_NODE_TYPES.Literal,
           value: Number(token.value),
           raw: token.value,
           loc: token.loc,
@@ -171,7 +159,7 @@ export class Parser {
       case "String":
         this.pos++;
         return {
-          type: "Literal",
+          type: AST_NODE_TYPES.Literal,
           value: evalString(token.value),
           raw: token.value,
           loc: token.loc,
@@ -181,29 +169,36 @@ export class Parser {
         throw new ParseError();
     }
   }
-  parseProperty(): Property {
-    const { key, computed } = this.parsePropertyName();
+  parseProperty(): TSESTree.Property {
+    const firstToken = this.nextToken();
+    const propName = this.parsePropertyName();
     this.expectPunct(":");
     const value = this.parseAssignmentExpression();
     return {
-      type: "Property",
-      key,
+      type: AST_NODE_TYPES.Property,
+      ...propName,
       value,
       kind: "init",
       method: false,
       shorthand: false,
-      computed,
+      loc: {
+        start: (firstToken as TSESTree.Token).loc.start,
+        end: value.loc.end,
+      },
+      range: [(firstToken as TSESTree.Token).range[0], value.range[1]],
     };
   }
-  parsePropertyName(): { key: Expression; computed: boolean } {
+  parsePropertyName():
+    | { key: TSESTree.Expression; computed: true }
+    | { key: TSESTree.PropertyNameNonComputed; computed: false } {
     return { key: this.parseLiteralPropertyName(), computed: false };
   }
-  parseLiteralPropertyName(): Identifier | Literal {
+  parseLiteralPropertyName(): TSESTree.PropertyNameNonComputed {
     const token = this.nextToken();
     if (token.type === "Identifier") {
       this.pos++;
       return {
-        type: "Identifier",
+        type: AST_NODE_TYPES.Identifier,
         name: evalIdentifier(token.value),
         loc: token.loc,
         range: token.range,
@@ -211,7 +206,7 @@ export class Parser {
     } else if (token.type === "Numeric") {
       this.pos++;
       return {
-        type: "Literal",
+        type: AST_NODE_TYPES.Literal,
         value: Number(token.value),
         raw: token.value,
         loc: token.loc,
@@ -220,7 +215,7 @@ export class Parser {
     } else if (token.type === "String") {
       this.pos++;
       return {
-        type: "Literal",
+        type: AST_NODE_TYPES.Literal,
         value: evalString(token.value),
         raw: token.value,
         loc: token.loc,
@@ -230,25 +225,33 @@ export class Parser {
       throw new ParseError();
     }
   }
-  parseMemberExpression(): Expression {
-    let expr: Expression = this.parsePrimaryExpression();
+  parseMemberExpression(): TSESTree.Expression {
+    let expr: TSESTree.LeftHandSideExpression = this.parsePrimaryExpression();
     while (true) {
       if (this.tryPunct(".")) {
         const property = this.parseIdentifierName();
         expr = {
-          type: "MemberExpression",
+          type: AST_NODE_TYPES.MemberExpression,
           object: expr,
           property,
           computed: false,
           optional: false,
+          loc: {
+            start: expr.loc.start,
+            end: property.loc.end,
+          },
+          range: [expr.range[0], property.range[1]],
         };
       } else if (this.isPunct("(")) {
         const args = this.parseArguments();
         expr = {
-          type: "CallExpression",
+          type: AST_NODE_TYPES.CallExpression,
           callee: expr,
           arguments: args,
           optional: false,
+          // TODO: incorrect location
+          loc: expr.loc,
+          range: expr.range,
         };
       } else {
         break;
@@ -256,9 +259,9 @@ export class Parser {
     }
     return expr;
   }
-  parseArguments(): (Expression | SpreadElement)[] {
+  parseArguments(): (TSESTree.Expression | TSESTree.SpreadElement)[] {
     this.expectPunct("(");
-    const args: (Expression | SpreadElement)[] = [];
+    const args: (TSESTree.Expression | TSESTree.SpreadElement)[] = [];
     while (true) {
       let isSpread = false;
       if (this.tryPunct(")")) {
@@ -267,7 +270,17 @@ export class Parser {
         isSpread = true;
       }
       const argument = this.parseAssignmentExpression();
-      args.push(isSpread ? { type: "SpreadElement", argument } : argument);
+      args.push(
+        isSpread
+          ? {
+              type: AST_NODE_TYPES.SpreadElement,
+              argument,
+              // TODO: incorrect location
+              loc: argument.loc,
+              range: argument.range,
+            }
+          : argument
+      );
       if (this.tryPunct(")")) {
         break;
       } else {
@@ -276,83 +289,88 @@ export class Parser {
     }
     return args;
   }
-  parseLeftHandSideExpression(): Expression {
+  parseLeftHandSideExpression(): TSESTree.Expression {
     return this.parseMemberExpression();
   }
-  parseUpdateExpression(): Expression {
+  parseUpdateExpression(): TSESTree.Expression {
     return this.parseLeftHandSideExpression();
   }
-  parseUnaryExpression(): Expression {
+  parseUnaryExpression(): TSESTree.Expression {
     return this.parseUpdateExpression();
   }
-  parseExponentialExpression(): Expression {
+  parseExponentialExpression(): TSESTree.Expression {
     return this.parseUnaryExpression();
   }
-  parseMultiplicativeExpression(): Expression {
+  parseMultiplicativeExpression(): TSESTree.Expression {
     return this.parseExponentialExpression();
   }
-  parseAdditiveExpression(): Expression {
+  parseAdditiveExpression(): TSESTree.Expression {
     return this.parseMultiplicativeExpression();
   }
-  parseShiftExpression(): Expression {
+  parseShiftExpression(): TSESTree.Expression {
     return this.parseAdditiveExpression();
   }
-  parseRelationalExpression(): Expression {
+  parseRelationalExpression(): TSESTree.Expression {
     return this.parseShiftExpression();
   }
-  parseEqualityExpression(): Expression {
+  parseEqualityExpression(): TSESTree.Expression {
     return this.parseRelationalExpression();
   }
-  parseBitwiseANDExpression(): Expression {
+  parseBitwiseANDExpression(): TSESTree.Expression {
     return this.parseEqualityExpression();
   }
-  parseBitwiseXORExpression(): Expression {
+  parseBitwiseXORExpression(): TSESTree.Expression {
     return this.parseBitwiseANDExpression();
   }
-  parseBitwiseORExpression(): Expression {
+  parseBitwiseORExpression(): TSESTree.Expression {
     return this.parseBitwiseXORExpression();
   }
-  parseLogicalANDExpression(): Expression {
+  parseLogicalANDExpression(): TSESTree.Expression {
     return this.parseBitwiseORExpression();
   }
-  parseLogicalORExpression(): Expression {
+  parseLogicalORExpression(): TSESTree.Expression {
     return this.parseLogicalANDExpression();
   }
-  parseShortCircuitExpression(): Expression {
+  parseShortCircuitExpression(): TSESTree.Expression {
     return this.parseLogicalORExpression();
   }
-  parseConditionalExpression(): Expression {
+  parseConditionalExpression(): TSESTree.Expression {
     return this.parseShortCircuitExpression();
   }
-  parseAssignmentExpression(): Expression {
+  parseAssignmentExpression(): TSESTree.Expression {
     return this.parseConditionalExpression();
   }
-  parseTSSignature(): TSSignature {
-    const { key, computed } = this.parsePropertyName();
-    let typeAnnotation: TSTypeAnnotation | undefined = undefined;
+  parseTSSignature(): TSESTree.TypeElement {
+    const propName = this.parsePropertyName();
+    const { key } = propName;
+    let typeAnnotation: TSESTree.TSTypeAnnotation | undefined = undefined;
     if (this.tryPunct(":")) {
       const type = this.parseTSType();
       typeAnnotation = {
-        type: "TSTypeAnnotation",
+        type: AST_NODE_TYPES.TSTypeAnnotation,
         typeAnnotation: type,
         loc: type.loc,
         range: type.range,
       };
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {
-      type: "TSPropertySignature",
-      key,
+      type: AST_NODE_TYPES.TSPropertySignature,
+      ...propName,
       readonly: false,
-      computed,
       optional: false,
       typeAnnotation,
-    };
+      // TODO: incorrect location
+      loc: key.loc,
+      range: key.range,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any; // TODO
   }
-  parseTSTypeReference(): TSTypeReference {
+  parseTSTypeReference(): TSESTree.TSTypeReference {
     const token = this.nextToken();
     if (token.type !== "Identifier") throw new ParseError();
-    const typeName: Identifier = {
-      type: "Identifier",
+    const typeName: TSESTree.Identifier = {
+      type: AST_NODE_TYPES.Identifier,
       name: evalIdentifier(token.value),
       loc: token.loc,
       range: token.range,
@@ -360,18 +378,18 @@ export class Parser {
     this.pos++;
     const typeParameters = this.parseTSTypeParameterInstantiation();
     return {
-      type: "TSTypeReference",
+      type: AST_NODE_TYPES.TSTypeReference,
       typeName,
-      typeParameters,
+      ...(typeParameters ? { typeParameters } : {}),
       loc: token.loc,
       range: token.range,
     };
   }
   parseTSTypeParameterInstantiation():
-    | TSTypeParameterInstantiation
+    | TSESTree.TSTypeParameterInstantiation
     | undefined {
     if (!this.tryPunct("<")) return undefined;
-    const params: TSType[] = [];
+    const params: TSESTree.TypeNode[] = [];
     while (true) {
       if (this.tryPunct(">")) {
         break;
@@ -385,9 +403,15 @@ export class Parser {
       }
     }
     if (params.length === 0) throw new ParseError();
-    return { type: "TSTypeParameterInstantiation", params };
+    return {
+      type: AST_NODE_TYPES.TSTypeParameterInstantiation,
+      params,
+      // TODO: incorrect location
+      loc: params[0]!.loc,
+      range: params[0]!.range,
+    };
   }
-  parseTSNonArrayType(): TSType {
+  parseTSNonArrayType(): TSESTree.TypeNode {
     const token = this.nextToken();
     switch (token.type) {
       case "Identifier":
@@ -411,9 +435,10 @@ export class Parser {
         throw new ParseError();
     }
   }
-  parseTSTypeLiteral(): TSTypeLiteral {
+  parseTSTypeLiteral(): TSESTree.TSTypeLiteral {
+    const startToken = this.nextToken();
     this.expectPunct("{");
-    const members: TSSignature[] = [];
+    const members: TSESTree.TypeElement[] = [];
     while (true) {
       if (this.tryPunct("}")) {
         break;
@@ -426,19 +451,25 @@ export class Parser {
         this.tryPunct(",") || this.expectSemi();
       }
     }
-    return { type: "TSTypeLiteral", members };
+    return {
+      type: AST_NODE_TYPES.TSTypeLiteral,
+      members,
+      // TODO: incorrect location
+      loc: (startToken as TSESTree.Token).loc,
+      range: (startToken as TSESTree.Token).range,
+    };
   }
-  parseTSType(): TSType {
+  parseTSType(): TSESTree.TypeNode {
     return this.parseTSNonArrayType();
   }
-  nextToken(): AST.Token | { type: "EOF" } {
+  nextToken(): TSESTree.Token | { type: "EOF" } {
     if (this.pos < this.tokens.length) return this.tokens[this.pos]!;
     else return { type: "EOF" };
   }
   isPunct(
     punct: string,
     token = this.nextToken()
-  ): token is AST.Token & { type: "Punctuator" } {
+  ): token is TSESTree.Token & { type: "Punctuator" } {
     return token.type === "Punctuator" && token.value === punct;
   }
   tryPunct(punct: string): boolean {
@@ -474,8 +505,8 @@ export class Parser {
   }
 }
 
-export function tokenizeComment(comment: Comment): AST.Token[] {
-  const pos: Position | undefined = comment.loc
+export function tokenizeComment(comment: TSESTree.Comment): TSESTree.Token[] {
+  const pos: TSESTree.Position | undefined = comment.loc
     ? {
         line: comment.loc.start.line,
         column: comment.loc.start.column + 2,
@@ -487,9 +518,9 @@ export function tokenizeComment(comment: Comment): AST.Token[] {
 
 export function tokenize(
   text: string,
-  pos: Position = { line: 1, column: 0 },
+  pos: TSESTree.Position = { line: 1, column: 0 },
   idxBase = 0
-): AST.Token[] {
+): TSESTree.Token[] {
   let idx = 0;
   function advance(text: string) {
     let currentText = text;
@@ -504,9 +535,9 @@ export function tokenize(
     idx += text.length;
   }
 
-  const tokens: AST.Token[] = [];
+  const tokens: TSESTree.Token[] = [];
   while (idx < text.length) {
-    const start: Position = { ...pos };
+    const start: TSESTree.Position = { ...pos };
     const startIdx = idxBase + idx;
     const ch = text[idx]!;
     switch (ch) {
@@ -521,7 +552,7 @@ export function tokenize(
         verifyString(match[1]!);
         advance(match[0]!);
         tokens.push({
-          type: "String",
+          type: AST_TOKEN_TYPES.String,
           value: match[0]!,
           range: [startIdx, idxBase + idx],
           loc: { start, end: { ...pos } },
@@ -540,7 +571,7 @@ export function tokenize(
         } else {
           advance(ch);
           tokens.push({
-            type: "Punctuator",
+            type: AST_TOKEN_TYPES.Punctuator,
             value: ch,
             range: [startIdx, idxBase + idx],
             loc: { start, end: { ...pos } },
@@ -562,7 +593,9 @@ export function tokenize(
           if (!match) throw new ParseError();
           advance(match[0]!);
           tokens.push({
-            type: KEYWORDS.includes(match[0]!) ? "Keyword" : "Identifier",
+            type: KEYWORDS.includes(match[0]!)
+              ? AST_TOKEN_TYPES.Keyword
+              : AST_TOKEN_TYPES.Identifier,
             value: match[0]!,
             range: [startIdx, idxBase + idx],
             loc: { start, end: { ...pos } },
@@ -571,8 +604,9 @@ export function tokenize(
         } else {
           advance(ch);
           tokens.push({
-            type: "Punctuator",
-            value: ch,
+            type: AST_TOKEN_TYPES.Punctuator,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+            value: ch as any,
             range: [startIdx, idxBase + idx],
             loc: { start, end: { ...pos } },
           });
@@ -703,17 +737,18 @@ function evalString(raw: string) {
     );
 }
 
-function dummyTokenFrom(comment: Comment): AST.Token {
+function dummyTokenFrom(comment: TSESTree.Comment): TSESTree.Token {
   return {
-    type: "Punctuator",
-    value: "\0",
+    type: AST_TOKEN_TYPES.Punctuator,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    value: "\0" as any,
     loc: {
-      start: { ...comment.loc!.start },
+      start: { ...comment.loc.start },
       end: {
-        line: comment.loc!.end.line,
-        column: comment.loc!.end.column + 1,
+        line: comment.loc.end.line,
+        column: comment.loc.end.column + 1,
       },
     },
-    range: [comment.range![0], comment.range![0] + 1],
+    range: [comment.range[0], comment.range[0] + 1],
   };
 }

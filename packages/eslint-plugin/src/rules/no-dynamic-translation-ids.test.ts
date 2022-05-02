@@ -1,7 +1,8 @@
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./no-dynamic-translation-ids";
 
-new RuleTester({
+new TSESLint.RuleTester({
+  parser: require.resolve("espree"),
   parserOptions: {
     ecmaVersion: 2015,
     sourceType: "module",
@@ -49,7 +50,8 @@ new RuleTester({
         const id = "example.greeting";
         t(id);
       `,
-      errors: ["Don't use dynamic translation keys"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errors: ["Don't use dynamic translation keys" as any],
     },
     {
       code: `

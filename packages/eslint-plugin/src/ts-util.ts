@@ -1,56 +1,33 @@
-import { Rule, Scope } from "eslint";
-import {
-  ClassDeclaration,
-  Directive,
-  Identifier,
-  ImportDefaultSpecifier,
-  ImportNamespaceSpecifier,
-  ImportSpecifier,
-  ModuleDeclaration,
-} from "estree";
-import {
-  DeclarationExt,
-  NewExpressionExt,
-  StatementExt,
-  TSInterfaceBody,
-  TSInterfaceDeclaration,
-  TSSignature,
-  TSTypeAliasDeclaration,
-  TSTypeLiteral,
-  TSTypeReference,
-} from "./estree-ts";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { nearestScope } from "./util";
 
 export type TypeDeclarator =
-  | TSInterfaceDeclaration
-  | TSTypeAliasDeclaration
-  | ClassDeclaration
-  | ImportSpecifier
-  | ImportDefaultSpecifier
-  | ImportNamespaceSpecifier;
+  | TSESTree.TSInterfaceDeclaration
+  | TSESTree.TSTypeAliasDeclaration
+  | TSESTree.ClassDeclaration
+  | TSESTree.ImportSpecifier
+  | TSESTree.ImportDefaultSpecifier
+  | TSESTree.ImportNamespaceSpecifier;
 
 export function resolveTypeLevelVariable(
-  scopeManager: Scope.ScopeManager,
-  node: Identifier
+  scopeManager: TSESLint.Scope.ScopeManager,
+  node: TSESTree.Identifier
 ): TypeDeclarator | undefined {
-  const scope = nearestScope(scopeManager, node as Rule.Node);
+  const scope = nearestScope(scopeManager, node);
   return findTypeLevelVariable(scope, node.name);
 }
 
 function findTypeLevelVariable(
-  scope: Scope.Scope,
+  scope: TSESLint.Scope.Scope,
   name: string
 ): TypeDeclarator | undefined {
-  let currentScope: Scope.Scope | null = scope;
+  let currentScope: TSESLint.Scope.Scope | null = scope;
   while (currentScope) {
     switch (currentScope.block.type) {
       case "BlockStatement":
       case "Program":
-        for (const stmtBase of currentScope.block.body as (
-          | StatementExt
-          | ModuleDeclaration
-          | Directive
-        )[]) {
+        for (const stmtBase of currentScope.block.body) {
           const stmt =
             stmtBase.type === "ExportNamedDeclaration" && stmtBase.declaration
               ? stmtBase.declaration
@@ -58,7 +35,7 @@ function findTypeLevelVariable(
                 ["ClassDeclaration", "TSInterfaceDeclaration"].includes(
                   stmtBase.declaration.type
                 )
-              ? (stmtBase.declaration as DeclarationExt)
+              ? stmtBase.declaration
               : stmtBase;
           switch (stmt.type) {
             case "TSInterfaceDeclaration":
@@ -80,10 +57,11 @@ function findTypeLevelVariable(
   return undefined;
 }
 
-export function extractAsObjectType(
-  decl: TypeDeclarator
-):
-  | { body: TSInterfaceBody | TSTypeLiteral; signatures: TSSignature[] }
+export function extractAsObjectType(decl: TypeDeclarator):
+  | {
+      body: TSESTree.TSInterfaceBody | TSESTree.TSTypeLiteral;
+      signatures: TSESTree.TypeElement[];
+    }
   | undefined {
   if (decl.type === "TSTypeAliasDeclaration") {
     if (decl.typeAnnotation.type === "TSTypeLiteral") {
@@ -102,24 +80,32 @@ export function extractAsObjectType(
 }
 
 export function findTypeDefinition(
-  scopeManager: Scope.ScopeManager,
-  node: Rule.Node
-): { body: TSInterfaceBody | TSTypeLiteral; signatures: TSSignature[] } | null {
-  const typeParameters = (node as NewExpressionExt).typeParameters;
+  scopeManager: TSESLint.Scope.ScopeManager,
+  node: TSESTree.NewExpression
+): {
+  body: TSESTree.TSInterfaceBody | TSESTree.TSTypeLiteral;
+  signatures: TSESTree.TypeElement[];
+} | null {
+  const typeParameters = node.typeParameters;
   if (!typeParameters) return null;
 
   const typeParam = findTypeParameter(node);
   if (!typeParam) return null;
-  const resolved = resolveTypeLevelVariable(scopeManager, typeParam.typeName);
+  const resolved = resolveTypeLevelVariable(
+    scopeManager,
+    typeParam.typeName as TSESTree.Identifier
+  );
   if (!resolved) return null;
   const objinfo = extractAsObjectType(resolved);
   if (!objinfo) return null;
   return objinfo;
 }
 
-export function findTypeParameter(node: Rule.Node): TSTypeReference | null {
+export function findTypeParameter(
+  node: TSESTree.Node
+): TSESTree.TSTypeReference | null {
   if (node.type !== "NewExpression") return null;
-  const typeParameters = (node as NewExpressionExt).typeParameters;
+  const typeParameters = node.typeParameters;
   if (!typeParameters) return null;
   if (typeParameters.type !== "TSTypeParameterInstantiation") return null;
   if (typeParameters.params.length < 1) return null;

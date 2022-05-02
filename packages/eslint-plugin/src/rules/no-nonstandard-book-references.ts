@@ -1,23 +1,29 @@
-import type { Rule } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint } from "@typescript-eslint/utils";
 import { translationCallTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { getImportName, resolveImportedVariable } from "../util";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds = "import-books" | "import-books-as-book";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   docs: {
     description:
       "disallow dynamic translation ids where hi18n cannot correctly detect used translation ids",
-    recommended: true,
+    recommended: "error",
   },
   messages: {
     "import-books":
       "the book should be directly imported from the corresponding module.",
     "import-books-as-book": 'the book should be exported as "book"',
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
     const bookNode = captured["book"]!;
@@ -29,7 +35,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       return;
     }
     const bookDef = resolveImportedVariable(
-      context.getSourceCode().scopeManager,
+      context.getSourceCode().scopeManager!,
       bookNode
     );
     if (!bookDef) {
@@ -41,6 +47,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
     }
     if (
       bookDef.node.type === "ImportNamespaceSpecifier" ||
+      bookDef.node.type === "TSImportEqualsDeclaration" ||
       getImportName(bookDef.node) !== "book"
     ) {
       context.report({
@@ -51,7 +58,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }

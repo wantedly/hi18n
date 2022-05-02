@@ -1,16 +1,22 @@
-import type { Rule } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
-import { Node } from "estree";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds =
+  | "catalog-export-as-default"
+  | "catalog-data-should-be-object"
+  | "catalog-data-invalid-spread"
+  | "catalog-data-invalid-id";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   fixable: "code",
   docs: {
     description:
       "warns the nonstandard uses of Catalog that hi18n cannot properly process",
-    recommended: true,
+    recommended: "error",
   },
   messages: {
     "catalog-export-as-default": "the catalog should be exported as default",
@@ -20,17 +26,21 @@ export const meta: Rule.RuleMetaData = {
     "catalog-data-invalid-id":
       "do not use dynamic translation ids for the catalog data",
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (node, captured) => {
     if (
+      !node.parent ||
       node.parent.type !== "ExportDefaultDeclaration" ||
       node.parent.declaration !== node
     ) {
       context.report({
-        node: node as Node,
+        node,
         messageId: "catalog-export-as-default",
       });
     }
@@ -65,7 +75,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }

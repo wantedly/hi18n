@@ -1,16 +1,8 @@
-import { Rule, Scope } from "eslint";
-import {
-  AssignmentProperty,
-  Identifier,
-  ImportDefaultSpecifier,
-  ImportSpecifier,
-  MemberExpression,
-  Property,
-} from "estree";
-import { TSPropertySignature } from "./estree-ts";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 export function getImportName(
-  spec: ImportSpecifier | ImportDefaultSpecifier
+  spec: TSESTree.ImportSpecifier | TSESTree.ImportDefaultSpecifier
 ): string {
   if (spec.type === "ImportSpecifier") {
     return spec.imported.name;
@@ -19,7 +11,7 @@ export function getImportName(
   }
 }
 
-export function getStaticMemKey(mem: MemberExpression): string | null {
+export function getStaticMemKey(mem: TSESTree.MemberExpression): string | null {
   if (mem.computed) {
     if (
       mem.property.type === "Literal" &&
@@ -46,7 +38,10 @@ export function getStaticMemKey(mem: MemberExpression): string | null {
 }
 
 export function getStaticKey(
-  prop: AssignmentProperty | Property | TSPropertySignature
+  prop:
+    | TSESTree.Property
+    | TSESTree.MethodDefinition
+    | TSESTree.TSPropertySignature
 ): string | null {
   if (prop.computed) {
     return null;
@@ -69,30 +64,37 @@ export function getStaticKey(
 }
 
 export function resolveImportedVariable(
-  scopeManager: Scope.ScopeManager,
-  node: Identifier
-): (Scope.Definition & { type: "ImportBinding" }) | undefined {
+  scopeManager: TSESLint.Scope.ScopeManager,
+  node: TSESTree.Identifier
+):
+  | (TSESLint.Scope.Definition & {
+      type: typeof TSESLint.Scope.DefinitionType.ImportBinding;
+    })
+  | undefined {
   const variable = resolveVariable(scopeManager, node);
   if (!variable) return undefined;
   return variable.defs.find(
-    (def): def is Scope.Definition & { type: "ImportBinding" } =>
-      def.type === "ImportBinding"
+    (
+      def
+    ): def is TSESLint.Scope.Definition & {
+      type: typeof TSESLint.Scope.DefinitionType.ImportBinding;
+    } => def.type === "ImportBinding"
   );
 }
 
 export function resolveVariable(
-  scopeManager: Scope.ScopeManager,
-  node: Identifier
-): Scope.Variable | undefined {
-  const scope = nearestScope(scopeManager, node as Rule.Node);
+  scopeManager: TSESLint.Scope.ScopeManager,
+  node: TSESTree.Identifier | TSESTree.JSXIdentifier
+): TSESLint.Scope.Variable | undefined {
+  const scope = nearestScope(scopeManager, node);
   return findVariable(scope, node.name);
 }
 
 function findVariable(
-  scope: Scope.Scope,
+  scope: TSESLint.Scope.Scope,
   name: string
-): Scope.Variable | undefined {
-  let currentScope: Scope.Scope | null = scope;
+): TSESLint.Scope.Variable | undefined {
+  let currentScope: TSESLint.Scope.Scope | null = scope;
   while (currentScope) {
     const v = currentScope.variables.find((v) => v.name === name);
     if (v) return v;
@@ -102,10 +104,10 @@ function findVariable(
 }
 
 export function nearestScope(
-  scopeManager: Scope.ScopeManager,
-  node: Rule.Node
-): Scope.Scope {
-  let currentNode = node;
+  scopeManager: TSESLint.Scope.ScopeManager,
+  node: TSESTree.Node
+): TSESLint.Scope.Scope {
+  let currentNode: TSESTree.Node | undefined = node;
   while (currentNode) {
     const innerScope = scopeManager.acquire(currentNode, true);
     if (innerScope) return innerScope;

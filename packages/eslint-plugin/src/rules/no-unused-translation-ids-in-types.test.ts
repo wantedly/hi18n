@@ -1,7 +1,8 @@
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./no-unused-translation-ids-in-types";
+import type {} from "../tseslint-babel";
 
-new RuleTester({
+new TSESLint.RuleTester({
   parser: require.resolve("@babel/eslint-parser"),
   parserOptions: {
     ecmaVersion: "latest",
@@ -108,7 +109,8 @@ new RuleTester({
           "example/multiline2",
         ],
       },
-      errors: ["unused translation id", "unused translation id"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errors: ["unused translation id" as any, "unused translation id"],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";

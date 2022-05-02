@@ -1,7 +1,8 @@
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./no-nonstandard-book-references";
 
-new RuleTester({
+new TSESLint.RuleTester({
+  parser: require.resolve("espree"),
   parserOptions: {
     ecmaVersion: 2015,
     sourceType: "module",
@@ -33,7 +34,8 @@ new RuleTester({
         t("example.greeting");
       `,
       errors: [
-        "the book should be directly imported from the corresponding module.",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        "the book should be directly imported from the corresponding module." as any,
       ],
     },
     {

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
-import { Linter } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./collect-catalog-links";
 import { CatalogLink } from "./collect-catalog-links";
 
 describe("collect-translation-ids", () => {
   it("detects translation ids", () => {
     const collected: CatalogLink[] = [];
-    const linter = new Linter();
+    const linter = new TSESLint.Linter();
     linter.defineRule("@hi18n/collect-catalog-links", rule);
     linter.verify(
       `

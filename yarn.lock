@@ -1503,14 +1503,18 @@ __metadata:
     "@babel/preset-typescript": ^7.16.7
     "@babel/runtime-corejs3": ^7.17.9
     "@jest/globals": ^28.0.3
+    "@types/babel__core": ^7.1.19
     "@types/eslint": ^8.4.1
     "@types/estree": ^0.0.51
     "@types/estree-jsx": ^0.0.1
+    "@typescript-eslint/types": ^5.21.0
+    "@typescript-eslint/utils": ^5.21.0
     babel-jest: ^28.0.3
     eslint: ^8.14.0
     eslint-plugin-eslint-plugin: ^4.1.0
     eslint-plugin-node: ^11.1.0
     eslint-visitor-keys: ^3.3.0
+    espree: ^9.3.1
     jest: ^28.0.3
     prettier: ^2.6.2
     typescript: ^4.6.4
@@ -2017,7 +2021,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7.1.14":
+"@types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.1.19":
   version: 7.1.19
   resolution: "@types/babel__core@npm:7.1.19"
   dependencies:
@@ -2404,7 +2408,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/types@npm:5.21.0":
+"@typescript-eslint/types@npm:5.21.0, @typescript-eslint/types@npm:^5.21.0":
   version: 5.21.0
   resolution: "@typescript-eslint/types@npm:5.21.0"
   checksum: 1581bf79f8c9236844ca8891e26c84503b654359fbfee80d76f9f57fb90c24210687cd30f61592e7d44cacf5417c83aaa5ae8559a4a8b6ce6b6c4a163b8b86c2
@@ -2429,7 +2433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:5.21.0, @typescript-eslint/utils@npm:^5.10.0":
+"@typescript-eslint/utils@npm:5.21.0, @typescript-eslint/utils@npm:^5.10.0, @typescript-eslint/utils@npm:^5.21.0":
   version: 5.21.0
   resolution: "@typescript-eslint/utils@npm:5.21.0"
   dependencies:
@@ -4476,6 +4480,7 @@ __metadata:
     "@types/glob": ^7.2.0
     "@types/resolve": ^1.20.2
     "@types/yargs": ^17.0.10
+    "@typescript-eslint/utils": ^5.21.0
     babel-jest: ^28.0.3
     eslint: ^8.13.0
     eslint-plugin-node: ^11.1.0

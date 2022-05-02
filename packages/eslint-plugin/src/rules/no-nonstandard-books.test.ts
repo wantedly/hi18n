@@ -1,7 +1,9 @@
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./no-nonstandard-books";
+import type {} from "../tseslint-babel";
 
-new RuleTester({
+new TSESLint.RuleTester({
+  parser: require.resolve("espree"),
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
@@ -39,7 +41,8 @@ new RuleTester({
         import catalogJa from "./ja";
         export const book = new Book(42);
       `,
-      errors: ["the first argument should be an object literal"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errors: ["the first argument should be an object literal" as any],
     },
     {
       code: `
@@ -178,7 +181,7 @@ new RuleTester({
   ],
 });
 
-new RuleTester({
+new TSESLint.RuleTester({
   parser: require.resolve("@babel/eslint-parser"),
   parserOptions: {
     ecmaVersion: "latest",
@@ -231,7 +234,8 @@ new RuleTester({
         import { Book } from "@hi18n/core";
         export const book = new Book<{}>({});
       `,
-      errors: ["declare catalog type as type Vocabulary = { ... }"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errors: ["declare catalog type as type Vocabulary = { ... }" as any],
     },
     {
       code: `

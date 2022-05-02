@@ -1,11 +1,12 @@
-import type { Rule } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint } from "@typescript-eslint/utils";
 import { commentOut, getStaticKey } from "../util";
 import { findTypeDefinition } from "../ts-util";
 import { bookTracker } from "../common-trackers";
-import { Node } from "estree";
-import { TSPropertySignature } from "../estree-ts";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds = "unused-translation-id";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   fixable: "code",
   docs: {
@@ -16,9 +17,12 @@ export const meta: Rule.RuleMetaData = {
   messages: {
     "unused-translation-id": "unused translation id",
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, _captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
@@ -33,9 +37,10 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       throw new Error("Invalid usedIds");
     const usedIdsSet = new Set(usedIds);
 
+    if (node.type !== "NewExpression") throw new Error("Not a NewExpression");
     const objinfo = findTypeDefinition(
-      context.getSourceCode().scopeManager,
-      node as Rule.Node
+      context.getSourceCode().scopeManager!,
+      node
     );
     if (!objinfo) return;
 
@@ -45,18 +50,13 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       if (key === null) continue;
       if (!usedIdsSet.has(key)) {
         context.report({
-          node: signature as Node | TSPropertySignature as Node,
+          node: signature,
           // node: node as Node,
           messageId: "unused-translation-id",
           *fix(fixer) {
-            const indent = signature.loc!.start.column;
-            const text = context
-              .getSourceCode()
-              .getText(signature as Node | TSPropertySignature as Node);
-            yield fixer.replaceText(
-              signature as Node | TSPropertySignature as Node,
-              commentOut(text, indent)
-            );
+            const indent = signature.loc.start.column;
+            const text = context.getSourceCode().getText(signature);
+            yield fixer.replaceText(signature, commentOut(text, indent));
           },
         });
       }
@@ -64,7 +64,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }

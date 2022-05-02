@@ -1,17 +1,13 @@
-import type { AST, Rule, SourceCode } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
-import { Comment, Node } from "estree";
 import { bookTracker } from "../common-trackers";
 import { findTypeDefinition } from "../ts-util";
-import {
-  TSInterfaceBody,
-  TSPropertySignature,
-  TSSignature,
-  TSTypeLiteral,
-} from "../estree-ts";
 import { parseComments, ParseError, Parser } from "../microparser";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds = "missing-translation-ids";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "suggestion",
   fixable: "code",
   docs: {
@@ -22,9 +18,12 @@ export const meta: Rule.RuleMetaData = {
   messages: {
     "missing-translation-ids": "missing translation ids",
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, _captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
@@ -39,10 +38,10 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       throw new Error("Invalid usedIds");
     const missingIdsSet = new Set(usedIds);
 
-    const objinfo = findTypeDefinition(
-      context.getSourceCode().scopeManager,
-      node as Rule.Node
-    );
+    const objinfo =
+      node.type === "NewExpression"
+        ? findTypeDefinition(context.getSourceCode().scopeManager!, node)
+        : undefined;
     if (!objinfo) return;
 
     for (const signature of objinfo.signatures) {
@@ -56,10 +55,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       const missingIds = Array.from(missingIdsSet);
       missingIds.sort();
       context.report({
-        node: objinfo.body as
-          | Rule.Node
-          | TSInterfaceBody
-          | TSTypeLiteral as Rule.Node,
+        node: objinfo.body,
         messageId: "missing-translation-ids",
         *fix(fixer) {
           const candidates = collectCandidates(
@@ -96,18 +92,13 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
                   firstCandidate.node
                     ? firstCandidate.node
                     : firstCandidate.commentedOut[0]!
-                ).loc!.start.column;
+                ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
                 )}: Message;`;
                 const token = context
                   .getSourceCode()
-                  .getFirstToken(
-                    objinfo.body as
-                      | Rule.Node
-                      | TSInterfaceBody
-                      | TSTypeLiteral as Rule.Node
-                  )!;
+                  .getFirstToken(objinfo.body)!;
                 yield fixer.insertTextAfter(token, text);
               } else {
                 const lastCandidate = sortedCandidates[insertAt - 1]!;
@@ -115,19 +106,19 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
                   lastCandidate.node
                     ? lastCandidate.node
                     : lastCandidate.commentedOut[0]!
-                ).loc!.start.column;
+                ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
                 )}: Message;`;
                 const node = extendNode(
                   context.getSourceCode(),
                   lastCandidate.node
-                    ? (lastCandidate.node as Node | TSPropertySignature as Node)
+                    ? lastCandidate.node
                     : lastCandidate.commentedOut[
                         lastCandidate.commentedOut.length - 1
                       ]!
                 );
-                yield fixer.insertTextAfterRange(node.range!, text);
+                yield fixer.insertTextAfterRange(node.range, text);
               }
             }
           }
@@ -137,7 +128,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }
@@ -145,41 +136,38 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
 type Candidate = LiveCandidate | CommentedOutCandidate;
 type LiveCandidate = {
   id: string;
-  node: TSPropertySignature;
+  node: TSESTree.TSPropertySignature;
   commentedOut?: never;
-  precedingComments: Comment[];
+  precedingComments: TSESTree.Comment[];
 };
 type CommentedOutCandidate = {
   id: string;
   node?: never;
-  commentedOut: Comment[];
-  precedingComments: Comment[];
+  commentedOut: TSESTree.Comment[];
+  precedingComments: TSESTree.Comment[];
 };
 
 function* unCommentCandidate(
-  fixer: Rule.RuleFixer,
+  fixer: TSESLint.RuleFixer,
   candidate: Candidate
-): Generator<Rule.Fix> {
+): Generator<TSESLint.RuleFix> {
   if (candidate.node) return;
   const trimStart = Math.min(
     ...candidate.commentedOut.map((c) => /^\s*/.exec(c.value)![0]!.length)
   );
   for (const comment of candidate.commentedOut) {
     const value = comment.value.substring(trimStart).trimEnd();
-    yield fixer.replaceTextRange(comment.range!, value);
+    yield fixer.replaceTextRange(comment.range, value);
   }
 }
 
 function collectCandidates(
-  sourceCode: SourceCode,
-  signatures: TSSignature[]
+  sourceCode: TSESLint.SourceCode,
+  signatures: TSESTree.TypeElement[]
 ): Candidate[] {
   const candidateNodes: Candidate[] = [];
   for (const signature of signatures) {
-    const precedingComments = getPrecedingComments(
-      sourceCode,
-      signature as Node | TSSignature as Node
-    );
+    const precedingComments = getPrecedingComments(sourceCode, signature);
     const { parts: commentedOutCandidates, rest: trueComments } = parseComments(
       precedingComments,
       parsePart
@@ -202,10 +190,7 @@ function collectCandidates(
     });
   }
   {
-    const lastComments = getLastComments(
-      sourceCode,
-      signatures as (Node | TSSignature)[] as Node[]
-    );
+    const lastComments = getLastComments(sourceCode, signatures);
     const { parts: commentedOutCandidates } = parseComments(
       lastComments,
       parsePart
@@ -221,7 +206,7 @@ function collectCandidates(
   return candidateNodes;
 }
 
-function parsePart(parser: Parser): TSPropertySignature {
+function parsePart(parser: Parser): TSESTree.TSPropertySignature {
   const node = parser.parseTSSignature();
   parser.tryPunct(",") || parser.expectSemi();
   if (node.type !== "TSPropertySignature") throw new ParseError();
@@ -229,8 +214,11 @@ function parsePart(parser: Parser): TSPropertySignature {
   return node;
 }
 
-function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
-  const comments: Comment[] = [];
+function getPrecedingComments(
+  sourceCode: TSESLint.SourceCode,
+  node: TSESTree.Node
+): TSESTree.Comment[] {
+  const comments: TSESTree.Comment[] = [];
   let lastLine: number = -1;
   while (true) {
     const current = comments.length > 0 ? comments[comments.length - 1]! : node;
@@ -239,7 +227,7 @@ function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
     });
     if (!commentOrToken) break;
     if (commentOrToken.type !== "Line" && commentOrToken.type !== "Block") {
-      lastLine = commentOrToken.loc!.end.line;
+      lastLine = commentOrToken.loc.end.line;
       break;
     }
     comments.push(commentOrToken);
@@ -247,7 +235,7 @@ function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
   // Remove in-line comments
   while (
     comments.length > 0 &&
-    comments[comments.length - 1]!.loc!.start.line === lastLine
+    comments[comments.length - 1]!.loc.start.line === lastLine
   ) {
     comments.pop();
   }
@@ -255,28 +243,29 @@ function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
   return comments;
 }
 
-function getLastComments(sourceCode: SourceCode, nodes: Node[]): Comment[] {
+function getLastComments(
+  sourceCode: TSESLint.SourceCode,
+  nodes: TSESTree.Node[]
+): TSESTree.Comment[] {
   if (nodes.length === 0) return [];
   const lastNode = nodes[nodes.length - 1]!;
   const maybePunct = sourceCode.getTokenAfter(lastNode, {
     includeComments: false,
   });
-  let lastToken: Node | Comment | AST.Token =
+  let lastToken: TSESTree.Node | TSESTree.Comment | TSESTree.Token =
     maybePunct &&
     maybePunct.type === "Punctuator" &&
     (maybePunct.value === "," || maybePunct.value === ";")
       ? maybePunct
       : lastNode;
-  const lastLine = lastToken.loc!.end.line;
-  const comments: Comment[] = [];
+  const lastLine = lastToken.loc.end.line;
+  const comments: TSESTree.Comment[] = [];
   while (true) {
-    const nextToken: Comment | AST.Token | null = sourceCode.getTokenAfter(
-      lastToken,
-      { includeComments: true }
-    );
+    const nextToken: TSESTree.Comment | TSESTree.Token | null =
+      sourceCode.getTokenAfter(lastToken, { includeComments: true });
     if (!nextToken) break;
     if (nextToken.type === "Line" || nextToken.type === "Block") {
-      if (nextToken.loc!.start.line > lastLine) {
+      if (nextToken.loc.start.line > lastLine) {
         comments.push(nextToken);
       }
     } else {
@@ -288,26 +277,24 @@ function getLastComments(sourceCode: SourceCode, nodes: Node[]): Comment[] {
 }
 
 function extendNode(
-  sourceCode: SourceCode,
-  node: Node | Comment
-): Node | Comment | AST.Token {
+  sourceCode: Readonly<TSESLint.SourceCode>,
+  node: TSESTree.Node | TSESTree.Comment
+): TSESTree.Node | TSESTree.Comment | TSESTree.Token {
   const maybePunct = sourceCode.getTokenAfter(node, { includeComments: false });
-  let lastToken: Node | Comment | AST.Token =
+  let lastToken: TSESTree.Node | TSESTree.Comment | TSESTree.Token =
     maybePunct &&
     maybePunct.type === "Punctuator" &&
     (maybePunct.value === "," || maybePunct.value === ";")
       ? maybePunct
       : node;
-  const lastLine = lastToken.loc!.end.line;
+  const lastLine = lastToken.loc.end.line;
   while (true) {
-    const nextToken: Comment | AST.Token | null = sourceCode.getTokenAfter(
-      lastToken,
-      { includeComments: true }
-    );
+    const nextToken: TSESTree.Comment | TSESTree.Token | null =
+      sourceCode.getTokenAfter(lastToken, { includeComments: true });
     if (
       nextToken &&
       (nextToken.type === "Line" || nextToken.type === "Block") &&
-      nextToken.loc!.start.line === lastLine
+      nextToken.loc.start.line === lastLine
     ) {
       lastToken = nextToken;
     } else {

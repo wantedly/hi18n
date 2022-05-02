@@ -1,27 +1,30 @@
-import type { Rule } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getImportName, getStaticKey, resolveImportedVariable } from "../util";
 import {
   extractAsObjectType,
   findTypeParameter,
   resolveTypeLevelVariable,
-  TypeDeclarator,
 } from "../ts-util";
 import { bookTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
-import { Node, VariableDeclarator } from "estree";
-import {
-  NewExpressionExt,
-  TSSignature,
-  TSTypeParameterInstantiation,
-  TSTypeReference,
-} from "../estree-ts";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds =
+  | "book-export-as-book"
+  | "import-catalogs"
+  | "import-catalogs-as-default"
+  | "catalogs-should-be-object"
+  | "catalogs-invalid-spread"
+  | "catalogs-invalid-id"
+  | "catalog-type-must-be-type-alias"
+  | "catalog-type-must-contain-only-simple-signatures";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   docs: {
     description:
       "warns the nonstandard uses of Book that hi18n cannot properly process",
-    recommended: true,
+    recommended: "error",
   },
   messages: {
     "book-export-as-book": 'the book should be exported as "book"',
@@ -38,24 +41,28 @@ export const meta: Rule.RuleMetaData = {
     "catalog-type-must-contain-only-simple-signatures":
       "only simple signatures are allowed",
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, captured) => {
-    const exportedAs = findExportedAs(node as Rule.Node);
+    const exportedAs = findExportedAs(node);
     if (
       !exportedAs ||
       exportedAs.id.type !== "Identifier" ||
       exportedAs.id.name !== "book"
     ) {
       context.report({
-        node: node as Node,
+        node,
         messageId: "book-export-as-book",
       });
     }
 
-    checkTypeParameter(context, node as Rule.Node);
+    if (node.type !== "NewExpression") throw new Error("Not a NewExpression");
+    checkTypeParameter(context, node);
 
     const catalogss = captured["catalogs"]!;
     if (catalogss.type !== "ObjectExpression") {
@@ -89,7 +96,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
         continue;
       }
       const valueDef = resolveImportedVariable(
-        context.getSourceCode().scopeManager,
+        context.getSourceCode().scopeManager!,
         prop.value
       );
       if (!valueDef) {
@@ -101,6 +108,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
       }
       if (
         valueDef.node.type === "ImportNamespaceSpecifier" ||
+        valueDef.node.type === "TSImportEqualsDeclaration" ||
         getImportName(valueDef.node) !== "default"
       ) {
         context.report({
@@ -113,32 +121,33 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }
 
-function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
-  const typeParameters = (node as NewExpressionExt).typeParameters;
+function checkTypeParameter(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>,
+  node: TSESTree.NewExpression
+) {
+  const typeParameters = node.typeParameters;
   if (!typeParameters) return;
 
   const typeParam = findTypeParameter(node);
   if (!typeParam) {
     context.report({
-      node: typeParameters as
-        | Rule.Node
-        | TSTypeParameterInstantiation as Rule.Node,
+      node: typeParameters,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
   }
   const resolved = resolveTypeLevelVariable(
-    context.getSourceCode().scopeManager,
-    typeParam.typeName
+    context.getSourceCode().scopeManager!,
+    typeParam.typeName as TSESTree.Identifier
   );
   if (!resolved) {
     context.report({
-      node: typeParam as Rule.Node | TSTypeReference as Rule.Node,
+      node: typeParam,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -146,7 +155,7 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
   const objinfo = extractAsObjectType(resolved);
   if (!objinfo) {
     context.report({
-      node: resolved as Rule.Node | TypeDeclarator as Rule.Node,
+      node: resolved,
       messageId: "catalog-type-must-be-type-alias",
     });
     return;
@@ -154,14 +163,14 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
   for (const signature of objinfo.signatures) {
     if (signature.type !== "TSPropertySignature") {
       context.report({
-        node: signature as Rule.Node | TSSignature as Rule.Node,
+        node: signature,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
     }
     if (signature.computed || signature.optional || signature.readonly) {
       context.report({
-        node: signature as Rule.Node | TSSignature as Rule.Node,
+        node: signature,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
@@ -169,7 +178,7 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
     const key = getStaticKey(signature);
     if (key === null) {
       context.report({
-        node: signature as Rule.Node | TSSignature as Rule.Node,
+        node: signature,
         messageId: "catalog-type-must-contain-only-simple-signatures",
       });
       continue;
@@ -178,13 +187,18 @@ function checkTypeParameter(context: Rule.RuleContext, node: Rule.Node) {
 }
 
 function findExportedAs(
-  node: Rule.Node
-): (VariableDeclarator & Rule.NodeParentExtension) | null {
-  if (node.parent.type !== "VariableDeclarator" || node.parent.init !== node) {
+  node: TSESTree.Node
+): TSESTree.VariableDeclarator | null {
+  if (
+    !node.parent ||
+    node.parent.type !== "VariableDeclarator" ||
+    node.parent.init !== node
+  ) {
     // Not a part of `book = new Book()`
     return null;
   }
   if (
+    !node.parent.parent ||
     node.parent.parent.type !== "VariableDeclaration" ||
     !node.parent.parent.declarations.includes(node.parent)
   ) {
@@ -192,6 +206,7 @@ function findExportedAs(
     return null;
   }
   if (
+    !node.parent.parent.parent ||
     node.parent.parent.parent.type !== "ExportNamedDeclaration" ||
     node.parent.parent.parent.declaration !== node.parent.parent
   ) {

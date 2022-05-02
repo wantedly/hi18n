@@ -1,23 +1,28 @@
-import type { AST, Rule, SourceCode } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
-import { Comment, Node, ObjectExpression, Property } from "estree";
 import { catalogTracker } from "../common-trackers";
 import { parseComments, ParseError, Parser } from "../microparser";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds = "missing-translation-ids";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "suggestion",
   fixable: "code",
   docs: {
     description:
       "removes the unused translations and generates the skeletons for the undeclared translation ids",
-    recommended: false,
+    recommended: "error",
   },
   messages: {
     "missing-translation-ids": "missing translation ids",
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (_node, captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
@@ -83,7 +88,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
                   firstCandidate.node
                     ? firstCandidate.node
                     : firstCandidate.commentedOut[0]!
-                ).loc!.start.column;
+                ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
                 )}: msg(),`;
@@ -97,7 +102,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
                   lastCandidate.node
                     ? lastCandidate.node
                     : lastCandidate.commentedOut[0]!
-                ).loc!.start.column;
+                ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
                 )}: msg(),`;
@@ -109,7 +114,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
                         lastCandidate.commentedOut.length - 1
                       ]!
                 );
-                yield fixer.insertTextAfterRange(node.range!, text);
+                yield fixer.insertTextAfterRange(node.range, text);
               }
             }
           }
@@ -119,7 +124,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }
@@ -127,34 +132,34 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
 type Candidate = LiveCandidate | CommentedOutCandidate;
 type LiveCandidate = {
   id: string;
-  node: Property;
+  node: TSESTree.Property;
   commentedOut?: never;
-  precedingComments: Comment[];
+  precedingComments: TSESTree.Comment[];
 };
 type CommentedOutCandidate = {
   id: string;
   node?: never;
-  commentedOut: Comment[];
-  precedingComments: Comment[];
+  commentedOut: TSESTree.Comment[];
+  precedingComments: TSESTree.Comment[];
 };
 
 function* unCommentCandidate(
-  fixer: Rule.RuleFixer,
+  fixer: TSESLint.RuleFixer,
   candidate: Candidate
-): Generator<Rule.Fix> {
+): Generator<TSESLint.RuleFix> {
   if (candidate.node) return;
   const trimStart = Math.min(
     ...candidate.commentedOut.map((c) => /^\s*/.exec(c.value)![0]!.length)
   );
   for (const comment of candidate.commentedOut) {
     const value = comment.value.substring(trimStart).trimEnd();
-    yield fixer.replaceTextRange(comment.range!, value);
+    yield fixer.replaceTextRange(comment.range, value);
   }
 }
 
 function collectCandidates(
-  sourceCode: SourceCode,
-  catalogData: ObjectExpression
+  sourceCode: TSESLint.SourceCode,
+  catalogData: TSESTree.ObjectExpression
 ): Candidate[] {
   const candidateNodes: Candidate[] = [];
   for (const prop of catalogData.properties) {
@@ -197,15 +202,18 @@ function collectCandidates(
   return candidateNodes;
 }
 
-function parsePart(parser: Parser): Property {
+function parsePart(parser: Parser): TSESTree.Property {
   const node = parser.parseProperty();
   parser.expectPunct(",");
   if (getStaticKey(node) === null) throw new ParseError();
   return node;
 }
 
-function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
-  const comments: Comment[] = [];
+function getPrecedingComments(
+  sourceCode: TSESLint.SourceCode,
+  node: TSESTree.Node
+): TSESTree.Comment[] {
+  const comments: TSESTree.Comment[] = [];
   let lastLine: number = -1;
   while (true) {
     const current = comments.length > 0 ? comments[comments.length - 1]! : node;
@@ -214,7 +222,7 @@ function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
     });
     if (!commentOrToken) break;
     if (commentOrToken.type !== "Line" && commentOrToken.type !== "Block") {
-      lastLine = commentOrToken.loc!.end.line;
+      lastLine = commentOrToken.loc.end.line;
       break;
     }
     comments.push(commentOrToken);
@@ -222,7 +230,7 @@ function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
   // Remove in-line comments
   while (
     comments.length > 0 &&
-    comments[comments.length - 1]!.loc!.start.line === lastLine
+    comments[comments.length - 1]!.loc.start.line === lastLine
   ) {
     comments.pop();
   }
@@ -230,26 +238,27 @@ function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
   return comments;
 }
 
-function getLastComments(sourceCode: SourceCode, nodes: Node[]): Comment[] {
+function getLastComments(
+  sourceCode: TSESLint.SourceCode,
+  nodes: TSESTree.Node[]
+): TSESTree.Comment[] {
   if (nodes.length === 0) return [];
   const lastNode = nodes[nodes.length - 1]!;
   const maybeComma = sourceCode.getTokenAfter(lastNode, {
     includeComments: false,
   });
-  let lastToken: Node | Comment | AST.Token =
+  let lastToken: TSESTree.Node | TSESTree.Comment | TSESTree.Token =
     maybeComma && maybeComma.type === "Punctuator" && maybeComma.value === ","
       ? maybeComma
       : lastNode;
-  const lastLine = lastToken.loc!.end.line;
-  const comments: Comment[] = [];
+  const lastLine = lastToken.loc.end.line;
+  const comments: TSESTree.Comment[] = [];
   while (true) {
-    const nextToken: Comment | AST.Token | null = sourceCode.getTokenAfter(
-      lastToken,
-      { includeComments: true }
-    );
+    const nextToken: TSESTree.Comment | TSESTree.Token | null =
+      sourceCode.getTokenAfter(lastToken, { includeComments: true });
     if (!nextToken) break;
     if (nextToken.type === "Line" || nextToken.type === "Block") {
-      if (nextToken.loc!.start.line > lastLine) {
+      if (nextToken.loc.start.line > lastLine) {
         comments.push(nextToken);
       }
     } else {
@@ -261,24 +270,22 @@ function getLastComments(sourceCode: SourceCode, nodes: Node[]): Comment[] {
 }
 
 function extendNode(
-  sourceCode: SourceCode,
-  node: Node | Comment
-): Node | Comment | AST.Token {
+  sourceCode: TSESLint.SourceCode,
+  node: TSESTree.Node | TSESTree.Comment
+): TSESTree.Node | TSESTree.Comment | TSESTree.Token {
   const maybeComma = sourceCode.getTokenAfter(node, { includeComments: false });
-  let lastToken: Node | Comment | AST.Token =
+  let lastToken: TSESTree.Node | TSESTree.Comment | TSESTree.Token =
     maybeComma && maybeComma.type === "Punctuator" && maybeComma.value === ","
       ? maybeComma
       : node;
-  const lastLine = lastToken.loc!.end.line;
+  const lastLine = lastToken.loc.end.line;
   while (true) {
-    const nextToken: Comment | AST.Token | null = sourceCode.getTokenAfter(
-      lastToken,
-      { includeComments: true }
-    );
+    const nextToken: TSESTree.Comment | TSESTree.Token | null =
+      sourceCode.getTokenAfter(lastToken, { includeComments: true });
     if (
       nextToken &&
       (nextToken.type === "Line" || nextToken.type === "Block") &&
-      nextToken.loc!.start.line === lastLine
+      nextToken.loc.start.line === lastLine
     ) {
       lastToken = nextToken;
     } else {

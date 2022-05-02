@@ -1,22 +1,5 @@
-import { Rule, Scope } from "eslint";
-import {
-  CallExpression,
-  Expression,
-  Identifier,
-  ImportDeclaration,
-  NewExpression,
-  Node,
-  Pattern,
-  VariableDeclarator,
-} from "estree";
-import {
-  JSXElement,
-  JSXFragment,
-  JSXIdentifier,
-  JSXMemberExpression,
-  JSXNamespacedName,
-  Node as NodeWithJSX,
-} from "estree-jsx";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getKeys } from "eslint-visitor-keys";
 import {
   getImportName,
@@ -28,9 +11,9 @@ import {
 export class Tracker {
   watchingImports: Record<string, string[]> = {};
   resources: Record<string, ResourceHooks> = {};
-  visited: Set<Node> = new Set<Node>();
+  visited: Set<TSESTree.Node> = new Set<TSESTree.Node>();
   jsxClosure?: Set<string> | undefined;
-  jsxBindings?: Map<Scope.Variable, JSXIdentifier[]>;
+  jsxBindings?: Map<TSESLint.Scope.Variable, TSESTree.JSXIdentifier[]>;
 
   watchImport(source: string, watchAs: string = `import("${source}")`) {
     if (Object.prototype.hasOwnProperty.call(this.watchingImports, source)) {
@@ -96,22 +79,22 @@ export class Tracker {
 
   listen(
     resName: string,
-    listener: (
-      node: NodeWithJSX & Rule.NodeParentExtension,
-      captured: CaptureMap
-    ) => void
+    listener: (node: TSESTree.Node, captured: CaptureMap) => void
   ) {
     this.getResourceHooks(resName).listeners.push(listener);
   }
-  private fire(res: Resource, node: NodeWithJSX) {
+  private fire(res: Resource, node: TSESTree.Node) {
     for (const resName of res.resNames) {
       for (const listener of this.getResourceHooks(resName).listeners) {
-        listener(node as NodeWithJSX & Rule.NodeParentExtension, res.captured);
+        listener(node, res.captured);
       }
     }
   }
 
-  trackImport(scopeManager: Scope.ScopeManager, node: ImportDeclaration) {
+  trackImport(
+    scopeManager: TSESLint.Scope.ScopeManager,
+    node: TSESTree.ImportDeclaration
+  ) {
     if (typeof node.source.value !== "string") return;
     if (
       !Object.prototype.hasOwnProperty.call(
@@ -137,8 +120,8 @@ export class Tracker {
     }
   }
   private trackVariable(
-    scopeManager: Scope.ScopeManager,
-    node: Node,
+    scopeManager: TSESLint.Scope.ScopeManager,
+    node: TSESTree.Node,
     varName: string,
     res: Resource
   ) {
@@ -149,13 +132,8 @@ export class Tracker {
     for (const varRef of varDecl.references) {
       if (this.visited.has(varRef.identifier)) continue;
       this.visited.add(varRef.identifier);
-      if (isPattern(varRef.identifier as Identifier & Rule.NodeParentExtension))
-        continue;
-      this.trackExpression(
-        scopeManager,
-        varRef.identifier as Identifier & Rule.NodeParentExtension,
-        res
-      );
+      if (isPattern(varRef.identifier)) continue;
+      this.trackExpression(scopeManager, varRef.identifier, res);
     }
     if (res.resNames.some((resName) => this.getJsxClosure().has(resName))) {
       if (!this.jsxBindings) {
@@ -163,22 +141,18 @@ export class Tracker {
       }
       const refs = this.jsxBindings.get(varDecl) ?? [];
       for (const varRef of refs) {
-        this.trackExpression(
-          scopeManager,
-          varRef as JSXIdentifier & Rule.NodeParentExtension,
-          res
-        );
+        this.trackExpression(scopeManager, varRef, res);
       }
     }
   }
   private trackExpression(
-    scopeManager: Scope.ScopeManager,
-    expr: (Expression | JSXElement | JSXIdentifier) & Rule.NodeParentExtension,
+    scopeManager: TSESLint.Scope.ScopeManager,
+    expr: TSESTree.Expression | TSESTree.JSXElement | TSESTree.JSXIdentifier,
     res: Resource
   ) {
     this.fire(res, expr);
     if (!expr.parent) return;
-    const parent = expr.parent as NodeWithJSX & Rule.NodeParentExtension;
+    const parent = expr.parent;
     switch (parent.type) {
       case "VariableDeclarator":
         if (parent.init === expr) {
@@ -220,8 +194,7 @@ export class Tracker {
         break;
       case "JSXOpeningElement":
         if (parent.name === expr) {
-          const elem = parent.parent as NodeWithJSX &
-            Rule.NodeParentExtension as JSXElement & Rule.NodeParentExtension;
+          const elem = parent.parent as TSESTree.JSXElement;
           for (const resName of res.resNames) {
             const resHooks = this.getResourceHooks(resName);
             for (const {
@@ -243,9 +216,9 @@ export class Tracker {
     }
   }
   private trackPattern(
-    scopeManager: Scope.ScopeManager,
-    decl: VariableDeclarator,
-    pat: Pattern,
+    scopeManager: TSESLint.Scope.ScopeManager,
+    decl: TSESTree.VariableDeclarator,
+    pat: TSESTree.DestructuringPattern,
     res: Resource
   ) {
     switch (pat.type) {
@@ -277,15 +250,20 @@ export class Tracker {
             if (key !== null) {
               const subRes = this.memberResource(res, key);
               if (subRes) {
-                this.trackPattern(scopeManager, decl, prop.value, subRes);
+                this.trackPattern(
+                  scopeManager,
+                  decl,
+                  prop.value as TSESTree.DestructuringPattern,
+                  subRes
+                );
               }
             }
           }
         }
         break;
-      case "AssignmentPattern":
-        this.trackPattern(scopeManager, decl, pat.left, res);
-        break;
+      // case "AssignmentPattern":
+      //   this.trackPattern(scopeManager, decl, pat.left, res);
+      //   break;
     }
   }
 
@@ -347,10 +325,7 @@ type ResourceHooks = {
   calls: CallCaptureSpec[];
   constructs: CallCaptureSpec[];
   jsxElements: CallCaptureSpec[];
-  listeners: ((
-    node: NodeWithJSX & Rule.NodeParentExtension,
-    captured: CaptureMap
-  ) => void)[];
+  listeners: ((node: TSESTree.Node, captured: CaptureMap) => void)[];
 };
 
 type Resource = {
@@ -359,13 +334,7 @@ type Resource = {
 };
 
 type CaptureMap = Record<string, GeneralizedNode>;
-type GeneralizedNode =
-  | Node
-  | JSXElement
-  | JSXFragment
-  | ArgumentsOf
-  | PropsOf
-  | CaptureFailure;
+type GeneralizedNode = TSESTree.Node | ArgumentsOf | PropsOf | CaptureFailure;
 
 type CaptureFailure = {
   type: "CaptureFailure";
@@ -375,15 +344,15 @@ type CaptureFailure = {
 
 type ArgumentsOf = {
   type: "ArgumentsOf";
-  node: CallExpression | NewExpression;
+  node: TSESTree.CallExpression | TSESTree.NewExpression;
 };
 
 type PropsOf = {
   type: "PropsOf";
-  node: JSXElement;
+  node: TSESTree.JSXElement;
 };
 
-export function capturedRoot(node: GeneralizedNode): Node {
+export function capturedRoot(node: GeneralizedNode): TSESTree.Node {
   if (
     node.type === "CaptureFailure" ||
     node.type === "ArgumentsOf" ||
@@ -391,12 +360,12 @@ export function capturedRoot(node: GeneralizedNode): Node {
   ) {
     return capturedRoot(node.node);
   } else {
-    return node as Node;
+    return node;
   }
 }
 
 function captureArguments(
-  expr: CallExpression | NewExpression,
+  expr: TSESTree.CallExpression | TSESTree.NewExpression,
   captures: CaptureSpec[]
 ): CaptureMap {
   const captured: CaptureMap = {};
@@ -410,7 +379,10 @@ function captureArguments(
   return captured;
 }
 
-function captureProps(elem: JSXElement, captures: CaptureSpec[]): CaptureMap {
+function captureProps(
+  elem: TSESTree.JSXElement,
+  captures: CaptureSpec[]
+): CaptureMap {
   const captured: CaptureMap = {};
   for (const { captureAs, path } of captures) {
     let current: GeneralizedNode = { type: "PropsOf", node: elem };
@@ -439,7 +411,10 @@ function iterateCapture(
     }
   } else if (current.type === "ArrayExpression") {
     let i = 0;
-    for (const arg of current.elements) {
+    for (const arg of current.elements as (
+      | TSESTree.Expression
+      | TSESTree.SpreadElement
+    )[]) {
       if (arg !== null && arg.type === "SpreadElement") break;
       if (`${i}` === segment && arg !== null) {
         return arg;
@@ -463,7 +438,7 @@ function iterateCapture(
           attr.value !== null &&
           attr.value.type === "JSXExpressionContainer"
         ) {
-          return attr.value.expression as Expression;
+          return attr.value.expression;
         } else if (attr.value !== null) {
           return attr.value;
         }
@@ -473,16 +448,18 @@ function iterateCapture(
   return { type: "CaptureFailure", node: current, memberName: segment };
 }
 
-function isPattern(node: Rule.Node): boolean {
+function isPattern(node: TSESTree.Node): boolean {
+  if (!node.parent) return false;
+
   switch (node.parent.type) {
     case "FunctionDeclaration":
     case "FunctionExpression":
       return (
         node.parent.id === node ||
-        (node.parent.params as Rule.Node[]).includes(node)
+        (node.parent.params as TSESTree.Node[]).includes(node)
       );
     case "ArrowFunctionExpression":
-      return (node.parent.params as Rule.Node[]).includes(node);
+      return (node.parent.params as TSESTree.Node[]).includes(node);
     case "ForInStatement":
     case "ForOfStatement":
       return node.parent.left === node;
@@ -491,14 +468,14 @@ function isPattern(node: Rule.Node): boolean {
     case "Property":
       return (
         node.parent.value === node &&
-        node.parent.parent.type === "ObjectPattern"
+        node.parent.parent?.type === "ObjectPattern"
       );
     case "CatchClause":
       return node.parent.param === node;
     case "AssignmentPattern":
       return node.parent.left === node;
     case "ArrayPattern":
-      return (node.parent.elements as (Rule.Node | null)[]).includes(node);
+      return (node.parent.elements as (TSESTree.Node | null)[]).includes(node);
     case "RestElement":
       return node.parent.argument === node;
   }
@@ -506,22 +483,22 @@ function isPattern(node: Rule.Node): boolean {
 }
 
 function collectReactJSXVars(
-  scopeManager: Scope.ScopeManager
-): Map<Scope.Variable, JSXIdentifier[]> {
+  scopeManager: TSESLint.Scope.ScopeManager
+): Map<TSESLint.Scope.Variable, TSESTree.JSXIdentifier[]> {
   const root = scopeManager.globalScope!.block;
-  const referenceMap = new Map<Scope.Variable, JSXIdentifier[]>();
+  const referenceMap = new Map<
+    TSESLint.Scope.Variable,
+    TSESTree.JSXIdentifier[]
+  >();
   collect(root);
   return referenceMap;
 
-  function collect(node: NodeWithJSX) {
+  function collect(node: TSESTree.Node) {
     switch (node.type) {
       case "JSXOpeningElement": {
         const ident = findInitIdentifier(node.name);
         if (ident) {
-          const binding = resolveVariable(
-            scopeManager,
-            ident as Identifier | JSXIdentifier as Identifier
-          );
+          const binding = resolveVariable(scopeManager, ident);
           if (binding) {
             if (!referenceMap.has(binding)) referenceMap.set(binding, []);
             referenceMap.get(binding)!.push(ident);
@@ -531,7 +508,9 @@ function collectReactJSXVars(
       }
     }
     for (const key of getKeys(node)) {
-      const val = (node as unknown as Record<string, Node | Node[]>)[key]!;
+      const val = (
+        node as unknown as Record<string, TSESTree.Node | TSESTree.Node[]>
+      )[key]!;
       if (Array.isArray(val)) {
         for (const elem of val) {
           collect(elem);
@@ -547,8 +526,11 @@ function collectReactJSXVars(
   }
 
   function findInitIdentifier(
-    node: JSXIdentifier | JSXNamespacedName | JSXMemberExpression
-  ): JSXIdentifier | null {
+    node:
+      | TSESTree.JSXIdentifier
+      | TSESTree.JSXNamespacedName
+      | TSESTree.JSXMemberExpression
+  ): TSESTree.JSXIdentifier | null {
     if (node.type === "JSXIdentifier") return node;
     else if (node.type === "JSXMemberExpression")
       return findInitIdentifier(node.object);

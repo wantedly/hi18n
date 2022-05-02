@@ -1,8 +1,11 @@
-import type { Rule } from "eslint";
+// eslint-disable-next-line node/no-unpublished-import
+import type { TSESLint } from "@typescript-eslint/utils";
 import { commentOut, getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
 
-export const meta: Rule.RuleMetaData = {
+type MessageIds = "unused-translation-id";
+
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "suggestion",
   fixable: "code",
   docs: {
@@ -13,9 +16,12 @@ export const meta: Rule.RuleMetaData = {
   messages: {
     "unused-translation-id": "unused translation id",
   },
+  schema: {},
 };
 
-export function create(context: Rule.RuleContext): Rule.RuleListener {
+export function create(
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (_node, captured) => {
     const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
@@ -42,7 +48,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
           node: prop,
           messageId: "unused-translation-id",
           *fix(fixer) {
-            const indent = prop.loc!.start.column;
+            const indent = prop.loc.start.column;
             const text = context.getSourceCode().getText(prop);
             yield fixer.replaceText(prop, commentOut(text, indent));
           },
@@ -52,7 +58,7 @@ export function create(context: Rule.RuleContext): Rule.RuleListener {
   });
   return {
     ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager, node);
+      tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
   };
 }

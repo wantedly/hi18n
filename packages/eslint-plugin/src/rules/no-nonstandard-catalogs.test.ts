@@ -1,7 +1,8 @@
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./no-nonstandard-catalogs";
 
-new RuleTester({
+new TSESLint.RuleTester({
+  parser: require.resolve("espree"),
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
@@ -30,7 +31,8 @@ new RuleTester({
         import { Catalog } from "@hi18n/core";
         new Catalog({});
       `,
-      errors: ["the catalog should be exported as default"],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errors: ["the catalog should be exported as default" as any],
     },
     {
       code: `
