@@ -12,6 +12,7 @@ import {
   TSSignature,
   TSType,
   TSTypeAnnotation,
+  TSTypeLiteral,
   TSTypeParameterInstantiation,
   TSTypeReference,
 } from "./estree-ts";
@@ -137,11 +138,7 @@ export class Parser {
   }
   parseProperty(): Property {
     const { key, computed } = this.parsePropertyName();
-    const token = this.nextToken();
-    if (!(token.type === "Punctuator" && token.value === ":")) {
-      throw new ParseError();
-    }
-    this.pos++;
+    this.expectPunct(":");
     const value = this.parseAssignmentExpression();
     return {
       type: "Property",
@@ -191,9 +188,7 @@ export class Parser {
   parseMemberExpression(): Expression {
     let expr: Expression = this.parsePrimaryExpression();
     while (true) {
-      const token = this.nextToken();
-      if (token.type === "Punctuator" && token.value === ".") {
-        this.pos++;
+      if (this.tryPunct(".")) {
         const property = this.parseIdentifierName();
         expr = {
           type: "MemberExpression",
@@ -202,7 +197,7 @@ export class Parser {
           computed: false,
           optional: false,
         };
-      } else if (token.type === "Punctuator" && token.value === "(") {
+      } else if (this.isPunct("(")) {
         const args = this.parseArguments();
         expr = {
           type: "CallExpression",
@@ -217,34 +212,21 @@ export class Parser {
     return expr;
   }
   parseArguments(): (Expression | SpreadElement)[] {
-    {
-      const token = this.nextToken();
-      if (!(token.type === "Punctuator" && token.value === "(")) {
-        throw new ParseError();
-      }
-      this.pos++;
-    }
+    this.expectPunct("(");
     const args: (Expression | SpreadElement)[] = [];
     while (true) {
-      const token = this.nextToken();
       let isSpread = false;
-      if (token.type === "Punctuator" && token.value === ")") {
-        this.pos++;
+      if (this.tryPunct(")")) {
         break;
-      } else if (token.type === "Punctuator" && token.value === "...") {
+      } else if (this.tryPunct("...")) {
         isSpread = true;
-        this.pos++;
       }
       const argument = this.parseAssignmentExpression();
       args.push(isSpread ? { type: "SpreadElement", argument } : argument);
-      const token2 = this.nextToken();
-      if (token2.type === "Punctuator" && token2.value === ")") {
-        this.pos++;
+      if (this.tryPunct(")")) {
         break;
-      } else if (token2.type === "Punctuator" && token2.value === ",") {
-        this.pos++;
       } else {
-        throw new ParseError();
+        this.expectPunct(",");
       }
     }
     return args;
@@ -303,9 +285,7 @@ export class Parser {
   parseTSSignature(): TSSignature {
     const { key, computed } = this.parsePropertyName();
     let typeAnnotation: TSTypeAnnotation | undefined = undefined;
-    const token = this.nextToken();
-    if (token.type === "Punctuator" && token.value === ":") {
-      this.pos++;
+    if (this.tryPunct(":")) {
       const type = this.parseTSType();
       typeAnnotation = {
         type: "TSTypeAnnotation",
@@ -345,26 +325,18 @@ export class Parser {
   parseTSTypeParameterInstantiation():
     | TSTypeParameterInstantiation
     | undefined {
-    const token = this.nextToken();
-    if (!(token.type === "Punctuator" && token.value === "<")) return undefined;
-    this.pos++;
+    if (!this.tryPunct("<")) return undefined;
     const params: TSType[] = [];
     while (true) {
-      const token = this.nextToken();
-      if (token.type === "Punctuator" && token.value === ">") {
-        this.pos++;
+      if (this.tryPunct(">")) {
         break;
       }
       const param = this.parseTSType();
       params.push(param);
-      const token2 = this.nextToken();
-      if (token2.type === "Punctuator" && token2.value === ">") {
-        this.pos++;
+      if (this.tryPunct(">")) {
         break;
-      } else if (token2.type === "Punctuator" && token2.value === ",") {
-        this.pos++;
       } else {
-        throw new ParseError();
+        this.expectPunct(",");
       }
     }
     if (params.length === 0) throw new ParseError();
@@ -383,10 +355,33 @@ export class Parser {
           default:
             return this.parseTSTypeReference();
         }
-        break;
+      case "Punctuator":
+        switch (token.value) {
+          case "{":
+            return this.parseTSTypeLiteral();
+          default:
+            throw new ParseError();
+        }
       default:
         throw new ParseError();
     }
+  }
+  parseTSTypeLiteral(): TSTypeLiteral {
+    this.expectPunct("{");
+    const members: TSSignature[] = [];
+    while (true) {
+      if (this.tryPunct("}")) {
+        break;
+      }
+      const signature = this.parseTSSignature();
+      members.push(signature);
+      if (this.tryPunct("}")) {
+        break;
+      } else {
+        this.tryPunct(",") || this.expectSemi();
+      }
+    }
+    return { type: "TSTypeLiteral", members };
   }
   parseTSType(): TSType {
     return this.parseTSNonArrayType();
@@ -394,6 +389,42 @@ export class Parser {
   nextToken(): AST.Token | { type: "EOF" } {
     if (this.pos < this.tokens.length) return this.tokens[this.pos]!;
     else return { type: "EOF" };
+  }
+  isPunct(
+    punct: string,
+    token = this.nextToken()
+  ): token is AST.Token & { type: "Punctuator" } {
+    return token.type === "Punctuator" && token.value === punct;
+  }
+  tryPunct(punct: string): boolean {
+    if (this.isPunct(punct)) {
+      this.pos++;
+      return true;
+    } else {
+      return false;
+    }
+  }
+  expectPunct(punct: string) {
+    if (!this.tryPunct(punct)) throw new ParseError();
+  }
+  isSemi(): boolean {
+    return (
+      this.isPunct(";") ||
+      (this.pos > 0 &&
+        this.tokens[this.pos - 1]!.loc.start.line <
+          this.tokens[this.pos]!.loc.start.line)
+    );
+  }
+  trySemi(): boolean {
+    if (this.isPunct(";")) {
+      this.pos++;
+      return true;
+    } else {
+      return this.isSemi();
+    }
+  }
+  expectSemi() {
+    if (!this.trySemi()) throw new ParseError();
   }
 }
 

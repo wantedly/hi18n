@@ -27,6 +27,26 @@ describe("isTSSignature", () => {
     expect(isTSSignature('"example/greeting":')).toBe(false);
     expect(isTSSignature("foo: Message")).toBe(true);
     expect(isTSSignature("foo: Message<T>")).toBe(true);
+    expect(isTSSignature("foo: Message<{}>")).toBe(true);
+    expect(isTSSignature("foo: Message<{ foo: number }>")).toBe(true);
+    expect(isTSSignature("foo: Message<{ foo: number, bar: number }>")).toBe(
+      true
+    );
+    expect(isTSSignature("foo: Message<{ foo: number, bar: number, }>")).toBe(
+      true
+    );
+    expect(isTSSignature("foo: Message<{ foo: number; bar: number }>")).toBe(
+      true
+    );
+    expect(isTSSignature("foo: Message<{ foo: number; bar: number; }>")).toBe(
+      true
+    );
+    expect(isTSSignature("foo: Message<{ foo: number\nbar: number }>")).toBe(
+      true
+    );
+    expect(isTSSignature("foo: Message<{ foo: number\nbar: number\n }>")).toBe(
+      true
+    );
   });
 });
 
