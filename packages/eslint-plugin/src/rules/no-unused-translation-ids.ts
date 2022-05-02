@@ -2,6 +2,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { commentOut, getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
+import { queryUsedTranslationIds } from "../used-ids";
 
 type MessageIds = "unused-translation-id";
 
@@ -23,17 +24,8 @@ export function create(
   context: Readonly<TSESLint.RuleContext<MessageIds, []>>
 ): TSESLint.RuleListener {
   const tracker = catalogTracker();
-  tracker.listen('new import("@hi18n/core").Catalog()', (_node, captured) => {
-    const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
-    if (usedIds === undefined)
-      throw new Error(
-        'settings["@hi18n/used-translation-ids"] not found\nNote: this rule is for an internal use.'
-      );
-    if (
-      !Array.isArray(usedIds) ||
-      !usedIds.every((k): k is string => typeof k === "string")
-    )
-      throw new Error("Invalid usedIds");
+  tracker.listen('new import("@hi18n/core").Catalog()', (node, captured) => {
+    const usedIds = queryUsedTranslationIds(context, node, true);
     const usedIdsSet = new Set(usedIds);
 
     const catalogData = captured["catalogData"]!;

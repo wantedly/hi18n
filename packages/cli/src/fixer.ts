@@ -5,7 +5,14 @@ import path from "node:path";
 import util from "node:util";
 import eslintParser from "@babel/eslint-parser";
 import resolve from "resolve";
-import { rules, CatalogLink, TranslationUsage } from "@hi18n/eslint-plugin";
+import {
+  rules,
+  serializedLocations,
+  serializeReference,
+  BookDef,
+  CatalogDef,
+  TranslationUsage,
+} from "@hi18n/eslint-plugin";
 
 export type Options = {
   cwd: string;
@@ -23,19 +30,41 @@ export async function fixTranslations(options: Options) {
     },
   };
 
-  const collectLinter = new TSESLint.Linter({ cwd: projectPath });
+  const linter = new TSESLint.Linter({ cwd: projectPath });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  collectLinter.defineParser("@babel/eslint-parser", eslintParser);
+  linter.defineParser("@babel/eslint-parser", eslintParser);
 
   const translationUsages: TranslationUsage[] = [];
-  collectLinter.defineRule(
+  linter.defineRule(
     "@hi18n/collect-translation-ids",
     rules["collect-translation-ids"]
   );
-  const catalogLinks: CatalogLink[] = [];
-  collectLinter.defineRule(
-    "@hi18n/collect-catalog-links",
-    rules["collect-catalog-links"]
+  const bookDefs: BookDef[] = [];
+  linter.defineRule(
+    "@hi18n/collect-book-definitions",
+    rules["collect-book-definitions"]
+  );
+  const catalogDefs: CatalogDef[] = [];
+  linter.defineRule(
+    "@hi18n/collect-catalog-definitions",
+    rules["collect-catalog-definitions"]
+  );
+
+  linter.defineRule(
+    "@hi18n/no-missing-translation-ids",
+    rules["no-missing-translation-ids"]
+  );
+  linter.defineRule(
+    "@hi18n/no-unused-translation-ids",
+    rules["no-unused-translation-ids"]
+  );
+  linter.defineRule(
+    "@hi18n/no-missing-translation-ids-in-types",
+    rules["no-missing-translation-ids-in-types"]
+  );
+  linter.defineRule(
+    "@hi18n/no-unused-translation-ids-in-types",
+    rules["no-unused-translation-ids-in-types"]
   );
 
   const files: string[] = [];
@@ -48,12 +77,10 @@ export async function fixTranslations(options: Options) {
       }))
     );
   }
-  for (const filepath of files) {
-    const source = await fs.promises.readFile(
-      path.join(projectPath, filepath),
-      "utf-8"
-    );
-    const messages = collectLinter.verify(
+  for (const relative of files) {
+    const filename = path.join(projectPath, relative);
+    const source = await fs.promises.readFile(filename, "utf-8");
+    const messages = linter.verify(
       source,
       {
         ...linterConfig,
@@ -64,154 +91,112 @@ export async function fixTranslations(options: Options) {
               translationUsages.push(u);
             },
           ],
-          "@hi18n/collect-catalog-links": [
+          "@hi18n/collect-book-definitions": [
             "error",
-            (l: CatalogLink) => {
-              catalogLinks.push(l);
+            (b: BookDef) => {
+              bookDefs.push(b);
+            },
+          ],
+          "@hi18n/collect-catalog-definitions": [
+            "error",
+            (c: CatalogDef) => {
+              catalogDefs.push(c);
             },
           ],
         },
       },
-      { filename: filepath }
+      { filename }
     );
-    checkMessages(filepath, messages);
+    checkMessages(relative, messages);
   }
 
-  type BookData = {
-    bookPath: string;
-    catalogPaths: string[];
-    translationIds: Set<string>;
-  };
-  const books = new Map<string, BookData>();
+  const linkage: Record<string, string> = {};
+  const usedTranslationIds: Record<string, string[]> = {};
+  const rewriteTargetFiles = new Set<string>();
   for (const u of translationUsages) {
-    const { resolved } = await resolveAsPromise(u.bookSource, {
-      basedir: path.dirname(path.resolve(projectPath, u.filename)),
-      extensions: [
-        ".js",
-        ".cjs",
-        ".mjs",
-        ".ts",
-        ".cts",
-        ".mts",
-        ".jsx",
-        ".tsx",
-      ],
-    });
-    const relative = path.relative(projectPath, resolved);
-    if (!books.has(relative)) {
-      books.set(relative, {
-        bookPath: relative,
-        catalogPaths: [],
-        translationIds: new Set(),
+    const loc = u.bookLocation;
+    if (loc.path !== undefined) {
+      const { resolved } = await resolveAsPromise(loc.path, {
+        basedir: path.dirname(loc.base),
+        extensions: [
+          ".js",
+          ".cjs",
+          ".mjs",
+          ".ts",
+          ".cts",
+          ".mts",
+          ".jsx",
+          ".tsx",
+        ],
       });
+      loc.path = resolved;
     }
-    books.get(relative)!.translationIds.add(u.id);
+    const locName = serializeReference(loc);
+    if (hasOwn(usedTranslationIds, locName)) {
+      usedTranslationIds[locName]!.push(u.id);
+    } else {
+      setRecordValue(usedTranslationIds, locName, [u.id]);
+    }
+    rewriteTargetFiles.add(loc.path !== undefined ? loc.path : loc.base);
   }
-  for (const l of catalogLinks) {
-    const { resolved } = await resolveAsPromise(l.catalogSource, {
-      basedir: path.dirname(path.resolve(projectPath, l.bookFilename)),
-      extensions: [
-        ".js",
-        ".cjs",
-        ".mjs",
-        ".ts",
-        ".cts",
-        ".mts",
-        ".jsx",
-        ".tsx",
-      ],
-    });
-    const relative = path.relative(projectPath, resolved);
-    if (!books.has(l.bookFilename)) {
-      books.set(l.bookFilename, {
-        bookPath: l.bookFilename,
-        catalogPaths: [],
-        translationIds: new Set(),
-      });
+  for (const bookDef of bookDefs) {
+    const bookLocNames = serializedLocations(bookDef.bookLocation);
+    const concatenatedTranslationIds = bookLocNames.flatMap((locName) =>
+      hasOwn(usedTranslationIds, locName) ? usedTranslationIds[locName]! : []
+    );
+    const uniqueTranslationIds = Array.from(
+      new Set(concatenatedTranslationIds)
+    ).sort();
+    for (const locName of bookLocNames) {
+      setRecordValue(usedTranslationIds, locName, uniqueTranslationIds);
     }
-    books.get(l.bookFilename)!.catalogPaths.push(relative);
+
+    const primaryName = bookLocNames[0]!;
+    for (const catalogLink of bookDef.catalogLinks) {
+      const loc = catalogLink.catalogLocation;
+      if (loc.path !== undefined) {
+        const { resolved } = await resolveAsPromise(loc.path, {
+          basedir: path.dirname(loc.base),
+          extensions: [
+            ".js",
+            ".cjs",
+            ".mjs",
+            ".ts",
+            ".cts",
+            ".mts",
+            ".jsx",
+            ".tsx",
+          ],
+        });
+        loc.path = resolved;
+      }
+      setRecordValue(linkage, serializeReference(loc), primaryName);
+      rewriteTargetFiles.add(loc.path !== undefined ? loc.path : loc.base);
+    }
+    rewriteTargetFiles.add(bookDef.bookLocation.path);
   }
-  for (const [, book] of books) {
-    for (const catalog of book.catalogPaths) {
-      const fixLinter = new TSESLint.Linter({ cwd: projectPath });
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      fixLinter.defineParser("@babel/eslint-parser", eslintParser);
-      fixLinter.defineRule(
-        "@hi18n/no-missing-translation-ids",
-        rules["no-missing-translation-ids"]
-      );
-      fixLinter.defineRule(
-        "@hi18n/no-unused-translation-ids",
-        rules["no-unused-translation-ids"]
-      );
-
-      const source = await fs.promises.readFile(
-        path.resolve(projectPath, catalog),
-        "utf-8"
-      );
-      const report = fixLinter.verifyAndFix(
-        source,
-        {
-          ...linterConfig,
-          rules: {
-            "@hi18n/no-missing-translation-ids": "warn",
-            "@hi18n/no-unused-translation-ids": "warn",
-          },
-          settings: {
-            "@hi18n/used-translation-ids": Array.from(book.translationIds),
-          },
+  for (const rewriteTargetFile of Array.from(rewriteTargetFiles).sort()) {
+    const source = await fs.promises.readFile(rewriteTargetFile, "utf-8");
+    const report = linter.verifyAndFix(
+      source,
+      {
+        ...linterConfig,
+        rules: {
+          "@hi18n/no-missing-translation-ids": "warn",
+          "@hi18n/no-unused-translation-ids": "warn",
+          "@hi18n/no-missing-translation-ids-in-types": "warn",
+          "@hi18n/no-unused-translation-ids-in-types": "warn",
         },
-        { filename: path.resolve(projectPath, catalog) }
-      );
-      checkMessages(catalog, report.messages);
-      if (report.fixed) {
-        await fs.promises.writeFile(
-          path.resolve(projectPath, catalog),
-          report.output,
-          "utf-8"
-        );
-      }
-    }
-
-    {
-      const fixLinter = new TSESLint.Linter({ cwd: projectPath });
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      fixLinter.defineParser("@babel/eslint-parser", eslintParser);
-      fixLinter.defineRule(
-        "@hi18n/no-missing-translation-ids-in-types",
-        rules["no-missing-translation-ids-in-types"]
-      );
-      fixLinter.defineRule(
-        "@hi18n/no-unused-translation-ids-in-types",
-        rules["no-unused-translation-ids-in-types"]
-      );
-
-      const source = await fs.promises.readFile(
-        path.resolve(projectPath, book.bookPath),
-        "utf-8"
-      );
-      const report = fixLinter.verifyAndFix(
-        source,
-        {
-          ...linterConfig,
-          rules: {
-            "@hi18n/no-missing-translation-ids-in-types": "warn",
-            "@hi18n/no-unused-translation-ids-in-types": "warn",
-          },
-          settings: {
-            "@hi18n/used-translation-ids": Array.from(book.translationIds),
-          },
+        settings: {
+          "@hi18n/linkage": linkage,
+          "@hi18n/used-translation-ids": usedTranslationIds,
         },
-        { filename: path.resolve(projectPath, book.bookPath) }
-      );
-      checkMessages(book.bookPath, report.messages);
-      if (report.fixed) {
-        await fs.promises.writeFile(
-          path.resolve(projectPath, book.bookPath),
-          report.output,
-          "utf-8"
-        );
-      }
+      },
+      { filename: rewriteTargetFile }
+    );
+    checkMessages(rewriteTargetFile, report.messages);
+    if (report.fixed) {
+      await fs.promises.writeFile(rewriteTargetFile, report.output, "utf-8");
     }
   }
 }
@@ -243,5 +228,18 @@ function resolveAsPromise(
       if (err) rejectPromise(err);
       else resolvePromise({ resolved: resolved!, pkg });
     });
+  });
+}
+
+function hasOwn(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function setRecordValue<T>(record: Record<string, T>, key: string, value: T) {
+  Object.defineProperty(record, key, {
+    value,
+    writable: true,
+    configurable: true,
+    enumerable: true,
   });
 }

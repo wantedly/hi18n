@@ -26,12 +26,17 @@ new TSESLint.RuleTester({
         });
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/greeting",
-          "example/greeting2",
-          "example/greeting3",
-          "example/multiline",
-        ],
+        "@hi18n/linkage": {
+          "<input>?exported=default": "book.ts",
+        },
+        "@hi18n/used-translation-ids": {
+          "book.ts": [
+            "example/greeting",
+            "example/greeting2",
+            "example/greeting3",
+            "example/multiline",
+          ],
+        },
       },
     },
   ],
@@ -53,12 +58,17 @@ new TSESLint.RuleTester({
         });
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/greeting",
-          "example/greeting3",
-          "example/greeting4",
-          "example/multiline2",
-        ],
+        "@hi18n/linkage": {
+          "<input>?exported=default": "book.ts",
+        },
+        "@hi18n/used-translation-ids": {
+          "book.ts": [
+            "example/greeting",
+            "example/greeting3",
+            "example/greeting4",
+            "example/multiline2",
+          ],
+        },
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errors: ["missing translation ids" as any],
@@ -91,21 +101,26 @@ new TSESLint.RuleTester({
         });
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/b",
-          "example/c",
-          "example/d",
-          "example/e",
-          "example/f",
-          "example/g",
-          "example/h",
-          "example/i",
-          "example/j",
-          "example/k",
-          "example/l",
-          "example/m",
-          "example/n",
-        ],
+        "@hi18n/linkage": {
+          "<input>?exported=default": "book.ts",
+        },
+        "@hi18n/used-translation-ids": {
+          "book.ts": [
+            "example/b",
+            "example/c",
+            "example/d",
+            "example/e",
+            "example/f",
+            "example/g",
+            "example/h",
+            "example/i",
+            "example/j",
+            "example/k",
+            "example/l",
+            "example/m",
+            "example/n",
+          ],
+        },
       },
       errors: ["missing translation ids"],
       output: `

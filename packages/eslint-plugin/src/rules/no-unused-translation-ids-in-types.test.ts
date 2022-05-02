@@ -38,12 +38,14 @@ new TSESLint.RuleTester({
         export const book = new Book<Vocabulary>({});
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/greeting",
-          "example/greeting2",
-          "example/greeting3",
-          "example/multiline",
-        ],
+        "@hi18n/used-translation-ids": {
+          "<input>?exported=book": [
+            "example/greeting",
+            "example/greeting2",
+            "example/greeting3",
+            "example/multiline",
+          ],
+        },
       },
     },
     {
@@ -69,12 +71,14 @@ new TSESLint.RuleTester({
         export const book = new Book<Vocabulary>({});
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/greeting",
-          "example/greeting2",
-          "example/greeting3",
-          "example/multiline",
-        ],
+        "@hi18n/used-translation-ids": {
+          "<input>?exported=book": [
+            "example/greeting",
+            "example/greeting2",
+            "example/greeting3",
+            "example/multiline",
+          ],
+        },
       },
     },
   ],
@@ -102,12 +106,14 @@ new TSESLint.RuleTester({
         export const book = new Book<Vocabulary>({});
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/greeting",
-          "example/greeting3",
-          "example/greeting4",
-          "example/multiline2",
-        ],
+        "@hi18n/used-translation-ids": {
+          "<input>?exported=book": [
+            "example/greeting",
+            "example/greeting3",
+            "example/greeting4",
+            "example/multiline2",
+          ],
+        },
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errors: ["unused translation id" as any, "unused translation id"],
@@ -156,12 +162,14 @@ new TSESLint.RuleTester({
         export const book = new Book<Vocabulary>({});
       `,
       settings: {
-        "@hi18n/used-translation-ids": [
-          "example/greeting",
-          "example/greeting3",
-          "example/greeting4",
-          "example/multiline2",
-        ],
+        "@hi18n/used-translation-ids": {
+          "<input>?exported=book": [
+            "example/greeting",
+            "example/greeting3",
+            "example/greeting4",
+            "example/multiline2",
+          ],
+        },
       },
       errors: ["unused translation id", "unused translation id"],
       output: `

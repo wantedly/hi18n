@@ -1,12 +1,11 @@
 // eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint } from "@typescript-eslint/utils";
-import { resolveImportedVariable } from "../util";
 import { translationCallTracker } from "../common-trackers";
+import { DefReference, lookupDefinitionSource } from "../def-location";
 
 export type TranslationUsage = {
   id: string;
-  bookSource: string;
-  filename: string;
+  bookLocation: DefReference;
 };
 export type CollectTranslationIdsCallback = (record: TranslationUsage) => void;
 
@@ -47,17 +46,15 @@ export function create(
     if (bookNode.type !== "Identifier") {
       return;
     }
-    const bookDef = resolveImportedVariable(
+    const bookLocation = lookupDefinitionSource(
       context.getSourceCode().scopeManager!,
+      context.getFilename(),
       bookNode
     );
-    if (!bookDef) return;
-    if (bookDef.parent.type === "TSImportEqualsDeclaration") return;
-    const bookSource: string = bookDef.parent.source.value;
+    if (!bookLocation) return;
     collectIdsCallback({
       id,
-      bookSource,
-      filename: context.getFilename(),
+      bookLocation,
     });
   });
   return {

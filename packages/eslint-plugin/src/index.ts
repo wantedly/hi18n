@@ -1,6 +1,7 @@
 // eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint } from "@typescript-eslint/utils";
-import * as ruleCollectCatalogLinks from "./rules/collect-catalog-links";
+import * as ruleCollectBookDefinitions from "./rules/collect-book-definitions";
+import * as ruleCollectCatalogDefinitions from "./rules/collect-catalog-definitions";
 import * as ruleCollectTranslationIds from "./rules/collect-translation-ids";
 import * as ruleNoDynamicTranslationIds from "./rules/no-dynamic-translation-ids";
 import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids";
@@ -23,7 +24,8 @@ export const configs: Record<string, TSESLint.Linter.Config> = {
 };
 
 export const rules = {
-  "collect-catalog-links": ruleCollectCatalogLinks,
+  "collect-book-definitions": ruleCollectBookDefinitions,
+  "collect-catalog-definitions": ruleCollectCatalogDefinitions,
   "collect-translation-ids": ruleCollectTranslationIds,
   "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
   "no-missing-translation-ids": ruleNoMissingTranslationIds,
@@ -37,5 +39,8 @@ export const rules = {
 
 const _test: TSESLint.Linter.Plugin = { configs, rules };
 
+export { serializedLocations, serializeReference } from "./def-location";
+export type { DefLocation, DefReference } from "./def-location";
+export type { BookDef, CatalogLink } from "./rules/collect-book-definitions";
+export type { CatalogDef } from "./rules/collect-catalog-definitions";
 export type { TranslationUsage } from "./rules/collect-translation-ids";
-export type { CatalogLink } from "./rules/collect-catalog-links";

@@ -4,6 +4,7 @@ import { getStaticKey } from "../util";
 import { bookTracker } from "../common-trackers";
 import { findTypeDefinition } from "../ts-util";
 import { parseComments, ParseError, Parser } from "../microparser";
+import { queryUsedTranslationIds } from "../used-ids";
 
 type MessageIds = "missing-translation-ids";
 
@@ -26,16 +27,7 @@ export function create(
 ): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, _captured) => {
-    const usedIds: unknown = context.settings["@hi18n/used-translation-ids"];
-    if (usedIds === undefined)
-      throw new Error(
-        'settings["@hi18n/used-translation-ids"] not found\nNote: this rule is for an internal use.'
-      );
-    if (
-      !Array.isArray(usedIds) ||
-      !usedIds.every((k): k is string => typeof k === "string")
-    )
-      throw new Error("Invalid usedIds");
+    const usedIds = queryUsedTranslationIds(context, node, false);
     const missingIdsSet = new Set(usedIds);
 
     const objinfo =
