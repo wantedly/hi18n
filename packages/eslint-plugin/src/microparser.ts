@@ -19,7 +19,21 @@ import {
 
 export class ParseError extends Error {}
 
-export function parseComments(comments: Comment[]) {
+type ParseCommentsResult<T> = {
+  parts: ParsedPart<T>[];
+  rest: Comment[];
+};
+
+type ParsedPart<T> = {
+  leadingComments: Comment[];
+  commentedOut: Comment[];
+  node: T;
+};
+
+export function parseComments<T>(
+  comments: Comment[],
+  parse: (parser: Parser) => T
+): ParseCommentsResult<T> {
   const tokens: AST.Token[] = [];
   const commentTokenIndex: number[] = [];
   const tokenCommentIndex: number[] = [];
@@ -41,12 +55,43 @@ export function parseComments(comments: Comment[]) {
       tokenCommentIndex.push(i);
     }
   }
+  commentTokenIndex.push(tokens.length);
+  tokenCommentIndex.push(comments.length);
 
   const parser = new Parser(tokens);
-  const nextComment = 0;
+  const parts: ParsedPart<T>[] = [];
+  let lastComment = 0;
+  let nextComment = 0;
   while (nextComment < comments.length) {
-    parser.parseProperty();
+    parser.pos = commentTokenIndex[nextComment]!;
+    let node: T;
+    let ok = false;
+    try {
+      node = parse(parser);
+      ok = true;
+    } catch (e) {
+      if (!(e instanceof ParseError)) throw e;
+    }
+    if (!ok) {
+      nextComment++;
+      continue;
+    }
+    const commentIndex = tokenCommentIndex[parser.pos]!;
+    if (commentTokenIndex[commentIndex] !== parser.pos) {
+      nextComment++;
+      continue;
+    }
+    parts.push({
+      leadingComments: comments.slice(lastComment, nextComment),
+      commentedOut: comments.slice(nextComment, commentIndex),
+      node: node!,
+    });
+    lastComment = nextComment = commentIndex;
   }
+  return {
+    parts,
+    rest: comments.slice(lastComment),
+  };
 }
 
 export function isProperty(text: string): boolean {
@@ -411,6 +456,7 @@ export class Parser {
     return (
       this.isPunct(";") ||
       (this.pos > 0 &&
+        this.pos < this.tokens.length &&
         this.tokens[this.pos - 1]!.loc.start.line <
           this.tokens[this.pos]!.loc.start.line)
     );

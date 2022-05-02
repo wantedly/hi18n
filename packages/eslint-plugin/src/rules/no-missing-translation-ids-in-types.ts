@@ -9,6 +9,7 @@ import {
   TSSignature,
   TSTypeLiteral,
 } from "../estree-ts";
+import { parseComments, ParseError, Parser } from "../microparser";
 
 export const meta: Rule.RuleMetaData = {
   type: "suggestion",
@@ -169,12 +170,6 @@ function* unCommentCandidate(
   }
 }
 
-// Estimate commented out lines
-const RE_LIKELY_COMMENT_START =
-  /^\s*("[^"\\]*"|'[^'\\]*'|\w+)\s*:\s*(?:Message|$)/;
-const RE_LIKELY_COMMENT_END =
-  /(?:Message|>)\s*[,;]\s*(?:\/\/.*(?:\n|$)|\/\*(?:[^*]|\*(?!\/))\*\/\s*)*$/;
-
 function collectCandidates(
   sourceCode: SourceCode,
   signatures: TSSignature[]
@@ -185,9 +180,17 @@ function collectCandidates(
       sourceCode,
       signature as Node | TSSignature as Node
     );
-    const [commentedOutCandidates, trueComments] =
-      parseComments(precedingComments);
-    candidateNodes.push(...commentedOutCandidates);
+    const { parts: commentedOutCandidates, rest: trueComments } = parseComments(
+      precedingComments,
+      parsePart
+    );
+    candidateNodes.push(
+      ...commentedOutCandidates.map((c) => ({
+        id: getStaticKey(c.node)!,
+        commentedOut: c.commentedOut,
+        precedingComments: c.leadingComments,
+      }))
+    );
 
     if (signature.type !== "TSPropertySignature") continue;
     const key = getStaticKey(signature);
@@ -203,62 +206,27 @@ function collectCandidates(
       sourceCode,
       signatures as (Node | TSSignature)[] as Node[]
     );
-    const [commentedOutCandidates] = parseComments(lastComments);
-    candidateNodes.push(...commentedOutCandidates);
+    const { parts: commentedOutCandidates } = parseComments(
+      lastComments,
+      parsePart
+    );
+    candidateNodes.push(
+      ...commentedOutCandidates.map((c) => ({
+        id: getStaticKey(c.node)!,
+        commentedOut: c.commentedOut,
+        precedingComments: c.leadingComments,
+      }))
+    );
   }
   return candidateNodes;
 }
 
-function parseComments(
-  comments: Comment[]
-): [CommentedOutCandidate[], Comment[]] {
-  const candidates: CommentedOutCandidate[] = [];
-  let last = 0;
-  let estimatedStart: number | null = null;
-  let id = "";
-  let i = 0;
-  while (i < comments.length) {
-    const comment = comments[i]!;
-    const match = RE_LIKELY_COMMENT_START.exec(comment.value);
-    if (match) {
-      // likely a start line
-      estimatedStart = i;
-      const keyPart = match[1]!;
-      if (keyPart.startsWith('"') || keyPart.startsWith("'")) {
-        id = keyPart.substring(1, keyPart.length - 1);
-      } else {
-        id = keyPart;
-      }
-    }
-    if (RE_LIKELY_COMMENT_END.test(comment.value) && estimatedStart !== null) {
-      // likely an end line
-      i++;
-      const text = comments
-        .slice(estimatedStart, i)
-        .map((c) => c.value)
-        .join("");
-      let ok = false;
-      // Check if it's valid
-      try {
-        new SimpleParser(simpleTokenize(text)).parseSig();
-        ok = true;
-      } catch (_e) {
-        /* assumes parse error */
-      }
-      if (ok) {
-        candidates.push({
-          id,
-          precedingComments: comments.slice(last, estimatedStart),
-          commentedOut: comments.slice(estimatedStart, i),
-        });
-        estimatedStart = null;
-        last = i;
-      }
-    } else {
-      i++;
-    }
-  }
-  return [candidates, comments.slice(last)];
+function parsePart(parser: Parser): TSPropertySignature {
+  const node = parser.parseTSSignature();
+  parser.tryPunct(",") || parser.expectSemi();
+  if (node.type !== "TSPropertySignature") throw new ParseError();
+  if (getStaticKey(node) === null) throw new ParseError();
+  return node;
 }
 
 function getPrecedingComments(sourceCode: SourceCode, node: Node): Comment[] {
@@ -347,84 +315,4 @@ function extendNode(
     }
   }
   return lastToken;
-}
-
-// Simplified parser to detect a subset of correct JavaScript construction.
-class SimpleParser {
-  pos = 0;
-  constructor(public tokens: string[]) {}
-  parseSig() {
-    this.expect(/^(?:[a-zA-Z_$].*|".*"|'.*')$/);
-    this.expect(":");
-    this.expect("Message");
-    if (this.is("<")) {
-      this.expect("<");
-      this.expect("{");
-      while (this.is(/^[a-zA-Z_$]/)) {
-        this.expect(/^[a-zA-Z_$]/);
-        this.expect(":");
-        this.expect(/^[a-zA-Z_$]/);
-        if (this.is(",")) this.expect(",");
-        else if (this.is(";")) this.expect(";");
-        else break;
-      }
-      this.expect("}");
-      this.expect(">");
-    }
-    if (this.is(",")) this.expect(",");
-    else if (this.is(";")) this.expect(";");
-    this.expect("");
-  }
-  is(cond: ((s: string) => boolean) | RegExp | string): boolean {
-    const token = this.tokens[this.pos] ?? "";
-    return typeof cond === "string"
-      ? token === cond
-      : cond instanceof RegExp
-      ? cond.test(token)
-      : cond(token);
-  }
-  expect(cond: ((s: string) => boolean) | RegExp | string): string {
-    if (!this.is(cond)) throw new Error("unexpected token");
-    const token = this.tokens[this.pos] ?? "";
-    if (this.pos < this.tokens.length) this.pos++;
-    return token;
-  }
-}
-
-function simpleTokenize(text: string): string[] {
-  let currentText = text;
-  const tokens: string[] = [];
-  while (currentText.length > 0) {
-    const ch = currentText[0]!;
-    let token = ch;
-    if (/\s/.test(ch)) {
-      currentText = currentText.substring(/^\s+/.exec(currentText)![0]!.length);
-      continue;
-    } else if (/[a-zA-Z_$]/.test(ch)) {
-      token = /^[a-zA-Z_$][a-zA-Z_$0-9]*/.exec(currentText)![0]!;
-    } else if (ch === '"') {
-      const match = /^"(?:[^"\\\n]|\\.|)*"/.exec(currentText);
-      if (match) {
-        try {
-          JSON.parse(match[0]!);
-          token = match[0]!;
-        } catch (e) {
-          /* assumes JSON parse error */
-        }
-      }
-    } else if (ch === "'") {
-      const match = /^'(?:[^'\\\n]|\\.|)*'/.exec(currentText);
-      if (match) {
-        try {
-          JSON.parse(match[0]!);
-          token = match[0]!;
-        } catch (e) {
-          /* assumes JSON parse error */
-        }
-      }
-    }
-    tokens.push(token);
-    currentText = currentText.substring(token.length);
-  }
-  return tokens;
 }

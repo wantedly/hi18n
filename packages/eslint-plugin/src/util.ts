@@ -7,7 +7,7 @@ import {
   MemberExpression,
   Property,
 } from "estree";
-import { TSPropertySignature } from "./estree-ts";
+import { TSPropertySignature, TSSignature } from "./estree-ts";
 
 export function getImportName(
   spec: ImportSpecifier | ImportDefaultSpecifier
