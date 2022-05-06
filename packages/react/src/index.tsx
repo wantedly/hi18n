@@ -29,6 +29,28 @@ export const LocaleProvider: React.FC<{ children?: React.ReactNode, locales: str
   return <LocaleContext.Provider value={concatenatedLocales}>{children}</LocaleContext.Provider>;
 };
 
+/**
+ * Retrieves translation helpers, using the locale from the context.
+ *
+ * @param book A "book" object containing translated messages
+ * @returns An object containing functions necessary for translation
+ *
+ * @example
+ *   ```tsx
+ *   const Greeting: React.FC = () => {
+ *     const { t } = useI18n(book);
+ *     return (
+ *       <section>
+ *         <h1>{t("example/greeting")}</h1>
+ *         {
+ *           messages.length > 0 &&
+ *             <p>{t("example/messages", { count: messages.length })}</p>
+ *         }
+ *       </section>
+ *     );
+ *   };
+ *   ```
+ */
 export function useI18n<M extends VocabularyBase>(
   book: Book<M>
 ): TranslatorObject<M> {
@@ -49,6 +71,46 @@ type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
     : never
   : never;
 
+/**
+ * Renders the translated message, possibly interleaved with the elements you provide.
+ *
+ * @example
+ *   ```tsx
+ *   <Translate id="example/signin" book={book}>
+ *     {
+ *       // These elements are inserted into the translation.
+ *     }
+ *     <a href="" />
+ *     <a href="" />
+ *   </Translate>
+ *   ```
+ *
+ * @example You can add a placeholder for readability.
+ *   ```tsx
+ *   <Translate id="example/signin" book={book}>
+ *     You need to <a href="">sign in</a> or <a href="">sign up</a> to continue.
+ *   </Translate>
+ *   ```
+ *
+ * @example Naming the elements
+ *   ```tsx
+ *   <Translate id="example/signin" book={book}>
+ *     <a key="signin" href="" />
+ *     <a key="signup" href="" />
+ *   </Translate>
+ *   ```
+ *
+ * @example to supply non-component parameters, you can:
+ *   ```tsx
+ *   <Translate id="example/greeting" book={book} name={name} />
+ *   ```
+ *
+ *   This is almost equivalent to the following:
+ *   ```tsx
+ *   const { t } = useI18n(book);
+ *   return t("example/greeting", { name });
+ *   ```
+ */
 export function Translate<M extends VocabularyBase, K extends string & keyof M>(
   props: TranslateProps<M, K>
 ): React.ReactElement | null {

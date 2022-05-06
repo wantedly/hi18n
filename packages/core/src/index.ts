@@ -11,10 +11,29 @@ import type {
 export type { ComponentPlaceholder } from "./msgfmt-parser-types";
 
 declare const messageBrandSymbol: unique symbol;
+
+/**
+ * A subtype of `string` that represents translation messages.
+ *
+ * @param Args parameters required by this message
+ */
 export type Message<Args = {}> = string & {
   [messageBrandSymbol]: (args: Args) => void;
 };
+
+/**
+ * A base type for a vocabulary.
+ *
+ * A vocabulary here means a set of translation ids required for this book of translations.
+ */
 export type VocabularyBase = Record<string, Message<any>>;
+
+/**
+ * Extracts parameters required by the translated message.
+ *
+ * @param M the message being instantiated.
+ * @param C replacement for the component interpolation (like `<0></0>` or `<link></link>`).
+ */
 export type MessageArguments<M extends Message<any>, C> = M extends Message<
   infer Args
 >
@@ -26,6 +45,13 @@ export type InstantiateComponentTypes<Args, C> = {
 export type InstantiateComponentType<T, C> = T extends ComponentPlaceholder
   ? C
   : T;
+
+/**
+ * Extracts the translation ids that don't take parameters.
+ *
+ * @param Vocabulary the vocabulary, a set of translation ids we can use for this book of translations.
+ * @param K a dummy parameter to do a union distribution
+ */
 export type SimpleMessageKeys<
   Vocabulary extends VocabularyBase,
   K extends string & keyof Vocabulary = string & keyof Vocabulary
@@ -35,10 +61,41 @@ export type SimpleMessageKeys<
     : never
   : never;
 
+/**
+ * Infers the appropriate type for the translated message.
+ *
+ * At runtime, it just returns the first argument.
+ *
+ * @param s the translated message
+ * @returns the first argument
+ *
+ * @example
+ *   ```ts
+ *   export default new Book<Vocabulary>({
+ *     "example/greeting": msg("Hello, {name}!"),
+ *   });
+ *   ```
+ */
 export function msg<S extends string>(s: S): InferredMessageType<S> {
   return s as any;
 }
 
+/**
+ * A set of translated messages, containing translations for all supported locales.
+ *
+ * In other words, a book is a set of {@link Catalog}s for all languages.
+ *
+ * @example
+ *   ```ts
+ *   type Vocabulary = {
+ *     "example/greeting": Message<{ name: string }>;
+ *   };
+ *   export const book = new Book<Vocabulary>({
+ *     en: catalogEn,
+ *     ja: catalogJa,
+ *   });
+ *   ```
+ */
 export class Book<Vocabulary extends VocabularyBase> {
   constructor(
     public readonly catalogs: Readonly<Record<string, Catalog<Vocabulary>>>
@@ -49,6 +106,19 @@ export class Book<Vocabulary extends VocabularyBase> {
   }
 }
 
+/**
+ * A set of translated messages for a specific locale.
+ *
+ * @example
+ *   ```ts
+ *   type Vocabulary = {
+ *     "example/greeting": Message<{ name: string }>;
+ *   };
+ *   export default new Catalog<Vocabulary>({
+ *     "example/greeting": msg("Hello, {name}!"),
+ *   });
+ *   ```
+ */
 export class Catalog<Vocabulary extends VocabularyBase> {
   public locale?: string | undefined;
   private _compiled: Record<string, CompiledMessage> = {};
@@ -70,12 +140,50 @@ export class Catalog<Vocabulary extends VocabularyBase> {
   }
 }
 
+/**
+ * An object returned from {@link getTranslator}.
+ */
 export type TranslatorObject<Vocabulary extends VocabularyBase> = {
+  /**
+   * Returns the translated message for a simple one.
+   *
+   * @param id the id of the translation
+   * @example
+   *   ```ts
+   *   const { t } = getTranslator(book, "en");
+   *   t("example/greeting-simple"); // => "Hello!"
+   *   ```
+   */
   t(id: SimpleMessageKeys<Vocabulary>): string;
+
+  /**
+   * Returns the translated message.
+   *
+   * @param id the id of the translation
+   * @param options the parameters of the translation.
+   *
+   * @example
+   *   ```ts
+   *   const { t } = getTranslator(book, "en");
+   *   t("example/greeting", { name: "John" }); // => "Hello, John!"
+   *   ```
+   */
   t<K extends string & keyof Vocabulary>(
     id: K,
     options: MessageArguments<Vocabulary[K], never>
   ): string;
+
+  /**
+   * Similar to {@link TranslatorObject.t} but allows component interpolation
+   * (i.e. to interpret commands like `<0>foo</0>` or `<link>foo</link>`)
+   *
+   * Users usually don't need to call it manually.
+   * See the `@hi18n/react` package for its application to React.
+   *
+   * @param id the id of the translation
+   * @param interpolator functions to customize the interpolation behavior
+   * @param options the parameters of the translation.
+   */
   translateWithComponents<T, C, K extends string & keyof Vocabulary>(
     id: K,
     interpolator: ComponentInterpolator<T, C>,
@@ -83,11 +191,28 @@ export type TranslatorObject<Vocabulary extends VocabularyBase> = {
   ): T | string;
 };
 
+/**
+ * Used in {@link TranslatorObject.translateWithComponents} to customize
+ * the behavior of component interpolation.
+ */
 export type ComponentInterpolator<T, C> = {
   collect: (submessages: (T | string)[]) => T | string;
   wrap: (component: C, message: T | string | undefined) => T | string;
 };
 
+/**
+ * Retrieves the translation helpers from the book and the locales.
+ *
+ * @param book the "book" (i.e. the set of translations) containing the desired messages.
+ * @param locale a locale or a list of locale in the order of preference (the latter being not supported yet)
+ * @returns A set of translation helpers
+ *
+ * @example
+ *   ```ts
+ *   const { t } = getTranslator(book, "en");
+ *   t("example/greeting-simple"); // => "Hello!"
+ *   ```
+ */
 export function getTranslator<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
   locale: string
