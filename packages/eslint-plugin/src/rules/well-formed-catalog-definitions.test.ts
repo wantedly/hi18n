@@ -1,5 +1,5 @@
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-nonstandard-catalogs";
+import * as rule from "./well-formed-catalog-definitions";
 
 new TSESLint.RuleTester({
   parser: require.resolve("espree"),
@@ -7,7 +7,7 @@ new TSESLint.RuleTester({
     ecmaVersion: "latest",
     sourceType: "module",
   },
-}).run("@hi18n/no-nonstandard-catalogs", rule, {
+}).run("@hi18n/well-formed-catalog-definitions", rule, {
   valid: [
     `
       import { Catalog } from "@hi18n/core";

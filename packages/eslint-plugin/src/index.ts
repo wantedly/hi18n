@@ -6,11 +6,11 @@ import * as ruleCollectTranslationIds from "./rules/collect-translation-ids";
 import * as ruleNoDynamicTranslationIds from "./rules/no-dynamic-translation-ids";
 import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids";
 import * as ruleNoMissingTranslationIdsInTypes from "./rules/no-missing-translation-ids-in-types";
-import * as ruleNoNonstandardBookReferences from "./rules/no-nonstandard-book-references";
-import * as ruleNoNonstandardBooks from "./rules/no-nonstandard-books";
-import * as ruleNoNonstandardCatalogs from "./rules/no-nonstandard-catalogs";
 import * as ruleNoUnusedTranslationIds from "./rules/no-unused-translation-ids";
 import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translation-ids-in-types";
+import * as ruleWellFormedBookDefinitions from "./rules/well-formed-book-definitions";
+import * as ruleWellFormedBookReferences from "./rules/well-formed-book-references";
+import * as ruleWellFormedCatalogDefinitions from "./rules/well-formed-catalog-definitions";
 
 export const configs: Record<string, TSESLint.Linter.Config> = {
   recommended: {
@@ -30,9 +30,9 @@ export const rules = {
   "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
   "no-missing-translation-ids": ruleNoMissingTranslationIds,
   "no-missing-translation-ids-in-types": ruleNoMissingTranslationIdsInTypes,
-  "no-nonstandard-book-references": ruleNoNonstandardBookReferences,
-  "no-nonstandard-books": ruleNoNonstandardBooks,
-  "no-nonstandard-catalogs": ruleNoNonstandardCatalogs,
+  "well-formed-book-references": ruleWellFormedBookReferences,
+  "well-formed-book-definitions": ruleWellFormedBookDefinitions,
+  "well-formed-catalog-definitions": ruleWellFormedCatalogDefinitions,
   "no-unused-translation-ids": ruleNoUnusedTranslationIds,
   "no-unused-translation-ids-in-types": ruleNoUnusedTranslationIdsInTypes,
 } as const;

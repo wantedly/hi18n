@@ -1,5 +1,5 @@
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-nonstandard-book-references";
+import * as rule from "./well-formed-book-references";
 
 new TSESLint.RuleTester({
   parser: require.resolve("espree"),
@@ -8,7 +8,7 @@ new TSESLint.RuleTester({
     sourceType: "module",
     ecmaFeatures: { jsx: true },
   },
-}).run("@hi18n/no-nonstandard-book-references", rule, {
+}).run("@hi18n/well-formed-book-references", rule, {
   valid: [
     `
       import { getTranslator } from "@hi18n/core";

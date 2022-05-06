@@ -1,5 +1,5 @@
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-nonstandard-books";
+import * as rule from "./well-formed-book-definitions";
 import type {} from "../tseslint-babel";
 
 new TSESLint.RuleTester({
@@ -8,7 +8,7 @@ new TSESLint.RuleTester({
     ecmaVersion: "latest",
     sourceType: "module",
   },
-}).run("@hi18n/no-nonstandard-books", rule, {
+}).run("@hi18n/well-formed-book-definitions", rule, {
   valid: [
     `
       import { Book } from "@hi18n/core";
