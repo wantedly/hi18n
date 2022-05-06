@@ -1505,7 +1505,7 @@ __metadata:
     typescript: ^4.6.4
     yargs: ^17.4.1
   bin:
-    cli: ./bin/hi18n.js
+    hi18n: ./bin/hi18n.js
   languageName: unknown
   linkType: soft
 
