@@ -34,7 +34,9 @@
     "!src/**/*.test.ts",
     "!src/__fixtures__/**/*"
   ],
-  "bin": "./bin/hi18n.js",
+  "bin": {
+    "hi18n": "./bin/hi18n.js"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
