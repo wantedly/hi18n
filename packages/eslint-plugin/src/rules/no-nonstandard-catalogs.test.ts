@@ -14,6 +14,14 @@ new TSESLint.RuleTester({
       export default new Catalog({});
     `,
     `
+      import { Catalog } from "@hi18n/core";
+      export const catalogEn = new Catalog({});
+    `,
+    `
+      import { Catalog } from "@hi18n/core";
+      const catalogEn = new Catalog({});
+    `,
+    `
       import { Catalog, msg } from "@hi18n/core";
       export default new Catalog({
         "example/greeting": msg("Hello!"),
@@ -31,15 +39,19 @@ new TSESLint.RuleTester({
         import { Catalog } from "@hi18n/core";
         new Catalog({});
       `,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["the catalog should be exported as default" as any],
+      errors: [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        "expose the catalog as an export or a file-scope variable" as any,
+      ],
     },
     {
       code: `
         import { Catalog } from "@hi18n/core";
-        export const catalogEn = new Catalog({});
+        {
+          const catalogEn = new Catalog({});
+        }
       `,
-      errors: ["the catalog should be exported as default"],
+      errors: ["expose the catalog as an export or a file-scope variable"],
     },
     {
       code: `

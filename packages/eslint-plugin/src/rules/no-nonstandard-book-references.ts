@@ -1,22 +1,21 @@
 // eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint } from "@typescript-eslint/utils";
 import { translationCallTracker } from "../common-trackers";
+import { lookupDefinitionSource } from "../def-location";
 import { capturedRoot } from "../tracker";
-import { getImportName, resolveImportedVariable } from "../util";
 
-type MessageIds = "import-books" | "import-books-as-book";
+type MessageIds = "clarify-book-reference";
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   docs: {
     description:
-      "disallow dynamic translation ids where hi18n cannot correctly detect used translation ids",
+      "enforce well-formed references to books so that hi18n can properly process them",
     recommended: "error",
   },
   messages: {
-    "import-books":
-      "the book should be directly imported from the corresponding module.",
-    "import-books-as-book": 'the book should be exported as "book"',
+    "clarify-book-reference":
+      "the book should be an imported variable or a variable declared in the file scope",
   },
   schema: {},
 };
@@ -30,29 +29,19 @@ export function create(
     if (bookNode.type !== "Identifier") {
       context.report({
         node: capturedRoot(bookNode),
-        messageId: "import-books",
+        messageId: "clarify-book-reference",
       });
       return;
     }
-    const bookDef = resolveImportedVariable(
+    const bookLocation = lookupDefinitionSource(
       context.getSourceCode().scopeManager!,
+      context.getFilename(),
       bookNode
     );
-    if (!bookDef) {
+    if (!bookLocation) {
       context.report({
-        node: capturedRoot(bookNode),
-        messageId: "import-books",
-      });
-      return;
-    }
-    if (
-      bookDef.node.type === "ImportNamespaceSpecifier" ||
-      bookDef.node.type === "TSImportEqualsDeclaration" ||
-      getImportName(bookDef.node) !== "book"
-    ) {
-      context.report({
-        node: bookDef.node,
-        messageId: "import-books-as-book",
+        node: bookNode,
+        messageId: "clarify-book-reference",
       });
     }
   });

@@ -16,6 +16,14 @@ new TSESLint.RuleTester({
     `,
     `
       import { Book } from "@hi18n/core";
+      const book = new Book({});
+    `,
+    `
+      import { Book } from "@hi18n/core";
+      export default new Book({});
+    `,
+    `
+      import { Book } from "@hi18n/core";
       import catalogEn from "./en";
       import catalogJa from "./ja";
       export const book = new Book({
@@ -27,6 +35,24 @@ new TSESLint.RuleTester({
       import { Book } from "@hi18n/core";
       import { default as catalogEn } from "./en";
       import { default as catalogJa } from "./ja";
+      export const book = new Book({
+        en: catalogEn,
+        ja: catalogJa,
+      });
+    `,
+    `
+      import { Book } from "@hi18n/core";
+      import { catalog as catalogEn } from "./en";
+      import { catalog as catalogJa } from "./ja";
+      export const book = new Book({
+        en: catalogEn,
+        ja: catalogJa,
+      });
+    `,
+    `
+      import { Book, Catalog } from "@hi18n/core";
+      const catalogEn = new Catalog({});
+      const catalogJa = new Catalog({});
       export const book = new Book({
         en: catalogEn,
         ja: catalogJa,
@@ -89,34 +115,21 @@ new TSESLint.RuleTester({
         });
       `,
       errors: [
-        "the catalog should be directly imported from the corresponding module.",
+        "the catalog should be an imported variable or a variable declared in the file scope",
       ],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
         import catalogEn from "./en";
-        const catalogJa = {};
         export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
         });
       `,
       errors: [
-        "the catalog should be directly imported from the corresponding module.",
+        "the catalog should be an imported variable or a variable declared in the file scope",
       ],
-    },
-    {
-      code: `
-        import { Book } from "@hi18n/core";
-        import catalogEn from "./en";
-        import { something as catalogJa } from "./ja";
-        export const book = new Book({
-          en: catalogEn,
-          ja: catalogJa,
-        });
-      `,
-      errors: ["the catalog should be exported as default"],
     },
     {
       code: `
@@ -128,31 +141,9 @@ new TSESLint.RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["the catalog should be exported as default"],
-    },
-    {
-      code: `
-        import { Book } from "@hi18n/core";
-        import catalogEn from "./en";
-        import catalogJa from "./ja";
-        export default new Book({
-          en: catalogEn,
-          ja: catalogJa,
-        });
-      `,
-      errors: ['the book should be exported as "book"'],
-    },
-    {
-      code: `
-        import { Book } from "@hi18n/core";
-        import catalogEn from "./en";
-        import catalogJa from "./ja";
-        const book = new Book({
-          en: catalogEn,
-          ja: catalogJa,
-        });
-      `,
-      errors: ['the book should be exported as "book"'],
+      errors: [
+        "the catalog should be an imported variable or a variable declared in the file scope",
+      ],
     },
     {
       code: `
@@ -164,19 +155,7 @@ new TSESLint.RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ['the book should be exported as "book"'],
-    },
-    {
-      code: `
-        import { Book } from "@hi18n/core";
-        import catalogEn from "./en";
-        import catalogJa from "./ja";
-        export const foo = new Book({
-          en: catalogEn,
-          ja: catalogJa,
-        });
-      `,
-      errors: ['the book should be exported as "book"'],
+      errors: ["expose the book as an export or a file-scope variable"],
     },
   ],
 });

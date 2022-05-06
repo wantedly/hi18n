@@ -1,6 +1,6 @@
 // eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getImportName, getStaticKey, resolveImportedVariable } from "../util";
+import { getStaticKey } from "../util";
 import {
   extractAsObjectType,
   findTypeParameter,
@@ -8,11 +8,11 @@ import {
 } from "../ts-util";
 import { bookTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
+import { lookupDefinitionSource, resolveAsLocation } from "../def-location";
 
 type MessageIds =
-  | "book-export-as-book"
-  | "import-catalogs"
-  | "import-catalogs-as-default"
+  | "expose-book"
+  | "clarify-catalog-reference"
   | "catalogs-should-be-object"
   | "catalogs-invalid-spread"
   | "catalogs-invalid-id"
@@ -23,14 +23,13 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   docs: {
     description:
-      "warns the nonstandard uses of Book that hi18n cannot properly process",
+      "enforce well-formed book definitions so that hi18n can properly process them",
     recommended: "error",
   },
   messages: {
-    "book-export-as-book": 'the book should be exported as "book"',
-    "import-catalogs":
-      "the catalog should be directly imported from the corresponding module.",
-    "import-catalogs-as-default": "the catalog should be exported as default",
+    "expose-book": "expose the book as an export or a file-scope variable",
+    "clarify-catalog-reference":
+      "the catalog should be an imported variable or a variable declared in the file scope",
     "catalogs-should-be-object":
       "the first argument should be an object literal",
     "catalogs-invalid-spread": "do not use spread in the catalog list",
@@ -49,15 +48,20 @@ export function create(
 ): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, captured) => {
-    const exportedAs = findExportedAs(node);
-    if (
-      !exportedAs ||
-      exportedAs.id.type !== "Identifier" ||
-      exportedAs.id.name !== "book"
-    ) {
+    if (node.type === "Identifier") return;
+
+    const catalogLocation =
+      node.type === "NewExpression"
+        ? resolveAsLocation(
+            context.getSourceCode().scopeManager!,
+            context.getFilename(),
+            node
+          )
+        : undefined;
+    if (!catalogLocation) {
       context.report({
         node,
-        messageId: "book-export-as-book",
+        messageId: "expose-book",
       });
     }
 
@@ -91,29 +95,19 @@ export function create(
       if (prop.value.type !== "Identifier") {
         context.report({
           node: prop.key,
-          messageId: "import-catalogs",
+          messageId: "clarify-catalog-reference",
         });
         continue;
       }
-      const valueDef = resolveImportedVariable(
+      const catalogLocation = lookupDefinitionSource(
         context.getSourceCode().scopeManager!,
+        context.getFilename(),
         prop.value
       );
-      if (!valueDef) {
+      if (!catalogLocation) {
         context.report({
           node: prop.key,
-          messageId: "import-catalogs",
-        });
-        continue;
-      }
-      if (
-        valueDef.node.type === "ImportNamespaceSpecifier" ||
-        valueDef.node.type === "TSImportEqualsDeclaration" ||
-        getImportName(valueDef.node) !== "default"
-      ) {
-        context.report({
-          node: valueDef.node,
-          messageId: "import-catalogs-as-default",
+          messageId: "clarify-catalog-reference",
         });
         continue;
       }
@@ -184,34 +178,4 @@ function checkTypeParameter(
       continue;
     }
   }
-}
-
-function findExportedAs(
-  node: TSESTree.Node
-): TSESTree.VariableDeclarator | null {
-  if (
-    !node.parent ||
-    node.parent.type !== "VariableDeclarator" ||
-    node.parent.init !== node
-  ) {
-    // Not a part of `book = new Book()`
-    return null;
-  }
-  if (
-    !node.parent.parent ||
-    node.parent.parent.type !== "VariableDeclaration" ||
-    !node.parent.parent.declarations.includes(node.parent)
-  ) {
-    // Not a part of `const book = new Book()`
-    return null;
-  }
-  if (
-    !node.parent.parent.parent ||
-    node.parent.parent.parent.type !== "ExportNamedDeclaration" ||
-    node.parent.parent.parent.declaration !== node.parent.parent
-  ) {
-    // Not a part of `export const book = new Book();`
-    return null;
-  }
-  return node.parent;
 }

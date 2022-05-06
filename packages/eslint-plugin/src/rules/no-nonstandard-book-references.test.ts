@@ -24,6 +24,35 @@ new TSESLint.RuleTester({
       const { t } = getTranslator(book2, "en");
       t("example.greeting");
     `,
+    `
+      import { getTranslator } from "@hi18n/core";
+      import { book2 as book } from "../locale";
+
+      const { t } = getTranslator(book, "en");
+      t("example.greeting");
+    `,
+    `
+      import { getTranslator } from "@hi18n/core";
+      import { book2 } from "../locale";
+
+      const { t } = getTranslator(book2, "en");
+      t("example.greeting");
+    `,
+    `
+      import { getTranslator } from "@hi18n/core";
+      import book from "../locale";
+
+      const { t } = getTranslator(book, "en");
+      t("example.greeting");
+    `,
+    `
+      import { Book, getTranslator } from "@hi18n/core";
+
+      const book = new Book({});
+
+      const { t } = getTranslator(book, "en");
+      t("example.greeting");
+    `,
   ],
   invalid: [
     {
@@ -35,7 +64,7 @@ new TSESLint.RuleTester({
       `,
       errors: [
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        "the book should be directly imported from the corresponding module." as any,
+        "the book should be an imported variable or a variable declared in the file scope" as any,
       ],
     },
     {
@@ -46,50 +75,8 @@ new TSESLint.RuleTester({
         t("example.greeting");
       `,
       errors: [
-        "the book should be directly imported from the corresponding module.",
+        "the book should be an imported variable or a variable declared in the file scope",
       ],
-    },
-    {
-      code: `
-        import { getTranslator } from "@hi18n/core";
-        const book = 42;
-
-        const { t } = getTranslator(book, "en");
-        t("example.greeting");
-      `,
-      errors: [
-        "the book should be directly imported from the corresponding module.",
-      ],
-    },
-    {
-      code: `
-        import { getTranslator } from "@hi18n/core";
-        import { book2 } from "../locale";
-
-        const { t } = getTranslator(book2, "en");
-        t("example.greeting");
-      `,
-      errors: ['the book should be exported as "book"'],
-    },
-    {
-      code: `
-        import { getTranslator } from "@hi18n/core";
-        import { book2 as book } from "../locale";
-
-        const { t } = getTranslator(book, "en");
-        t("example.greeting");
-      `,
-      errors: ['the book should be exported as "book"'],
-    },
-    {
-      code: `
-        import { getTranslator } from "@hi18n/core";
-        import book from "../locale";
-
-        const { t } = getTranslator(book, "en");
-        t("example.greeting");
-      `,
-      errors: ['the book should be exported as "book"'],
     },
     {
       code: `
@@ -99,7 +86,9 @@ new TSESLint.RuleTester({
         const { t } = getTranslator(book, "en");
         t("example.greeting");
       `,
-      errors: ['the book should be exported as "book"'],
+      errors: [
+        "the book should be an imported variable or a variable declared in the file scope",
+      ],
     },
   ],
 });

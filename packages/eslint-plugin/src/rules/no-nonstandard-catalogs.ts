@@ -3,9 +3,10 @@ import type { TSESLint } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
+import { resolveAsLocation } from "../def-location";
 
 type MessageIds =
-  | "catalog-export-as-default"
+  | "expose-catalog"
   | "catalog-data-should-be-object"
   | "catalog-data-invalid-spread"
   | "catalog-data-invalid-id";
@@ -15,11 +16,12 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   fixable: "code",
   docs: {
     description:
-      "warns the nonstandard uses of Catalog that hi18n cannot properly process",
+      "enforce well-formed catalog definitions so that hi18n can properly process them",
     recommended: "error",
   },
   messages: {
-    "catalog-export-as-default": "the catalog should be exported as default",
+    "expose-catalog":
+      "expose the catalog as an export or a file-scope variable",
     "catalog-data-should-be-object":
       "the catalog data should be an object literal",
     "catalog-data-invalid-spread": "do not use spread in the catalog data",
@@ -34,14 +36,20 @@ export function create(
 ): TSESLint.RuleListener {
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (node, captured) => {
-    if (
-      !node.parent ||
-      node.parent.type !== "ExportDefaultDeclaration" ||
-      node.parent.declaration !== node
-    ) {
+    if (node.type === "Identifier") return;
+
+    const catalogLocation =
+      node.type === "NewExpression"
+        ? resolveAsLocation(
+            context.getSourceCode().scopeManager!,
+            context.getFilename(),
+            node
+          )
+        : undefined;
+    if (!catalogLocation) {
       context.report({
         node,
-        messageId: "catalog-export-as-default",
+        messageId: "expose-catalog",
       });
     }
 
