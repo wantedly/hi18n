@@ -55,7 +55,8 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.17.9",
-    "@hi18n/core": "workspace:^0.1.0"
+    "@hi18n/core": "workspace:^0.1.0",
+    "@hi18n/react-context": "workspace:^0.1.0"
   },
   "peerDependencies": {
     "react": "^17.0.2 || ^18.0.0"

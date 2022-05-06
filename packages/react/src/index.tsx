@@ -1,4 +1,5 @@
 import React from "react";
+import { LocaleContext } from "@hi18n/react-context";
 import {
   Book,
   VocabularyBase,
@@ -7,8 +8,7 @@ import {
   getTranslator,
 } from "@hi18n/core";
 
-export const LocaleContext = /* #__PURE__ */ React.createContext<string>("");
-/* #__PURE__ */ LocaleContext.displayName = "LocaleContext";
+export { LocaleContext } from "@hi18n/react-context";
 
 export function useI18n<M extends VocabularyBase>(
   book: Book<M>

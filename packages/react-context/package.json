@@ -1,0 +1,47 @@
+{
+  "name": "@hi18n/react-context",
+  "version": "0.1.0",
+  "description": "Message internationalization meets immutability and type-safety - shared React context",
+  "keywords": [
+    "hi18n"
+  ],
+  "homepage": "https://github.com/wantedly/hi18n#readme",
+  "bugs": {
+    "url": "https://github.com/wantedly/hi18n/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wantedly/hi18n.git",
+    "directory": "packages/react-context"
+  },
+  "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
+  "license": "MIT",
+  "packageManager": "yarn@3.2.0",
+  "files": [
+    "index.js",
+    "index.module.js",
+    "index.d.ts"
+  ],
+  "main": "./index.js",
+  "module": "./index.module.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "types": "./index.d.ts",
+    "module": "./index.module.js",
+    "default": "./index.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "fmt": "prettier . -w",
+    "fmt:check": "prettier . -c",
+    "lint": "eslint index.d.ts index.js index.module.js"
+  },
+  "peerDependencies": {
+    "@types/react": "^16.3.11 || ^17.0.0 || ^18.0.0",
+    "react": "^16.3.0 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.14.0",
+    "prettier": "^2.6.2"
+  }
+}

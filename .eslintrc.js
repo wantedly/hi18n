@@ -33,6 +33,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
   overrides: [
     {
       files: ["*.ts"],
+      excludedFiles: ["*.d.ts"],
       parser: "@typescript-eslint/parser",
       extends: [
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
