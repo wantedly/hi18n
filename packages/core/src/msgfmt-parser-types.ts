@@ -2,7 +2,7 @@
 
 // The parser algorithm is written to vastly match what is implemented in ./msgfmt-parser.ts, but with a few differences.
 
-import type { Message } from "./index";
+import type { Message } from "./index.js";
 
 declare const componentPlaceholderSymbol: unique symbol;
 export type ComponentPlaceholder = typeof componentPlaceholderSymbol;

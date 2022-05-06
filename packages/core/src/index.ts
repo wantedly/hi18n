@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
 
-import { CompiledMessage } from "./msgfmt";
-import { evaluateMessage } from "./msgfmt-eval";
-import { parseMessage } from "./msgfmt-parser";
+import { CompiledMessage } from "./msgfmt.js";
+import { evaluateMessage } from "./msgfmt-eval.js";
+import { parseMessage } from "./msgfmt-parser.js";
 import type {
   ComponentPlaceholder,
   InferredMessageType,
-} from "./msgfmt-parser-types";
+} from "./msgfmt-parser-types.js";
 
-export type { ComponentPlaceholder } from "./msgfmt-parser-types";
+export type { ComponentPlaceholder } from "./msgfmt-parser-types.js";
 
 declare const messageBrandSymbol: unique symbol;
 

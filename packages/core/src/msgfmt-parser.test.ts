@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { parseMessage } from "./msgfmt-parser";
+import { parseMessage } from "./msgfmt-parser.js";
 
 describe("parseMessage", () => {
   it("parses plain texts", () => {

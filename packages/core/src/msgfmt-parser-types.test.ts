@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-empty-function, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, jest/expect-expect */
 
 import { describe, it } from "@jest/globals";
-import type { Message } from "./index";
+import type { Message } from "./index.js";
 import type {
   ComponentPlaceholder,
   InferredMessageType,
   ParseError,
-} from "./msgfmt-parser-types";
+} from "./msgfmt-parser-types.js";
 
 describe("InferredMessageType", () => {
   it("infers no arguments", () => {

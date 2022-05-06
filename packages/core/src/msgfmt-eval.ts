@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
-import { CompiledMessage } from "./msgfmt";
+import { CompiledMessage } from "./msgfmt.js";
 
 export type EvalOption<T> = {
   id?: string;

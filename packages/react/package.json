@@ -75,6 +75,7 @@
     "@types/react-dom": "^18.0.3",
     "@types/testing-library__jest-dom": "^5.14.3",
     "babel-jest": "^28.0.3",
+    "babel-plugin-replace-import-extension": "^1.1.2",
     "eslint": "^8.14.0",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "^4.5.0",
@@ -84,9 +85,11 @@
     "prettier": "^2.6.2",
     "react": "^17.0.2 || ^18.0.0",
     "react-dom": "^17.0.2 || ^18.0.0",
+    "ts-jest-resolver": "^2.0.0",
     "typescript": "^4.6.4"
   },
   "jest": {
+    "resolver": "ts-jest-resolver",
     "testEnvironment": "jsdom"
   }
 }

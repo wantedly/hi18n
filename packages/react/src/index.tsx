@@ -23,10 +23,19 @@ export { LocaleContext } from "@hi18n/react-context";
  *   );
  *   ```
  */
-export const LocaleProvider: React.FC<{ children?: React.ReactNode, locales: string | string[] }> = (props) => {
+export const LocaleProvider: React.FC<{
+  children?: React.ReactNode;
+  locales: string | string[];
+}> = (props) => {
   const { locales, children } = props;
-  const concatenatedLocales = Array.isArray(locales) ? locales.join("\n") : locales;
-  return <LocaleContext.Provider value={concatenatedLocales}>{children}</LocaleContext.Provider>;
+  const concatenatedLocales = Array.isArray(locales)
+    ? locales.join("\n")
+    : locales;
+  return (
+    <LocaleContext.Provider value={concatenatedLocales}>
+      {children}
+    </LocaleContext.Provider>
+  );
 };
 
 /**

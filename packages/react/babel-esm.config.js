@@ -1,10 +1,10 @@
-const config = require("./babel.config");
-
 module.exports = {
-  ...config,
-  presets: config.presets.map((preset) =>
-    preset[0] === "@babel/preset-env"
-      ? [preset[0], { ...preset[1], modules: false }]
-      : preset
-  ),
+  extends: "./babel.config.js",
+  presets: [
+    [
+      "@babel/preset-env",
+      { targets: "defaults, not ie 11, not ie_mob 11", modules: false },
+    ],
+  ],
+  plugins: [["replace-import-extension", { extMapping: { ".js": ".mjs" } }]],
 };

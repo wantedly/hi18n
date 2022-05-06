@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { CompiledMessage } from "./msgfmt";
-import { evaluateMessage } from "./msgfmt-eval";
+import { CompiledMessage } from "./msgfmt.js";
+import { evaluateMessage } from "./msgfmt-eval.js";
 
 describe("evaluageMessage", () => {
   it("evaluates a string", () => {

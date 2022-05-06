@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "@jest/globals";
 import { Book, Catalog, Message, msg } from "@hi18n/core";
-import { LocaleProvider, Translate, useI18n } from "./index";
+import { LocaleProvider, Translate, useI18n } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
 
 declare module "expect/build" {

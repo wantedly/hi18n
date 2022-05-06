@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any, @typescript-eslint/unbound-method */
 
 import { describe, expect, it } from "@jest/globals";
-import { Book, Catalog, Message, getTranslator, msg } from "./index";
+import { Book, Catalog, Message, getTranslator, msg } from "./index.js";
 
 type Vocabulary = {
   "example/greeting": Message;

@@ -1,0 +1,14 @@
+diff --git a/src/index.js b/src/index.js
+index 20a6c9eff69bae312c2c3688216406309a4039eb..63c32d96e4895b0635528ed012e01724318b7388 100755
+--- a/src/index.js
++++ b/src/index.js
+@@ -43,7 +43,8 @@ function transformExtension(filepath, extMapping) {
+   return filepath;
+ }
+ const astTransformExtension = parseSync(
+-  `(${transformExtension.toString()})`
++  `(${transformExtension.toString()})`,
++  { babelrc: false, configFile: false }
+ ).program.body[0].expression;
+ 
+ 

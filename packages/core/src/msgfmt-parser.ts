@@ -4,7 +4,7 @@ import {
   ElementArg,
   PluralArg,
   PluralBranch,
-} from "./msgfmt";
+} from "./msgfmt.js";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
 
