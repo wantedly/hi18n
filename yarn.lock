@@ -1472,6 +1472,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hi18n/cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "@hi18n/cli@workspace:packages/cli"
+  dependencies:
+    "@babel/cli": ^7.17.10
+    "@babel/core": ^7.17.10
+    "@babel/eslint-parser": ^7.17.0
+    "@babel/plugin-transform-runtime": ^7.17.10
+    "@babel/preset-env": ^7.17.10
+    "@babel/preset-typescript": ^7.16.7
+    "@babel/runtime-corejs3": ^7.17.9
+    "@babel/types": ^7.17.10
+    "@hi18n/core": "workspace:*"
+    "@hi18n/eslint-plugin": "workspace:^0.1.0"
+    "@jest/globals": ^28.0.3
+    "@types/eslint": ^8.4.2
+    "@types/fs-extra": ^9.0.13
+    "@types/glob": ^7.2.0
+    "@types/resolve": ^1.20.2
+    "@types/yargs": ^17.0.10
+    "@typescript-eslint/utils": ^5.21.0
+    babel-jest: ^28.0.3
+    eslint: ^8.13.0
+    eslint-plugin-node: ^11.1.0
+    expect: ^28.0.2
+    fs-extra: ^10.1.0
+    glob: ^8.0.1
+    jest: ^28.0.3
+    prettier: ^2.6.2
+    resolve: ^1.22.0
+    typescript: ^4.6.4
+    yargs: ^17.4.1
+  bin:
+    cli: ./bin/hi18n.js
+  languageName: unknown
+  linkType: soft
+
 "@hi18n/core@workspace:*, @hi18n/core@workspace:^0.1.0, @hi18n/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@hi18n/core@workspace:packages/core"
@@ -4513,43 +4550,6 @@ __metadata:
   checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
   languageName: node
   linkType: hard
-
-"hi18n@workspace:packages/cli":
-  version: 0.0.0-use.local
-  resolution: "hi18n@workspace:packages/cli"
-  dependencies:
-    "@babel/cli": ^7.17.10
-    "@babel/core": ^7.17.10
-    "@babel/eslint-parser": ^7.17.0
-    "@babel/plugin-transform-runtime": ^7.17.10
-    "@babel/preset-env": ^7.17.10
-    "@babel/preset-typescript": ^7.16.7
-    "@babel/runtime-corejs3": ^7.17.9
-    "@babel/types": ^7.17.10
-    "@hi18n/core": "workspace:*"
-    "@hi18n/eslint-plugin": "workspace:^0.1.0"
-    "@jest/globals": ^28.0.3
-    "@types/eslint": ^8.4.2
-    "@types/fs-extra": ^9.0.13
-    "@types/glob": ^7.2.0
-    "@types/resolve": ^1.20.2
-    "@types/yargs": ^17.0.10
-    "@typescript-eslint/utils": ^5.21.0
-    babel-jest: ^28.0.3
-    eslint: ^8.13.0
-    eslint-plugin-node: ^11.1.0
-    expect: ^28.0.2
-    fs-extra: ^10.1.0
-    glob: ^8.0.1
-    jest: ^28.0.3
-    prettier: ^2.6.2
-    resolve: ^1.22.0
-    typescript: ^4.6.4
-    yargs: ^17.4.1
-  bin:
-    hi18n: ./bin/hi18n.js
-  languageName: unknown
-  linkType: soft
 
 "html-encoding-sniffer@npm:^3.0.0":
   version: 3.0.0
