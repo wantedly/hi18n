@@ -2931,9 +2931,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-replace-import-extension@patch:babel-plugin-replace-import-extension@npm:1.1.2#.yarn/patches/babel-plugin-replace-import-extension-npm-1.1.2-41e7f7ba11.patch::locator=root-workspace-0b6124%40workspace%3A.":
+"babel-plugin-replace-import-extension@patch:babel-plugin-replace-import-extension@npm:1.1.2#.yarn/patches/babel-plugin-replace-import-extension-npm-1.1.2-41e7f7ba11.patch::locator=root%40workspace%3A.":
   version: 1.1.2
-  resolution: "babel-plugin-replace-import-extension@patch:babel-plugin-replace-import-extension@npm%3A1.1.2#.yarn/patches/babel-plugin-replace-import-extension-npm-1.1.2-41e7f7ba11.patch::version=1.1.2&hash=aede8f&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "babel-plugin-replace-import-extension@patch:babel-plugin-replace-import-extension@npm%3A1.1.2#.yarn/patches/babel-plugin-replace-import-extension-npm-1.1.2-41e7f7ba11.patch::version=1.1.2&hash=aede8f&locator=root%40workspace%3A."
   checksum: 6136f5492c9cccaedf1517405ac840b80e57741f6f806b04fe8663b22eb4a49a652c42b2eea0b579f97d245e962629fd0e7caab48e482b272d4e1e801eafeeb8
   languageName: node
   linkType: hard
@@ -6811,9 +6811,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"root-workspace-0b6124@workspace:.":
+"root@workspace:.":
   version: 0.0.0-use.local
-  resolution: "root-workspace-0b6124@workspace:."
+  resolution: "root@workspace:."
   dependencies:
     "@typescript-eslint/eslint-plugin": ^5.22.0
     "@typescript-eslint/parser": ^5.22.0
