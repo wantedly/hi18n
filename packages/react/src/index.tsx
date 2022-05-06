@@ -10,11 +10,30 @@ import {
 
 export { LocaleContext } from "@hi18n/react-context";
 
+/**
+ * Renders the children with the specified locale.
+ *
+ * @example
+ *   ```tsx
+ *   ReactDOM.render(
+ *     root,
+ *     <LocaleProvider locales="ja">
+ *       <Translate id="example/greeting" book={book} />
+ *     </LocaleProvider>
+ *   );
+ *   ```
+ */
+export const LocaleProvider: React.FC<{ children?: React.ReactNode, locales: string | string[] }> = (props) => {
+  const { locales, children } = props;
+  const concatenatedLocales = Array.isArray(locales) ? locales.join("\n") : locales;
+  return <LocaleContext.Provider value={concatenatedLocales}>{children}</LocaleContext.Provider>;
+};
+
 export function useI18n<M extends VocabularyBase>(
   book: Book<M>
 ): TranslatorObject<M> {
   const locale = React.useContext(LocaleContext);
-  return getTranslator(book, locale);
+  return getTranslator(book, locale.split("\n")[0]!);
 }
 
 export type TranslateProps<M extends VocabularyBase, K extends keyof M> = {

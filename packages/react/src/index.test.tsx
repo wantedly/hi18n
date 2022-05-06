@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "@jest/globals";
 import { Book, Catalog, Message, msg } from "@hi18n/core";
-import { LocaleContext, Translate, useI18n } from "./index";
+import { LocaleProvider, Translate, useI18n } from "./index";
 import { ComponentPlaceholder } from "@hi18n/core";
 
 declare module "expect/build" {
@@ -58,9 +58,9 @@ describe("useI18n", () => {
       return <a href="#foo">{t("example/greeting")}</a>;
     };
     render(
-      <LocaleContext.Provider value="ja">
+      <LocaleProvider locales="ja">
         <Greeter />
-      </LocaleContext.Provider>
+      </LocaleProvider>
     );
     expect(
       screen.queryByRole("link", { name: /こんにちは!/i })
@@ -72,11 +72,11 @@ describe("Translate", () => {
   it("renders a simple component interpolation", () => {
     {
       const { container } = render(
-        <LocaleContext.Provider value="ja">
+        <LocaleProvider locales="ja">
           <Translate book={book} id="example/link">
             <a href="https://example.com/" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
@@ -92,11 +92,11 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="en">
+        <LocaleProvider locales="en">
           <Translate book={book} id="example/link">
             <a href="https://example.com/" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent("Click here!");
@@ -112,11 +112,11 @@ describe("Translate", () => {
   it("renders a named component interpolation", () => {
     {
       const { container } = render(
-        <LocaleContext.Provider value="ja">
+        <LocaleProvider locales="ja">
           <Translate book={book} id="example/link2">
             <a key="link" href="https://example.com/" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
@@ -132,11 +132,11 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="en">
+        <LocaleProvider locales="en">
           <Translate book={book} id="example/link2">
             <a key="link" href="https://example.com/" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent("Click here!");
@@ -150,13 +150,13 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="ja">
+        <LocaleProvider locales="ja">
           <Translate
             book={book}
             id="example/link2"
             link={<a href="https://example.com/" />}
           />
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
@@ -172,13 +172,13 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="en">
+        <LocaleProvider locales="en">
           <Translate
             book={book}
             id="example/link2"
             link={<a href="https://example.com/" />}
           />
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent("Click here!");
@@ -194,7 +194,7 @@ describe("Translate", () => {
   it("renders a component interpolation with plurals", () => {
     {
       const { container } = render(
-        <LocaleContext.Provider value="ja">
+        <LocaleProvider locales="ja">
           <Translate
             book={book}
             id="example/message-link"
@@ -203,7 +203,7 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent(
@@ -220,7 +220,7 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="en">
+        <LocaleProvider locales="en">
           <Translate
             book={book}
             id="example/message-link"
@@ -229,7 +229,7 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent(
@@ -246,7 +246,7 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="en">
+        <LocaleProvider locales="en">
           <Translate
             book={book}
             id="example/message-link"
@@ -255,7 +255,7 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent(
@@ -272,7 +272,7 @@ describe("Translate", () => {
 
     {
       const { container } = render(
-        <LocaleContext.Provider value="en">
+        <LocaleProvider locales="en">
           <Translate
             book={book}
             id="example/message-link"
@@ -281,7 +281,7 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleContext.Provider>
+        </LocaleProvider>
       );
 
       expect(container).toHaveTextContent(
