@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.1
 
 - Fix wrong rule names in the recommended config
 
