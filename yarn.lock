@@ -1525,7 +1525,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/react-context@workspace:packages/react-context":
+"@hi18n/react-context@workspace:^0.1.0, @hi18n/react-context@workspace:packages/react-context":
   version: 0.0.0-use.local
   resolution: "@hi18n/react-context@workspace:packages/react-context"
   dependencies:
@@ -1549,6 +1549,7 @@ __metadata:
     "@babel/preset-typescript": ^7.16.7
     "@babel/runtime-corejs3": ^7.17.9
     "@hi18n/core": "workspace:^0.1.0"
+    "@hi18n/react-context": "workspace:^0.1.0"
     "@jest/globals": ^28.0.3
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.2.0
