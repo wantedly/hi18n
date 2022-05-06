@@ -69,7 +69,7 @@
     "@babel/preset-typescript": "^7.16.7",
     "@jest/globals": "^28.0.3",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.1.1",
+    "@testing-library/react": "^13.2.0",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
     "@types/testing-library__jest-dom": "^5.14.3",
