@@ -6,12 +6,12 @@ Installation:
 
 ```
 npm install @hi18n/core @hi18n/react-context @hi18n/react
-npm install -D hi18n
+npm install -D @hi18n/cli
 
 # Or:
 
 yarn add @hi18n/core @hi18n/react-context @hi18n/react
-yarn add -D hi18n
+yarn add -D @hi18n/cli
 ```
 
 Put the following file named like `src/locale/index.ts`:
