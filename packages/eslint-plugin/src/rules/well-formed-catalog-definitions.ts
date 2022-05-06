@@ -1,5 +1,5 @@
 // eslint-disable-next-line node/no-unpublished-import
-import type { TSESLint as ruleWellFormedCatalogDefinitions } from "@typescript-eslint/utils";
+import type { TSESLint } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
 import { catalogTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
@@ -11,7 +11,7 @@ type MessageIds =
   | "catalog-data-invalid-spread"
   | "catalog-data-invalid-id";
 
-export const meta: ruleWellFormedCatalogDefinitions.RuleMetaData<MessageIds> = {
+export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   fixable: "code",
   docs: {
@@ -32,10 +32,8 @@ export const meta: ruleWellFormedCatalogDefinitions.RuleMetaData<MessageIds> = {
 };
 
 export function create(
-  context: Readonly<
-    ruleWellFormedCatalogDefinitions.RuleContext<MessageIds, []>
-  >
-): ruleWellFormedCatalogDefinitions.RuleListener {
+  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+): TSESLint.RuleListener {
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (node, captured) => {
     if (node.type === "Identifier") return;
