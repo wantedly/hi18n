@@ -16,8 +16,8 @@ export const configs: Record<string, TSESLint.Linter.Config> = {
     rules: {
       "@hi18n/no-dynamic-translation-ids": "error",
       "@hi18n/well-formed-book-references": "error",
-      "@hi18n/well-formed-books": "error",
-      "@hi18n/well-formed-catalogs": "error",
+      "@hi18n/well-formed-book-definitions": "error",
+      "@hi18n/well-formed-catalog-definitions": "error",
     },
   },
 };
