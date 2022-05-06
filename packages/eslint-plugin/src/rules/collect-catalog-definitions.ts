@@ -1,4 +1,3 @@
-// eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint } from "@typescript-eslint/utils";
 import { catalogTracker } from "../common-trackers";
 import { DefLocation, resolveAsLocation } from "../def-location";

@@ -1,4 +1,3 @@
-// eslint-disable-next-line node/no-unpublished-import
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getImportName, resolveVariable } from "./util";
 

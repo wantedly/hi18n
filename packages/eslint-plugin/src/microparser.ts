@@ -2,7 +2,6 @@ import {
   AST_NODE_TYPES,
   AST_TOKEN_TYPES,
   TSESTree,
-  // eslint-disable-next-line node/no-unpublished-import
 } from "@typescript-eslint/utils";
 
 export class ParseError extends Error {}

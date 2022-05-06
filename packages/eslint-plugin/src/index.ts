@@ -1,4 +1,3 @@
-// eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint } from "@typescript-eslint/utils";
 import * as ruleCollectBookDefinitions from "./rules/collect-book-definitions";
 import * as ruleCollectCatalogDefinitions from "./rules/collect-catalog-definitions";

@@ -1,4 +1,3 @@
-// eslint-disable-next-line node/no-unpublished-import
 import type { TSESLint } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
 import { bookTracker } from "../common-trackers";
