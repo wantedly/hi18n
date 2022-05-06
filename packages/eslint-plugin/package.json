@@ -72,7 +72,7 @@
     "@types/estree-jsx": "^0.0.1",
     "@typescript-eslint/types": "^5.22.0",
     "babel-jest": "^28.0.3",
-    "eslint": "^8.14.0",
+    "eslint": "^8.15.0",
     "eslint-plugin-eslint-plugin": "^4.1.0",
     "eslint-plugin-node": "^11.1.0",
     "espree": "^9.3.1",
