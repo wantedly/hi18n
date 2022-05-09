@@ -62,6 +62,47 @@ It does the following:
   - If there are unused translation in the vocabulary or in the catalogs, it comments out the relavant definitions.
   - If there are missing translation referenced from somewhere, it adds the skeleton convenient for working on the translation. If there are previously commented out definitions, it instead uncomments these lines.
 
+## Adding new translations
+
+### Implementation-first way
+
+You can use "todo" versions of the translation functions:
+
+- `t.todo("example/new")` instead of `t("example/new")`
+- `<Translate.Todo id="example/new" book={book} />` instead of `<Translate id="example/new" book={book} />`
+
+Then run `hi18n sync` and the CLI automatically prepares the skeleton for you.
+
+(Ideally `hi18n sync` should also remove the `.todo` part but it is not implemented yet)
+
+### Translation-first way
+
+You can manually edit your data, and then add the corresponding implementation that makes use of the new translation.
+
+## Dynamically selecting translation ids
+
+You can use `translationId` in conjunction with `t.dynamic` to select translation ids dynamically.
+
+```typescript
+const menus = [
+  {
+    url: "https://example.com/home",
+    titleId: translationId("menu/home/title"),
+    tooltipId: translationId("menu/home/tooltip"),
+  },
+  {
+    url: "https://example.com/map",
+    titleId: translationId("menu/map/title"),
+    tooltipId: translationId("menu/map/tooltip"),
+  },
+];
+
+// Translate menu title
+t.dynamic(menus[i].titleId); // Works like t("menu/home/title")
+```
+
+There is also `<Translate.Dynamic/>` which works like `<Translate/>`.
+
 ## Concepts
 
 - Translation id
