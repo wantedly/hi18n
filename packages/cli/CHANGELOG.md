@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.2
 
 - Add support for `translationId`, `t.todo` and `<Translate.Todo>`
 
