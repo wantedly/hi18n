@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.1
 
 - Add `Translate.Dynamic` for dynamically selecting translations
 - Add `Translate.Todo` for bootstrapping new translations
