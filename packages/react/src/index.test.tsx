@@ -2,7 +2,7 @@ import React from "react";
 import { cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "@jest/globals";
-import { Book, Catalog, Message, msg } from "@hi18n/core";
+import { Book, Catalog, Message, msg, translationId } from "@hi18n/core";
 import { LocaleProvider, Translate, useI18n } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
 
@@ -296,5 +296,234 @@ describe("Translate", () => {
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
+  });
+});
+
+describe("Translate.Dynamic", () => {
+  it("renders a simple component interpolation", () => {
+    const id = translationId(book, "example/link");
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="ja">
+          <Translate.Dynamic book={book} id={id}>
+            <a href="https://example.com/" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent("こちらをクリック!");
+      expect(
+        screen.queryByRole("link", { name: /こちら/i })
+      ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
+        "href",
+        "https://example.com/"
+      );
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="en">
+          <Translate.Dynamic book={book} id={id}>
+            <a href="https://example.com/" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent("Click here!");
+      expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
+        "href",
+        "https://example.com/"
+      );
+      cleanup();
+    }
+  });
+
+  it("renders a named component interpolation", () => {
+    const id = translationId(book, "example/link2");
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="ja">
+          <Translate.Dynamic book={book} id={id}>
+            <a key="link" href="https://example.com/" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent("こちらをクリック!");
+      expect(
+        screen.queryByRole("link", { name: /こちら/i })
+      ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
+        "href",
+        "https://example.com/"
+      );
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="en">
+          <Translate.Dynamic book={book} id={id}>
+            <a key="link" href="https://example.com/" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent("Click here!");
+      expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
+        "href",
+        "https://example.com/"
+      );
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="ja">
+          <Translate.Dynamic
+            book={book}
+            id={id}
+            link={<a href="https://example.com/" />}
+          />
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent("こちらをクリック!");
+      expect(
+        screen.queryByRole("link", { name: /こちら/i })
+      ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
+        "href",
+        "https://example.com/"
+      );
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="en">
+          <Translate.Dynamic
+            book={book}
+            id={id}
+            link={<a href="https://example.com/" />}
+          />
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent("Click here!");
+      expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
+        "href",
+        "https://example.com/"
+      );
+      cleanup();
+    }
+  });
+
+  it("renders a component interpolation with plurals", () => {
+    const id = translationId(book, "example/message-link");
+    {
+      const { container } = render(
+        <LocaleProvider locales="ja">
+          <Translate.Dynamic book={book} id={id} messages={10} newMessages={5}>
+            <a href="https://example.com/messages" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent(
+        "5件のメッセージがあります。 10件の全てのメッセージを見る"
+      );
+      expect(
+        screen.queryByRole("link", { name: /10件の全てのメッセージを見る/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /10件の全てのメッセージを見る/i })
+      ).toHaveAttribute("href", "https://example.com/messages");
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="en">
+          <Translate.Dynamic book={book} id={id} messages={1} newMessages={1}>
+            <a href="https://example.com/messages" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent(
+        "You have 1 new message. See all the 1 message."
+      );
+      expect(
+        screen.queryByRole("link", { name: /See all the 1 message/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /See all the 1 message/i })
+      ).toHaveAttribute("href", "https://example.com/messages");
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="en">
+          <Translate.Dynamic book={book} id={id} messages={10} newMessages={1}>
+            <a href="https://example.com/messages" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent(
+        "You have 1 new message. See all the 10 messages."
+      );
+      expect(
+        screen.queryByRole("link", { name: /See all the 10 messages/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /See all the 10 messages/i })
+      ).toHaveAttribute("href", "https://example.com/messages");
+      cleanup();
+    }
+
+    {
+      const { container } = render(
+        <LocaleProvider locales="en">
+          <Translate.Dynamic book={book} id={id} messages={10} newMessages={5}>
+            <a href="https://example.com/messages" />
+          </Translate.Dynamic>
+        </LocaleProvider>
+      );
+
+      expect(container).toHaveTextContent(
+        "You have 5 new messages. See all the 10 messages."
+      );
+      expect(
+        screen.queryByRole("link", { name: /See all the 10 messages/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /See all the 10 messages/i })
+      ).toHaveAttribute("href", "https://example.com/messages");
+      cleanup();
+    }
+  });
+});
+
+describe("Translate.Todo", () => {
+  it("renders a simple component interpolation", () => {
+    const { container } = render(
+      <LocaleProvider locales="ja">
+        <Translate.Todo book={book} id="example/foobar">
+          <a href="https://example.com/" />
+        </Translate.Todo>
+      </LocaleProvider>
+    );
+
+    expect(container).toHaveTextContent("[TODO: example/foobar]");
   });
 });

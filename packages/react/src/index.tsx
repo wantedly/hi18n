@@ -3,9 +3,11 @@ import { LocaleContext } from "@hi18n/react-context";
 import {
   Book,
   VocabularyBase,
+  TranslationId,
   TranslatorObject,
   MessageArguments,
   getTranslator,
+  InstantiateComponentTypes,
 } from "@hi18n/core";
 
 export { LocaleContext } from "@hi18n/react-context";
@@ -142,6 +144,52 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
     </>
   );
 }
+
+export type DynamicTranslateProps<Vocabulary extends VocabularyBase, Args> = {
+  book: Book<Vocabulary>;
+  id: TranslationId<Vocabulary, Args>;
+  children?: React.ReactNode | undefined;
+} & PartialForComponents<InstantiateComponentTypes<Args, React.ReactElement>>;
+
+/**
+ * A variant of {@link Translate} for dynamic translation keys
+ *
+ * @example
+ *   ```tsx
+ *   const id = translationId(book, "example/signin");
+ *   <Translate.Dynamic id={id} book={book}>
+ *     <a href="" />
+ *     <a href="" />
+ *   </Translate.Dynamic>
+ *   ```
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+Translate.Dynamic = Translate as <Vocabulary extends VocabularyBase, Args = {}>(
+  props: DynamicTranslateProps<Vocabulary, Args>
+) => React.ReactElement | null;
+
+export type TodoTranslateProps<Vocabulary extends VocabularyBase> = {
+  id: string;
+  book: Book<Vocabulary>;
+  [key: string]: unknown;
+};
+
+/**
+ * A variant of {@link Translate} for translation bootstrap.
+ *
+ * At runtime, it just renders a TODO text.
+ *
+ * @example
+ *   ```tsx
+ *   <Translate.Todo id="example/message-to-work-on" book={book}>
+ *   </Translate.Todo>
+ *   ```
+ */
+Translate.Todo = function Todo<Vocabulary extends VocabularyBase>(
+  props: TodoTranslateProps<Vocabulary>
+): React.ReactElement | null {
+  return <>[TODO: {props.id}]</>;
+};
 
 // <Translate>foo<a/> <strong>bar</strong> </Translate> => { 0: <a/>, 1: <strong/> }
 // <Translate><strong><em></em></strong></Translate> => { 0: <strong/>, 1: <em/> }
