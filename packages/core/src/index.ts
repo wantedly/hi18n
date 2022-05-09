@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return */
 
 import { CompiledMessage } from "./msgfmt.js";
 import { evaluateMessage } from "./msgfmt-eval.js";
@@ -11,6 +11,7 @@ import type {
 export type { ComponentPlaceholder } from "./msgfmt-parser-types.js";
 
 declare const messageBrandSymbol: unique symbol;
+declare const translationIdBrandSymbol: unique symbol;
 
 /**
  * A subtype of `string` that represents translation messages.
@@ -34,17 +35,33 @@ export type VocabularyBase = Record<string, Message<any>>;
  * @param M the message being instantiated.
  * @param C replacement for the component interpolation (like `<0></0>` or `<link></link>`).
  */
-export type MessageArguments<M extends Message<any>, C> = M extends Message<
-  infer Args
->
-  ? InstantiateComponentTypes<Args, C>
-  : never;
+export type MessageArguments<
+  M extends Message<any>,
+  C
+> = InstantiateComponentTypes<AbstractMessageArguments<M>, C>;
+
+export type AbstractMessageArguments<M extends Message<any>> =
+  M extends Message<infer Args> ? Args : never;
+
 export type InstantiateComponentTypes<Args, C> = {
   [K in keyof Args]: InstantiateComponentType<Args[K], C>;
 };
 export type InstantiateComponentType<T, C> = T extends ComponentPlaceholder
   ? C
   : T;
+
+/**
+ * A subtype of `string` that represents a dynamically-managed translation id.
+ *
+ * @param Vocabulary the vocabulary type of the Book it refers to
+ * @param Args parameters required by this message
+ */
+export type TranslationId<
+  Vocabulary extends VocabularyBase,
+  Args = {}
+> = string & {
+  [translationIdBrandSymbol]: (catalog: Vocabulary, args: Args) => void;
+};
 
 /**
  * Extracts the translation ids that don't take parameters.
@@ -78,6 +95,43 @@ export type SimpleMessageKeys<
  */
 export function msg<S extends string>(s: S): InferredMessageType<S> {
   return s as any;
+}
+
+/**
+ * Marks a translation id as dynamically used with {@link CompoundTranslatorFunction.dynamic t.dynamic}.
+ *
+ * At runtime, it just returns the second argument.
+ *
+ * @param book the book the id is linked to. Just discarded at runtime.
+ * @param id the translation id.
+ * @returns the second argument
+ *
+ * @example
+ *   ```ts
+ *   const menus = [
+ *     {
+ *       url: "https://example.com/home",
+ *       titleId: translationId(book, "example/navigation/home"),
+ *     },
+ *     {
+ *       url: "https://example.com/map",
+ *       titleId: translationId(book, "example/navigation/map"),
+ *     },
+ *   ];
+ *
+ *   const { t } = getTranslator(book, "en");
+ *   t.dynamic(menus[i].titleId);
+ *   ```
+ */
+export function translationId<
+  Vocabulary extends VocabularyBase,
+  K extends string & keyof Vocabulary
+>(
+  book: Book<Vocabulary>,
+  id: K
+): TranslationId<Vocabulary, AbstractMessageArguments<Vocabulary[K]>> {
+  const _book = book;
+  return id as any;
 }
 
 /**
@@ -145,33 +199,15 @@ export class Catalog<Vocabulary extends VocabularyBase> {
  */
 export type TranslatorObject<Vocabulary extends VocabularyBase> = {
   /**
-   * Returns the translated message for a simple one.
+   * Returns the translated message.
    *
-   * @param id the id of the translation
    * @example
    *   ```ts
    *   const { t } = getTranslator(book, "en");
    *   t("example/greeting-simple"); // => "Hello!"
    *   ```
    */
-  t(id: SimpleMessageKeys<Vocabulary>): string;
-
-  /**
-   * Returns the translated message.
-   *
-   * @param id the id of the translation
-   * @param options the parameters of the translation.
-   *
-   * @example
-   *   ```ts
-   *   const { t } = getTranslator(book, "en");
-   *   t("example/greeting", { name: "John" }); // => "Hello, John!"
-   *   ```
-   */
-  t<K extends string & keyof Vocabulary>(
-    id: K,
-    options: MessageArguments<Vocabulary[K], never>
-  ): string;
+  t: CompoundTranslatorFunction<Vocabulary>;
 
   /**
    * Similar to {@link TranslatorObject.t} but allows component interpolation
@@ -189,6 +225,97 @@ export type TranslatorObject<Vocabulary extends VocabularyBase> = {
     interpolator: ComponentInterpolator<T, C>,
     options: MessageArguments<Vocabulary[K], C>
   ): T | string;
+};
+
+type CompoundTranslatorFunction<Vocabulary extends VocabularyBase> =
+  TranslatorFunction<Vocabulary> & {
+    /**
+     * Returns the translated message for a dynamic id.
+     *
+     * @example
+     *   ```ts
+     *   const { t } = getTranslator(book, "en");
+     *   t.dynamic(menus[i].titleId); // => "Map"
+     *   ```
+     */
+    dynamic: DynamicTranslatorFunction<Vocabulary>;
+
+    /**
+     * Declares a translation to be made.
+     *
+     * At runtime, it returns the first argument.
+     *
+     * @param id the id of the translation
+     * @param options the parameters of the translation.
+     * @example
+     *   ```ts
+     *   const { t } = getTranslator(book, "en");
+     *   t.todo("example/greeting-simple"); // => "[TODO: example/greeting-simple]"
+     *   ```
+     */
+    todo(id: string, options?: Record<string, unknown>): string;
+  };
+
+type TranslatorFunction<Vocabulary extends VocabularyBase> = {
+  /**
+   * Returns the translated message for a simple one.
+   *
+   * @param id the id of the translation
+   * @example
+   *   ```ts
+   *   const { t } = getTranslator(book, "en");
+   *   t("example/greeting-simple"); // => "Hello!"
+   *   ```
+   */
+  (id: SimpleMessageKeys<Vocabulary>): string;
+
+  /**
+   * Returns the translated message.
+   *
+   * @param id the id of the translation
+   * @param options the parameters of the translation.
+   *
+   * @example
+   *   ```ts
+   *   const { t } = getTranslator(book, "en");
+   *   t("example/greeting", { name: "John" }); // => "Hello, John!"
+   *   ```
+   */
+  <K extends string & keyof Vocabulary>(
+    id: K,
+    options: MessageArguments<Vocabulary[K], never>
+  ): string;
+};
+
+type DynamicTranslatorFunction<Vocabulary extends VocabularyBase> = {
+  /**
+   * Returns the translated message for a simple dynamic id.
+   *
+   * @param id the id of the translation
+   * @example
+   *   ```ts
+   *   const { t } = getTranslator(book, "en");
+   *   t.dynamic(menus[i].titleId); // => "Map"
+   *   ```
+   */
+  (id: TranslationId<Vocabulary, {}>): string;
+
+  /**
+   * Returns the translated message for a dynamic id.
+   *
+   * @param id the id of the translation
+   * @param options the parameters of the translation.
+   *
+   * @example
+   *   ```ts
+   *   const { t } = getTranslator(book, "en");
+   *   t.dynamic(greetings[i].translationId, { name: "John" }); // => "Hello, John!"
+   *   ```
+   */
+  <Args>(
+    id: TranslationId<Vocabulary, Args>,
+    options: InstantiateComponentTypes<Args, never>
+  ): string;
 };
 
 /**
@@ -220,17 +347,20 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
   const catalog = book.catalogs[locale];
   if (!catalog) throw new Error(`Missing locale: ${locale}`);
 
+  const t = (id: string, options: Record<string, unknown> = {}) => {
+    return evaluateMessage(catalog.getCompiledMessage(id), {
+      id,
+      locale,
+      params: options,
+    });
+  };
+  t.dynamic = t;
+  t.todo = (id: string) => {
+    return `[TODO: ${id}]`;
+  };
+
   return {
-    t: <K extends string & keyof Vocabulary>(
-      id: K,
-      options: MessageArguments<Vocabulary[K], never> = {} as any
-    ) => {
-      return evaluateMessage(catalog.getCompiledMessage(id), {
-        id,
-        locale,
-        params: options,
-      });
-    },
+    t: t as CompoundTranslatorFunction<Vocabulary>,
     translateWithComponents: <T, C, K extends string & keyof Vocabulary>(
       id: K,
       interpolator: ComponentInterpolator<T, C>,

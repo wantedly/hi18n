@@ -1,7 +1,15 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
 
 import { describe, expect, it } from "@jest/globals";
-import { Book, Catalog, Message, getTranslator, msg } from "./index.js";
+import {
+  Book,
+  Catalog,
+  Message,
+  getTranslator,
+  msg,
+  translationId,
+  TranslationId,
+} from "./index.js";
 
 type Vocabulary = {
   "example/greeting": Message;
@@ -104,6 +112,88 @@ describe("Book", () => {
     }).toThrow(
       "Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)"
     );
+  });
+
+  describe("dynamic translation", () => {
+    it("generates translation", () => {
+      const id = translationId(book, "example/greeting");
+      {
+        const { t } = getTranslator(book, "ja");
+        expect(t.dynamic(id)).toBe("こんにちは!");
+      }
+      {
+        const { t } = getTranslator(book, "en");
+        expect(t.dynamic(id)).toBe("Hello!");
+      }
+    });
+
+    it("raises an error for missing translation id", () => {
+      const id: TranslationId<Vocabulary> = translationId(
+        book,
+        // @ts-expect-error
+        "example/non-existent-translation-id"
+      );
+      const { t } = getTranslator(book, "en");
+      expect(() => {
+        t.dynamic(id);
+      }).toThrow(
+        "Missing translation in en for example/non-existent-translation-id"
+      );
+    });
+
+    it("does a simple interpolation", () => {
+      const id = translationId(book, "example/greeting2");
+      {
+        const { t } = getTranslator(book, "ja");
+        expect(t.dynamic(id, { name: "太郎" })).toBe("こんにちは、太郎さん!");
+      }
+      {
+        const { t } = getTranslator(book, "en");
+        expect(t.dynamic(id, { name: "Taro" })).toBe("Hello, Taro!");
+      }
+    });
+
+    it("does plural interpolation", () => {
+      const id = translationId(book, "example/apples");
+      {
+        const { t } = getTranslator(book, "ja");
+        expect(t.dynamic(id, { count: 1 })).toBe("リンゴは1個あります。");
+        expect(t.dynamic(id, { count: 12345 })).toBe(
+          "リンゴは12,345個あります。"
+        );
+      }
+      {
+        const { t } = getTranslator(book, "en");
+        expect(t.dynamic(id, { count: 1 })).toBe("There is 1 apple.");
+        expect(t.dynamic(id, { count: 12345 })).toBe(
+          "There are 12,345 apples."
+        );
+      }
+    });
+
+    it("raises an error for missing arguments", () => {
+      const id = translationId(book, "example/greeting2");
+      const { t } = getTranslator(book, "en");
+      expect(() => {
+        // @ts-expect-error
+        t.dynamic(id);
+      }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
+      expect(() => {
+        // @ts-expect-error
+        t.dynamic(id, {});
+      }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
+    });
+
+    it("raises an error for invalid argument types", () => {
+      const id = translationId(book, "example/greeting2");
+      const { t } = getTranslator(book, "en");
+      expect(() => {
+        // @ts-expect-error
+        t.dynamic(id, { name: 42 });
+      }).toThrow(
+        "Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)"
+      );
+    });
   });
 });
 
