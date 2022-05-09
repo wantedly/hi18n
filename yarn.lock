@@ -1485,7 +1485,7 @@ __metadata:
     "@babel/runtime-corejs3": ^7.17.9
     "@babel/types": ^7.17.10
     "@hi18n/core": "workspace:*"
-    "@hi18n/eslint-plugin": "workspace:^0.1.0"
+    "@hi18n/eslint-plugin": "workspace:^0.1.2"
     "@jest/globals": ^28.0.3
     "@types/eslint": ^8.4.2
     "@types/fs-extra": ^9.0.13
@@ -1530,7 +1530,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/eslint-plugin@workspace:^0.1.0, @hi18n/eslint-plugin@workspace:packages/eslint-plugin":
+"@hi18n/eslint-plugin@workspace:^0.1.2, @hi18n/eslint-plugin@workspace:packages/eslint-plugin":
   version: 0.0.0-use.local
   resolution: "@hi18n/eslint-plugin@workspace:packages/eslint-plugin"
   dependencies:
