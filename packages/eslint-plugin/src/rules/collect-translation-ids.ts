@@ -34,7 +34,10 @@ export function create(
     throw new Error("invalid callback");
   const collectIdsCallback = context.options[0];
   const tracker = translationCallTracker();
-  tracker.listen("translation", (_node, captured) => {
+  tracker.listen("translation", (node, captured) => {
+    // This is usually an excess during tracking
+    if (node.type === "Identifier") return;
+
     const idNode = captured["id"]!;
     if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
       return;

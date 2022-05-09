@@ -57,6 +57,7 @@ export function translationCallTracker(): Tracker {
     "translatorObject"
   );
   tracker.watchMember("translatorObject", "t", "translate");
+  tracker.watchMember("translate", "todo", "translate");
   tracker.watchCall(
     "translate",
     [
@@ -67,9 +68,39 @@ export function translationCallTracker(): Tracker {
     ],
     "translation"
   );
+  tracker.watchMember('import("@hi18n/core")', "translationId");
+  tracker.watchCall(
+    'import("@hi18n/core").translationId',
+    [
+      {
+        captureAs: "book",
+        path: ["0"],
+      },
+      {
+        captureAs: "id",
+        path: ["1"],
+      },
+    ],
+    "translation"
+  );
   tracker.watchMember('import("@hi18n/react")', "Translate");
+  tracker.watchMember('import("@hi18n/react").Translate', "Todo");
   tracker.watchJSXElement(
     'import("@hi18n/react").Translate',
+    [
+      {
+        captureAs: "book",
+        path: ["book"],
+      },
+      {
+        captureAs: "id",
+        path: ["id"],
+      },
+    ],
+    "translation"
+  );
+  tracker.watchJSXElement(
+    'import("@hi18n/react").Translate.Todo',
     [
       {
         captureAs: "book",

@@ -10,8 +10,10 @@ export function getImportName(
   }
 }
 
-export function getStaticMemKey(mem: TSESTree.MemberExpression): string | null {
-  if (mem.computed) {
+export function getStaticMemKey(
+  mem: TSESTree.MemberExpression | TSESTree.JSXMemberExpression
+): string | null {
+  if (mem.type !== "JSXMemberExpression" && mem.computed) {
     if (
       mem.property.type === "Literal" &&
       typeof mem.property.value === "string"
@@ -29,7 +31,10 @@ export function getStaticMemKey(mem: TSESTree.MemberExpression): string | null {
       return `${mem.property.value}`;
     }
   } else {
-    if (mem.property.type === "Identifier") {
+    if (
+      mem.property.type === "Identifier" ||
+      mem.property.type === "JSXIdentifier"
+    ) {
       return mem.property.name;
     }
   }

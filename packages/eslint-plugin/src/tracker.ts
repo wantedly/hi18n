@@ -146,7 +146,11 @@ export class Tracker {
   }
   private trackExpression(
     scopeManager: TSESLint.Scope.ScopeManager,
-    expr: TSESTree.Expression | TSESTree.JSXElement | TSESTree.JSXIdentifier,
+    expr:
+      | TSESTree.Expression
+      | TSESTree.JSXElement
+      | TSESTree.JSXIdentifier
+      | TSESTree.JSXMemberExpression,
     res: Resource
   ) {
     this.fire(res, expr);
@@ -159,6 +163,7 @@ export class Tracker {
         }
         break;
       case "MemberExpression":
+      case "JSXMemberExpression":
         if (parent.object === expr) {
           const key = getStaticMemKey(parent);
           if (key !== null) {
