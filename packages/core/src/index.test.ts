@@ -195,6 +195,28 @@ describe("Book", () => {
       );
     });
   });
+
+  describe("translation bootstrapping", () => {
+    it("Returns placeholder", () => {
+      const { t } = getTranslator(book, "ja");
+      expect(t.todo("example/greeting")).toBe("[TODO: example/greeting]");
+      expect(t.todo("example/greeting2")).toBe("[TODO: example/greeting2]");
+      expect(t.todo("example/foobar")).toBe("[TODO: example/foobar]");
+    });
+
+    it("Discards parameters", () => {
+      const { t } = getTranslator(book, "ja");
+      expect(t.todo("example/greeting", { name: "John" })).toBe(
+        "[TODO: example/greeting]"
+      );
+      expect(t.todo("example/greeting2", { name: "John" })).toBe(
+        "[TODO: example/greeting2]"
+      );
+      expect(t.todo("example/foobar", { name: "John" })).toBe(
+        "[TODO: example/foobar]"
+      );
+    });
+  });
 });
 
 function expectType<T>(_x: T) {
