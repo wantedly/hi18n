@@ -60,7 +60,7 @@
   },
   "peerDependencies": {
     "@hi18n/react-context": "workspace:^0.1.0",
-    "react": "^16.14.0 || ^17.0.0 || ^18.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.10",
