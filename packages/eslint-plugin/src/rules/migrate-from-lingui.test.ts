@@ -10,13 +10,21 @@ new TSESLint.RuleTester({
   },
 }).run("@hi18n/migrate-from-lingui", rule, {
   valid: [
-    `
-      import { getTranslator } from "@hi18n/core";
-      import { book } from "../locale";
+    {
+      code: `
+        import { getTranslator } from "@hi18n/core";
+        import { book } from "../locale";
 
-      const { t } = getTranslator(book, "en");
-      t("example.greeting");
-    `,
+        const { t } = getTranslator(book, "en");
+        t("example.greeting");
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+    },
   ],
   invalid: [
     {
@@ -26,12 +34,41 @@ new TSESLint.RuleTester({
 
         <Trans id="example/greeting" />;
       `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
-        import { book } from "src/locale";
+        import { book } from "./locale";
+
+        <Translate book={book} id="example/greeting" />;
+      `,
+    },
+    {
+      code: `
+        import React from "react";
+        import { Trans } from "@lingui/react";
+
+        <Trans id="example/greeting" />;
+      `,
+      filename: "src/components/foo/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-trans-jsx" }],
+      output: `
+        import React from "react";
+        import { Translate } from "@hi18n/react";
+        import { Trans } from "@lingui/react";
+        import { book } from "../../locale";
 
         <Translate book={book} id="example/greeting" />;
       `,
@@ -45,12 +82,18 @@ new TSESLint.RuleTester({
 
         <Trans id="example/greeting" />;
       `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
         import React from "react";
         import { Translate as Translate0 } from "@hi18n/react";
         import { Trans } from "@lingui/react";
-        import { book } from "src/locale";
+        import { book } from "./locale";
 
         const Translate = 0;
 
@@ -65,12 +108,18 @@ new TSESLint.RuleTester({
 
         <Trans id="example/greeting" />;
       `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
-        import { book } from "src/locale";
+        import { book } from "./locale";
 
         <Translate book={book} id="example/greeting" />;
       `,
@@ -83,27 +132,39 @@ new TSESLint.RuleTester({
 
         <Trans id="example/greeting" />;
       `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
         import React from "react";
         import { useI18n, Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
-        import { book } from "src/locale";
+        import { book } from "./locale";
 
         <Translate book={book} id="example/greeting" />;
       `,
     },
     {
       code: `
-        import { book } from "src/locale";
+        import { book } from "./locale";
         import React from "react";
         import { Trans } from "@lingui/react";
 
         <Trans id="example/greeting" />;
       `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
-        import { book } from "src/locale";
+        import { book } from "./locale";
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
@@ -118,12 +179,18 @@ new TSESLint.RuleTester({
 
         <Trans id="example/greeting" render={<Foo />} />;
       `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
-        import { book } from "src/locale";
+        import { book } from "./locale";
 
         <Translate book={book} id="example/greeting" renderInElement={<Foo />} />;
       `,

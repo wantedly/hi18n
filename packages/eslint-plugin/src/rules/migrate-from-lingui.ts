@@ -1,8 +1,13 @@
+import path from "node:path";
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { linguiTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 
 type MessageIds = "migrate-trans-jsx";
+
+type Options = {
+  bookPath: string;
+};
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
@@ -15,7 +20,18 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   messages: {
     "migrate-trans-jsx": "Migrate <Trans> to hi18n",
   },
-  schema: {},
+  schema: [
+    {
+      type: "object",
+      required: ["bookPath"],
+      properties: {
+        bookPath: {
+          type: "string",
+        },
+      },
+      additionalProperties: false,
+    },
+  ],
 };
 
 const MIGRATABLE_PROP_NAMES = [
@@ -39,8 +55,13 @@ const MIGRATABLE_PROP_NAMES = [
 ];
 
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, [Options]>>
 ): TSESLint.RuleListener {
+  let bookPath = path.relative(
+    path.dirname(context.getFilename()),
+    context.options[0].bookPath
+  );
+  if (!/^\.\.?(?:\/|$)/.test(bookPath)) bookPath = `./${bookPath}`;
   const tracker = linguiTracker();
   tracker.listen("translationJSX", (node, captured) => {
     const propsNode = captured["props"]!;
@@ -106,7 +127,7 @@ export function create(
           context.getSourceCode(),
           context.getSourceCode().scopeManager!,
           fixer,
-          "src/locale",
+          bookPath,
           "book",
           [],
           true
