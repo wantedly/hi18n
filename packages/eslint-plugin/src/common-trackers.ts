@@ -115,3 +115,46 @@ export function translationCallTracker(): Tracker {
   );
   return tracker;
 }
+
+export function linguiTracker(): Tracker {
+  const tracker = new Tracker();
+  tracker.watchImport("@lingui/react");
+  tracker.watchImport("@lingui/macro");
+  tracker.watchMember('import("@lingui/react")', "Trans", "Trans");
+  tracker.watchMember('import("@lingui/macro")', "Trans", "Trans");
+  tracker.watchJSXElement(
+    "Trans",
+    [
+      {
+        captureAs: "props",
+        path: [],
+      },
+      {
+        captureAs: "id",
+        path: ["id"],
+      },
+      {
+        captureAs: "defaults",
+        path: ["defaults"],
+      },
+      {
+        captureAs: "message",
+        path: ["message"],
+      },
+      {
+        captureAs: "render",
+        path: ["render"],
+      },
+      {
+        captureAs: "component",
+        path: ["component"],
+      },
+      {
+        captureAs: "components",
+        path: ["components"],
+      },
+    ],
+    "translationJSX"
+  );
+  return tracker;
+}
