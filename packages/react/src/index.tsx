@@ -102,7 +102,11 @@ export function useI18n<M extends VocabularyBase>(
   book: Book<M>
 ): TranslatorObject<M> {
   const locales = useLocales();
-  return getTranslator(book, locales);
+  const i18n = React.useMemo(
+    () => getTranslator(book, locales),
+    [book, locales]
+  );
+  return i18n;
 }
 
 export type TranslateProps<M extends VocabularyBase, K extends keyof M> = {

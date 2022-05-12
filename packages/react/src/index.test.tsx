@@ -2,7 +2,14 @@ import React from "react";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "@jest/globals";
-import { Book, Catalog, Message, msg, translationId } from "@hi18n/core";
+import {
+  Book,
+  Catalog,
+  Message,
+  msg,
+  translationId,
+  TranslatorObject,
+} from "@hi18n/core";
 import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
 
@@ -148,6 +155,29 @@ describe("useI18n", () => {
     expect(
       screen.queryByRole("link", { name: /こんにちは!/i })
     ).toBeInTheDocument();
+  });
+
+  it("memoizes the translator object", () => {
+    const translatorObjects = new Set<TranslatorObject<Vocabulary>>();
+    let increment: () => void = () => 0;
+    const Counter: React.FC = () => {
+      const [count, setCount] = React.useState<number>(0);
+      increment = () => setCount((x) => x + 1);
+      const i18n = useI18n(book);
+      translatorObjects.add(i18n);
+      return <>count = {count}</>;
+    };
+    render(
+      <LocaleProvider locales={["en", "ja", "zh-CN"]}>
+        <Counter />
+      </LocaleProvider>
+    );
+    expect(screen.queryByText("count = 0")).toBeInTheDocument();
+    act(() => increment());
+    expect(screen.queryByText("count = 1")).toBeInTheDocument();
+    act(() => increment());
+    expect(screen.queryByText("count = 2")).toBeInTheDocument();
+    expect(translatorObjects.size).toBe(1);
   });
 });
 
