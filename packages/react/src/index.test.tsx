@@ -1,9 +1,9 @@
 import React from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "@jest/globals";
 import { Book, Catalog, Message, msg, translationId } from "@hi18n/core";
-import { LocaleProvider, Translate, useI18n } from "./index.js";
+import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
 
 declare module "expect/build" {
@@ -50,6 +50,88 @@ const catalogEn = new Catalog<Vocabulary>({
 const book = new Book<Vocabulary>({
   ja: catalogJa,
   en: catalogEn,
+});
+
+describe("useLocales", () => {
+  it("returns the t function", () => {
+    const ListLocales: React.FC = () => {
+      const locales = useLocales();
+      return (
+        <>
+          {locales
+            .map((locale, i) => `Locale ${i + 1} is ${locale}.`)
+            .join(" ")}
+        </>
+      );
+    };
+    render(
+      <LocaleProvider locales={["en", "ja", "zh-CN"]}>
+        <ListLocales />
+      </LocaleProvider>
+    );
+    expect(
+      screen.queryByText("Locale 1 is en. Locale 2 is ja. Locale 3 is zh-CN.")
+    ).toBeInTheDocument();
+  });
+
+  it("returns the empty array by default", () => {
+    const LocaleLength: React.FC = () => {
+      const locales = useLocales();
+      return <>It has {locales.length} locales in context.</>;
+    };
+    {
+      render(
+        <LocaleProvider locales={["en", "ja", "zh-CN"]}>
+          <LocaleLength />
+        </LocaleProvider>
+      );
+      expect(
+        screen.queryByText("It has 3 locales in context.")
+      ).toBeInTheDocument();
+      cleanup();
+    }
+    {
+      render(
+        <LocaleProvider locales={[]}>
+          <LocaleLength />
+        </LocaleProvider>
+      );
+      expect(
+        screen.queryByText("It has 0 locales in context.")
+      ).toBeInTheDocument();
+      cleanup();
+    }
+    {
+      render(<LocaleLength />);
+      expect(
+        screen.queryByText("It has 0 locales in context.")
+      ).toBeInTheDocument();
+      cleanup();
+    }
+  });
+
+  it("memoizes the array", () => {
+    const localeObjects = new Set<string[]>();
+    let increment: () => void = () => 0;
+    const Counter: React.FC = () => {
+      const [count, setCount] = React.useState<number>(0);
+      increment = () => setCount((x) => x + 1);
+      const locales = useLocales();
+      localeObjects.add(locales);
+      return <>count = {count}</>;
+    };
+    render(
+      <LocaleProvider locales={["en", "ja", "zh-CN"]}>
+        <Counter />
+      </LocaleProvider>
+    );
+    expect(screen.queryByText("count = 0")).toBeInTheDocument();
+    act(() => increment());
+    expect(screen.queryByText("count = 1")).toBeInTheDocument();
+    act(() => increment());
+    expect(screen.queryByText("count = 2")).toBeInTheDocument();
+    expect(localeObjects.size).toBe(1);
+  });
 });
 
 describe("useI18n", () => {

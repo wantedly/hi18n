@@ -2,6 +2,7 @@
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
 - Add `"sideEffects": false` for better tree-shaking.
+- Add `useLocales` to get the context without immediately converting it to the translator object.
 
 ## 0.1.1
 

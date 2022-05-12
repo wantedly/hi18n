@@ -29,6 +29,9 @@ export { LocaleContext } from "@hi18n/react-context";
  */
 export const LocaleProvider: React.FC<{
   children?: React.ReactNode;
+  /**
+   * A list of locales in the order of preference.
+   */
   locales: string | string[];
 }> = (props) => {
   const { locales, children } = props;
@@ -41,6 +44,35 @@ export const LocaleProvider: React.FC<{
     </LocaleContext.Provider>
   );
 };
+/**
+ * Returns the locales from the context.
+ *
+ * @returns A list of locales in the order of preference.
+ *
+ * @example
+ *   ```tsx
+ *   const Greeting: React.FC = () => {
+ *     const { t } = useI18n(book);
+ *     return (
+ *       <section>
+ *         <h1>{t("example/greeting")}</h1>
+ *         {
+ *           messages.length > 0 &&
+ *             <p>{t("example/messages", { count: messages.length })}</p>
+ *         }
+ *       </section>
+ *     );
+ *   };
+ *   ```
+ */
+export function useLocales(): string[] {
+  const localesConcat = React.useContext(LocaleContext);
+  const locales = React.useMemo(
+    () => (localesConcat === "" ? [] : localesConcat.split("\n")),
+    [localesConcat]
+  );
+  return locales;
+}
 
 /**
  * Retrieves translation helpers, using the locale from the context.
@@ -69,8 +101,8 @@ export const LocaleProvider: React.FC<{
 export function useI18n<M extends VocabularyBase>(
   book: Book<M>
 ): TranslatorObject<M> {
-  const locale = React.useContext(LocaleContext);
-  return getTranslator(book, locale.split("\n")[0]!);
+  const locales = useLocales();
+  return getTranslator(book, locales);
 }
 
 export type TranslateProps<M extends VocabularyBase, K extends keyof M> = {
