@@ -91,17 +91,30 @@ export function create(
       node: capturedRoot(propsNode),
       messageId: "migrate-trans-jsx",
       *fix(fixer) {
-        const [importFixes, translateComponentName] = getOrInsertImport(
+        const [translateImportFixes, translateComponentName] =
+          getOrInsertImport(
+            context.getSourceCode(),
+            context.getSourceCode().scopeManager!,
+            fixer,
+            "@hi18n/react",
+            "Translate",
+            ["@lingui/react", "@lingui/macro"]
+          );
+        yield* translateImportFixes;
+
+        const [bookImportFixes, bookName] = getOrInsertImport(
           context.getSourceCode(),
           context.getSourceCode().scopeManager!,
           fixer,
-          "@hi18n/react",
-          "Translate",
-          ["@lingui/react", "@lingui/macro"]
+          "src/locale",
+          "book",
+          [],
+          true
         );
-        yield* importFixes;
+        yield* bookImportFixes;
 
         const attrs: string[] = [];
+        attrs.push(`book={${bookName}}`);
         attrs.push(`id="${id}"`);
         if (renderInElement !== undefined) {
           attrs.push(`renderInElement={${renderInElement}}`);
@@ -127,14 +140,17 @@ function getOrInsertImport(
   fixer: TSESLint.RuleFixer,
   source: string,
   importName: string,
-  positionHintSources: string[]
+  positionHintSources: string[],
+  doInsertAfter?: boolean
 ): [TSESLint.RuleFix[], string] {
   const program = scopeManager.globalScope!.block;
   const programScope = scopeManager.acquire(program, true)!;
   let positionHintNode: TSESTree.ImportDeclaration | undefined = undefined;
   let importNode: TSESTree.ImportDeclaration | undefined = undefined;
+  let lastImport: TSESTree.ImportDeclaration | undefined = undefined;
   for (const stmt of program.body) {
     if (stmt.type !== "ImportDeclaration") continue;
+    lastImport = stmt;
     if (stmt.source.value === source) {
       if (stmt.importKind === "type") continue;
       let eligibleForNamedImport = true;
@@ -236,6 +252,18 @@ function getOrInsertImport(
         }
       }
     }
+  }
+  if (doInsertAfter && lastImport) {
+    const indent = " ".repeat(lastImport.loc.start.column);
+    return [
+      [
+        fixer.insertTextAfter(
+          lastImport,
+          `\n${indent}import { ${specText} } from ${JSON.stringify(source)};`
+        ),
+      ],
+      newName,
+    ];
   }
   const insertBefore = positionHintNode ?? program;
   const indent = " ".repeat(insertBefore.loc.start.column);

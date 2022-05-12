@@ -31,8 +31,9 @@ new TSESLint.RuleTester({
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
+        import { book } from "src/locale";
 
-        <Translate id="example/greeting" />;
+        <Translate book={book} id="example/greeting" />;
       `,
     },
     {
@@ -49,10 +50,11 @@ new TSESLint.RuleTester({
         import React from "react";
         import { Translate as Translate0 } from "@hi18n/react";
         import { Trans } from "@lingui/react";
+        import { book } from "src/locale";
 
         const Translate = 0;
 
-        <Translate0 id="example/greeting" />;
+        <Translate0 book={book} id="example/greeting" />;
       `,
     },
     {
@@ -68,8 +70,9 @@ new TSESLint.RuleTester({
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
+        import { book } from "src/locale";
 
-        <Translate id="example/greeting" />;
+        <Translate book={book} id="example/greeting" />;
       `,
     },
     {
@@ -85,8 +88,27 @@ new TSESLint.RuleTester({
         import React from "react";
         import { useI18n, Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
+        import { book } from "src/locale";
 
-        <Translate id="example/greeting" />;
+        <Translate book={book} id="example/greeting" />;
+      `,
+    },
+    {
+      code: `
+        import { book } from "src/locale";
+        import React from "react";
+        import { Trans } from "@lingui/react";
+
+        <Trans id="example/greeting" />;
+      `,
+      errors: [{ messageId: "migrate-trans-jsx" }],
+      output: `
+        import { book } from "src/locale";
+        import React from "react";
+        import { Translate } from "@hi18n/react";
+        import { Trans } from "@lingui/react";
+
+        <Translate book={book} id="example/greeting" />;
       `,
     },
     {
@@ -101,8 +123,9 @@ new TSESLint.RuleTester({
         import React from "react";
         import { Translate } from "@hi18n/react";
         import { Trans } from "@lingui/react";
+        import { book } from "src/locale";
 
-        <Translate id="example/greeting" renderInElement={<Foo />} />;
+        <Translate book={book} id="example/greeting" renderInElement={<Foo />} />;
       `,
     },
   ],
