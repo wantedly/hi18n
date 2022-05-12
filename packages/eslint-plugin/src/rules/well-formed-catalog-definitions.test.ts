@@ -39,10 +39,7 @@ new TSESLint.RuleTester({
         import { Catalog } from "@hi18n/core";
         new Catalog({});
       `,
-      errors: [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        "expose the catalog as an export or a file-scope variable" as any,
-      ],
+      errors: [{ messageId: "expose-catalog" }],
     },
     {
       code: `
@@ -51,21 +48,21 @@ new TSESLint.RuleTester({
           const catalogEn = new Catalog({});
         }
       `,
-      errors: ["expose the catalog as an export or a file-scope variable"],
+      errors: [{ messageId: "expose-catalog" }],
     },
     {
       code: `
         import { Catalog } from "@hi18n/core";
         export default new Catalog(otherData);
       `,
-      errors: ["the catalog data should be an object literal"],
+      errors: [{ messageId: "catalog-data-should-be-object" }],
     },
     {
       code: `
         import { Catalog } from "@hi18n/core";
         export default new Catalog(...otherData);
       `,
-      errors: ["the catalog data should be an object literal"],
+      errors: [{ messageId: "catalog-data-should-be-object" }],
     },
     {
       code: `
@@ -74,7 +71,7 @@ new TSESLint.RuleTester({
           ...otherData,
         });
       `,
-      errors: ["do not use spread in the catalog data"],
+      errors: [{ messageId: "catalog-data-invalid-spread" }],
     },
     {
       code: `
@@ -83,7 +80,7 @@ new TSESLint.RuleTester({
           [dynamicKey]: msg("Hello"),
         });
       `,
-      errors: ["do not use dynamic translation ids for the catalog data"],
+      errors: [{ messageId: "catalog-data-invalid-id" }],
     },
   ],
 });

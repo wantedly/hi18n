@@ -70,8 +70,10 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["unused translation id" as any, "unused translation id"],
+      errors: [
+        { messageId: "unused-translation-id" },
+        { messageId: "unused-translation-id" },
+      ],
       output: `
         import { Catalog, msg } from "@hi18n/core";
         export default new Catalog({

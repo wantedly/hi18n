@@ -604,8 +604,7 @@ export function tokenize(
           advance(ch);
           tokens.push({
             type: AST_TOKEN_TYPES.Punctuator,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-            value: ch as any,
+            value: ch as TSESTree.PunctuatorToken["value"],
             range: [startIdx, idxBase + idx],
             loc: { start, end: { ...pos } },
           });

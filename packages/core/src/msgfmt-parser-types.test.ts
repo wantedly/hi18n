@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-empty-function, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, jest/expect-expect */
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-empty-function, jest/expect-expect */
 
 import { describe, it } from "@jest/globals";
 import type { Message } from "./index.js";
@@ -365,7 +365,7 @@ type AssignableFromPredicate<T> = {
 function beAssignableFrom<T>(): AssignableFromPredicate<T> {
   return {
     co() {
-      return null as any;
+      return null as unknown as T;
     },
   };
 }
@@ -377,7 +377,7 @@ type TypeEqualPredicate<T> = {
 function beTypeEqual<T>(): TypeEqualPredicate<T> {
   return {
     co() {
-      return null as any;
+      return null as unknown as T;
     },
     contra(_x: T) {},
   };

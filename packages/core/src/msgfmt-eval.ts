@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-
 import { CompiledMessage } from "./msgfmt.js";
+import type {} from "./errors";
 
 export type EvalOption<T> = {
   id?: string;
@@ -123,6 +122,7 @@ function reduceSubmessages<T>(
 }
 
 export class MessageError extends Error {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(message: string, options: EvalOption<any>) {
     const info: string[] = [];
     info.push(`locale=${options.locale}`);
@@ -130,8 +130,8 @@ export class MessageError extends Error {
 
     super(`${message} (${info.join(", ")})`);
 
-    if ((Error as any).captureStackTrace) {
-      (Error as any).captureStackTrace(this, MessageError);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, MessageError);
     }
     this.name = MessageError.name;
   }

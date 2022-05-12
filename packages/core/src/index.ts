@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any */
 
 import { CompiledMessage } from "./msgfmt.js";
 import { evaluateMessage } from "./msgfmt-eval.js";
@@ -94,7 +94,7 @@ export type SimpleMessageKeys<
  *   ```
  */
 export function msg<S extends string>(s: S): InferredMessageType<S> {
-  return s as any;
+  return s as InferredMessageType<S>;
 }
 
 /**
@@ -131,7 +131,10 @@ export function translationId<
   id: K
 ): TranslationId<Vocabulary, AbstractMessageArguments<Vocabulary[K]>> {
   const _book = book;
-  return id as any;
+  return id as string as TranslationId<
+    Vocabulary,
+    AbstractMessageArguments<Vocabulary[K]>
+  >;
 }
 
 /**

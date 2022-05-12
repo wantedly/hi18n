@@ -50,8 +50,7 @@ new TSESLint.RuleTester({
         const id = "example.greeting";
         t(id);
       `,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["Don't use dynamic translation keys" as any],
+      errors: [{ messageId: "no-dynamic-keys" }],
     },
     {
       code: `
@@ -62,7 +61,7 @@ new TSESLint.RuleTester({
         const id = "example.greeting";
         translate(id);
       `,
-      errors: ["Don't use dynamic translation keys"],
+      errors: [{ messageId: "no-dynamic-keys" }],
     },
     {
       code: `
@@ -73,7 +72,7 @@ new TSESLint.RuleTester({
         const id = "example.greeting";
         translate(id);
       `,
-      errors: ["Don't use dynamic translation keys"],
+      errors: [{ messageId: "no-dynamic-keys" }],
     },
     {
       code: `
@@ -84,7 +83,7 @@ new TSESLint.RuleTester({
         const id = "example.greeting";
         t(id);
       `,
-      errors: ["Don't use dynamic translation keys"],
+      errors: [{ messageId: "no-dynamic-keys" }],
     },
     {
       code: `
@@ -94,7 +93,7 @@ new TSESLint.RuleTester({
         const id = "example.greeting";
         <Translate id={id} book={book} />;
       `,
-      errors: ["Don't use dynamic translation keys"],
+      errors: [{ messageId: "no-dynamic-keys" }],
     },
   ],
 });

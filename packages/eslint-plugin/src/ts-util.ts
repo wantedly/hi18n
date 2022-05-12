@@ -11,8 +11,9 @@ export type TypeDeclarator =
 
 export function resolveTypeLevelVariable(
   scopeManager: TSESLint.Scope.ScopeManager,
-  node: TSESTree.Identifier
+  node: TSESTree.EntityName
 ): TypeDeclarator | undefined {
+  if (node.type === "TSQualifiedName") return undefined;
   const scope = nearestScope(scopeManager, node);
   return findTypeLevelVariable(scope, node.name);
 }
@@ -90,10 +91,7 @@ export function findTypeDefinition(
 
   const typeParam = findTypeParameter(node);
   if (!typeParam) return null;
-  const resolved = resolveTypeLevelVariable(
-    scopeManager,
-    typeParam.typeName as TSESTree.Identifier
-  );
+  const resolved = resolveTypeLevelVariable(scopeManager, typeParam.typeName);
   if (!resolved) return null;
   const objinfo = extractAsObjectType(resolved);
   if (!objinfo) return null;

@@ -67,8 +67,7 @@ new TSESLint.RuleTester({
         import catalogJa from "./ja";
         export const book = new Book(42);
       `,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["the first argument should be an object literal" as any],
+      errors: [{ messageId: "catalogs-should-be-object" }],
     },
     {
       code: `
@@ -77,7 +76,7 @@ new TSESLint.RuleTester({
         import catalogJa from "./ja";
         export const book = new Book(...others);
       `,
-      errors: ["the first argument should be an object literal"],
+      errors: [{ messageId: "catalogs-should-be-object" }],
     },
     {
       code: `
@@ -90,7 +89,7 @@ new TSESLint.RuleTester({
           ...others,
         });
       `,
-      errors: ["do not use spread in the catalog list"],
+      errors: [{ messageId: "catalogs-invalid-spread" }],
     },
     {
       code: `
@@ -103,7 +102,7 @@ new TSESLint.RuleTester({
           [otherName]: catalogOther,
         });
       `,
-      errors: ["do not use dynamic translation ids for the catalog list"],
+      errors: [{ messageId: "catalogs-invalid-id" }],
     },
     {
       code: `
@@ -114,9 +113,7 @@ new TSESLint.RuleTester({
           ja: {},
         });
       `,
-      errors: [
-        "the catalog should be an imported variable or a variable declared in the file scope",
-      ],
+      errors: [{ messageId: "clarify-catalog-reference" }],
     },
     {
       code: `
@@ -127,9 +124,7 @@ new TSESLint.RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: [
-        "the catalog should be an imported variable or a variable declared in the file scope",
-      ],
+      errors: [{ messageId: "clarify-catalog-reference" }],
     },
     {
       code: `
@@ -141,9 +136,7 @@ new TSESLint.RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: [
-        "the catalog should be an imported variable or a variable declared in the file scope",
-      ],
+      errors: [{ messageId: "clarify-catalog-reference" }],
     },
     {
       code: `
@@ -155,7 +148,7 @@ new TSESLint.RuleTester({
           ja: catalogJa,
         });
       `,
-      errors: ["expose the book as an export or a file-scope variable"],
+      errors: [{ messageId: "expose-book" }],
     },
   ],
 });
@@ -213,15 +206,14 @@ new TSESLint.RuleTester({
         import { Book } from "@hi18n/core";
         export const book = new Book<{}>({});
       `,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["declare catalog type as type Vocabulary = { ... }" as any],
+      errors: [{ messageId: "catalog-type-must-be-type-alias" }],
     },
     {
       code: `
         import { Book } from "@hi18n/core";
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["declare catalog type as type Vocabulary = { ... }"],
+      errors: [{ messageId: "catalog-type-must-be-type-alias" }],
     },
     {
       code: `
@@ -229,7 +221,7 @@ new TSESLint.RuleTester({
         class Vocabulary {}
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["declare catalog type as type Vocabulary = { ... }"],
+      errors: [{ messageId: "catalog-type-must-be-type-alias" }],
     },
     {
       code: `
@@ -237,7 +229,7 @@ new TSESLint.RuleTester({
         type Vocabulary = {} & {};
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["declare catalog type as type Vocabulary = { ... }"],
+      errors: [{ messageId: "catalog-type-must-be-type-alias" }],
     },
     {
       code: `
@@ -247,7 +239,9 @@ new TSESLint.RuleTester({
         };
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["only simple signatures are allowed"],
+      errors: [
+        { messageId: "catalog-type-must-contain-only-simple-signatures" },
+      ],
     },
     {
       code: `
@@ -257,7 +251,9 @@ new TSESLint.RuleTester({
         };
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["only simple signatures are allowed"],
+      errors: [
+        { messageId: "catalog-type-must-contain-only-simple-signatures" },
+      ],
     },
     {
       code: `
@@ -267,7 +263,9 @@ new TSESLint.RuleTester({
         };
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["only simple signatures are allowed"],
+      errors: [
+        { messageId: "catalog-type-must-contain-only-simple-signatures" },
+      ],
     },
     {
       code: `
@@ -277,7 +275,9 @@ new TSESLint.RuleTester({
         };
         export const book = new Book<Vocabulary>({});
       `,
-      errors: ["only simple signatures are allowed"],
+      errors: [
+        { messageId: "catalog-type-must-contain-only-simple-signatures" },
+      ],
     },
   ],
 });

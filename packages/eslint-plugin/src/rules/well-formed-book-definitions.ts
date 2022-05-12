@@ -136,7 +136,7 @@ function checkTypeParameter(
   }
   const resolved = resolveTypeLevelVariable(
     context.getSourceCode().scopeManager!,
-    typeParam.typeName as TSESTree.Identifier
+    typeParam.typeName
   );
   if (!resolved) {
     context.report({

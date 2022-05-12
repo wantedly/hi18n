@@ -62,10 +62,7 @@ new TSESLint.RuleTester({
         const { t } = getTranslator(...data);
         t("example.greeting");
       `,
-      errors: [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        "the book should be an imported variable or a variable declared in the file scope" as any,
-      ],
+      errors: [{ messageId: "clarify-book-reference" }],
     },
     {
       code: `
@@ -74,9 +71,7 @@ new TSESLint.RuleTester({
         const { t } = getTranslator(42, "en");
         t("example.greeting");
       `,
-      errors: [
-        "the book should be an imported variable or a variable declared in the file scope",
-      ],
+      errors: [{ messageId: "clarify-book-reference" }],
     },
     {
       code: `
@@ -86,9 +81,7 @@ new TSESLint.RuleTester({
         const { t } = getTranslator(book, "en");
         t("example.greeting");
       `,
-      errors: [
-        "the book should be an imported variable or a variable declared in the file scope",
-      ],
+      errors: [{ messageId: "clarify-book-reference" }],
     },
   ],
 });

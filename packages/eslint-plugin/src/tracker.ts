@@ -197,8 +197,8 @@ export class Tracker {
         }
         break;
       case "JSXOpeningElement":
-        if (parent.name === expr) {
-          const elem = parent.parent as TSESTree.JSXElement;
+        if (parent.name === expr && parent.parent?.type === "JSXElement") {
+          const elem = parent.parent;
           for (const resName of res.resNames) {
             const resHooks = this.getResourceHooks(resName);
             for (const {

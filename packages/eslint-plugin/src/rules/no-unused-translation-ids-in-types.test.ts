@@ -115,8 +115,10 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["unused translation id" as any, "unused translation id"],
+      errors: [
+        { messageId: "unused-translation-id" },
+        { messageId: "unused-translation-id" },
+      ],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
@@ -171,7 +173,10 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      errors: ["unused translation id", "unused translation id"],
+      errors: [
+        { messageId: "unused-translation-id" },
+        { messageId: "unused-translation-id" },
+      ],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";

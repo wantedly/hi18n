@@ -115,8 +115,7 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errors: ["missing translation ids" as any],
+      errors: [{ messageId: "missing-translation-ids" }],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
@@ -171,7 +170,7 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      errors: ["missing translation ids"],
+      errors: [{ messageId: "missing-translation-ids" }],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
@@ -227,7 +226,7 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      errors: ["missing translation ids"],
+      errors: [{ messageId: "missing-translation-ids" }],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
@@ -282,7 +281,7 @@ new TSESLint.RuleTester({
           ],
         },
       },
-      errors: ["missing translation ids"],
+      errors: [{ messageId: "missing-translation-ids" }],
       output: `
         import { Book } from "@hi18n/core";
         import type { Message } from "@hi18n/core";
