@@ -6,6 +6,7 @@
   - `useI18n` now internally uses `useLocales`. Be careful if you have a locale named `""` (empty string), which I believe is very rare.
 - `useI18n` now memoizes the translator object.
   You get the identical object or function in the same element until the book or the locale changes.
+- Add `renderInElement` prop to `<Translate>`.
 
 ## 0.1.1
 

@@ -2,6 +2,7 @@ import React from "react";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it } from "@jest/globals";
+import prettyFormat, { plugins as prettyFormatPlugins } from "pretty-format";
 import {
   Book,
   Catalog,
@@ -408,6 +409,45 @@ describe("Translate", () => {
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
+  });
+
+  it("renders the node within renderInElement", () => {
+    let node: React.ReactNode = [];
+    const RecordNode: React.FC<{ children?: React.ReactNode | undefined }> = (
+      props
+    ) => {
+      node = props.children;
+      return <>{props.children}</>;
+    };
+    const { container } = render(
+      <LocaleProvider locales="ja">
+        <Translate
+          book={book}
+          id="example/link"
+          renderInElement={<RecordNode />}
+        >
+          <a href="https://example.com/" />
+        </Translate>
+      </LocaleProvider>
+    );
+
+    expect(container).toHaveTextContent("こちらをクリック!");
+    expect(screen.queryByRole("link", { name: /こちら/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
+      "href",
+      "https://example.com/"
+    );
+    // Ensure the node **after translation** had been passed
+    expect(
+      prettyFormat(node, { plugins: [prettyFormatPlugins.ReactElement] })
+    ).toEqual(
+      prettyFormat(
+        <>
+          <a href="https://example.com/">こちら</a>をクリック!
+        </>,
+        { plugins: [prettyFormatPlugins.ReactElement] }
+      )
+    );
   });
 });
 

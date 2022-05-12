@@ -117,10 +117,14 @@ export type BaseTranslateProps<
 > = {
   /**
    * The book to look up in for the translation.
+   *
+   * @version 0.1.0 (`@hi18n/react`)
    */
   book: Book<Vocabulary>;
   /**
    * The translation id.
+   *
+   * @version 0.1.0 (`@hi18n/react`)
    */
   id: K;
   /**
@@ -130,8 +134,26 @@ export type BaseTranslateProps<
    * - Otherwise, give it a number in the order of occurrence of the opening tags starting with 0.
    *
    * They are merged into the props as the parameters for the translation.
+   *
+   * @version 0.1.0 (`@hi18n/react`)
    */
   children?: React.ReactNode | undefined;
+  /**
+   * When given, the results are wrapped in the element given.
+   *
+   * Note that you don't need to use the prop in most cases.
+   * You can just wrap the `<Translate>` element in whatever wrapper components.
+   *
+   * One valid use case would be to pass a component that analyzes the texts or elements within the component,
+   * such as one that splits texts using `Intl.Segmenter` for better word-wrapping experience.
+   *
+   * @example
+   *   ```tsx
+   *   <Translate book={book} id="example/greeting" renderInElement={<TextWrapper />}>
+   *   </Translate>
+   *   ```
+   */
+  renderInElement?: React.ReactElement | undefined;
 };
 
 export type TranslateProps<
@@ -193,24 +215,25 @@ type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
 export function Translate<M extends VocabularyBase, K extends string & keyof M>(
   props: TranslateProps<M, K>
 ): React.ReactElement | null {
-  const { book, id, children, ...params } = props;
+  const { book, id, children, renderInElement, ...params } = props;
   extractComponents(children, params, { length: 0 });
   fillComponentKeys(params);
   const translator = useI18n(book);
-  return (
-    <>
-      {translator.translateWithComponents<
-        React.ReactNode,
-        React.ReactElement,
-        K
-      >(
-        id,
-        { collect, wrap },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        params as any
-      )}
-    </>
+  const translatedChildren = translator.translateWithComponents<
+    React.ReactNode,
+    React.ReactElement,
+    K
+  >(
+    id,
+    { collect, wrap },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params as any
   );
+  if (renderInElement) {
+    return React.cloneElement(renderInElement, {}, <>{translatedChildren}</>);
+  } else {
+    return <>{translatedChildren}</>;
+  }
 }
 
 export type DynamicTranslateProps<
