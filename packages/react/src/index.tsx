@@ -109,11 +109,37 @@ export function useI18n<M extends VocabularyBase>(
   return i18n;
 }
 
-export type TranslateProps<M extends VocabularyBase, K extends keyof M> = {
-  book: Book<M>;
+export type BaseTranslateProps<
+  Vocabulary extends VocabularyBase,
+  // TODO: restrict to string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  K extends keyof any
+> = {
+  /**
+   * The book to look up in for the translation.
+   */
+  book: Book<Vocabulary>;
+  /**
+   * The translation id.
+   */
   id: K;
+  /**
+   * The children. hi18n searches for elements in the node and names each one in the following way:
+   *
+   * - If it has a `key` prop, use the value.
+   * - Otherwise, give it a number in the order of occurrence of the opening tags starting with 0.
+   *
+   * They are merged into the props as the parameters for the translation.
+   */
   children?: React.ReactNode | undefined;
-} & PartialForComponents<MessageArguments<M[K], React.ReactElement>>;
+};
+
+export type TranslateProps<
+  M extends VocabularyBase,
+  // TODO: restrict to string
+  K extends keyof M
+> = BaseTranslateProps<M, K> &
+  PartialForComponents<MessageArguments<M[K], React.ReactElement>>;
 
 type PartialForComponents<T> = Partial<T> & Omit<T, ComponentKeys<T>>;
 type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
@@ -187,11 +213,11 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
   );
 }
 
-export type DynamicTranslateProps<Vocabulary extends VocabularyBase, Args> = {
-  book: Book<Vocabulary>;
-  id: TranslationId<Vocabulary, Args>;
-  children?: React.ReactNode | undefined;
-} & PartialForComponents<InstantiateComponentTypes<Args, React.ReactElement>>;
+export type DynamicTranslateProps<
+  Vocabulary extends VocabularyBase,
+  Args
+> = BaseTranslateProps<Vocabulary, TranslationId<Vocabulary, Args>> &
+  PartialForComponents<InstantiateComponentTypes<Args, React.ReactElement>>;
 
 /**
  * A variant of {@link Translate} for dynamic translation keys
@@ -212,11 +238,10 @@ Translate.Dynamic = Translate as <Vocabulary extends VocabularyBase, Args = {}>(
   props: DynamicTranslateProps<Vocabulary, Args>
 ) => React.ReactElement | null;
 
-export type TodoTranslateProps<Vocabulary extends VocabularyBase> = {
-  id: string;
-  book: Book<Vocabulary>;
-  [key: string]: unknown;
-};
+export type TodoTranslateProps<Vocabulary extends VocabularyBase> =
+  BaseTranslateProps<Vocabulary, string> & {
+    [key: string]: unknown;
+  };
 
 /**
  * A variant of {@link Translate} for translation bootstrap.
