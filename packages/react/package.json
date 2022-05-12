@@ -43,6 +43,7 @@
     "import": "./dist/index.mjs",
     "require": "./dist/index.js"
   },
+  "sideEffects": false,
   "scripts": {
     "babel:cjs": "babel -x .ts,.tsx src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,**/*.test.tsx'",
     "babel:esm": "babel -x .ts,.tsx src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,**/*.test.tsx' --config-file ./babel-esm.config.js --out-file-extension .mjs",
