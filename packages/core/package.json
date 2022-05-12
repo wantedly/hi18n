@@ -62,7 +62,7 @@
     "@jest/globals": "^28.0.3",
     "babel-jest": "^28.0.3",
     "babel-plugin-replace-import-extension": "^1.1.2",
-    "eslint": "^8.14.0",
+    "eslint": "^8.15.0",
     "jest": "^28.0.3",
     "prettier": "^2.6.2",
     "ts-jest-resolver": "^2.0.0",
