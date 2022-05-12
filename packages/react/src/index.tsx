@@ -15,6 +15,8 @@ export { LocaleContext } from "@hi18n/react-context";
 /**
  * Renders the children with the specified locale.
  *
+ * @version 0.1.0 (`@hi18n/react`)
+ *
  * @example
  *   ```tsx
  *   ReactDOM.render(
@@ -45,6 +47,8 @@ export const LocaleProvider: React.FC<{
  *
  * @param book A "book" object containing translated messages
  * @returns An object containing functions necessary for translation
+ *
+ * @version 0.1.0 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
@@ -84,6 +88,8 @@ type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
 
 /**
  * Renders the translated message, possibly interleaved with the elements you provide.
+ *
+ * @version 0.1.0 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
@@ -154,6 +160,8 @@ export type DynamicTranslateProps<Vocabulary extends VocabularyBase, Args> = {
 /**
  * A variant of {@link Translate} for dynamic translation keys
  *
+ * @version 0.1.1 (`@hi18n/react`)
+ *
  * @example
  *   ```tsx
  *   const id = translationId(book, "example/signin");
@@ -178,6 +186,8 @@ export type TodoTranslateProps<Vocabulary extends VocabularyBase> = {
  * A variant of {@link Translate} for translation bootstrap.
  *
  * At runtime, it just renders a TODO text.
+ *
+ * @version 0.1.1 (`@hi18n/react`)
  *
  * @example
  *   ```tsx

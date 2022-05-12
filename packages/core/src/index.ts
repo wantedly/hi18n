@@ -17,6 +17,8 @@ declare const translationIdBrandSymbol: unique symbol;
  * A subtype of `string` that represents translation messages.
  *
  * @param Args parameters required by this message
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  */
 export type Message<Args = {}> = string & {
   [messageBrandSymbol]: (args: Args) => void;
@@ -26,6 +28,8 @@ export type Message<Args = {}> = string & {
  * A base type for a vocabulary.
  *
  * A vocabulary here means a set of translation ids required for this book of translations.
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  */
 export type VocabularyBase = Record<string, Message<any>>;
 
@@ -34,6 +38,8 @@ export type VocabularyBase = Record<string, Message<any>>;
  *
  * @param M the message being instantiated.
  * @param C replacement for the component interpolation (like `<0></0>` or `<link></link>`).
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  */
 export type MessageArguments<
   M extends Message<any>,
@@ -55,6 +61,8 @@ export type InstantiateComponentType<T, C> = T extends ComponentPlaceholder
  *
  * @param Vocabulary the vocabulary type of the Book it refers to
  * @param Args parameters required by this message
+ *
+ * @version 0.1.1 (`@hi18n/core`)
  */
 export type TranslationId<
   Vocabulary extends VocabularyBase,
@@ -68,6 +76,8 @@ export type TranslationId<
  *
  * @param Vocabulary the vocabulary, a set of translation ids we can use for this book of translations.
  * @param K a dummy parameter to do a union distribution
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  */
 export type SimpleMessageKeys<
   Vocabulary extends VocabularyBase,
@@ -85,6 +95,8 @@ export type SimpleMessageKeys<
  *
  * @param s the translated message
  * @returns the first argument
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  *
  * @example
  *   ```ts
@@ -105,6 +117,8 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
  * @param book the book the id is linked to. Just discarded at runtime.
  * @param id the translation id.
  * @returns the second argument
+ *
+ * @version 0.1.1 (`@hi18n/core`)
  *
  * @example
  *   ```ts
@@ -142,6 +156,8 @@ export function translationId<
  *
  * In other words, a book is a set of {@link Catalog}s for all languages.
  *
+ * @version 0.1.0 (`@hi18n/core`)
+ *
  * @example
  *   ```ts
  *   type Vocabulary = {
@@ -165,6 +181,8 @@ export class Book<Vocabulary extends VocabularyBase> {
 
 /**
  * A set of translated messages for a specific locale.
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  *
  * @example
  *   ```ts
@@ -199,10 +217,14 @@ export class Catalog<Vocabulary extends VocabularyBase> {
 
 /**
  * An object returned from {@link getTranslator}.
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  */
 export type TranslatorObject<Vocabulary extends VocabularyBase> = {
   /**
    * Returns the translated message.
+   *
+   * @version 0.1.0 (`@hi18n/core`)
    *
    * @example
    *   ```ts
@@ -222,6 +244,8 @@ export type TranslatorObject<Vocabulary extends VocabularyBase> = {
    * @param id the id of the translation
    * @param interpolator functions to customize the interpolation behavior
    * @param options the parameters of the translation.
+   *
+   * @version 0.1.0 (`@hi18n/core`)
    */
   translateWithComponents<T, C, K extends string & keyof Vocabulary>(
     id: K,
@@ -234,6 +258,8 @@ type CompoundTranslatorFunction<Vocabulary extends VocabularyBase> =
   TranslatorFunction<Vocabulary> & {
     /**
      * Returns the translated message for a dynamic id.
+     *
+     * @version 0.1.1 (`@hi18n/core`)
      *
      * @example
      *   ```ts
@@ -250,6 +276,9 @@ type CompoundTranslatorFunction<Vocabulary extends VocabularyBase> =
      *
      * @param id the id of the translation
      * @param options the parameters of the translation.
+     *
+     * @version 0.1.1 (`@hi18n/core`)
+     *
      * @example
      *   ```ts
      *   const { t } = getTranslator(book, "en");
@@ -264,6 +293,9 @@ type TranslatorFunction<Vocabulary extends VocabularyBase> = {
    * Returns the translated message for a simple one.
    *
    * @param id the id of the translation
+   *
+   * @version 0.1.0 (`@hi18n/core`)
+   *
    * @example
    *   ```ts
    *   const { t } = getTranslator(book, "en");
@@ -277,6 +309,8 @@ type TranslatorFunction<Vocabulary extends VocabularyBase> = {
    *
    * @param id the id of the translation
    * @param options the parameters of the translation.
+   *
+   * @version 0.1.0 (`@hi18n/core`)
    *
    * @example
    *   ```ts
@@ -295,6 +329,9 @@ type DynamicTranslatorFunction<Vocabulary extends VocabularyBase> = {
    * Returns the translated message for a simple dynamic id.
    *
    * @param id the id of the translation
+   *
+   * @version 0.1.1 (`@hi18n/core`)
+   *
    * @example
    *   ```ts
    *   const { t } = getTranslator(book, "en");
@@ -308,6 +345,8 @@ type DynamicTranslatorFunction<Vocabulary extends VocabularyBase> = {
    *
    * @param id the id of the translation
    * @param options the parameters of the translation.
+   *
+   * @version 0.1.1 (`@hi18n/core`)
    *
    * @example
    *   ```ts
@@ -324,6 +363,8 @@ type DynamicTranslatorFunction<Vocabulary extends VocabularyBase> = {
 /**
  * Used in {@link TranslatorObject.translateWithComponents} to customize
  * the behavior of component interpolation.
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  */
 export type ComponentInterpolator<T, C> = {
   collect: (submessages: (T | string)[]) => T | string;
@@ -336,6 +377,8 @@ export type ComponentInterpolator<T, C> = {
  * @param book the "book" (i.e. the set of translations) containing the desired messages.
  * @param locale a locale or a list of locale in the order of preference (the latter being not supported yet)
  * @returns A set of translation helpers
+ *
+ * @version 0.1.0 (`@hi18n/core`)
  *
  * @example
  *   ```ts
