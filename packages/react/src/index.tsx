@@ -49,6 +49,8 @@ export const LocaleProvider: React.FC<{
  *
  * @returns A list of locales in the order of preference.
  *
+ * @since 0.1.2 (`@hi18n/react`)
+ *
  * @example
  *   ```tsx
  *   const Greeting: React.FC = () => {
@@ -146,6 +148,8 @@ export type BaseTranslateProps<
    *
    * One valid use case would be to pass a component that analyzes the texts or elements within the component,
    * such as one that splits texts using `Intl.Segmenter` for better word-wrapping experience.
+   *
+   * @since 0.1.2 (`@hi18n/react`)
    *
    * @example
    *   ```tsx
