@@ -15,7 +15,7 @@ export { LocaleContext } from "@hi18n/react-context";
 /**
  * Renders the children with the specified locale.
  *
- * @version 0.1.0 (`@hi18n/react`)
+ * @since 0.1.0 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
@@ -80,7 +80,7 @@ export function useLocales(): string[] {
  * @param book A "book" object containing translated messages
  * @returns An object containing functions necessary for translation
  *
- * @version 0.1.0 (`@hi18n/react`)
+ * @since 0.1.0 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
@@ -118,13 +118,13 @@ export type BaseTranslateProps<
   /**
    * The book to look up in for the translation.
    *
-   * @version 0.1.0 (`@hi18n/react`)
+   * @since 0.1.0 (`@hi18n/react`)
    */
   book: Book<Vocabulary>;
   /**
    * The translation id.
    *
-   * @version 0.1.0 (`@hi18n/react`)
+   * @since 0.1.0 (`@hi18n/react`)
    */
   id: K;
   /**
@@ -135,7 +135,7 @@ export type BaseTranslateProps<
    *
    * They are merged into the props as the parameters for the translation.
    *
-   * @version 0.1.0 (`@hi18n/react`)
+   * @since 0.1.0 (`@hi18n/react`)
    */
   children?: React.ReactNode | undefined;
   /**
@@ -173,7 +173,7 @@ type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
 /**
  * Renders the translated message, possibly interleaved with the elements you provide.
  *
- * @version 0.1.0 (`@hi18n/react`)
+ * @since 0.1.0 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
@@ -245,7 +245,7 @@ export type DynamicTranslateProps<
 /**
  * A variant of {@link Translate} for dynamic translation keys
  *
- * @version 0.1.1 (`@hi18n/react`)
+ * @since 0.1.1 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
@@ -271,7 +271,7 @@ export type TodoTranslateProps<Vocabulary extends VocabularyBase> =
  *
  * At runtime, it just renders a TODO text.
  *
- * @version 0.1.1 (`@hi18n/react`)
+ * @since 0.1.1 (`@hi18n/react`)
  *
  * @example
  *   ```tsx
