@@ -375,7 +375,7 @@ export type ComponentInterpolator<T, C> = {
  * Retrieves the translation helpers from the book and the locales.
  *
  * @param book the "book" (i.e. the set of translations) containing the desired messages.
- * @param locale a locale or a list of locale in the order of preference (the latter being not supported yet)
+ * @param locales a locale or a list of locale in the order of preference (the latter being not supported yet)
  * @returns A set of translation helpers
  *
  * @version 0.1.0 (`@hi18n/core`)
@@ -388,8 +388,12 @@ export type ComponentInterpolator<T, C> = {
  */
 export function getTranslator<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
-  locale: string
+  locales: string | string[]
 ): TranslatorObject<Vocabulary> {
+  if (Array.isArray(locales) && locales.length === 0) {
+    throw new Error("No locale specified");
+  }
+  const locale: string = Array.isArray(locales) ? locales[0]! : locales;
   const catalog = book.catalogs[locale];
   if (!catalog) throw new Error(`Missing locale: ${locale}`);
 

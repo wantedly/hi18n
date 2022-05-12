@@ -52,6 +52,23 @@ describe("Book", () => {
     }).toThrow("Missing locale: zh");
   });
 
+  it("raises an error for empty locale list", () => {
+    expect(() => {
+      getTranslator(book, []);
+    }).toThrow("No locale specified");
+  });
+
+  it("uses the first specified locale", () => {
+    {
+      const { t } = getTranslator(book, ["ja", "en"]);
+      expect(t("example/greeting")).toBe("こんにちは!");
+    }
+    {
+      const { t } = getTranslator(book, ["en", "ja"]);
+      expect(t("example/greeting")).toBe("Hello!");
+    }
+  });
+
   it("raises an error for missing translation id", () => {
     const { t } = getTranslator(book, "en");
     expect(() => {
