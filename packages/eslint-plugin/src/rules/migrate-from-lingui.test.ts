@@ -78,7 +78,7 @@ new TSESLint.RuleTester({
         import { useI18n } from "@hi18n/react";
         import { Trans } from "@lingui/react";
 
-        <Translate id="example/greeting" />;
+        <Trans id="example/greeting" />;
       `,
       errors: [{ messageId: "migrate-trans-jsx" }],
       output: `
@@ -87,6 +87,22 @@ new TSESLint.RuleTester({
         import { Trans } from "@lingui/react";
 
         <Translate id="example/greeting" />;
+      `,
+    },
+    {
+      code: `
+        import React from "react";
+        import { Trans } from "@lingui/react";
+
+        <Trans id="example/greeting" render={<Foo />} />;
+      `,
+      errors: [{ messageId: "migrate-trans-jsx" }],
+      output: `
+        import React from "react";
+        import { Translate } from "@hi18n/react";
+        import { Trans } from "@lingui/react";
+
+        <Translate id="example/greeting" renderInElement={<Foo />} />;
       `,
     },
   ],

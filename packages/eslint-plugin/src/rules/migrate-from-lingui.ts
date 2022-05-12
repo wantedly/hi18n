@@ -72,6 +72,21 @@ export function create(
     const id: string = idNode.value;
     if (id.includes('"')) return justReport();
 
+    let renderInElement: string | undefined = undefined;
+    const renderNode = captured["render"]!;
+    if (renderNode.type === "JSXElement") {
+      // Lingui v2 component-like use of render
+      renderInElement = context.getSourceCode().getText(renderNode);
+    } else if (renderNode.type !== "CaptureFailure") {
+      return justReport();
+    }
+    const componentNode = captured["component"]!;
+    if (componentNode.type === "JSXElement") {
+      renderInElement = context.getSourceCode().getText(componentNode);
+    } else if (componentNode.type !== "CaptureFailure") {
+      return justReport();
+    }
+
     context.report({
       node: capturedRoot(propsNode),
       messageId: "migrate-trans-jsx",
@@ -85,9 +100,16 @@ export function create(
           ["@lingui/react", "@lingui/macro"]
         );
         yield* importFixes;
+
+        const attrs: string[] = [];
+        attrs.push(`id="${id}"`);
+        if (renderInElement !== undefined) {
+          attrs.push(`renderInElement={${renderInElement}}`);
+        }
+
         yield fixer.replaceText(
           node,
-          `<${translateComponentName} id="${id}" />`
+          `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")} />`
         );
       },
     });
