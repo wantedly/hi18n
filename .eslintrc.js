@@ -40,7 +40,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       ],
     },
     {
-      files: ["*.test.ts"],
+      files: ["*.test.ts", "*.test.tsx"],
       extends: ["plugin:jest/recommended"],
     },
     {

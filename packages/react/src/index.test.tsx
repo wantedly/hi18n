@@ -7,7 +7,7 @@ import { LocaleProvider, Translate, useI18n } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
 
 declare module "expect/build" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface, jest/no-export
   export interface Matchers<R extends void | Promise<void>>
     extends globalThis.jest.Matchers<R> {}
 }
