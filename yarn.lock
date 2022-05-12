@@ -1502,6 +1502,7 @@ __metadata:
     jest: ^28.1.0
     prettier: ^2.6.2
     resolve: ^1.22.0
+    rimraf: ^3.0.2
     typescript: ^4.6.4
     yargs: ^17.4.1
   bin:
@@ -1525,6 +1526,7 @@ __metadata:
     eslint: ^8.15.0
     jest: ^28.1.0
     prettier: ^2.6.2
+    rimraf: ^3.0.2
     ts-jest-resolver: ^2.0.0
     typescript: ^4.6.4
   languageName: unknown
@@ -1556,6 +1558,7 @@ __metadata:
     espree: ^9.3.2
     jest: ^28.1.0
     prettier: ^2.6.2
+    rimraf: ^3.0.2
     typescript: ^4.6.4
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0
@@ -1604,6 +1607,7 @@ __metadata:
     prettier: ^2.6.2
     react: ^18.1.0
     react-dom: ^18.1.0
+    rimraf: ^3.0.2
     ts-jest-resolver: ^2.0.0
     typescript: ^4.6.4
   peerDependencies:

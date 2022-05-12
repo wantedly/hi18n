@@ -46,9 +46,11 @@
   "scripts": {
     "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,src/__fixtures__/**/*'",
     "build": "yarn babel && yarn tsc",
+    "clean": "rimraf dist",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
     "lint": "eslint 'src/**/*.ts' .eslintrc.js babel.config.js",
+    "prepack": "yarn clean && yarn build",
     "test": "jest",
     "tsc": "tsc --build"
   },
@@ -82,6 +84,7 @@
     "fs-extra": "^10.1.0",
     "jest": "^28.1.0",
     "prettier": "^2.6.2",
+    "rimraf": "^3.0.2",
     "typescript": "^4.6.4"
   }
 }

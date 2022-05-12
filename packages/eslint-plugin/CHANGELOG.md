@@ -1,3 +1,7 @@
+## Unreleased
+
+- Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
+
 ## 0.1.2
 
 - Internal: add support for `translationId`, `t.todo` and `<Translate.Todo>` (for use in `@hi18n/cli`)
