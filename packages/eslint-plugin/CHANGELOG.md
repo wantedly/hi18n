@@ -3,6 +3,7 @@
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
 - Add a new rule `@hi18n/migrate-from-lingui` implementing semi-automatic codemod as autofix.
   This rule is turned off by default.
+- Fix error where codes like `const [, x] = [];` cannot appear with `import { Translate } from "@hi18n/react";`.
 
 ## 0.1.2
 
