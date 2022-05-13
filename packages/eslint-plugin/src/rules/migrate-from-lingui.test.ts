@@ -30,6 +30,100 @@ new TSESLint.RuleTester({
     {
       code: `
         import React from "react";
+        import { useLingui } from "@lingui/react";
+
+        function MyComponent() {
+          const { i18n } = useLingui();
+          i18n._("example/greeting");
+        }
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-underscore" }],
+      output: `
+        import React from "react";
+        import { useI18n } from "@hi18n/react";
+        import { useLingui } from "@lingui/react";
+        import { book } from "./locale";
+
+        function MyComponent() {
+          const { t } = useI18n(book);
+          const { i18n } = useLingui();
+          t("example/greeting");
+        }
+      `,
+    },
+    {
+      code: `
+        import React from "react";
+        import { useLingui, i18nMark } from "@lingui/react";
+
+        function MyComponent() {
+          const { i18n } = useLingui();
+          i18n._(i18nMark("example/greeting"));
+        }
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-underscore" }],
+      output: `
+        import React from "react";
+        import { useI18n } from "@hi18n/react";
+        import { useLingui, i18nMark } from "@lingui/react";
+        import { book } from "./locale";
+
+        function MyComponent() {
+          const { t } = useI18n(book);
+          const { i18n } = useLingui();
+          t("example/greeting");
+        }
+      `,
+    },
+    {
+      code: `
+        import React from "react";
+        import { useI18n } from "@hi18n/react";
+        import { useLingui } from "@lingui/react";
+
+        function MyComponent() {
+          const { t } = useI18n(book);
+          const { i18n } = useLingui();
+          t("example/greeting");
+          i18n._("example/greeting2");
+        }
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-underscore" }],
+      output: `
+        import React from "react";
+        import { useI18n } from "@hi18n/react";
+        import { useLingui } from "@lingui/react";
+        import { book } from "./locale";
+
+        function MyComponent() {
+          const { t } = useI18n(book);
+          const { i18n } = useLingui();
+          t("example/greeting");
+          t("example/greeting2");
+        }
+      `,
+    },
+    {
+      code: `
+        import React from "react";
         import { Trans } from "@lingui/react";
 
         <Trans id="example/greeting" />;

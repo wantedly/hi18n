@@ -4,7 +4,7 @@ import { linguiTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { getStaticKey } from "../util";
 
-type MessageIds = "migrate-trans-jsx";
+type MessageIds = "migrate-trans-jsx" | "migrate-underscore";
 
 type Options = {
   bookPath: string;
@@ -20,6 +20,7 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   },
   messages: {
     "migrate-trans-jsx": "Migrate <Trans> to hi18n",
+    "migrate-underscore": "Migrate i18n._ to hi18n",
   },
   schema: [
     {
@@ -196,6 +197,120 @@ export function create(
     ImportDeclaration(node) {
       tracker.trackImport(context.getSourceCode().scopeManager!, node);
     },
+    CallExpression(node) {
+      if (
+        node.callee.type === "MemberExpression" &&
+        node.callee.object.type === "Identifier" &&
+        node.callee.object.name === "i18n" &&
+        !node.callee.computed &&
+        node.callee.property.type === "Identifier" &&
+        node.callee.property.name === "_"
+      ) {
+        // i18n._(...)
+        const justReport = () => {
+          context.report({
+            node,
+            messageId: "migrate-underscore",
+          });
+        };
+        if (
+          !node.arguments.every(
+            (arg): arg is TSESTree.Expression => arg.type !== "SpreadElement"
+          )
+        ) {
+          return justReport();
+        }
+        if (node.arguments.length <= 0 || node.arguments.length >= 3) {
+          return justReport();
+        }
+
+        const messageIdNode = node.arguments[0]!;
+        let messageIdSource_: string | undefined = undefined;
+        if (
+          messageIdNode.type === "Literal" &&
+          typeof messageIdNode.value === "string"
+        ) {
+          // i18n._("foo")
+          messageIdSource_ = context.getSourceCode().getText(messageIdNode);
+        } else if (
+          messageIdNode.type === "CallExpression" &&
+          messageIdNode.callee.type === "Identifier" &&
+          messageIdNode.callee.name === "i18nMark" &&
+          messageIdNode.arguments.length === 1 &&
+          messageIdNode.arguments[0]!.type === "Literal" &&
+          typeof (messageIdNode.arguments[0]! as TSESTree.Literal).value ===
+            "string"
+        ) {
+          // i18n._(i18nMark("foo"))
+          messageIdSource_ = context
+            .getSourceCode()
+            .getText(messageIdNode.arguments[0]);
+        }
+        if (messageIdSource_ === undefined) {
+          return justReport();
+        }
+        const messageIdSource: string = messageIdSource_;
+
+        const valuesNode = node.arguments[1];
+        let valuesSource: string | undefined = undefined;
+        if (valuesNode) {
+          if (valuesNode.type !== "ObjectExpression") {
+            return justReport();
+          }
+          valuesSource = context.getSourceCode().getText(valuesNode);
+        }
+
+        const hooksScope = findNearestHooksScope(node);
+        if (!hooksScope) {
+          return justReport();
+        }
+
+        context.report({
+          node,
+          messageId: "migrate-underscore",
+          *fix(fixer) {
+            const [useI18nImportFixes, useI18nName] = getOrInsertImport(
+              context.getSourceCode(),
+              context.getSourceCode().scopeManager!,
+              fixer,
+              "@hi18n/react",
+              "useI18n",
+              ["@lingui/react", "@lingui/macro"]
+            );
+            yield* useI18nImportFixes;
+
+            const [bookImportFixes, bookName] = getOrInsertImport(
+              context.getSourceCode(),
+              context.getSourceCode().scopeManager!,
+              fixer,
+              bookPath,
+              "book",
+              [],
+              true
+            );
+            yield* bookImportFixes;
+
+            const [useI18nCallFixes, tName] = getOrInsertUseI18n(
+              context.getSourceCode(),
+              fixer,
+              hooksScope,
+              useI18nName,
+              bookName
+            );
+            yield* useI18nCallFixes;
+
+            if (valuesSource) {
+              yield fixer.replaceText(
+                node,
+                `${tName}(${messageIdSource}, ${valuesSource})`
+              );
+            } else {
+              yield fixer.replaceText(node, `${tName}(${messageIdSource})`);
+            }
+          },
+        });
+      }
+    },
   };
 }
 
@@ -340,6 +455,103 @@ function getOrInsertImport(
       ),
     ],
     newName,
+  ];
+}
+
+function isHooksScopeName(name: string): boolean {
+  return /^[A-Z]|^use[A-Z]/.test(name);
+}
+
+function findNearestHooksScope(
+  startNode: TSESTree.Node
+): TSESTree.BlockStatement | undefined {
+  let node: TSESTree.Node = startNode;
+  while (true) {
+    if (
+      node.type === "BlockStatement" &&
+      (node.parent?.type === "ArrowFunctionExpression" ||
+        node.parent?.type === "FunctionExpression") &&
+      !node.parent.async &&
+      !node.parent.generator &&
+      node.parent.parent?.type === "VariableDeclarator" &&
+      node.parent.parent.id.type === "Identifier" &&
+      isHooksScopeName(node.parent.parent.id.name)
+    ) {
+      // const MyComponent = () => { ... };
+      return node;
+    }
+    if (
+      node.type === "BlockStatement" &&
+      node.parent?.type === "FunctionDeclaration" &&
+      !node.parent.async &&
+      !node.parent.generator &&
+      node.parent.id?.type === "Identifier" &&
+      isHooksScopeName(node.parent.id.name)
+    ) {
+      // function MyComponent() { ... };
+      return node;
+    }
+    if (!node.parent) break;
+    node = node.parent;
+  }
+  return undefined;
+}
+
+function getOrInsertUseI18n(
+  sourceCode: TSESLint.SourceCode,
+  // scopeManager: TSESLint.Scope.ScopeManager,
+  fixer: TSESLint.RuleFixer,
+  block: TSESTree.BlockStatement,
+  useI18nName: string,
+  bookName: string
+  // source: string,
+  // importName: string,
+  // positionHintSources: string[],
+  // doInsertAfter?: boolean
+): [TSESLint.RuleFix[], string] {
+  for (const stmt of block.body) {
+    if (stmt.type !== "VariableDeclaration") continue;
+    for (const decl of stmt.declarations) {
+      if (!decl.init) continue;
+      if (
+        decl.init.type === "CallExpression" &&
+        decl.init.callee.type === "Identifier" &&
+        decl.init.callee.name === useI18nName &&
+        decl.init.arguments.length === 1
+      ) {
+        const arg = decl.init.arguments[0]!;
+        if (arg.type === "Identifier" && arg.name === bookName) {
+          if (decl.id.type === "ObjectPattern") {
+            for (const pat of decl.id.properties) {
+              if (
+                pat.type === "Property" &&
+                !pat.computed &&
+                pat.key.type === "Identifier" &&
+                pat.key.name === "t" &&
+                pat.value.type === "Identifier"
+              ) {
+                // const { t } = useI18n(book);
+                return [[], pat.value.name];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  const openBraceToken = sourceCode.getFirstToken(block)!;
+  let indent = "";
+  if (block.body.length > 0) {
+    indent = " ".repeat(block.body[0]!.loc.start.column);
+  }
+  return [
+    [
+      fixer.insertTextAfter(
+        openBraceToken,
+        `\n${indent}const { t } = ${useI18nName}(${bookName});`
+      ),
+    ],
+    "t",
   ];
 }
 
