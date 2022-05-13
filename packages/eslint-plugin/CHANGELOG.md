@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.3
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
 - Add a new rule `@hi18n/migrate-from-lingui` implementing semi-automatic codemod as autofix.
