@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.3
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
 - Fix error where codes like `const [, x] = [];` cannot appear with `import { Translate } from "@hi18n/react";`.
