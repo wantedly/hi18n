@@ -149,6 +149,33 @@ new TSESLint.RuleTester({
         import React from "react";
         import { Trans } from "@lingui/react";
 
+        <Trans id="example/greeting">
+          <br />
+        </Trans>;
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-trans-jsx" }],
+      output: `
+        import React from "react";
+        import { Translate } from "@hi18n/react";
+        import { Trans } from "@lingui/react";
+        import { book } from "./locale";
+
+        <Translate book={book} id="example/greeting">
+          <br />
+        </Translate>;
+      `,
+    },
+    {
+      code: `
+        import React from "react";
+        import { Trans } from "@lingui/react";
+
         <Trans id="example/greeting" />;
       `,
       filename: "src/components/foo/index.ts",

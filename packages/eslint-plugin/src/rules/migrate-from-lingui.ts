@@ -186,10 +186,21 @@ export function create(
           }
         }
 
-        yield fixer.replaceText(
-          node,
-          `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")} />`
-        );
+        if (node.type === "JSXElement" && node.closingElement) {
+          yield fixer.replaceText(
+            node.openingElement,
+            `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")}>`
+          );
+          yield fixer.replaceText(
+            node.closingElement,
+            `</${translateComponentName}>`
+          );
+        } else {
+          yield fixer.replaceText(
+            node,
+            `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")} />`
+          );
+        }
       },
     });
   });
