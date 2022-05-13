@@ -14,9 +14,8 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
   fixable: "code",
   docs: {
-    description:
-      "disallow dynamic keys where hi18n cannot correctly detect used keys",
-    recommended: "error",
+    description: "helps migrating from LinguiJS",
+    recommended: "warn",
   },
   messages: {
     "migrate-trans-jsx": "Migrate <Trans> to hi18n",
