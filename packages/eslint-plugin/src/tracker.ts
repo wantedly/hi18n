@@ -497,7 +497,8 @@ function collectReactJSXVars(
   collect(root);
   return referenceMap;
 
-  function collect(node: TSESTree.Node) {
+  function collect(node: TSESTree.Node | null) {
+    if (node == null) return;
     switch (node.type) {
       case "JSXOpeningElement": {
         const ident = findInitIdentifier(node.name);
