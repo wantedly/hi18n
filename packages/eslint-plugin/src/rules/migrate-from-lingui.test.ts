@@ -195,5 +195,51 @@ new TSESLint.RuleTester({
         <Translate book={book} id="example/greeting" renderInElement={<Foo />} />;
       `,
     },
+    {
+      code: `
+        import React from "react";
+        import { Trans } from "@lingui/react";
+
+        <Trans id="example/greeting" component={Foo} />;
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-trans-jsx" }],
+      output: `
+        import React from "react";
+        import { Translate } from "@hi18n/react";
+        import { Trans } from "@lingui/react";
+        import { book } from "./locale";
+
+        <Translate book={book} id="example/greeting" renderInElement={<Foo />} />;
+      `,
+    },
+    {
+      code: `
+        import React from "react";
+        import { Trans } from "@lingui/react";
+
+        <Trans id="example/greeting" values={{ foo: 42, bar: 100 }} components={[<a />]} />;
+      `,
+      filename: "src/index.ts",
+      options: [
+        {
+          bookPath: "src/locale",
+        },
+      ],
+      errors: [{ messageId: "migrate-trans-jsx" }],
+      output: `
+        import React from "react";
+        import { Translate } from "@hi18n/react";
+        import { Trans } from "@lingui/react";
+        import { book } from "./locale";
+
+        <Translate book={book} id="example/greeting" foo={42} bar={100} {...{ 0: <a /> }} />;
+      `,
+    },
   ],
 });

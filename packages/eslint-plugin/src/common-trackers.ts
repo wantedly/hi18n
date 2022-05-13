@@ -134,20 +134,16 @@ export function linguiTracker(): Tracker {
         path: ["id"],
       },
       {
-        captureAs: "defaults",
-        path: ["defaults"],
-      },
-      {
-        captureAs: "message",
-        path: ["message"],
-      },
-      {
         captureAs: "render",
         path: ["render"],
       },
       {
         captureAs: "component",
         path: ["component"],
+      },
+      {
+        captureAs: "values",
+        path: ["values"],
       },
       {
         captureAs: "components",

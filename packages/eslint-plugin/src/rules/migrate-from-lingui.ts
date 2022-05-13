@@ -2,6 +2,7 @@ import path from "node:path";
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { linguiTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
+import { getStaticKey } from "../util";
 
 type MessageIds = "migrate-trans-jsx";
 
@@ -36,10 +37,10 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
 
 const MIGRATABLE_PROP_NAMES = [
   "id",
-  // Old name for "message"
-  "defaults",
-  // Default message
-  "message",
+  // // Old name for "message"
+  // "defaults",
+  // // Default message
+  // "message",
   // // Old name for "comment"
   // "description",
   // // Comment inserted in the message catalog
@@ -98,13 +99,46 @@ export function create(
       // Lingui v2 component-like use of render
       renderInElement = context.getSourceCode().getText(renderNode);
     } else if (renderNode.type !== "CaptureFailure") {
+      // render is not supported yet
       return justReport();
     }
     const componentNode = captured["component"]!;
-    if (componentNode.type === "JSXElement") {
-      renderInElement = context.getSourceCode().getText(componentNode);
+    if (
+      (componentNode.type === "Identifier" ||
+        componentNode.type === "MemberExpression") &&
+      eligibleForJSXTagNameExpression(componentNode)
+    ) {
+      renderInElement = `<${context.getSourceCode().getText(componentNode)} />`;
     } else if (componentNode.type !== "CaptureFailure") {
+      // render/renderInComponent is not supported yet
       return justReport();
+    }
+
+    const params = new Map<string, string>();
+    for (const valuesNode of [captured["values"]!, captured["components"]!]) {
+      if (valuesNode.type === "ObjectExpression") {
+        for (const prop of valuesNode.properties) {
+          if (prop.type !== "Property") return justReport();
+          const key = getStaticKey(prop);
+          if (key === null) return justReport();
+          if (params.has(key)) return justReport();
+          params.set(key, context.getSourceCode().getText(prop.value));
+        }
+      } else if (valuesNode.type === "ArrayExpression") {
+        let i = 0;
+        for (const elem of valuesNode.elements as (
+          | TSESTree.Expression
+          | TSESTree.SpreadElement
+        )[]) {
+          if (elem.type === "SpreadElement") return justReport();
+          const key = `${i}`;
+          if (params.has(key)) return justReport();
+          params.set(key, context.getSourceCode().getText(elem));
+          i++;
+        }
+      } else if (valuesNode.type !== "CaptureFailure") {
+        return justReport();
+      }
     }
 
     context.report({
@@ -138,6 +172,17 @@ export function create(
         attrs.push(`id=${jsxAttributeString(id)}`);
         if (renderInElement !== undefined) {
           attrs.push(`renderInElement={${renderInElement}}`);
+        }
+        for (const [paramKey, paramValue] of params) {
+          if (
+            /^[\p{ID_Start}$_][-\p{ID_Continue}$\u200C\u200D]*$/u.test(paramKey)
+          ) {
+            attrs.push(`${paramKey}={${paramValue}}`);
+          } else if (/^(?:0|[1-9][0-9]*)$/.test(paramKey)) {
+            attrs.push(`{...{ ${paramKey}: ${paramValue} }}`);
+          } else {
+            attrs.push(`{...{ ${JSON.stringify(paramKey)}: ${paramValue} }}`);
+          }
         }
 
         yield fixer.replaceText(
@@ -296,6 +341,25 @@ function getOrInsertImport(
     ],
     newName,
   ];
+}
+
+function eligibleForJSXTagNameExpression(
+  node: TSESTree.Expression,
+  whole = true
+): boolean {
+  switch (node.type) {
+    case "Identifier":
+      if (whole && /^[a-z]/.test(node.name)) return false;
+      return true;
+    case "MemberExpression":
+      return (
+        !node.computed &&
+        eligibleForJSXTagNameExpression(node.object, false) &&
+        node.property.type === "Identifier"
+      );
+    default:
+      return false;
+  }
 }
 
 function jsxAttributeString(text: string): string {
