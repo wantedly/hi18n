@@ -91,7 +91,6 @@ export function create(
       return justReport();
     }
     const id: string = idNode.value;
-    if (id.includes('"')) return justReport();
 
     let renderInElement: string | undefined = undefined;
     const renderNode = captured["render"]!;
@@ -136,7 +135,7 @@ export function create(
 
         const attrs: string[] = [];
         attrs.push(`book={${bookName}}`);
-        attrs.push(`id="${id}"`);
+        attrs.push(`id=${jsxAttributeString(id)}`);
         if (renderInElement !== undefined) {
           attrs.push(`renderInElement={${renderInElement}}`);
         }
@@ -297,4 +296,15 @@ function getOrInsertImport(
     ],
     newName,
   ];
+}
+
+function jsxAttributeString(text: string): string {
+  // JSX allows literal newlines but here we fallback to the expression container to keep better layout.
+  if (!/[\r\n\u2028\u2029"]/.test(text)) {
+    return `"${text}"`;
+  } else if (!/[\r\n\u2028\u2029']/.test(text)) {
+    return `'${text}'`;
+  } else {
+    return `{${JSON.stringify(text)}}`;
+  }
 }
