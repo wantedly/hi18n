@@ -14,6 +14,7 @@ import * as ruleWellFormedCatalogDefinitions from "./rules/well-formed-catalog-d
 
 export const configs: Record<string, TSESLint.Linter.Config> = {
   recommended: {
+    plugins: ["@hi18n"],
     rules: {
       "@hi18n/no-dynamic-translation-ids": "error",
       "@hi18n/well-formed-book-references": "error",

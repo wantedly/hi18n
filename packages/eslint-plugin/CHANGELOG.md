@@ -1,3 +1,7 @@
+## Unreleased
+
+- Automatically include the plugin in the "recommended" config.
+
 ## 0.1.3
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
