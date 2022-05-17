@@ -1,3 +1,7 @@
+## Unreleased
+
+- Placeholder is changed from `msg()` to `msg.todo("[TODO: example/greeting]")`.
+
 ## 0.1.3
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.

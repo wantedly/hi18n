@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Automatically include the plugin in the "recommended" config.
+- Internal: add support for `msg.todo` (for use in `@hi18n/cli`)
 
 ## 0.1.3
 

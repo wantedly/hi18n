@@ -110,6 +110,25 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
 }
 
 /**
+ * Same as {@link msg} but can be used to indicate an untranslated state.
+ *
+ * At runtime, it just returns the first argument.
+ *
+ * @param s the translated message
+ * @returns the first argument
+ *
+ * @example
+ *   ```ts
+ *   export default new Book<Vocabulary>({
+ *     "example/greeting": msg.todo("Hello, {name}!"),
+ *   });
+ *   ```
+ */
+msg.todo = function todo<S extends string>(s: S): InferredMessageType<S> {
+  return s as InferredMessageType<S>;
+};
+
+/**
  * Marks a translation id as dynamically used with {@link CompoundTranslatorFunction.dynamic t.dynamic}.
  *
  * At runtime, it just returns the second argument.

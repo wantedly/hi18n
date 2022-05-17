@@ -72,6 +72,7 @@ export function create(
                   lo = mid + 1;
                 }
               }
+              const placeholderText = `[TODO: ${missingId}]`;
               const insertAt = lo;
               if (insertAt === 0) {
                 const firstCandidate = sortedCandidates[0]!;
@@ -82,7 +83,7 @@ export function create(
                 ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
-                )}: msg(),`;
+                )}: msg.todo(${JSON.stringify(placeholderText)}),`;
                 const token = context
                   .getSourceCode()
                   .getFirstToken(catalogData)!;
@@ -96,7 +97,7 @@ export function create(
                 ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
-                )}: msg(),`;
+                )}: msg.todo(${JSON.stringify(placeholderText)}),`;
                 const node = extendNode(
                   context.getSourceCode(),
                   lastCandidate.node

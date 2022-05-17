@@ -15,12 +15,14 @@ type Vocabulary = {
   "example/greeting": Message;
   "example/greeting2": Message<{ name: string }>;
   "example/apples": Message<{ count: number }>;
+  "example/additional": Message;
 };
 
 const catalogJa = new Catalog<Vocabulary>({
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
+  "example/additional": msg("日本限定企画!"),
 });
 const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
@@ -28,6 +30,8 @@ const catalogEn = new Catalog<Vocabulary>({
   "example/apples": msg(
     "{count,plural,one{There is # apple.}other{There are # apples.}}"
   ),
+  // An example of not-yet-translated texts
+  "example/additional": msg.todo("日本限定企画!"),
 });
 const book = new Book<Vocabulary>({
   ja: catalogJa,

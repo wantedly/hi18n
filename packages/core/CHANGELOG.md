@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Support `#` in plural translations.
+- Add `msg.todo`.
 
 ## 0.1.2
 

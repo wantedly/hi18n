@@ -125,19 +125,19 @@ new TSESLint.RuleTester({
       output: `
         import { Catalog, msg } from "@hi18n/core";
         export default new Catalog({
-          "example/b": msg(),
+          "example/b": msg.todo("[TODO: example/b]"),
           "example/c": msg("Hello!"),
-          "example/d": msg(),
+          "example/d": msg.todo("[TODO: example/d]"),
           "example/g": msg("Hello!"),
           "example/k": msg("Hello!"),
           "example/e": msg("Hello!"),
-          "example/f": msg(),
-          "example/h": msg(),
+          "example/f": msg.todo("[TODO: example/f]"),
+          "example/h": msg.todo("[TODO: example/h]"),
           "example/i": msg("Hello!"),
-          "example/j": msg(),
-          "example/l": msg(),
+          "example/j": msg.todo("[TODO: example/j]"),
+          "example/l": msg.todo("[TODO: example/l]"),
           "example/m": msg("Hello!"),
-          "example/n": msg(),
+          "example/n": msg.todo("[TODO: example/n]"),
         });
       `,
     },
