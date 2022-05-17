@@ -1522,7 +1522,7 @@ __metadata:
     "@babel/runtime-corejs3": ^7.17.9
     "@jest/globals": ^28.1.0
     babel-jest: ^28.1.0
-    babel-plugin-replace-import-extension: ^1.1.2
+    babel-plugin-replace-import-extension: ^1.1.3
     eslint: ^8.15.0
     jest: ^28.1.0
     prettier: ^2.6.2
@@ -1598,7 +1598,7 @@ __metadata:
     "@types/react-dom": ^18.0.4
     "@types/testing-library__jest-dom": ^5.14.3
     babel-jest: ^28.1.0
-    babel-plugin-replace-import-extension: ^1.1.2
+    babel-plugin-replace-import-extension: ^1.1.3
     eslint: ^8.15.0
     eslint-plugin-react: ^7.29.4
     eslint-plugin-react-hooks: ^4.5.0
@@ -2293,14 +2293,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 17.0.23
-  resolution: "@types/node@npm:17.0.23"
-  checksum: a3517554737cbb042e76c30d0e5482192ac4d9bea0eeb086e2622d9cabf460a0eb52a696b99fcd18e7fcc93c96db6cc7ae507f6608f256ef0b5c1d8c87a5a470
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^17.0.32":
+"@types/node@npm:*, @types/node@npm:^17.0.32":
   version: 17.0.32
   resolution: "@types/node@npm:17.0.32"
   checksum: afb05704b42032566b3da8b2d80a68883cd3b888472d1b8b4dd6c84f8fad371454f083d4e28bd30c10589187296119d92aba255638b30067afe062b5922388a5
@@ -2975,17 +2968,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-replace-import-extension@npm:1.1.2":
-  version: 1.1.2
-  resolution: "babel-plugin-replace-import-extension@npm:1.1.2"
-  checksum: 5145039d27c046ed7c9ef04943cfbae37204f2f8b9b74f29d3a686d3053dd50e92c7cbf1ee4c6c40a44840dc891cee4255faf562885f3be8dc7444ff52caf2e5
-  languageName: node
-  linkType: hard
-
-"babel-plugin-replace-import-extension@patch:babel-plugin-replace-import-extension@npm:1.1.2#.yarn/patches/babel-plugin-replace-import-extension-npm-1.1.2-41e7f7ba11.patch::locator=root%40workspace%3A.":
-  version: 1.1.2
-  resolution: "babel-plugin-replace-import-extension@patch:babel-plugin-replace-import-extension@npm%3A1.1.2#.yarn/patches/babel-plugin-replace-import-extension-npm-1.1.2-41e7f7ba11.patch::version=1.1.2&hash=aede8f&locator=root%40workspace%3A."
-  checksum: 6136f5492c9cccaedf1517405ac840b80e57741f6f806b04fe8663b22eb4a49a652c42b2eea0b579f97d245e962629fd0e7caab48e482b272d4e1e801eafeeb8
+"babel-plugin-replace-import-extension@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "babel-plugin-replace-import-extension@npm:1.1.3"
+  checksum: 1e235c523e865a80e7f67f909e04237b4532be254a6f9392f99050b788f579a28c2b43ae2a64f5ef58d57dd1c8220a8cd36ab488ae53471190e6ece00da663ca
   languageName: node
   linkType: hard
 
