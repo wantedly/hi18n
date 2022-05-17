@@ -25,7 +25,7 @@ class Parser {
   constructor(public readonly src: string) {}
 
   public parseMessageEOF(): CompiledMessage {
-    const msg = this.parseMessage();
+    const msg = this.parseMessage(false);
     if (this.pos < this.src.length) {
       throw new Error(`Found an unmatching ${this.src[this.pos]!}`);
     }
@@ -34,16 +34,18 @@ class Parser {
 
   // message = messageText (argument messageText)*
   // The grammar doesn't mention it but it should also have '#' as a special interpolation.
-  private parseMessage(): CompiledMessage {
+  private parseMessage(allowHash: boolean): CompiledMessage {
     const buf: CompiledMessage[] = [];
-    pushString(buf, this.parseMessageText(true));
+    pushString(buf, this.parseMessageText(allowHash));
     outer: while (this.pos < this.src.length && this.src[this.pos] !== "}") {
       switch (this.src[this.pos]) {
         case "{":
           buf.push(this.parseArgument());
           break;
         case "#":
-          throw new Error(`Unimplemented: syntax: #`);
+          buf.push({ type: "Number" });
+          this.pos++;
+          break;
         case "<":
           if (
             this.pos + 1 < this.src.length &&
@@ -53,7 +55,7 @@ class Parser {
             break outer;
           } else {
             // <tag> or <tag/>
-            buf.push(this.parseElement());
+            buf.push(this.parseElement(allowHash));
           }
           break;
         default:
@@ -61,7 +63,7 @@ class Parser {
             `Bug: invalid syntax character: ${this.src[this.pos]!}`
           );
       }
-      pushString(buf, this.parseMessageText(true));
+      pushString(buf, this.parseMessageText(allowHash));
     }
     return reduceMessage(buf);
   }
@@ -179,7 +181,7 @@ class Parser {
         selector = token[1];
       }
       this.nextToken(["{"]);
-      const message = this.parseMessage();
+      const message = this.parseMessage(false);
       this.nextToken(["}"]);
       branches.push({ selector, message });
       token = this.nextToken(["identifier", "=", "}"] as const);
@@ -191,7 +193,7 @@ class Parser {
   }
 
   // <tag>message</tag> or <tag/>
-  private parseElement(): ElementArg {
+  private parseElement(allowHash: boolean): ElementArg {
     this.pos++; // Eat <
     const name = this.parseArgNameOrNumber(true);
     if (this.nextToken(["/", ">"] as const)[0] === "/") {
@@ -204,7 +206,7 @@ class Parser {
       };
     }
     // <tag>message</tag>
-    const message = this.parseMessage();
+    const message = this.parseMessage(allowHash);
     this.nextToken(["<"]);
     this.nextToken(["/"], ["/"]);
     const closingName = this.parseArgNameOrNumber(true);

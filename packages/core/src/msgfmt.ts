@@ -7,6 +7,8 @@ export type CompiledMessage =
   | { type: "Var"; name: string | number; argType?: ArgType | undefined }
   /* plural form selection */
   | PluralArg
+  /* # */
+  | NumberSign
   /* component interpolation (<0>foo</0>) */
   | ElementArg;
 
@@ -20,6 +22,10 @@ export type PluralArg = {
 export type PluralBranch = {
   selector: number | string;
   message: CompiledMessage;
+};
+
+export type NumberSign = {
+  type: "Number";
 };
 
 export type ArgType =

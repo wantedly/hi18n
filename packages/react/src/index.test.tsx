@@ -47,12 +47,12 @@ const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg(
-    "{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"
+    "{count,plural,one{There is # apple.}other{There are # apples.}}"
   ),
   "example/link": msg("Click <0>here</0>!"),
   "example/link2": msg("Click <link>here</link>!"),
   "example/message-link": msg(
-    "You have {newMessages,plural,one{{newMessages,number} new message}other{{newMessages,number} new messages}}. <0>See all the {messages,plural,one{{messages,number} message}other{{messages,number} messages}}</0>."
+    "You have {newMessages,plural,one{# new message}other{# new messages}}. <0>See all the {messages,plural,one{# message}other{# messages}}</0>."
   ),
 });
 const book = new Book<Vocabulary>({

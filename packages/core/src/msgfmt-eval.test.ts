@@ -80,21 +80,11 @@ describe("evaluageMessage", () => {
       branches: [
         {
           selector: "one",
-          message: [
-            "There is ",
-            // TODO: use `#` later
-            { type: "Var", name: "count", argType: "number" },
-            " apple.",
-          ],
+          message: ["There is ", { type: "Number" }, " apple."],
         },
         {
           selector: "other",
-          message: [
-            "There are ",
-            // TODO: use `#` later
-            { type: "Var", name: "count", argType: "number" },
-            " apples.",
-          ],
+          message: ["There are ", { type: "Number" }, " apples."],
         },
       ],
     };
@@ -104,30 +94,15 @@ describe("evaluageMessage", () => {
       branches: [
         {
           selector: "one",
-          message: [
-            "Там ",
-            // TODO: use `#` later
-            { type: "Var", name: "count", argType: "number" },
-            " яблоко.",
-          ],
+          message: ["Там ", { type: "Number" }, " яблоко."],
         },
         {
           selector: "few",
-          message: [
-            "Там ",
-            // TODO: use `#` later
-            { type: "Var", name: "count", argType: "number" },
-            " яблока.",
-          ],
+          message: ["Там ", { type: "Number" }, " яблока."],
         },
         {
           selector: "other",
-          message: [
-            "Там ",
-            // TODO: use `#` later
-            { type: "Var", name: "count", argType: "number" },
-            " яблок.",
-          ],
+          message: ["Там ", { type: "Number" }, " яблок."],
         },
       ],
     };

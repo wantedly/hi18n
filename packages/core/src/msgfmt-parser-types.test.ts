@@ -79,6 +79,15 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"#">>().to(beTypeEqual<Message>());
     });
 
+    it("parses texts with single quotes", () => {
+      expectType<InferredMessageType<"I'm not a fond of this syntax.">>().to(
+        beTypeEqual<Message>()
+      );
+      expectType<InferredMessageType<"a'b {name} c'd">>().to(
+        beTypeEqual<Message<{ name: string }>>()
+      );
+    });
+
     it("parses texts with double quotes", () => {
       expectType<InferredMessageType<"I''m not a fond of this syntax.">>().to(
         beTypeEqual<Message>()
@@ -200,6 +209,12 @@ describe("InferredMessageType", () => {
       >().to(beTypeEqual<Message<{ foo: number }>>());
       expectType<
         InferredMessageType<" { foo , plural , offset:1 one { an apple } other { apples } } ">
+      >().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<
+        InferredMessageType<"{foo,plural,one{# apple}other{# apples}}">
+      >().to(beTypeEqual<Message<{ foo: number }>>());
+      expectType<
+        InferredMessageType<" { foo , plural , one { # apple } other { # apples } } ">
       >().to(beTypeEqual<Message<{ foo: number }>>());
     });
 

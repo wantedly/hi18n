@@ -10,6 +10,17 @@ describe("parseMessage", () => {
     expect(parseMessage("#")).toBe("#");
   });
 
+  it("parses texts with single quotes", () => {
+    expect(parseMessage("I'm not a fond of this syntax.")).toBe(
+      "I'm not a fond of this syntax."
+    );
+    expect(parseMessage("a'b {name} c'd")).toEqual([
+      "a'b ",
+      { type: "Var", name: "name" },
+      " c'd",
+    ]);
+  });
+
   it("parses texts with double quotes", () => {
     expect(parseMessage("I''m not a fond of this syntax.")).toBe(
       "I'm not a fond of this syntax."
@@ -235,6 +246,42 @@ describe("parseMessage", () => {
           {
             selector: "other",
             message: " apples ",
+          },
+        ],
+      },
+      " ",
+    ]);
+    expect(parseMessage("{foo,plural,one{# apple}other{# apples}}")).toEqual({
+      type: "Plural",
+      name: "foo",
+      offset: undefined,
+      branches: [
+        {
+          selector: "one",
+          message: [{ type: "Number" }, " apple"],
+        },
+        {
+          selector: "other",
+          message: [{ type: "Number" }, " apples"],
+        },
+      ],
+    });
+    expect(
+      parseMessage(" { foo , plural , one { # apple } other { # apples } } ")
+    ).toEqual([
+      " ",
+      {
+        type: "Plural",
+        name: "foo",
+        offset: undefined,
+        branches: [
+          {
+            selector: "one",
+            message: [" ", { type: "Number" }, " apple "],
+          },
+          {
+            selector: "other",
+            message: [" ", { type: "Number" }, " apples "],
           },
         ],
       },

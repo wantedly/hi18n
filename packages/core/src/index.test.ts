@@ -26,7 +26,7 @@ const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg(
-    "{count,plural,one{There is {count,number} apple.}other{There are {count,number} apples.}}"
+    "{count,plural,one{There is # apple.}other{There are # apples.}}"
   ),
 });
 const book = new Book<Vocabulary>({

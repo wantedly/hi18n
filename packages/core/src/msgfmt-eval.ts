@@ -13,13 +13,14 @@ export type EvalOption<T> = {
 
 export function evaluateMessage<T = string>(
   msg: CompiledMessage,
-  options: EvalOption<T>
+  options: EvalOption<T>,
+  numberValue?: number | bigint
 ): T | string {
   if (typeof msg === "string") {
     return msg;
   } else if (Array.isArray(msg)) {
     const reduced = reduceSubmessages(
-      msg.map((part) => evaluateMessage(part, options))
+      msg.map((part) => evaluateMessage(part, options, numberValue))
     );
     if (typeof reduced === "string") {
       return reduced;
@@ -75,14 +76,16 @@ export function evaluateMessage<T = string>(
         branch.selector === rule ||
         branch.selector === "other"
       ) {
-        // TODO: support #
-        return evaluateMessage(branch.message, options);
+        return evaluateMessage(branch.message, options, value);
       }
     }
     throw new MessageError(
       `Non-exhaustive plural branches for ${value}`,
       options
     );
+  } else if (msg.type === "Number" && numberValue !== undefined) {
+    // TODO: allow injecting polyfill
+    return new Intl.NumberFormat(options.locale).format(numberValue);
   } else if (msg.type === "Element") {
     const { wrap } = options;
     if (!wrap)
@@ -93,7 +96,7 @@ export function evaluateMessage<T = string>(
     return wrap(
       value,
       msg.message !== undefined
-        ? evaluateMessage(msg.message, options)
+        ? evaluateMessage(msg.message, options, numberValue)
         : undefined
     );
   }
