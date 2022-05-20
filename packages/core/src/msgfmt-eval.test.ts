@@ -73,6 +73,33 @@ describe("evaluageMessage", () => {
     ).toBe("12\u202F345 pommes");
   });
 
+  it("evaluates integer styles", () => {
+    const msg1: CompiledMessage = {
+      type: "Var",
+      name: "foo",
+      argType: "number",
+      argStyle: "integer",
+    };
+    expect(evaluateMessage(msg1, { locale: "en", params: { foo: 42 } })).toBe(
+      "42"
+    );
+    expect(evaluateMessage(msg1, { locale: "en", params: { foo: 42.1 } })).toBe(
+      "42"
+    );
+  });
+
+  it("evaluates percent styles", () => {
+    const msg1: CompiledMessage = {
+      type: "Var",
+      name: "foo",
+      argType: "number",
+      argStyle: "percent",
+    };
+    expect(evaluateMessage(msg1, { locale: "en", params: { foo: 0.42 } })).toBe(
+      "42%"
+    );
+  });
+
   it("evaluates plural interpolation", () => {
     const msg1: CompiledMessage = {
       type: "Plural",

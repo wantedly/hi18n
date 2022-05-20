@@ -36,8 +36,8 @@ export function evaluateMessage<T = string>(
     const value = (options.params ?? {})[msg.name];
     if (value === undefined)
       throw new MessageError(`Missing argument ${msg.name}`, options);
-    switch (msg.argType ?? "string") {
-      case "string":
+    switch (msg.argType) {
+      case undefined:
         if (typeof value !== "string")
           throw new MessageError(
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -45,15 +45,34 @@ export function evaluateMessage<T = string>(
             options
           );
         return value;
-      case "number":
-        if (typeof value !== "number" && typeof value !== "bigint")
+      case "number": {
+        if (typeof value !== "number" && typeof value !== "bigint") {
           throw new MessageError(
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `Invalid argument ${msg.name}: expected number, got ${value}`,
             options
           );
+        }
+        const formatOptions: Intl.NumberFormatOptions = {};
+        let modifiedValue = value;
+        switch (msg.argStyle) {
+          case "integer":
+            // https://github.com/openjdk/jdk/blob/739769c8fc4b496f08a92225a12d07414537b6c0/src/java.base/share/classes/sun/util/locale/provider/NumberFormatProviderImpl.java#L196-L198
+            formatOptions.maximumFractionDigits = 0;
+            if (typeof value === "number") modifiedValue = Math.round(value);
+            break;
+          case "currency":
+            // Need to provide an appropriate currency from somewhere
+            throw new Error("Unimplemented: argStyle=currency");
+          case "percent":
+            formatOptions.style = msg.argStyle;
+            break;
+        }
         // TODO: allow injecting polyfill
-        return new Intl.NumberFormat(options.locale).format(value);
+        return new Intl.NumberFormat(options.locale, formatOptions).format(
+          modifiedValue
+        );
+      }
       default:
         throw new Error(`Unimplemented: argType=${msg.argType ?? "string"}`);
     }

@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Support `#` in plural translations.
+- Implement `{foo,number,integer}` and `{foo,number,percent}` formats.
 - Add `msg.todo`.
 
 ## 0.1.2
