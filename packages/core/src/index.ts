@@ -129,6 +129,8 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
  * @param s the translated message
  * @returns the first argument
  *
+ * @since 0.1.3 (`@hi18n/core`)
+ *
  * @example
  *   ```ts
  *   export default new Book<Vocabulary>({
@@ -466,6 +468,8 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
  * consider using other libraries like `moment.tz.guess`.
  *
  * @returns the default time zone, if anything is found. Otherwise the string "UTC"
+ *
+ * @since 0.1.3 (`@hi18n/core`)
  */
 export function getDefaultTimeZone(): string {
   if (typeof Intl !== "undefined" && Intl.DateTimeFormat) {

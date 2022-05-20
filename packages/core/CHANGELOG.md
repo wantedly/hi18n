@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.3
 
 - Support `#` in plural translations.
 - Implement `{foo,number,integer}` and `{foo,number,percent}` formats.
