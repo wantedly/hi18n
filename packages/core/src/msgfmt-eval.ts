@@ -95,7 +95,10 @@ export function evaluateMessage<T = string>(
           case "medium":
           case "long":
           case "full":
-            if (msg.argType === "date") {
+            if (typeof msg.argStyle === "object") {
+              // parsed object from the skeleton
+              Object.assign(formatOptions, msg.argStyle);
+            } else if (msg.argType === "date") {
               formatOptions.dateStyle = msg.argStyle ?? "medium";
             } else {
               formatOptions.timeStyle = msg.argStyle ?? "medium";

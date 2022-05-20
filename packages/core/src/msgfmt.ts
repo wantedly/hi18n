@@ -39,8 +39,7 @@ export type DateArg = {
   type: "Var";
   name: string | number;
   argType: "date";
-  // TODO: skeleton
-  argStyle?: "short" | "medium" | "long" | "full";
+  argStyle?: "short" | "medium" | "long" | "full" | Intl.DateTimeFormatOptions;
 };
 
 export type TimeArg = {

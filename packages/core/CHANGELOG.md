@@ -8,6 +8,7 @@
   - `{foo,date,medium}`
   - `{foo,date,long}`
   - `{foo,date,full}`
+  - `{foo,date,::MMMMdjmm}`, etc. where `MMMMdjmm` is a format string called skeleton.
   - `{foo,time}`
   - `{foo,time,short}`
   - `{foo,time,medium}`

@@ -139,10 +139,28 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
               S,
               `Invalid argStyle for ${NextToken<STT>[1]}: ${NextToken<STTTT>[1]}`
             >
+          : NextToken<STTTT> extends Token<"::", any, infer STTTTT>
+          ? NextToken<STTTTT> extends Token<"identifier", any, infer STTTTTT>
+            ? // TODO: parse skeletons
+              NextToken<STTTTTT> extends Token<"}", any, infer STTTTTTT>
+              ? ParseMessage<
+                  STTTTTTT,
+                  Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>
+                >
+              : ParseResult<
+                  Accum,
+                  S,
+                  `Unexpected token ${NextToken<STTTTT>[0]} (expected })`
+                >
+            : ParseResult<
+                Accum,
+                S,
+                `Unexpected token ${NextToken<STTTTT>[0]} (expected identifier)`
+              >
           : ParseResult<
               Accum,
               S,
-              `Unexpected token ${NextToken<STTTT>[0]} (expected identifier)`
+              `Unexpected token ${NextToken<STTTT>[0]} (expected identifier, ::)`
             >
         : ParseResult<
             Accum,
@@ -369,6 +387,8 @@ type NextToken<S extends string> =
     ? NextWord<SkipWhitespace<S>, "", "identifier">
     : SkipWhitespace<S> extends `${Digit}${string}`
     ? NextWord<SkipWhitespace<S>, "", "number">
+    : SkipWhitespace<S> extends `::${infer ST}`
+    ? Token<"::", "::", ST>
     : SkipWhitespace<S> extends `${infer SH}${infer ST}`
     ? Token<SH, SH, ST>
     : SkipWhitespace<S> extends ""

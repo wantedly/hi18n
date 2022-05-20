@@ -217,23 +217,39 @@ Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/
     - Argument name may be an identifier-like (like `foo123`) or a number (like `42`).
   - `{foo,number}` formats the argument `foo` as a number. The following formats are available:
     - `{foo,number}`
-      - `{foo,number,integer}` (not implemented yet)
+      - `{foo,number,integer}`
       - `{foo,number,currency}` (not implemented yet)
-      - `{foo,number,percent}` (not implemented yet)
+      - `{foo,number,percent}`
       - `{foo,number,::<skeleton>}` (not implemented yet)
     - `{foo,spellout}` (not implemented yet)
     - `{foo,ordinal}` (not implemented yet)
-    - `{foo,date}` (not implemented yet)
-      - `{foo,date,short}` (not implemented yet)
-      - `{foo,date,medium}` (not implemented yet)
-      - `{foo,date,long}` (not implemented yet)
-      - `{foo,date,full}` (not implemented yet)
-      - `{foo,date,::<skeleton>}` (not implemented yet)
-    - `{foo,time}` (not implemented yet)
-      - `{foo,time,short}` (not implemented yet)
-      - `{foo,time,medium}` (not implemented yet)
-      - `{foo,time,long}` (not implemented yet)
-      - `{foo,time,full}` (not implemented yet)
+    - `{foo,date}`
+      - `{foo,date,short}`
+      - `{foo,date,medium}`
+      - `{foo,date,long}`
+      - `{foo,date,full}`
+      - `{foo,date,::<skeleton>}`, where `<skeleton>` is a concatenation of the following tokens:
+        - era: `G` (AD), `GGGG` (Anno Domini), `GGGGG` (A)
+        - year: `y` (2022), `yy` (22)
+        - month: `M` (9), `MM` (09), `MMM` (Sep), `MMMM` (September), `MMMMM` (S)
+        - day: `d` (1), `dd` (01)
+        - weekday: `E` (Fri), `EEEE` (Friday), `EEEEE` (F)
+        - day period: `a` (in the afternoon), `aaaa` (in the afternoon), `aaaaa` (in the afternoon)
+        - hour: `j` (5 PM), `jj` (05 PM) with the following variants:
+          - `h` / `hh` forces 12-hour representation with the noon/midnight being 12
+          - `H` / `HH` forces 24-hour representation with the midnight being 0
+          - `k` / `kk` forces 24-hour representation with the midnight being 24
+          - `K` / `KK` forces 12-hour representation with the noon/midnight being 0
+        - minute: `m` (3), `mm` (03)
+        - second: `s` (2), `ss` (02)
+        - fraction seconds: `S` (.1), `SS` (.10), `SSS` (.102)
+        - time zone name: `z` (PDT), `zzzz` (Pacific Daylight Time), `O` (GMT-8), `OOOO` (GMT-08:00), `v` (PT), `vvvv` (Pacific Time)
+        - Note that the order of the tokens doesn't matter; they are appropriately reordered depending on the locale.
+    - `{foo,time}`
+      - `{foo,time,short}`
+      - `{foo,time,medium}`
+      - `{foo,time,long}`
+      - `{foo,time,full}`
     - `{foo,duration}` (not implemented yet)
   - `{foo,plural,...}` switches messages based on the plural forms of the number `foo`.
     - Optional offset `offset: 1` follows after `plural,`. There is no whitespace between `offset` and `:`.

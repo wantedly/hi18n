@@ -17,6 +17,7 @@ type Vocabulary = {
   "example/apples": Message<{ count: number }>;
   "example/additional": Message;
   "example/date": Message<{ today: Date }>;
+  "example/date2": Message<{ today: Date }>;
 };
 
 const catalogJa = new Catalog<Vocabulary>({
@@ -25,6 +26,7 @@ const catalogJa = new Catalog<Vocabulary>({
   "example/apples": msg("リンゴは{count,number}個あります。"),
   "example/additional": msg("日本限定企画!"),
   "example/date": msg("今日は{today,date}です。"),
+  "example/date2": msg("今日は{today,date,::MMMMdjmm}です。"),
 });
 const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
@@ -35,6 +37,7 @@ const catalogEn = new Catalog<Vocabulary>({
   // An example of not-yet-translated texts
   "example/additional": msg.todo("日本限定企画!"),
   "example/date": msg("Today is {today,date}."),
+  "example/date2": msg("Today is {today,date,::MMMMdjmm}."),
 });
 const book = new Book<Vocabulary>({
   ja: catalogJa,
@@ -136,6 +139,37 @@ describe("Book", () => {
     }).toThrow(
       "Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)"
     );
+  });
+
+  it("evaluates datetime", () => {
+    const date = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
+    {
+      const { t } = getTranslator(book, "en");
+      expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
+        "Today is Jan 2, 2006."
+      );
+      expect(t("example/date2", { today: date, timeZone: "MST" })).toBe(
+        "Today is 1/2/2006."
+      );
+    }
+    {
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
+        "今日は2006/01/02です。"
+      );
+      expect(t("example/date2", { today: date, timeZone: "MST" })).toBe(
+        "今日は2006/1/2です。"
+      );
+    }
+    {
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/date", { today: date, timeZone: "JST" })).toBe(
+        "今日は2006/01/03です。"
+      );
+      expect(t("example/date2", { today: date, timeZone: "JST" })).toBe(
+        "今日は2006/1/3です。"
+      );
+    }
   });
 
   it("raises an error for missing timeZone parameter", () => {

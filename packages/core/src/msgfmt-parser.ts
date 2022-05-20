@@ -178,17 +178,44 @@ function parseArgument(this: Parser): CompiledMessage {
             case "}":
               return { type: "Var", name, argType };
             case ",": {
-              const argStyle = nextToken.call(this, ["identifier"] as const)[1];
-              if (!ARG_STYLES[argType].includes(argStyle)) {
-                throw new Error(`Invalid argStyle for ${argType}: ${argStyle}`);
+              const argStyleToken = nextToken.call<
+                Parser,
+                [readonly ["identifier", "::"]],
+                ["identifier" | "::", string]
+              >(this, ["identifier", "::"] as const);
+              switch (argStyleToken[0]) {
+                case "identifier": {
+                  const argStyle = argStyleToken[1];
+                  if (!ARG_STYLES[argType].includes(argStyle)) {
+                    throw new Error(
+                      `Invalid argStyle for ${argType}: ${argStyle}`
+                    );
+                  }
+                  nextToken.call(this, ["}"] as const);
+                  return {
+                    type: "Var",
+                    name,
+                    argType,
+                    argStyle,
+                  } as VarArg;
+                }
+                case "::": {
+                  if (argType !== "date") {
+                    throw new Error(`Invalid argStyle for ${argType}: ::`);
+                  }
+                  const skeletonText = nextToken.call(this, [
+                    "identifier",
+                  ] as const)[1];
+                  const dateTimeFormat = parseDateSkeleton(skeletonText);
+                  nextToken.call(this, ["}"] as const);
+                  return {
+                    type: "Var",
+                    name,
+                    argType,
+                    argStyle: dateTimeFormat,
+                  } as VarArg;
+                }
               }
-              nextToken.call(this, ["}"] as const);
-              return {
-                type: "Var",
-                name,
-                argType,
-                argStyle,
-              } as VarArg;
             }
           }
         }
@@ -311,6 +338,9 @@ function nextTokenImpl(this: Parser): [string, string, boolean] {
     ) {
       this.pos++;
     }
+  } else if (this.src.startsWith("::", this.pos)) {
+    kind = "::";
+    this.pos += "::".length;
   } else {
     kind = ch;
     this.pos++;
@@ -344,3 +374,68 @@ function reduceMessage(msg: CompiledMessage[]): CompiledMessage {
 function pushString(buf: CompiledMessage[], msg: string) {
   if (msg !== "") buf.push(msg);
 }
+
+function parseDateSkeleton(skeleton: string) {
+  const options: Record<string, string | number | undefined> = {};
+  for (const match of skeleton.matchAll(/(.)\1*/g)) {
+    if (Object.prototype.hasOwnProperty.call(dateTokenMap, match[1]!)) {
+      const array = dateTokenMap[match[1]!]!;
+      const value = array[match[0]!.length];
+      if (value !== "undefined") {
+        options[array[0]] = value;
+        if (/[hHkK]/.test(match[1]!)) {
+          options["hourCycle"] =
+            hourCycleMap[match[1] as "h" | "H" | "k" | "K"];
+        }
+        continue;
+      }
+    }
+    throw new Error(`Invalid date skeleton: ${match[0]!}`);
+  }
+  if (requiredDateFields.every((f) => options[f] === undefined)) {
+    throw new Error(`Insufficient fields in the date skeleton: ${skeleton}`);
+  }
+  return options as Intl.DateTimeFormatOptions;
+}
+
+const requiredDateFields = [
+  "weekday",
+  "year",
+  "month",
+  "day",
+  "dayPeriod",
+  "hour",
+  "minute",
+  "second",
+  "fractionalSecondDigits",
+];
+
+const dateTokenMap: Record<
+  string,
+  [string, ...(string | number | undefined)[]]
+> = {
+  G: ["era", "short", undefined, undefined, "long", "narrow"],
+  y: ["year", "numeric", "2-digit"],
+  M: ["month", "numeric", "2-digit", "short", "long", "narrow"],
+  d: ["day", "numeric", "2-digit"],
+  E: ["weekday", "short", undefined, undefined, "long", "narrow"],
+  a: ["dayPeriod", "short", undefined, undefined, "long", "narrow"],
+  h: ["hour", "numeric", "2-digit"],
+  H: ["hour", "numeric", "2-digit"],
+  k: ["hour", "numeric", "2-digit"],
+  K: ["hour", "numeric", "2-digit"],
+  j: ["hour", "numeric", "2-digit"],
+  m: ["minute", "numeric", "2-digit"],
+  s: ["second", "numeric", "2-digit"],
+  S: ["fractionalSecondDigits", 1, 2, 3],
+  z: ["timeZoneName", "short", undefined, undefined, "long"],
+  O: ["timeZoneName", "shortOffset", undefined, undefined, "longOffset"],
+  v: ["timeZoneName", "shortGeneric", undefined, undefined, "longGeneric"],
+};
+
+const hourCycleMap = {
+  h: "h12",
+  H: "h23",
+  k: "h24",
+  K: "h11",
+};

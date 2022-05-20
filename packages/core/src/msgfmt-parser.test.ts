@@ -163,6 +163,17 @@ describe("parseMessage", () => {
       argType: "date",
       argStyle: "full",
     });
+    expect(parseMessage("{foo,date,::MMMMdjmm}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "date",
+      argStyle: {
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        month: "long",
+      },
+    });
     expect(parseMessage("{foo,time,short}")).toEqual({
       type: "Var",
       name: "foo",
@@ -191,7 +202,7 @@ describe("parseMessage", () => {
 
   it("errors on invalid styles", () => {
     expect(() => parseMessage("{foo,number,$}")).toThrow(
-      "Unexpected token $ (expected identifier)"
+      "Unexpected token $ (expected identifier, ::)"
     );
     expect(() => parseMessage("{foo,number,foobar}")).toThrow(
       "Invalid argStyle for number: foobar"
@@ -207,6 +218,9 @@ describe("parseMessage", () => {
     );
     expect(() => parseMessage("{foo,spellout,integer}")).toThrow(
       "Invalid argStyle for spellout: integer"
+    );
+    expect(() => parseMessage("{foo,date,::YYYYwwEEEE}")).toThrow(
+      "Invalid date skeleton: YYYY"
     );
   });
 

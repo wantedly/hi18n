@@ -207,6 +207,9 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{foo,date,full}">>().to(
         beTypeEqual<Message<{ foo: Date }>>()
       );
+      expectType<InferredMessageType<"{foo,date,::MMMMdjmm}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
       expectType<InferredMessageType<"{foo,time,short}">>().to(
         beTypeEqual<Message<{ foo: Date }>>()
       );
@@ -223,7 +226,9 @@ describe("InferredMessageType", () => {
 
     it("errors on invalid styles", () => {
       expectType<InferredMessageType<"{foo,number,$}">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected identifier)">>()
+        beTypeEqual<
+          ParseError<"Unexpected token $ (expected identifier, ::)">
+        >()
       );
       expectType<InferredMessageType<"{foo,number,foobar}">>().to(
         beTypeEqual<ParseError<"Invalid argStyle for number: foobar">>()
@@ -240,6 +245,10 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{foo,spellout,integer}">>().to(
         beTypeEqual<ParseError<"Invalid argStyle for spellout: integer">>()
       );
+      // TODO
+      // expectType<InferredMessageType<"{foo,date,::YYYYwwEEEE}">>().to(
+      //   beTypeEqual<ParseError<"Invalid date skeleton: YYYY">>()
+      // );
     });
 
     it("errors on choiceArg", () => {
