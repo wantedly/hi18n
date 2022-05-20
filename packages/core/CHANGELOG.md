@@ -2,6 +2,17 @@
 
 - Support `#` in plural translations.
 - Implement `{foo,number,integer}` and `{foo,number,percent}` formats.
+- Implement the following date/time formats:
+  - `{foo,date}`
+  - `{foo,date,short}`
+  - `{foo,date,medium}`
+  - `{foo,date,long}`
+  - `{foo,date,full}`
+  - `{foo,time}`
+  - `{foo,time,short}`
+  - `{foo,time,medium}`
+  - `{foo,time,long}`
+  - `{foo,time,full}`
 - Add `msg.todo`.
 
 ## 0.1.2

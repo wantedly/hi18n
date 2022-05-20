@@ -44,7 +44,19 @@ export type VocabularyBase = Record<string, Message<any>>;
 export type MessageArguments<
   M extends Message<any>,
   C
-> = InstantiateComponentTypes<AbstractMessageArguments<M>, C>;
+> = InstantiateComponentTypes<
+  InjectAdditionalParams<AbstractMessageArguments<M>>,
+  C
+>;
+
+// It if uses Date, we need timeZone as well.
+export type InjectAdditionalParams<Args> = true extends HasDate<
+  Args[keyof Args]
+>
+  ? Args & { timeZone: string }
+  : Args;
+
+export type HasDate<T> = T extends Date ? true : never;
 
 export type AbstractMessageArguments<M extends Message<any>> =
   M extends Message<infer Args> ? Args : never;
@@ -375,7 +387,7 @@ type DynamicTranslatorFunction<Vocabulary extends VocabularyBase> = {
    */
   <Args>(
     id: TranslationId<Vocabulary, Args>,
-    options: InstantiateComponentTypes<Args, never>
+    options: InstantiateComponentTypes<InjectAdditionalParams<Args>, never>
   ): string;
 };
 
@@ -420,6 +432,7 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
     return evaluateMessage(catalog.getCompiledMessage(id), {
       id,
       locale,
+      timeZone: options["timeZone"] as string | undefined,
       params: options,
     });
   };
@@ -438,10 +451,26 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
       return evaluateMessage<T>(catalog.getCompiledMessage(id), {
         id,
         locale,
+        timeZone: options["timeZone"] as string | undefined,
         params: options,
         collect: interpolator.collect,
         wrap: interpolator.wrap as ComponentInterpolator<T, unknown>["wrap"],
       });
     },
   };
+}
+
+/**
+ * A convenience helper to get the default time zone.
+ * If you need more sophisticated guess for old browsers,
+ * consider using other libraries like `moment.tz.guess`.
+ *
+ * @returns the default time zone, if anything is found. Otherwise the string "UTC"
+ */
+export function getDefaultTimeZone(): string {
+  if (typeof Intl !== "undefined" && Intl.DateTimeFormat) {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (typeof timeZone === "string") return timeZone;
+  }
+  return "UTC";
 }

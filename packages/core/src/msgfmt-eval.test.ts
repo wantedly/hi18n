@@ -100,6 +100,160 @@ describe("evaluageMessage", () => {
     );
   });
 
+  it("evaluates date interpolation", () => {
+    const date = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
+
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "date",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("Jan 2, 2006");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "date",
+        argStyle: "short",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("1/2/06");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "date",
+        argStyle: "medium",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("Jan 2, 2006");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "date",
+        argStyle: "long",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("January 2, 2006");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "date",
+        argStyle: "full",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("Monday, January 2, 2006");
+    }
+
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "time",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("3:04:05 PM");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "time",
+        argStyle: "short",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("3:04 PM");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "time",
+        argStyle: "medium",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("3:04:05 PM");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "time",
+        argStyle: "long",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("3:04:05 PM GMT-7");
+    }
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "time",
+        argStyle: "full",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: date },
+        })
+      ).toBe("3:04:05 PM GMT-07:00");
+    }
+  });
+
   it("evaluates plural interpolation", () => {
     const msg1: CompiledMessage = {
       type: "Plural",

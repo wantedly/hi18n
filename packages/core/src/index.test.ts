@@ -16,6 +16,7 @@ type Vocabulary = {
   "example/greeting2": Message<{ name: string }>;
   "example/apples": Message<{ count: number }>;
   "example/additional": Message;
+  "example/date": Message<{ today: Date }>;
 };
 
 const catalogJa = new Catalog<Vocabulary>({
@@ -23,6 +24,7 @@ const catalogJa = new Catalog<Vocabulary>({
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
   "example/additional": msg("日本限定企画!"),
+  "example/date": msg("今日は{today,date}です。"),
 });
 const catalogEn = new Catalog<Vocabulary>({
   "example/greeting": msg("Hello!"),
@@ -32,6 +34,7 @@ const catalogEn = new Catalog<Vocabulary>({
   ),
   // An example of not-yet-translated texts
   "example/additional": msg.todo("日本限定企画!"),
+  "example/date": msg("Today is {today,date}."),
 });
 const book = new Book<Vocabulary>({
   ja: catalogJa,
@@ -133,6 +136,18 @@ describe("Book", () => {
     }).toThrow(
       "Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)"
     );
+  });
+
+  it("raises an error for missing timeZone parameter", () => {
+    const { t } = getTranslator(book, "en");
+    const date = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
+    expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
+      "Today is Jan 2, 2006."
+    );
+    expect(() => {
+      // @ts-expect-error
+      t("example/date", { today: date });
+    }).toThrow("timeZone not specified (locale=en, id=example/date)");
   });
 
   describe("dynamic translation", () => {

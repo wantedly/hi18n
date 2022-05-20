@@ -2,8 +2,9 @@ import { CompiledMessage } from "./msgfmt.js";
 import type {} from "./errors";
 
 export type EvalOption<T> = {
-  id?: string;
+  id?: string | undefined;
   locale: string;
+  timeZone?: string | undefined;
   params?: Record<string, unknown>;
   collect?: ((submessages: (T | string)[]) => T | string) | undefined;
   wrap?:
@@ -71,6 +72,39 @@ export function evaluateMessage<T = string>(
         // TODO: allow injecting polyfill
         return new Intl.NumberFormat(options.locale, formatOptions).format(
           modifiedValue
+        );
+      }
+      case "date":
+      case "time": {
+        if (!(value instanceof Date)) {
+          throw new MessageError(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            `Invalid argument ${msg.name}: expected Date, got ${value}`,
+            options
+          );
+        }
+        if (typeof options.timeZone !== "string") {
+          throw new MessageError("timeZone not specified", options);
+        }
+        const formatOptions: Intl.DateTimeFormatOptions = {
+          timeZone: options.timeZone,
+        };
+        switch (msg.argStyle) {
+          case undefined:
+          case "short":
+          case "medium":
+          case "long":
+          case "full":
+            if (msg.argType === "date") {
+              formatOptions.dateStyle = msg.argStyle ?? "medium";
+            } else {
+              formatOptions.timeStyle = msg.argStyle ?? "medium";
+            }
+            break;
+        }
+        // TODO: allow injecting polyfill
+        return new Intl.DateTimeFormat(options.locale, formatOptions).format(
+          value
         );
       }
       default:
