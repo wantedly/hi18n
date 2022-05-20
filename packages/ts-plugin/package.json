@@ -1,0 +1,53 @@
+{
+  "name": "@hi18n/ts-plugin",
+  "version": "0.1.0",
+  "description": "Message internationalization meets immutability and type-safety - TypeScript language server plugin",
+  "keywords": [
+    "hi18n",
+    "typescript-plugin"
+  ],
+  "homepage": "https://github.com/wantedly/hi18n#readme",
+  "bugs": {
+    "url": "https://github.com/wantedly/hi18n/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wantedly/hi18n.git",
+    "directory": "packages/ts-plugin"
+  },
+  "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
+  "license": "MIT",
+  "packageManager": "yarn@3.2.1",
+  "files": [
+    "dist/**/*",
+    "!dist/*.tsbuildinfo",
+    "src/**/*",
+    "!src/**/*.test.ts"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "default": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "yarn tsc",
+    "clean": "rimraf dist",
+    "fmt": "prettier . -w",
+    "fmt:check": "prettier . -c",
+    "lint": "eslint 'src/**/*.ts' .eslintrc.js",
+    "prepack": "yarn clean && yarn build",
+    "tsc": "tsc --build"
+  },
+  "dependencies": {
+    "tslib": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.32",
+    "eslint": "^8.15.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^2.6.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.6.4"
+  }
+}
