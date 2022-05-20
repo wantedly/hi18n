@@ -1623,18 +1623,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/ts-plugin@workspace:packages/ts-plugin"
   dependencies:
-    "@babel/cli": ^7.17.10
-    "@babel/core": ^7.17.12
-    "@babel/plugin-transform-runtime": ^7.17.12
-    "@babel/preset-env": ^7.17.12
-    "@babel/preset-typescript": ^7.17.12
-    "@babel/runtime-corejs3": ^7.17.9
-    "@jest/globals": ^28.1.0
     "@types/node": ^17.0.32
-    babel-jest: ^28.1.0
     eslint: ^8.15.0
     eslint-plugin-node: ^11.1.0
-    jest: ^28.1.0
     prettier: ^2.6.2
     rimraf: ^3.0.2
     tslib: ^2.4.0
