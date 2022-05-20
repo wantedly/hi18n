@@ -38,6 +38,15 @@ type ValidArgType =
   | "ordinal"
   | "duration";
 
+type ValidArgStyle = {
+  number: "integer" | "currency" | "percent";
+  date: "short" | "medium" | "long" | "full";
+  time: "short" | "medium" | "long" | "full";
+  spellout: never;
+  ordinal: never;
+  duration: never;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ParseMessageEOF<S extends string, Accum> = ParseMessage<
   S,
@@ -108,8 +117,33 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
             STTTT,
             Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>
           >
-        : NextToken<STTT> extends Token<",", any, any>
-        ? ParseResult<Accum, S, "Unimplemented: argStyle">
+        : NextToken<STTT> extends Token<",", any, infer STTTT>
+        ? NextToken<STTTT> extends Token<
+            "identifier",
+            ValidArgStyle[NextToken<STT>[1]],
+            infer STTTTT
+          >
+          ? NextToken<STTTTT> extends Token<"}", any, infer STTTTTT>
+            ? ParseMessage<
+                STTTTTT,
+                Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>
+              >
+            : ParseResult<
+                Accum,
+                S,
+                `Unexpected token ${NextToken<STTTTT>[0]} (expected })`
+              >
+          : NextToken<STTTT> extends Token<"identifier", any, any>
+          ? ParseResult<
+              Accum,
+              S,
+              `Invalid argStyle for ${NextToken<STT>[1]}: ${NextToken<STTTT>[1]}`
+            >
+          : ParseResult<
+              Accum,
+              S,
+              `Unexpected token ${NextToken<STTTT>[0]} (expected identifier)`
+            >
         : ParseResult<
             Accum,
             S,

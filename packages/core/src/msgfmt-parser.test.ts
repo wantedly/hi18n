@@ -120,6 +120,96 @@ describe("parseMessage", () => {
     );
   });
 
+  it("parses styles in simpleArg", () => {
+    expect(parseMessage("{foo,number,integer}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "number",
+      argStyle: "integer",
+    });
+    expect(parseMessage("{foo,number,currency}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "number",
+      argStyle: "currency",
+    });
+    expect(parseMessage("{foo,number,percent}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "number",
+      argStyle: "percent",
+    });
+    expect(parseMessage("{foo,date,short}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "date",
+      argStyle: "short",
+    });
+    expect(parseMessage("{foo,date,medium}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "date",
+      argStyle: "medium",
+    });
+    expect(parseMessage("{foo,date,long}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "date",
+      argStyle: "long",
+    });
+    expect(parseMessage("{foo,date,full}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "date",
+      argStyle: "full",
+    });
+    expect(parseMessage("{foo,time,short}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "time",
+      argStyle: "short",
+    });
+    expect(parseMessage("{foo,time,medium}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "time",
+      argStyle: "medium",
+    });
+    expect(parseMessage("{foo,time,long}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "time",
+      argStyle: "long",
+    });
+    expect(parseMessage("{foo,time,full}")).toEqual({
+      type: "Var",
+      name: "foo",
+      argType: "time",
+      argStyle: "full",
+    });
+  });
+
+  it("errors on invalid styles", () => {
+    expect(() => parseMessage("{foo,number,$}")).toThrow(
+      "Unexpected token $ (expected identifier)"
+    );
+    expect(() => parseMessage("{foo,number,foobar}")).toThrow(
+      "Invalid argStyle for number: foobar"
+    );
+    expect(() => parseMessage("{foo,number,integer$}")).toThrow(
+      "Unexpected token $ (expected })"
+    );
+    expect(() => parseMessage("{foo,date,integer}")).toThrow(
+      "Invalid argStyle for date: integer"
+    );
+    expect(() => parseMessage("{foo,number,full}")).toThrow(
+      "Invalid argStyle for number: full"
+    );
+    expect(() => parseMessage("{foo,spellout,integer}")).toThrow(
+      "Invalid argStyle for spellout: integer"
+    );
+  });
+
   it("errors on choiceArg", () => {
     expect(() => parseMessage("{foo,choice,0#zero|1#one}")).toThrow(
       /choice is not supported/

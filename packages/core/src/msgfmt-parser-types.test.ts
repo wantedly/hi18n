@@ -185,6 +185,63 @@ describe("InferredMessageType", () => {
       );
     });
 
+    it("parses styles in simpleArg", () => {
+      expectType<InferredMessageType<"{foo,number,integer}">>().to(
+        beTypeEqual<Message<{ foo: number }>>()
+      );
+      expectType<InferredMessageType<"{foo,number,currency}">>().to(
+        beTypeEqual<Message<{ foo: number }>>()
+      );
+      expectType<InferredMessageType<"{foo,number,percent}">>().to(
+        beTypeEqual<Message<{ foo: number }>>()
+      );
+      expectType<InferredMessageType<"{foo,date,short}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,date,medium}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,date,long}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,date,full}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,time,short}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,time,medium}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,time,long}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+      expectType<InferredMessageType<"{foo,time,full}">>().to(
+        beTypeEqual<Message<{ foo: Date }>>()
+      );
+    });
+
+    it("errors on invalid styles", () => {
+      expectType<InferredMessageType<"{foo,number,$}">>().to(
+        beTypeEqual<ParseError<"Unexpected token $ (expected identifier)">>()
+      );
+      expectType<InferredMessageType<"{foo,number,foobar}">>().to(
+        beTypeEqual<ParseError<"Invalid argStyle for number: foobar">>()
+      );
+      expectType<InferredMessageType<"{foo,number,integer$}">>().to(
+        beTypeEqual<ParseError<"Unexpected token $ (expected })">>()
+      );
+      expectType<InferredMessageType<"{foo,date,integer}">>().to(
+        beTypeEqual<ParseError<"Invalid argStyle for date: integer">>()
+      );
+      expectType<InferredMessageType<"{foo,number,full}">>().to(
+        beTypeEqual<ParseError<"Invalid argStyle for number: full">>()
+      );
+      expectType<InferredMessageType<"{foo,spellout,integer}">>().to(
+        beTypeEqual<ParseError<"Invalid argStyle for spellout: integer">>()
+      );
+    });
+
     it("errors on choiceArg", () => {
       expectType<InferredMessageType<"{foo,choice,0#zero|1#one}">>().to(
         beTypeEqual<ParseError<"choice is not supported">>()

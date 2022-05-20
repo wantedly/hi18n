@@ -4,6 +4,7 @@ import {
   ElementArg,
   PluralArg,
   PluralBranch,
+  VarArg,
 } from "./msgfmt.js";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
@@ -14,6 +15,14 @@ export function parseMessage(msg: string): CompiledMessage {
 }
 
 const ARG_TYPES = ["number", "date", "time", "spellout", "ordinal", "duration"];
+const ARG_STYLES: Record<ArgType, string[]> = {
+  number: ["integer", "currency", "percent"],
+  date: ["short", "medium", "long", "full"],
+  time: ["short", "medium", "long", "full"],
+  spellout: [],
+  ordinal: [],
+  duration: [],
+};
 
 // References for ICU MessageFormat syntax:
 // https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/MessageFormat.html
@@ -144,8 +153,8 @@ function parseArgument(this: Parser): CompiledMessage {
     case "}":
       return { type: "Var", name };
     case ",": {
-      const argType = nextToken.call(this, ["identifier"] as const)[1];
-      switch (argType) {
+      const argType_ = nextToken.call(this, ["identifier"] as const)[1];
+      switch (argType_) {
         case "choice":
           throw new Error("choice is not supported");
           break;
@@ -155,10 +164,11 @@ function parseArgument(this: Parser): CompiledMessage {
         case "selectordinal":
           throw new Error("Unimplemented: selectArg");
           break;
-        default:
-          if (!ARG_TYPES.includes(argType)) {
-            throw new Error(`Invalid argType: ${argType}`);
+        default: {
+          if (!ARG_TYPES.includes(argType_)) {
+            throw new Error(`Invalid argType: ${argType_}`);
           }
+          const argType = argType_ as ArgType;
           switch (
             nextToken.call<Parser, [readonly ["}", ","]], ["}" | ",", string]>(
               this,
@@ -166,10 +176,22 @@ function parseArgument(this: Parser): CompiledMessage {
             )[0]
           ) {
             case "}":
-              return { type: "Var", name, argType: argType as ArgType };
-            case ",":
-              throw new Error("Unimplemented: argStyle");
+              return { type: "Var", name, argType };
+            case ",": {
+              const argStyle = nextToken.call(this, ["identifier"] as const)[1];
+              if (!ARG_STYLES[argType].includes(argStyle)) {
+                throw new Error(`Invalid argStyle for ${argType}: ${argStyle}`);
+              }
+              nextToken.call(this, ["}"] as const);
+              return {
+                type: "Var",
+                name,
+                argType,
+                argStyle,
+              } as VarArg;
+            }
           }
+        }
       }
     }
   }
