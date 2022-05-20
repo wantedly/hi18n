@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.4
 
 - Placeholder is changed from `msg()` to `msg.todo("[TODO: example/greeting]")`.
 
