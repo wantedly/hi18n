@@ -204,4 +204,4 @@ Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/
 - Interpolation: `Hello, {name}!`
 - Interleaving with markups: `Please <link>read the license agreement</link> before continuing.`
 
-See [formatting.md](formatting.md) for more details.
+See [formatting.md](docs/formatting.md) for more details.
