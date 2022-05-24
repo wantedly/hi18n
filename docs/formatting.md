@@ -249,3 +249,134 @@ evaluate("Easy come.<br/>Easy go.", { br: <br /> })
 
   - Valid: `<foo>`, `<foo >`, `</foo>`, `</foo >`, `<foo/>`, `<foo />`
   - Invalid: `< foo>`, `</ foo>`, `< /foo>`, `< foo/>`, `<foo/ >`
+
+## Grammar Summary
+
+```
+// Message entrypoint
+Message ::= MessageQ
+          | MessageU
+
+// Message ending with quoted text
+MessageQ ::= MessageU QuotedText
+// Message not ending with quoted text
+MessageU ::= ε
+           | MessageU NonQuoteElement
+           | MessageQ NonQuoteElement
+
+// Quoted text (must start with syntax characters)
+QuotedText ::= "'" QuotableCharacter QuotedTextElement "'"
+
+QuotedTextElement ::= QuotedTextCharacter
+                    | DoubleQuote
+
+QuotedTextCharacter ::= any character but not "'"
+
+DoubleQuote ::= "'" "'"
+
+QuotableCharacter ::= "{" | "}" | "#" | "|" | "<"
+
+NonQuoteElement ::= NonQuotedTextElement
+                  | BraceArgument
+                  | ElementArgument
+
+NonQuotedTextElement ::= PlainCharacter
+                       | DoubleQuote
+                       | "'" StrictPlainCharacter
+
+SyntaxCharacter ::= "{" | "}" | "#" | "<" | "'"
+PlainCharacter ::= any character but not SyntaxCharacter
+StrictPlainCharacter ::= PlainCharacter but not "|"
+
+BraceArgument ::= "{" S* ArgumentName S* "}"
+                | "{" S* ArgumentName S* "," S* ArgumentOptions S* "}"
+
+ArgumentName ::= Identifier
+               | Number
+Identifier ::= IdentifierStart IdentifierContinue*
+IdentifierStart ::= "a" ... "z"
+                  | "A" ... "Z"
+                  | "_"
+IdentifierContinue ::= IdentifierStart
+                     | "0" ... "9"
+Number ::= "0"
+         | NonZeroDigit Digit*
+NonZeroDigit ::= "1" ... "9"
+Digit ::= "0" ... "9"
+
+ArgumentOptions ::= "number"
+                  | "number" S* "," S* NumberStyle
+                  | "date"
+                  | "date" S* "," S* DateStyle
+                  | "time"
+                  | "time" S* "," S* TimeStyle
+                  | "plural" S* "," S* PluralStyle
+                  | "selectordinal" S* "," S* PluralStyle
+                  | "select" S* "," S* SelectStyle
+
+NumberStyle ::= "integer"
+              | "currency"
+              | "percent"
+              | "::" S* NumberSkeleton
+
+NumberSkeleton ::= (TODO)
+
+DateStyle ::= "short"
+            | "medium"
+            | "long"
+            | "full"
+            | "::" S* DateSkeleton
+
+TimeStyle ::= "short"
+            | "medium"
+            | "long"
+            | "full"
+
+DateSkeleton ::= DateSkeletonToken+
+  (here we have additional restriction that tokens with the same character must not be placed adjacent)
+
+DateSkeletonToken ::= "G" | "GGGG" | "GGGGG"
+                    | "y" | "yy"
+                    | "M" | "MM" | "MMM" | "MMMM" | "MMMMM"
+                    | "d" | "dd"
+                    | "E" | "EEEE" | "EEEEE"
+                    | "a" | "aaaa" | "aaaaa"
+                    | "j" | "jj"
+                    | "h" | "hh"
+                    | "H" | "HH"
+                    | "k" | "kk"
+                    | "K" | "KK"
+                    | "m" | "mm"
+                    | "s" | "ss"
+                    | "S" | "SS" | "SSS"
+                    | "z" | "zzzz"
+                    | "O" | "OOOO"
+                    | "v" | "vvvv"
+
+PluralStyle ::= Offset S* PluralBranches
+              | PluralBranches
+
+Offset ::= "offset:" S* Number
+
+PluralBranches ::= PluralBranch
+                 | PluralBranches S* PluralBranch
+  (here the last branch should be the "other" branch)
+
+PluralBranch ::= PluralCondition S* "{" Message "}"
+
+PluralCondition ::= Identifier
+                  | "=" Number
+
+SelectStyle ::= (TODO)
+
+ElementArgument ::= StartTag Message EndTag
+                  | SelfClosingTag
+  (here the name of the start tag must match the end tag)
+
+StartTag ::= "<" ArgumentName S* ">"
+EndTag ::= "</" ArgumentName S* ">"
+SelfClosingTag ::= "<" ArgumentName S* "/>"
+
+// Whitespace
+S ::= " " | "\n" | "\r" | "\t"
+```
