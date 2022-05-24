@@ -1,3 +1,7 @@
+## Unreleased
+
+- Support `offset:` parameter in plural translations.
+
 ## 0.1.3
 
 - Support `#` in plural translations.

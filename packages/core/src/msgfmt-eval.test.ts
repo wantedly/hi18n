@@ -328,6 +328,65 @@ describe("evaluageMessage", () => {
     ).toBe("Там 12\xA0345 яблок.");
   });
 
+  it("evaluates plural interpolation with offsets", () => {
+    const msg1: CompiledMessage = {
+      type: "Plural",
+      name: "count",
+      offset: 1,
+      branches: [
+        {
+          selector: 0,
+          message: ["Connected to no one"],
+        },
+        {
+          selector: 1,
+          message: ["Connected to ", { type: "Var", name: "name" }],
+        },
+        {
+          selector: "one",
+          message: [
+            "Connected to ",
+            { type: "Var", name: "name" },
+            " and ",
+            { type: "Number" },
+            " other",
+          ],
+        },
+        {
+          selector: "other",
+          message: [
+            "Connected to ",
+            { type: "Var", name: "name" },
+            " and ",
+            { type: "Number" },
+            " others",
+          ],
+        },
+      ],
+    };
+    expect(
+      evaluateMessage(msg1, { locale: "en", params: { count: 0, name: "" } })
+    ).toBe("Connected to no one");
+    expect(
+      evaluateMessage(msg1, {
+        locale: "en",
+        params: { count: 1, name: "John" },
+      })
+    ).toBe("Connected to John");
+    expect(
+      evaluateMessage(msg1, {
+        locale: "en",
+        params: { count: 2, name: "John" },
+      })
+    ).toBe("Connected to John and 1 other");
+    expect(
+      evaluateMessage(msg1, {
+        locale: "en",
+        params: { count: 3, name: "John" },
+      })
+    ).toBe("Connected to John and 2 others");
+  });
+
   it("evaluates component interpolation", () => {
     type DOMLike = string | DOMLike[] | ElementLike;
     type ElementLike =

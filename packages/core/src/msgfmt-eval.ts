@@ -115,24 +115,31 @@ export function evaluateMessage<T = string>(
     }
   } else if (msg.type === "Plural") {
     const value = (options.params ?? {})[msg.name];
-    if (value === undefined)
+    let relativeValue: number | bigint;
+    if (value === undefined) {
       throw new MessageError(`Missing argument ${msg.name}`, options);
-    if (typeof value !== "number" && typeof value !== "bigint")
+    }
+    if (typeof value === "number") {
+      relativeValue = value - (msg.offset ?? 0);
+    } else if (typeof value === "bigint") {
+      relativeValue = value - BigInt(msg.offset ?? 0);
+    } else {
       throw new MessageError(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Invalid argument ${msg.name}: expected number, got ${value}`,
         options
       );
+    }
     // TODO: allow injecting polyfill
     const pluralRules = new Intl.PluralRules(options.locale);
-    const rule: string = pluralRules.select(Number(value));
+    const rule: string = pluralRules.select(Number(relativeValue));
     for (const branch of msg.branches) {
       if (
-        branch.selector === value ||
+        branch.selector === Number(value) ||
         branch.selector === rule ||
         branch.selector === "other"
       ) {
-        return evaluateMessage(branch.message, options, value);
+        return evaluateMessage(branch.message, options, relativeValue);
       }
     }
     throw new MessageError(

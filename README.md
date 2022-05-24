@@ -200,67 +200,8 @@ const { t } = useI18n(book);
 
 Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/).
 
-- Unquoted literal messages:
-  - Any characters except `{`, `}`, `'`, `<`, and `#` are interpreted literally.
-  - `'` is interpreted literally if not followed by `{`, `}`, `'`, `<`, `#` or `|`.
-  - `#` is interpreted literally except directly under the plural/selectordinal argument.
-- Escapes:
-  - `''` is interpreted as a single apostrophe.
-- Quoted texts:
-  - `'` starts a quoted text if followed by `{`, `}`, `<`, `#` or `|`.
-    - Within a quoted text, any characters except `'` are interpreted literally.
-    - Within a quoted text, `''` is interpreted as a single apostrophe.
-    - Within a quoted text, `'` not followed by another `'` ends the quote.
-- Argument formatting with `{` ... `}`
-  - Except specified, whitespaces are allowed between tokens in the argument specifiers.
-  - `{foo}` inserts the string argument `foo`.
-    - Argument name may be an identifier-like (like `foo123`) or a number (like `42`).
-  - `{foo,number}` formats the argument `foo` as a number. The following formats are available:
-    - `{foo,number}`
-      - `{foo,number,integer}`
-      - `{foo,number,currency}` (not implemented yet)
-      - `{foo,number,percent}`
-      - `{foo,number,::<skeleton>}` (not implemented yet)
-    - `{foo,spellout}` (not implemented yet)
-    - `{foo,ordinal}` (not implemented yet)
-    - `{foo,date}`
-      - `{foo,date,short}`
-      - `{foo,date,medium}`
-      - `{foo,date,long}`
-      - `{foo,date,full}`
-      - `{foo,date,::<skeleton>}`, where `<skeleton>` is a concatenation of the following tokens:
-        - era: `G` (AD), `GGGG` (Anno Domini), `GGGGG` (A)
-        - year: `y` (2022), `yy` (22)
-        - month: `M` (9), `MM` (09), `MMM` (Sep), `MMMM` (September), `MMMMM` (S)
-        - day: `d` (1), `dd` (01)
-        - weekday: `E` (Fri), `EEEE` (Friday), `EEEEE` (F)
-        - day period: `a` (in the afternoon), `aaaa` (in the afternoon), `aaaaa` (in the afternoon)
-        - hour: `j` (5 PM), `jj` (05 PM) with the following variants:
-          - `h` / `hh` forces 12-hour representation with the noon/midnight being 12
-          - `H` / `HH` forces 24-hour representation with the midnight being 0
-          - `k` / `kk` forces 24-hour representation with the midnight being 24
-          - `K` / `KK` forces 12-hour representation with the noon/midnight being 0
-        - minute: `m` (3), `mm` (03)
-        - second: `s` (2), `ss` (02)
-        - fraction seconds: `S` (.1), `SS` (.10), `SSS` (.102)
-        - time zone name: `z` (PDT), `zzzz` (Pacific Daylight Time), `O` (GMT-8), `OOOO` (GMT-08:00), `v` (PT), `vvvv` (Pacific Time)
-        - Note that the order of the tokens doesn't matter; they are appropriately reordered depending on the locale.
-    - `{foo,time}`
-      - `{foo,time,short}`
-      - `{foo,time,medium}`
-      - `{foo,time,long}`
-      - `{foo,time,full}`
-    - `{foo,duration}` (not implemented yet)
-  - `{foo,plural,...}` switches messages based on the plural forms of the number `foo`.
-    - Optional offset `offset: 1` follows after `plural,`. There is no whitespace between `offset` and `:`.
-    - After that, branches follow. Each branch is one of:
-      - Exact match `=1 {There is one apple.}`. There is no whitespace between `=` and the number.
-      - Plural form match `many {There are # apples.}`
-      - Catchall branch `other {There are # apples.}`. The last branch must be a catchall branch.
-    - Example: `{count,plural,one{There is # apple.}other{There are # apples.}}`
-  - `{foo,selectordinal,...}` is a variant of `plural` for ordinals instead of cardinals.
-  - `{foo,select,...}` is a simple string-based branch like `{gender,select,female{...}male{...}other{...}}` (not implemented yet)
-- Within plural, `#` refers to the number we are branching on.
-- Component formatting with `<>` ... `</>`
-  - Part of the message can be enclosed with `<foo>` and `</foo>`. This is handled by a framework-specific interpolator. One such example is `@hi18n/react`'s `<Translate>` component.
-    - `<foo` and `</foo` should not contain whitespace.
+- Simple message: `Hello, world!`
+- Interpolation: `Hello, {name}!`
+- Interleaving with markups: `Please <link>read the license agreement</link> before continuing.`
+
+See [formatting.md](formatting.md) for more details.
