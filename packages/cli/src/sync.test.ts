@@ -50,7 +50,7 @@ async function withProject<T>(
     const allFiles = Array.from(new Set(files1.concat(files2)));
     allFiles.sort();
     const unmatchedFiles: string[] = [];
-    for (const filepath of files1) {
+    for (const filepath of allFiles) {
       const filepath1 = path.join(expectDir, filepath);
       const filepath2 = path.join(outputDir, filepath);
       if (!fs.existsSync(filepath1) || !fs.existsSync(filepath2)) {
