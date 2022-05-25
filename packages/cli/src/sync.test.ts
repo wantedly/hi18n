@@ -17,8 +17,8 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect, jest/no-disabled-tests
-  it.skip("works with single-file configuration", async () => {
+  // eslint-disable-next-line jest/expect-expect
+  it("works with single-file configuration", async () => {
     const output = new MockedOutput();
     await withProject("single-file", "sync", (cwd) =>
       hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
@@ -26,7 +26,7 @@ describe("sync", () => {
   });
 
   // eslint-disable-next-line jest/expect-expect
-  it("works", async () => {
+  it("works with multi-file configuration", async () => {
     const output = new MockedOutput();
     await withProject("simple-project", "sync", (cwd) =>
       hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)

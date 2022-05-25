@@ -1,5 +1,5 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getStaticKey } from "../util";
+import { getStaticKey, lineIndent } from "../util";
 import { catalogTracker } from "../common-trackers";
 import { parseComments, ParseError, Parser } from "../microparser";
 import { queryUsedTranslationIds } from "../used-ids";
@@ -75,12 +75,20 @@ export function create(
               const placeholderText = `[TODO: ${missingId}]`;
               const insertAt = lo;
               if (insertAt === 0) {
-                const firstCandidate = sortedCandidates[0]!;
-                const indent = (
-                  firstCandidate.node
-                    ? firstCandidate.node
-                    : firstCandidate.commentedOut[0]!
-                ).loc.start.column;
+                const firstCandidate = sortedCandidates[0];
+                let indent: number;
+                if (firstCandidate) {
+                  indent = (
+                    firstCandidate.node
+                      ? firstCandidate.node
+                      : firstCandidate.commentedOut[0]!
+                  ).loc.start.column;
+                } else {
+                  const openBrace = context
+                    .getSourceCode()
+                    .getFirstToken(catalogData)!;
+                  indent = lineIndent(context.getSourceCode(), openBrace) + 2;
+                }
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
                 )}: msg.todo(${JSON.stringify(placeholderText)}),`;

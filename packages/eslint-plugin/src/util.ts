@@ -136,3 +136,12 @@ export function commentOut(text: string, indent: number): string {
     })
     .join("");
 }
+
+export function lineIndent(
+  sourceCode: TSESLint.SourceCode,
+  token: TSESTree.Token
+): number {
+  const line = sourceCode.lines[token.loc.start.line - 1];
+  if (typeof line !== "string") return 0;
+  return /^\s*/.exec(line)![0]!.length;
+}

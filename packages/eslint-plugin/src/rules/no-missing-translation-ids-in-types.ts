@@ -1,5 +1,5 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getStaticKey } from "../util";
+import { getStaticKey, lineIndent } from "../util";
 import { bookTracker } from "../common-trackers";
 import { findTypeDefinition } from "../ts-util";
 import { parseComments, ParseError, Parser } from "../microparser";
@@ -78,12 +78,20 @@ export function create(
               }
               const insertAt = lo;
               if (insertAt === 0) {
-                const firstCandidate = sortedCandidates[0]!;
-                const indent = (
-                  firstCandidate.node
-                    ? firstCandidate.node
-                    : firstCandidate.commentedOut[0]!
-                ).loc.start.column;
+                const firstCandidate = sortedCandidates[0];
+                let indent: number;
+                if (firstCandidate) {
+                  indent = (
+                    firstCandidate.node
+                      ? firstCandidate.node
+                      : firstCandidate.commentedOut[0]!
+                  ).loc.start.column;
+                } else {
+                  const openBrace = context
+                    .getSourceCode()
+                    .getFirstToken(objinfo.body)!;
+                  indent = lineIndent(context.getSourceCode(), openBrace) + 2;
+                }
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
                 )}: Message;`;

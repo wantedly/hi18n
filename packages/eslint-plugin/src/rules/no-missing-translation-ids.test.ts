@@ -141,5 +141,25 @@ new TSESLint.RuleTester({
         });
       `,
     },
+    {
+      code: `
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({});
+      `,
+      settings: {
+        "@hi18n/linkage": {
+          "<input>?exported=default": "book.ts",
+        },
+        "@hi18n/used-translation-ids": {
+          "book.ts": ["example/greeting"],
+        },
+      },
+      errors: [{ messageId: "missing-translation-ids" }],
+      output: `
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog({
+          "example/greeting": msg.todo("[TODO: example/greeting]"),});
+      `,
+    },
   ],
 });

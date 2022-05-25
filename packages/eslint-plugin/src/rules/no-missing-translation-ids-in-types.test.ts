@@ -303,5 +303,26 @@ new TSESLint.RuleTester({
         export const book = new Book<Vocabulary>({});
       `,
     },
+    {
+      code: `
+        import { Book } from "@hi18n/core";
+        import type { Message } from "@hi18n/core";
+        export type Vocabulary = {};
+        export const book = new Book<Vocabulary>({});
+      `,
+      settings: {
+        "@hi18n/used-translation-ids": {
+          "<input>?exported=book": ["example/greeting"],
+        },
+      },
+      errors: [{ messageId: "missing-translation-ids" }],
+      output: `
+        import { Book } from "@hi18n/core";
+        import type { Message } from "@hi18n/core";
+        export type Vocabulary = {
+          "example/greeting": Message;};
+        export const book = new Book<Vocabulary>({});
+      `,
+    },
   ],
 });

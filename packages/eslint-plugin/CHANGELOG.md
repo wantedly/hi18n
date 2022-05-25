@@ -1,3 +1,8 @@
+## Unreleased
+
+- Fix `TypeError: Cannot read properties of undefined (reading 'node')`
+  on an empty Vocabulary or an empty Catalog in internally used rules.
+
 ## 0.1.4
 
 - Automatically include the plugin in the "recommended" config.
