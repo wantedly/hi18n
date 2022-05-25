@@ -9,9 +9,21 @@ import { hi18n } from "./command";
 
 describe("sync", () => {
   // eslint-disable-next-line jest/expect-expect
+  it("works with standalone configuration", () =>
+    withProject("standalone", "sync", (cwd) =>
+      hi18n(["sync", "src/**/*.ts"], cwd, false)
+    ));
+
+  // eslint-disable-next-line jest/expect-expect, jest/no-disabled-tests
+  it.skip("works with single-file configuration", () =>
+    withProject("single-file", "sync", (cwd) =>
+      hi18n(["sync", "src/**/*.ts"], cwd, false)
+    ));
+
+  // eslint-disable-next-line jest/expect-expect
   it("works", () =>
     withProject("simple-project", "sync", (cwd) =>
-      hi18n(["sync", "src/**/*.ts"], cwd)
+      hi18n(["sync", "src/**/*.ts"], cwd, false)
     ));
 });
 

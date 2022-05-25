@@ -1,7 +1,11 @@
 import yargs from "yargs";
 import { sync } from "./sync";
 
-export async function hi18n(argv: readonly string[], cwd: string = ".") {
+export async function hi18n(
+  argv: readonly string[],
+  cwd: string = ".",
+  exitProcess = true
+) {
   await yargs(argv)
     .command(
       "sync <files...>",
@@ -22,6 +26,7 @@ export async function hi18n(argv: readonly string[], cwd: string = ".") {
     )
     .strict()
     .demandCommand(1)
+    .exitProcess(exitProcess)
     .parse();
 
   async function syncCommand(
