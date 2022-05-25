@@ -5,13 +5,13 @@ import os from "node:os";
 import path from "node:path";
 import glob from "glob";
 import util from "util";
-import { fixTranslations } from "./fixer";
+import { hi18n } from "./command";
 
 describe("fixTranslations", () => {
   // eslint-disable-next-line jest/expect-expect
   it("works", () =>
     withProject("simple-project", "sync", (cwd) =>
-      fixTranslations({ cwd, include: ["src/**/*.ts"] })
+      hi18n(["sync", "src/**/*.ts"], cwd)
     ));
 });
 
