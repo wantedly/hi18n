@@ -18,6 +18,7 @@ export type Options = {
   cwd: string;
   include: string[];
   exclude?: string[] | undefined;
+  checkOnly?: boolean | undefined;
 };
 
 export async function sync(options: Options) {
@@ -196,6 +197,11 @@ export async function sync(options: Options) {
     );
     checkMessages(rewriteTargetFile, report.messages);
     if (report.fixed) {
+      if (options.checkOnly) {
+        throw new Error(
+          `Found diff in ${path.relative(projectPath, rewriteTargetFile)}`
+        );
+      }
       await fs.promises.writeFile(rewriteTargetFile, report.output, "utf-8");
     }
   }

@@ -20,6 +20,11 @@ export async function hi18n(
           .option("exclude", {
             type: "string",
             array: true,
+          })
+          .option("c", {
+            alias: "check",
+            type: "boolean",
+            describe: "report errors if one or more files would be changed",
           });
       },
       syncCommand
@@ -33,12 +38,14 @@ export async function hi18n(
     args: yargs.ArgumentsCamelCase<{
       files: string[] | undefined;
       exclude: string[] | undefined;
+      c: boolean | undefined;
     }>
   ) {
     await sync({
       cwd,
       include: args.files ?? [],
       exclude: args.exclude,
+      checkOnly: args.c,
     });
   }
 }

@@ -1,4 +1,4 @@
-import { describe, it } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import fs from "node:fs";
 import fse from "fs-extra";
 import os from "node:os";
@@ -25,6 +25,13 @@ describe("sync", () => {
     withProject("simple-project", "sync", (cwd) =>
       hi18n(["sync", "src/**/*.ts"], cwd, false)
     ));
+
+  it("errors with --check", () =>
+    withProject("simple-project", "sync-check", async (cwd) => {
+      await expect(
+        hi18n(["sync", "--check", "src/**/*.ts"], cwd, false)
+      ).rejects.toThrow("Found diff in src/locale/en.ts");
+    }));
 });
 
 async function withProject<T>(
