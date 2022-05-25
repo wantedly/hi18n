@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Support `offset:` parameter in plural translations.
+- Fix bug where date skeletons `{foo,date,::MMMMdjmm}` is not actually applied.
 
 ## 0.1.3
 

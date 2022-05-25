@@ -89,21 +89,15 @@ export function evaluateMessage<T = string>(
         const formatOptions: Intl.DateTimeFormatOptions = {
           timeZone: options.timeZone,
         };
-        switch (msg.argStyle) {
-          case undefined:
-          case "short":
-          case "medium":
-          case "long":
-          case "full":
-            if (typeof msg.argStyle === "object") {
-              // parsed object from the skeleton
-              Object.assign(formatOptions, msg.argStyle);
-            } else if (msg.argType === "date") {
-              formatOptions.dateStyle = msg.argStyle ?? "medium";
-            } else {
-              formatOptions.timeStyle = msg.argStyle ?? "medium";
-            }
-            break;
+        if (typeof msg.argStyle === "object") {
+          // parsed object from the skeleton
+          Object.assign(formatOptions, msg.argStyle);
+        } else {
+          if (msg.argType === "date") {
+            formatOptions.dateStyle = msg.argStyle ?? "medium";
+          } else {
+            formatOptions.timeStyle = msg.argStyle ?? "medium";
+          }
         }
         // TODO: allow injecting polyfill
         return new Intl.DateTimeFormat(options.locale, formatOptions).format(

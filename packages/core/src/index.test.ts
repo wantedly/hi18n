@@ -151,7 +151,7 @@ describe("Book", () => {
         "Today is Jan 2, 2006."
       );
       expect(t("example/date2", { today: date, timeZone: "MST" })).toBe(
-        "Today is 1/2/2006."
+        "Today is January 2, 3:04 PM."
       );
     }
     {
@@ -160,7 +160,7 @@ describe("Book", () => {
         "今日は2006/01/02です。"
       );
       expect(t("example/date2", { today: date, timeZone: "MST" })).toBe(
-        "今日は2006/1/2です。"
+        "今日は1月2日 15:04です。"
       );
     }
     {
@@ -169,7 +169,7 @@ describe("Book", () => {
         "今日は2006/01/03です。"
       );
       expect(t("example/date2", { today: date, timeZone: "JST" })).toBe(
-        "今日は2006/1/3です。"
+        "今日は1月3日 7:04です。"
       );
     }
   });
