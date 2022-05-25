@@ -1,5 +1,5 @@
 import yargs from "yargs";
-import { fixTranslations } from "./fixer";
+import { sync } from "./sync";
 
 export async function hi18n(argv: readonly string[], cwd: string = ".") {
   await yargs(argv)
@@ -30,7 +30,7 @@ export async function hi18n(argv: readonly string[], cwd: string = ".") {
       exclude: string[] | undefined;
     }>
   ) {
-    await fixTranslations({
+    await sync({
       cwd,
       include: args.files ?? [],
       exclude: args.exclude,

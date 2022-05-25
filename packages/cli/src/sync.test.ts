@@ -7,7 +7,7 @@ import glob from "glob";
 import util from "util";
 import { hi18n } from "./command";
 
-describe("fixTranslations", () => {
+describe("sync", () => {
   // eslint-disable-next-line jest/expect-expect
   it("works", () =>
     withProject("simple-project", "sync", (cwd) =>

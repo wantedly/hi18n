@@ -20,7 +20,7 @@ export type Options = {
   exclude?: string[] | undefined;
 };
 
-export async function fixTranslations(options: Options) {
+export async function sync(options: Options) {
   const { cwd: projectPath, include, exclude } = options;
   const linterConfig: TSESLint.Linter.Config = {
     parser: "@babel/eslint-parser",
