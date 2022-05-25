@@ -2,6 +2,7 @@
 
 - Implement `hi18n sync --check` (shorthand: `-c`) option to raise an error when files would be changed.
   It is useful when you want to ensure synchronization in your CI.
+- Switched command line parser (yargs to commander). The behavior may slightly change.
 
 ## 0.1.4
 

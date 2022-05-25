@@ -5,33 +5,47 @@ import os from "node:os";
 import path from "node:path";
 import glob from "glob";
 import util from "util";
+import { OutputConfiguration } from "commander";
 import { hi18n } from "./command";
 
 describe("sync", () => {
   // eslint-disable-next-line jest/expect-expect
-  it("works with standalone configuration", () =>
-    withProject("standalone", "sync", (cwd) =>
-      hi18n(["sync", "src/**/*.ts"], cwd, false)
-    ));
+  it("works with standalone configuration", async () => {
+    const output = new MockedOutput();
+    await withProject("standalone", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
 
   // eslint-disable-next-line jest/expect-expect, jest/no-disabled-tests
-  it.skip("works with single-file configuration", () =>
-    withProject("single-file", "sync", (cwd) =>
-      hi18n(["sync", "src/**/*.ts"], cwd, false)
-    ));
+  it.skip("works with single-file configuration", async () => {
+    const output = new MockedOutput();
+    await withProject("single-file", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
 
   // eslint-disable-next-line jest/expect-expect
-  it("works", () =>
-    withProject("simple-project", "sync", (cwd) =>
-      hi18n(["sync", "src/**/*.ts"], cwd, false)
-    ));
+  it("works", async () => {
+    const output = new MockedOutput();
+    await withProject("simple-project", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
 
-  it("errors with --check", () =>
-    withProject("simple-project", "sync-check", async (cwd) => {
+  it("errors with --check", async () => {
+    const output = new MockedOutput();
+    await withProject("simple-project", "sync-check", async (cwd) => {
       await expect(
-        hi18n(["sync", "--check", "src/**/*.ts"], cwd, false)
+        hi18n(
+          ["node", "hi18n", "sync", "--check", "src/**/*.ts"],
+          cwd,
+          output,
+          true
+        )
       ).rejects.toThrow("Found diff in src/locale/en.ts");
-    }));
+    });
+  });
 });
 
 async function withProject<T>(
@@ -116,4 +130,24 @@ async function withTemp<T>(cb: (tempdir: string) => Promise<T>): Promise<T> {
     await fse.remove(tempdir);
   }
   return result;
+}
+
+class MockedOutput implements OutputConfiguration {
+  stdout = "";
+  stderr = "";
+  writeOut(str: string): void {
+    this.stdout += str;
+  }
+  writeErr(str: string): void {
+    this.stderr += str;
+  }
+  getOutHelpWidth(): number {
+    return 80;
+  }
+  getErrHelpWidth(): number {
+    return 80;
+  }
+  outputError(str: string, write: (str: string) => void): void {
+    write(str);
+  }
 }

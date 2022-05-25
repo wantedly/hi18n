@@ -1,51 +1,44 @@
-import yargs from "yargs";
+import { Command, OutputConfiguration } from "commander";
 import { sync } from "./sync";
 
 export async function hi18n(
-  argv: readonly string[],
+  argv?: readonly string[],
   cwd: string = ".",
-  exitProcess = true
+  output?: OutputConfiguration,
+  overrideExit?: boolean
 ) {
-  await yargs(argv)
-    .command(
-      "sync <files...>",
-      "synchronize translation ids",
-      (yargs) => {
-        return yargs
-          .positional("files", {
-            required: true,
-            type: "string",
-            array: true,
-          })
-          .option("exclude", {
-            type: "string",
-            array: true,
-          })
-          .option("c", {
-            alias: "check",
-            type: "boolean",
-            describe: "report errors if one or more files would be changed",
-          });
-      },
-      syncCommand
+  const program = new Command();
+
+  program.name("hi18n").description("CLI for managing translations with hi18n");
+
+  if (output) program.configureOutput(output);
+  if (overrideExit) program.exitOverride();
+
+  program
+    .command("sync")
+    .description("Synchronize translation ids")
+    .argument("<files...>")
+    .option("--exclude <files...>")
+    .option(
+      "-c, --check",
+      "report errors if one or more files would be changed"
     )
-    .strict()
-    .demandCommand(1)
-    .exitProcess(exitProcess)
-    .parse();
+    .action(syncCommand);
 
   async function syncCommand(
-    args: yargs.ArgumentsCamelCase<{
-      files: string[] | undefined;
-      exclude: string[] | undefined;
-      c: boolean | undefined;
-    }>
+    files: string[],
+    options: {
+      exclude?: string[];
+      check?: boolean;
+    }
   ) {
     await sync({
       cwd,
-      include: args.files ?? [],
-      exclude: args.exclude,
-      checkOnly: args.c,
+      include: files,
+      exclude: options.exclude,
+      checkOnly: options.check,
     });
   }
+
+  await program.parseAsync(argv);
 }
