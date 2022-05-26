@@ -4,7 +4,7 @@
   It is useful when you want to ensure synchronization in your CI.
 - Switched command line parser (yargs to commander). The behavior may slightly change.
 - Fix `TypeError: Cannot read properties of undefined (reading 'node')`
-  on an empty Vocabulary or an empty Catalog in internally used rules.
+  on an empty Vocabulary or an empty Catalog.
 
 ## 0.1.4
 

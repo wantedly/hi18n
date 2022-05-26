@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.5
 
 - Fix `TypeError: Cannot read properties of undefined (reading 'node')`
   on an empty Vocabulary or an empty Catalog in internally used rules.

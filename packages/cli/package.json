@@ -58,7 +58,7 @@
     "@babel/core": "^7.17.10",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/runtime-corejs3": "^7.17.9",
-    "@hi18n/eslint-plugin": "workspace:^0.1.4",
+    "@hi18n/eslint-plugin": "workspace:^0.1.5",
     "@typescript-eslint/utils": "^5.21.0",
     "commander": "^9.2.0",
     "eslint": "^8.13.0",
