@@ -3,7 +3,7 @@ import { sync } from "./sync";
 
 export async function hi18n(
   argv?: readonly string[],
-  cwd: string = ".",
+  cwd: string = process.cwd(),
   output?: OutputConfiguration,
   overrideExit?: boolean
 ) {
