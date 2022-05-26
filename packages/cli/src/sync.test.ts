@@ -33,6 +33,20 @@ describe("sync", () => {
     );
   });
 
+  it("sync --check is successful if convergeed", async () => {
+    const output = new MockedOutput();
+    await withProject("simple-project-converged", "sync-check", async (cwd) => {
+      await expect(
+        hi18n(
+          ["node", "hi18n", "sync", "--check", "src/**/*.ts"],
+          cwd,
+          output,
+          true
+        )
+      ).resolves.toBe(undefined);
+    });
+  });
+
   it("errors with --check", async () => {
     const output = new MockedOutput();
     await withProject("simple-project", "sync-check", async (cwd) => {
