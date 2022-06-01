@@ -415,10 +415,7 @@ function iterateCapture(
     }
   } else if (current.type === "ArrayExpression") {
     let i = 0;
-    for (const arg of current.elements as (
-      | TSESTree.Expression
-      | TSESTree.SpreadElement
-    )[]) {
+    for (const arg of current.elements) {
       if (arg !== null && arg.type === "SpreadElement") break;
       if (`${i}` === segment && arg !== null) {
         return arg;
