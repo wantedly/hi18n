@@ -126,10 +126,7 @@ export function create(
         }
       } else if (valuesNode.type === "ArrayExpression") {
         let i = 0;
-        for (const elem of valuesNode.elements as (
-          | TSESTree.Expression
-          | TSESTree.SpreadElement
-        )[]) {
+        for (const elem of valuesNode.elements) {
           if (elem.type === "SpreadElement") return justReport();
           const key = `${i}`;
           if (params.has(key)) return justReport();
