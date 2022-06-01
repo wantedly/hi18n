@@ -70,7 +70,7 @@
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "ts-jest-resolver": "^2.0.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.7.2"
   },
   "jest": {
     "resolver": "ts-jest-resolver"
