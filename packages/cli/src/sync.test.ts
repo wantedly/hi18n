@@ -60,6 +60,14 @@ describe("sync", () => {
       ).rejects.toThrow("Found diff in src/locale/en.ts");
     });
   });
+
+  // eslint-disable-next-line jest/expect-expect
+  it("resolves mapped paths if configured as such", async () => {
+    const output = new MockedOutput();
+    await withProject("path-mapping", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
 });
 
 async function withProject<T>(

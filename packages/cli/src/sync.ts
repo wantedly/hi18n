@@ -13,6 +13,7 @@ import {
   CatalogDef,
   TranslationUsage,
 } from "@hi18n/eslint-plugin";
+import { loadConfig } from "./config";
 
 export type Options = {
   cwd: string;
@@ -23,6 +24,7 @@ export type Options = {
 
 export async function sync(options: Options) {
   const { cwd: projectPath, include, exclude } = options;
+  const config = await loadConfig(projectPath);
   const linterConfig: TSESLint.Linter.Config = {
     parser: "@babel/eslint-parser",
     parserOptions: {
@@ -117,19 +119,15 @@ export async function sync(options: Options) {
   for (const u of translationUsages) {
     const loc = u.bookLocation;
     if (loc.path !== undefined) {
-      const { resolved } = await resolveAsPromise(loc.path, {
-        basedir: path.dirname(loc.base),
-        extensions: [
-          ".js",
-          ".cjs",
-          ".mjs",
-          ".ts",
-          ".cts",
-          ".mts",
-          ".jsx",
-          ".tsx",
-        ],
-      });
+      const { resolved } = await resolveWithFallback(
+        loc.path,
+        {
+          basedir: path.dirname(loc.base),
+          extensions: config.extensions,
+        },
+        config.baseUrl,
+        config.paths
+      );
       loc.path = resolved;
     }
     const locName = serializeReference(loc);
@@ -156,19 +154,15 @@ export async function sync(options: Options) {
     for (const catalogLink of bookDef.catalogLinks) {
       const loc = catalogLink.catalogLocation;
       if (loc.path !== undefined) {
-        const { resolved } = await resolveAsPromise(loc.path, {
-          basedir: path.dirname(loc.base),
-          extensions: [
-            ".js",
-            ".cjs",
-            ".mjs",
-            ".ts",
-            ".cts",
-            ".mts",
-            ".jsx",
-            ".tsx",
-          ],
-        });
+        const { resolved } = await resolveWithFallback(
+          loc.path,
+          {
+            basedir: path.dirname(loc.base),
+            extensions: config.extensions,
+          },
+          config.baseUrl,
+          config.paths
+        );
         loc.path = resolved;
       }
       setRecordValue(linkage, serializeReference(loc), primaryName);
@@ -221,20 +215,62 @@ function checkMessages(
   }
 }
 
-function resolveAsPromise(
-  id: string,
-  opts: resolve.AsyncOpts
-): Promise<{
+type ResolveResult = {
   resolved: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pkg: { name: string; version: string; [key: string]: any } | undefined;
-}> {
+};
+
+async function resolveWithFallback(
+  id: string,
+  opts: resolve.AsyncOpts,
+  baseUrl?: string,
+  paths?: Record<string, string[]>
+): Promise<ResolveResult> {
+  if (baseUrl && isPackageLikePath(id)) {
+    const matchers = Object.entries(paths ?? {});
+    matchers.push(["*", ["*"]]);
+    for (const [matcher, candidates] of matchers) {
+      let replacement: string | undefined = undefined;
+      if (id === matcher) {
+        replacement = "";
+      } else if (
+        matcher.endsWith("*") &&
+        id.startsWith(matcher.substring(0, matcher.length - 1))
+      ) {
+        replacement = id.substring(matcher.length - 1);
+      }
+      if (replacement === undefined) continue;
+      for (const candidate of candidates) {
+        try {
+          return await resolveAsPromise(
+            path.resolve(baseUrl, candidate.replace("*", replacement)),
+            opts
+          );
+        } catch (_e) {
+          // Likely MODULE_NOT_FOUND
+        }
+      }
+    }
+  }
+  return await resolveAsPromise(id, opts);
+}
+
+function resolveAsPromise(
+  id: string,
+  opts: resolve.AsyncOpts
+): Promise<ResolveResult> {
   return new Promise((resolvePromise, rejectPromise) => {
     resolve(id, opts, (err, resolved, pkg) => {
       if (err) rejectPromise(err);
       else resolvePromise({ resolved: resolved!, pkg });
     });
   });
+}
+
+function isPackageLikePath(p: string): boolean {
+  const firstSegment = p.split(/[/\\]/)[0];
+  return firstSegment !== "." && firstSegment !== ".." && !path.isAbsolute(p);
 }
 
 function hasOwn(record: Record<string, unknown>, key: string): boolean {

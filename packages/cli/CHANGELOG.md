@@ -1,3 +1,9 @@
+## Unreleased
+
+- Resolver improvements
+  - Make `extensions` configurable
+  - Support path mapping via `baseUrl` and `paths` similarly to tsconfig.
+
 ## 0.1.5
 
 - Implement `hi18n sync --check` (shorthand: `-c`) option to raise an error when files would be changed.
