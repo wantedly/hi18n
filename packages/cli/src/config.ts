@@ -38,6 +38,8 @@ const DEFAULT_EXTENSIONS = [
   ".tsx",
 ];
 
+const DEFAULT_EXTENSIONS_TO_REMOVE = [".js", ".cjs", ".mjs"];
+
 const DEFAULT_PARSER_OPTIONS: TSESLint.ParserOptions = {
   ecmaVersion: "latest",
   sourceType: "module",
@@ -47,6 +49,7 @@ const configKeys = [
   "parser",
   "parserOptions",
   "extensions",
+  "extensionsToRemove",
   "baseUrl",
   "paths",
 ];
@@ -55,6 +58,7 @@ export type Config = {
   parser: ParserSpec;
   parserOptions: TSESLint.ParserOptions;
   extensions: string[];
+  extensionsToRemove: string[];
   baseUrl?: string | undefined;
   paths?: Record<string, string[]> | undefined;
 };
@@ -79,6 +83,9 @@ export async function loadConfig(cwd: string): Promise<Config> {
   if (!optional(isArrayOf(isString))(config["extensions"])) {
     throw new Error("config.extensions: not an array of strings");
   }
+  if (!optional(isArrayOf(isString))(config["extensionsToRemove"])) {
+    throw new Error("config.extensionsToRemove: not an array of strings");
+  }
   if (!optional(isString)(config["baseUrl"])) {
     throw new Error("config.baseUrl: not a string");
   }
@@ -96,6 +103,9 @@ export async function loadConfig(cwd: string): Promise<Config> {
     (config["parserOptions"] as TSESLint.ParserOptions | undefined) ??
     DEFAULT_PARSER_OPTIONS;
   const extensions = expandExtensions(config["extensions"]);
+  const extensionsToRemove = expandExtensionsToRemove(
+    config["extensionsToRemove"]
+  );
   const baseUrl = expandBaseUrl(config["baseUrl"], filepath);
   const paths = config["paths"];
 
@@ -107,6 +117,7 @@ export async function loadConfig(cwd: string): Promise<Config> {
     parser,
     parserOptions,
     extensions,
+    extensionsToRemove,
     baseUrl,
     paths,
   };
@@ -136,6 +147,15 @@ function expandExtensions(extensions: string[] | undefined): string[] {
   if (extensions === undefined) return DEFAULT_EXTENSIONS;
   return extensions.flatMap((ext) =>
     ext === "..." ? DEFAULT_EXTENSIONS : [ext]
+  );
+}
+
+function expandExtensionsToRemove(
+  extensionsToRemove: string[] | undefined
+): string[] {
+  if (extensionsToRemove === undefined) return DEFAULT_EXTENSIONS_TO_REMOVE;
+  return extensionsToRemove.flatMap((ext) =>
+    ext === "..." ? DEFAULT_EXTENSIONS_TO_REMOVE : [ext]
   );
 }
 

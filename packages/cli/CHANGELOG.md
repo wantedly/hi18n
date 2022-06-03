@@ -3,6 +3,8 @@
 - Resolver improvements
   - Make `extensions` configurable
   - Support path mapping via `baseUrl` and `paths` similarly to tsconfig.
+  - Remove specific extensions (e.g. `.js`) before resolving paths.
+    - This is useful if you do not omit extensions to support Node.js ESM and the path is actually being resolved with a different extension (e.g. `.js` being resolved as `.ts`).
 - Allow configuring parsers
   - You can have `parser` and `parserOptions` configurations very much like in `.eslintrc`.
 

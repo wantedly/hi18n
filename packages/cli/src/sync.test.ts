@@ -62,6 +62,14 @@ describe("sync", () => {
   });
 
   // eslint-disable-next-line jest/expect-expect
+  it("allows resolving paths with extensions as paths with different extensions", async () => {
+    const output = new MockedOutput();
+    await withProject("extension-removal", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
+
+  // eslint-disable-next-line jest/expect-expect
   it("resolves mapped paths if configured as such", async () => {
     const output = new MockedOutput();
     await withProject("path-mapping", "sync", (cwd) =>

@@ -114,7 +114,7 @@ export async function sync(options: Options) {
     const loc = u.bookLocation;
     if (loc.path !== undefined) {
       const { resolved } = await resolveWithFallback(
-        loc.path,
+        removeExtension(loc.path, config.extensionsToRemove),
         {
           basedir: path.dirname(loc.base),
           extensions: config.extensions,
@@ -149,7 +149,7 @@ export async function sync(options: Options) {
       const loc = catalogLink.catalogLocation;
       if (loc.path !== undefined) {
         const { resolved } = await resolveWithFallback(
-          loc.path,
+          removeExtension(loc.path, config.extensionsToRemove),
           {
             basedir: path.dirname(loc.base),
             extensions: config.extensions,
@@ -214,6 +214,15 @@ type ResolveResult = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pkg: { name: string; version: string; [key: string]: any } | undefined;
 };
+
+function removeExtension(id: string, extensionsToRemove: string[]): string {
+  for (const ext of extensionsToRemove) {
+    if (id.endsWith(ext)) {
+      return id.substring(0, id.length - ext.length);
+    }
+  }
+  return id;
+}
 
 async function resolveWithFallback(
   id: string,

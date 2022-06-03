@@ -67,6 +67,19 @@ Configures extensions to resolve. `...` will be expanded to the default list.
 
 Default: `.js`, `.cjs`, `.mjs`, `.ts`, `.cts`, `.mts`, `.jsx`, `.tsx`
 
+### `extensionsToRemove`
+
+```javascript
+// .hi18nrc.js
+module.exports = {
+  extensions: ["...", ".json"],
+};
+```
+
+Configures extensions to remove before resolving paths. `...` will be expanded to the default list.
+
+Default: `.js`, `.cjs`, `.mjs`
+
 ### `baseUrl`
 
 ```javascript
