@@ -3,6 +3,8 @@
 - Resolver improvements
   - Make `extensions` configurable
   - Support path mapping via `baseUrl` and `paths` similarly to tsconfig.
+- Allow configuring parsers
+  - You can have `parser` and `parserOptions` configurations very much like in `.eslintrc`.
 
 ## 0.1.5
 

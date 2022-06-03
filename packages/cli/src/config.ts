@@ -1,7 +1,31 @@
 import path from "node:path";
 import { cosmiconfig } from "cosmiconfig";
+import { ParserServices, TSESLint, TSESTree } from "@typescript-eslint/utils";
+import resolve from "resolve";
 
 const explorer = cosmiconfig("hi18n");
+
+export type ParserSpec = string | ParserDependency;
+export type ParserDependency = {
+  definition: ParserDefinition;
+  filePath: string;
+};
+export type ParserDefinition = ESLintParser | GenericParser;
+export type ESLintParser = {
+  parseForESLint: (
+    source: string,
+    options: TSESLint.ParserOptions
+  ) => ESLintParserResult<TSESTree.Program>;
+};
+export type GenericParser = {
+  parse: (source: string, options: TSESLint.ParserOptions) => TSESTree.Program;
+};
+export type ESLintParserResult<T> = {
+  ast: T;
+  services?: ParserServices | undefined;
+  visitorKeys?: Record<string, string[]> | undefined;
+  scopeManager?: TSESLint.Scope.ScopeManager | undefined;
+};
 
 const DEFAULT_EXTENSIONS = [
   ".js",
@@ -14,9 +38,22 @@ const DEFAULT_EXTENSIONS = [
   ".tsx",
 ];
 
-const configKeys = ["extensions", "baseUrl", "paths"];
+const DEFAULT_PARSER_OPTIONS: TSESLint.ParserOptions = {
+  ecmaVersion: "latest",
+  sourceType: "module",
+};
+
+const configKeys = [
+  "parser",
+  "parserOptions",
+  "extensions",
+  "baseUrl",
+  "paths",
+];
 
 export type Config = {
+  parser: ParserSpec;
+  parserOptions: TSESLint.ParserOptions;
   extensions: string[];
   baseUrl?: string | undefined;
   paths?: Record<string, string[]> | undefined;
@@ -33,6 +70,12 @@ export async function loadConfig(cwd: string): Promise<Config> {
   if (!isObject(config)) {
     throw new Error("config: not an object");
   }
+  if (!optional(oneof(isString, isParserDependency))(config["parser"])) {
+    throw new Error("config.parser: not a string nor a parser object");
+  }
+  if (!optional(isObject)(config["parserOptions"])) {
+    throw new Error("config.parserOptions: not an object");
+  }
   if (!optional(isArrayOf(isString))(config["extensions"])) {
     throw new Error("config.extensions: not an array of strings");
   }
@@ -48,6 +91,10 @@ export async function loadConfig(cwd: string): Promise<Config> {
     }
   }
 
+  const parser = resolveParser(config["parser"], filepath);
+  const parserOptions =
+    (config["parserOptions"] as TSESLint.ParserOptions | undefined) ??
+    DEFAULT_PARSER_OPTIONS;
   const extensions = expandExtensions(config["extensions"]);
   const baseUrl = expandBaseUrl(config["baseUrl"], filepath);
   const paths = config["paths"];
@@ -57,9 +104,31 @@ export async function loadConfig(cwd: string): Promise<Config> {
   }
 
   return {
+    parser,
+    parserOptions,
     extensions,
     baseUrl,
     paths,
+  };
+}
+
+function resolveParser(
+  parser: ParserSpec | undefined,
+  filepath: string
+): ParserDependency {
+  if (typeof parser === "string") {
+    const parserPath = resolve.sync(parser, {
+      basedir: path.dirname(filepath),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    return { definition: require(parserPath), filePath: parserPath };
+  } else if (typeof parser === "object") {
+    return parser;
+  }
+  return {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    definition: require("@babel/eslint-parser"),
+    filePath: require.resolve("@babel/eslint-parser"),
   };
 }
 
@@ -86,6 +155,11 @@ function isString(x: unknown): x is string {
   return typeof x === "string";
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+function isFunction(x: unknown): x is Function {
+  return typeof x === "function";
+}
+
 function isArrayOf<T>(pred: (x: unknown) => x is T) {
   return function isArrayOf(x: unknown): x is T[] {
     return Array.isArray(x) && x.every((value) => pred(value));
@@ -102,4 +176,23 @@ function optional<T>(pred: (x: unknown) => x is T) {
   return function optional(x: unknown): x is T | undefined {
     return x === undefined || pred(x);
   };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function oneof<Types extends any[]>(
+  ...preds: { [K in keyof Types]: (x: unknown) => x is Types[K] }
+) {
+  return function oneof(x: unknown): x is Types[number] {
+    return preds.some((pred) => pred(x));
+  };
+}
+
+function isParserDependency(x: unknown): x is ParserDependency {
+  return (
+    isObject(x) &&
+    isString(x["filePath"]) &&
+    isObject(x["definition"]) &&
+    (isFunction(x["definition"]["parseForESLint"]) ||
+      isFunction(x["definition"]["parse"]))
+  );
 }

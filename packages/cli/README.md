@@ -24,6 +24,36 @@ Configuration is loaded via [cosmiconfig](https://github.com/davidtheclark/cosmi
 - `hi18n.config.js`
 - `hi18n.config.cjs`
 
+### `parser` and `parserOptions`
+
+```javascript
+// .hi18nrc.js
+module.exports = {
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+};
+```
+
+These configurations resemble [those in ESLint](https://eslint.org/docs/user-guide/configuring/language-options). See ESLint's docs for details.
+
+Default:
+
+```javascript
+{
+  parser: "@babel/eslint-parser",
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module",
+  },
+}
+```
+
 ### `extensions`
 
 ```javascript

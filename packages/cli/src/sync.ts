@@ -3,7 +3,6 @@ import fs from "node:fs";
 import glob from "glob";
 import path from "node:path";
 import util from "node:util";
-import eslintParser from "@babel/eslint-parser";
 import resolve from "resolve";
 import {
   rules,
@@ -26,16 +25,11 @@ export async function sync(options: Options) {
   const { cwd: projectPath, include, exclude } = options;
   const config = await loadConfig(projectPath);
   const linterConfig: TSESLint.Linter.Config = {
-    parser: "@babel/eslint-parser",
-    parserOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-    },
+    parser: config.parser as string,
+    parserOptions: config.parserOptions,
   };
 
   const linter = new TSESLint.Linter({ cwd: projectPath });
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  linter.defineParser("@babel/eslint-parser", eslintParser);
 
   const translationUsages: TranslationUsage[] = [];
   linter.defineRule(

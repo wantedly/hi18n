@@ -68,6 +68,14 @@ describe("sync", () => {
       hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
     );
   });
+
+  // eslint-disable-next-line jest/expect-expect
+  it("allows parser configuration", async () => {
+    const output = new MockedOutput();
+    await withProject("custom-parser", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
 });
 
 async function withProject<T>(
