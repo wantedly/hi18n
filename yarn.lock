@@ -1395,22 +1395,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime-corejs3@npm:^7.17.9":
-  version: 7.17.9
-  resolution: "@babel/runtime-corejs3@npm:7.17.9"
-  dependencies:
-    core-js-pure: ^3.20.2
-    regenerator-runtime: ^0.13.4
-  checksum: c0893eb1ba4fd8a5a0e43d0fd5c3ad61c020dc5953bb74a76e9e10a0adfde7a5d8fd7e78d59b08dce3a0774948c6c40c81df0fdd0a1130c414fd3535fae365cb
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.17.8
   resolution: "@babel/runtime@npm:7.17.8"
   dependencies:
     regenerator-runtime: ^0.13.4
   checksum: 68d195c1630bb91ac20e86635d292a17ebab7f361cfe79406b3f5a6cc2e59fa283ae5006568899abf869312c2b35b744bd407aea8ffdb650f1a68d07785d47e9
+  languageName: node
+  linkType: hard
+
+"@babel/runtime@npm:^7.18.3":
+  version: 7.18.3
+  resolution: "@babel/runtime@npm:7.18.3"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: db8526226aa02cfa35a5a7ac1a34b5f303c62a1f000c7db48cb06c6290e616483e5036ab3c4e7a84d0f3be6d4e2148d5fe5cec9564bf955f505c3e764b83d7f1
   languageName: node
   linkType: hard
 
@@ -1494,7 +1493,7 @@ __metadata:
     "@babel/plugin-transform-runtime": ^7.18.5
     "@babel/preset-env": ^7.18.2
     "@babel/preset-typescript": ^7.17.12
-    "@babel/runtime-corejs3": ^7.17.9
+    "@babel/runtime": ^7.18.3
     "@babel/types": ^7.18.4
     "@hi18n/core": "workspace:*"
     "@hi18n/eslint-plugin": "workspace:^0.1.5"
@@ -1505,7 +1504,9 @@ __metadata:
     "@types/resolve": ^1.20.2
     "@typescript-eslint/utils": ^5.21.0
     babel-jest: ^28.1.1
+    babel-plugin-polyfill-corejs3: ^0.5.2
     commander: ^9.2.0
+    core-js-pure: ^3.23.2
     cosmiconfig: ^7.0.1
     eslint: ^8.13.0
     eslint-plugin-node: ^11.1.0
@@ -1531,10 +1532,12 @@ __metadata:
     "@babel/plugin-transform-runtime": ^7.18.5
     "@babel/preset-env": ^7.18.2
     "@babel/preset-typescript": ^7.17.12
-    "@babel/runtime-corejs3": ^7.17.9
+    "@babel/runtime": ^7.18.3
     "@jest/globals": ^28.1.1
     babel-jest: ^28.1.1
+    babel-plugin-polyfill-corejs3: ^0.5.2
     babel-plugin-replace-import-extension: ^1.1.3
+    core-js-pure: ^3.23.2
     eslint: ^8.18.0
     jest: ^28.1.1
     prettier: ^2.7.1
@@ -1554,7 +1557,7 @@ __metadata:
     "@babel/plugin-transform-runtime": ^7.18.5
     "@babel/preset-env": ^7.18.2
     "@babel/preset-typescript": ^7.17.12
-    "@babel/runtime-corejs3": ^7.17.9
+    "@babel/runtime": ^7.18.3
     "@jest/globals": ^28.1.1
     "@types/babel__core": ^7.1.19
     "@types/eslint": ^8.4.3
@@ -1564,6 +1567,8 @@ __metadata:
     "@typescript-eslint/types": ^5.29.0
     "@typescript-eslint/utils": ^5.22.0
     babel-jest: ^28.1.1
+    babel-plugin-polyfill-corejs3: ^0.5.2
+    core-js-pure: ^3.23.2
     eslint: ^8.18.0
     eslint-plugin-eslint-plugin: ^4.3.0
     eslint-plugin-node: ^11.1.0
@@ -1600,7 +1605,7 @@ __metadata:
     "@babel/preset-env": ^7.18.2
     "@babel/preset-react": ^7.17.12
     "@babel/preset-typescript": ^7.17.12
-    "@babel/runtime-corejs3": ^7.17.9
+    "@babel/runtime": ^7.18.3
     "@hi18n/core": "workspace:^0.1.2"
     "@hi18n/react-context": "workspace:^0.1.0"
     "@jest/globals": ^28.1.1
@@ -1610,7 +1615,9 @@ __metadata:
     "@types/react-dom": ^18.0.5
     "@types/testing-library__jest-dom": ^5.14.5
     babel-jest: ^28.1.1
+    babel-plugin-polyfill-corejs3: ^0.5.2
     babel-plugin-replace-import-extension: ^1.1.3
+    core-js-pure: ^3.23.2
     eslint: ^8.18.0
     eslint-plugin-react: ^7.30.0
     eslint-plugin-react-hooks: ^4.6.0
@@ -2980,7 +2987,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-polyfill-corejs3@npm:^0.5.0":
+"babel-plugin-polyfill-corejs3@npm:^0.5.0, babel-plugin-polyfill-corejs3@npm:^0.5.2":
   version: 0.5.2
   resolution: "babel-plugin-polyfill-corejs3@npm:0.5.2"
   dependencies:
@@ -3459,10 +3466,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.20.2":
-  version: 3.22.2
-  resolution: "core-js-pure@npm:3.22.2"
-  checksum: d0618aa2f45182fbce5feb6b436c72a71e1d2a739ec7546be453460fc9938d30235da4506ea128a22780ca00b84f4f5528da8019719a2fba16da6f44999d3bff
+"core-js-pure@npm:^3.23.2":
+  version: 3.23.2
+  resolution: "core-js-pure@npm:3.23.2"
+  checksum: 0be2475c037790073dc40972cd7621481569d23a8e802f46b970f4ecc93170507774d198a7df74cf991acf6826f1e616cdb4782f602d935bd9c1999227684d70
   languageName: node
   linkType: hard
 

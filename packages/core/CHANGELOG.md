@@ -1,3 +1,7 @@
+## Unreleased
+
+- Include less polyfills from core-js.
+
 ## 0.1.4
 
 - Support `offset:` parameter in plural translations.

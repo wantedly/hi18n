@@ -1,3 +1,7 @@
+## Unreleased
+
+- Include less polyfills from core-js.
+
 ## 0.1.2
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
