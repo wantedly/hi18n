@@ -377,7 +377,8 @@ function pushString(buf: CompiledMessage[], msg: string) {
 
 function parseDateSkeleton(skeleton: string) {
   const options: Record<string, string | number | undefined> = {};
-  for (const match of skeleton.matchAll(/(.)\1*/g)) {
+  // for (const match of skeleton.matchAll(/(.)\1*/g)) {
+  for (const match of skeletonTokens(skeleton)) {
     if (Object.prototype.hasOwnProperty.call(dateTokenMap, match[1]!)) {
       const array = dateTokenMap[match[1]!]!;
       const value = array[match[0]!.length];
@@ -396,6 +397,17 @@ function parseDateSkeleton(skeleton: string) {
     throw new Error(`Insufficient fields in the date skeleton: ${skeleton}`);
   }
   return options as Intl.DateTimeFormatOptions;
+}
+
+function skeletonTokens(skeleton: string): [string?, string?][] {
+  const tokens: [string?, string?][] = [];
+  for (let i = 0; i < skeleton.length; ) {
+    const start = i;
+    const ch = skeleton[i]!;
+    for (; i < skeleton.length && skeleton[i] === ch; i++);
+    tokens.push([skeleton.substring(start, i), ch]);
+  }
+  return tokens;
 }
 
 const requiredDateFields = [

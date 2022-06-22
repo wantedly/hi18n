@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Include less polyfills from core-js.
+- Reduce polyfill for matchAll.
 
 ## 0.1.4
 
