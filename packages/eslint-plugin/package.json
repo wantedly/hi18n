@@ -76,7 +76,7 @@
     "@typescript-eslint/types": "^5.27.0",
     "babel-jest": "^28.1.1",
     "eslint": "^8.18.0",
-    "eslint-plugin-eslint-plugin": "^4.2.0",
+    "eslint-plugin-eslint-plugin": "^4.3.0",
     "eslint-plugin-node": "^11.1.0",
     "espree": "^9.3.2",
     "jest": "^28.1.1",
