@@ -2,6 +2,7 @@
 
 - Include less polyfills from core-js.
 - Reduce polyfill for matchAll and Array.prototype.includes.
+- Fix error when Date is mocked in a certain way like `@sinonjs/fake-timers`.
 
 ## 0.1.4
 

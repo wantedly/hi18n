@@ -76,7 +76,7 @@ export function evaluateMessage<T = string>(
       }
       case "date":
       case "time": {
-        if (!(value instanceof Date)) {
+        if (!isDateLike(value)) {
           throw new MessageError(
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `Invalid argument ${msg.name}: expected Date, got ${value}`,
@@ -195,4 +195,11 @@ export class MessageError extends Error {
     }
     this.name = MessageError.name;
   }
+}
+
+function isDateLike(obj: unknown): obj is Date {
+  return (
+    typeof obj === "object" &&
+    typeof (obj as { getFullYear?: unknown }).getFullYear === "function"
+  );
 }

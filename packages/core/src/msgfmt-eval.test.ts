@@ -254,6 +254,31 @@ describe("evaluageMessage", () => {
     }
   });
 
+  it("evaluates date interpolation if a date is faked", () => {
+    const realDate = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dateFake: any = {};
+    for (const key of Object.getOwnPropertyNames(Date.prototype)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+      dateFake[key] = (...args: any[]) => (realDate as any)[key](...args);
+    }
+
+    {
+      const msg: CompiledMessage = {
+        type: "Var",
+        name: "foo",
+        argType: "date",
+      };
+      expect(
+        evaluateMessage(msg, {
+          locale: "en",
+          timeZone: "MST",
+          params: { foo: dateFake },
+        })
+      ).toBe("Jan 2, 2006");
+    }
+  });
+
   it("evaluates plural interpolation", () => {
     const msg1: CompiledMessage = {
       type: "Plural",
