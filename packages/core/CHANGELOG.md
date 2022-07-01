@@ -1,7 +1,7 @@
 ## Unreleased
 
 - Include less polyfills from core-js.
-- Reduce polyfill for matchAll.
+- Reduce polyfill for matchAll and Array.prototype.includes.
 
 ## 0.1.4
 

@@ -165,7 +165,7 @@ function parseArgument(this: Parser): CompiledMessage {
           throw new Error("Unimplemented: selectArg");
           break;
         default: {
-          if (!ARG_TYPES.includes(argType_)) {
+          if (ARG_TYPES.indexOf(argType_) === -1) {
             throw new Error(`Invalid argType: ${argType_}`);
           }
           const argType = argType_ as ArgType;
@@ -186,7 +186,7 @@ function parseArgument(this: Parser): CompiledMessage {
               switch (argStyleToken[0]) {
                 case "identifier": {
                   const argStyle = argStyleToken[1];
-                  if (!ARG_STYLES[argType].includes(argStyle)) {
+                  if (ARG_STYLES[argType].indexOf(argStyle) === -1) {
                     throw new Error(
                       `Invalid argStyle for ${argType}: ${argStyle}`
                     );
@@ -310,11 +310,11 @@ function nextToken<E extends readonly string[]>(
   noWhitespace?: string[]
 ): [E[number], string] {
   const [kind, token, foundWhitespace] = nextTokenImpl.call(this);
-  if (!expected.includes(kind))
+  if (expected.indexOf(kind) === -1)
     throw new Error(
       `Unexpected token ${kind} (expected ${expected.join(", ")})`
     );
-  if (noWhitespace && foundWhitespace && noWhitespace.includes(kind))
+  if (noWhitespace && foundWhitespace && noWhitespace.indexOf(kind) !== -1)
     throw new Error("No space allowed here");
   return [kind, token];
 }
