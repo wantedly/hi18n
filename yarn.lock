@@ -1552,8 +1552,6 @@ __metadata:
     "@jest/globals": ^28.1.1
     "@types/babel__core": ^7.1.19
     "@types/eslint": ^8.4.3
-    "@types/estree": ^0.0.51
-    "@types/estree-jsx": ^0.0.1
     "@types/node": ^17.0.32
     "@typescript-eslint/types": ^5.29.0
     "@typescript-eslint/utils": ^5.22.0
@@ -2192,16 +2190,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/estree-jsx@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "@types/estree-jsx@npm:0.0.1"
-  dependencies:
-    "@types/estree": "*"
-  checksum: aed43dfcbcc9c881f571618847661cd69026680466657d1443c12f51d835c7a8ccf5109a800e56c8fc33ae093f096aa937e4656ce3eb71c4f914334c389cf7be
-  languageName: node
-  linkType: hard
-
-"@types/estree@npm:*, @types/estree@npm:^0.0.51":
+"@types/estree@npm:*":
   version: 0.0.51
   resolution: "@types/estree@npm:0.0.51"
   checksum: e56a3bcf759fd9185e992e7fdb3c6a5f81e8ff120e871641607581fb3728d16c811702a7d40fa5f869b7f7b4437ab6a87eb8d98ffafeee51e85bbe955932a189
