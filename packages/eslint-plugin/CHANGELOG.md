@@ -1,3 +1,7 @@
+## Unreleased
+
+- Corner case bug fix on `new Book<this>()`
+
 ## 0.1.5
 
 - Fix `TypeError: Cannot read properties of undefined (reading 'node')`

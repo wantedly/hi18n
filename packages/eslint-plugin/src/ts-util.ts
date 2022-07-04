@@ -13,7 +13,8 @@ export function resolveTypeLevelVariable(
   scopeManager: TSESLint.Scope.ScopeManager,
   node: TSESTree.EntityName
 ): TypeDeclarator | undefined {
-  if (node.type === "TSQualifiedName") return undefined;
+  if (node.type === "TSQualifiedName" || node.type === "ThisExpression")
+    return undefined;
   const scope = nearestScope(scopeManager, node);
   return findTypeLevelVariable(scope, node.name);
 }
