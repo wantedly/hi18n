@@ -28,5 +28,9 @@
     "jest": "^28.1.2",
     "prettier": "^2.7.1",
     "typescript": "^4.7.4"
+  },
+  "resolutions": {
+    "jest-resolve": "patch:jest-resolve@npm:28.1.1#.yarn/patches/jest-resolve-npm-28.1.1-5f1937a1f8.patch",
+    "jest-resolve@28.1.1": "patch:jest-resolve@npm:28.1.1#.yarn/patches/jest-resolve-npm-28.1.1-5f1937a1f8.patch"
   }
 }
