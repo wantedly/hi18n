@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.6
 
 - Add a new rule `@hi18n/react-component-params` https://github.com/wantedly/dx/issues/702
   - This is not included in `plugin:@hi18n/recommended` because it requires type checking.
