@@ -1,5 +1,9 @@
 ## Unreleased
 
+- Add a new rule `@hi18n/react-component-params` https://github.com/wantedly/dx/issues/702
+  - This is not included in `plugin:@hi18n/recommended` because it requires type checking.
+- Added a new preset `plugin:@hi18n/recommended-requiring-type-checking`
+  - `@hi18n/react-component-params` is included in this preset.
 - Corner case bug fix on `new Book<this>()`
 
 ## 0.1.5
