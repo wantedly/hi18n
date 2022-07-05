@@ -4,6 +4,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
     "node/no-unsupported-features/es-syntax": "off",
     "node/no-missing-import": "off",
   },
+  ignorePatterns: ["configs/fixtures/*.ts", "configs/fixtures/*.tsx"],
   overrides: [
     {
       files: ["**/*.ts", "**/*.tsx"],

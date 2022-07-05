@@ -8,6 +8,7 @@ import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids
 import * as ruleNoMissingTranslationIdsInTypes from "./rules/no-missing-translation-ids-in-types";
 import * as ruleNoUnusedTranslationIds from "./rules/no-unused-translation-ids";
 import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translation-ids-in-types";
+import * as ruleReactComponentParams from "./rules/react-component-params";
 import * as ruleWellFormedBookDefinitions from "./rules/well-formed-book-definitions";
 import * as ruleWellFormedBookReferences from "./rules/well-formed-book-references";
 import * as ruleWellFormedCatalogDefinitions from "./rules/well-formed-catalog-definitions";
@@ -22,6 +23,11 @@ export const configs: Record<string, TSESLint.Linter.Config> = {
       "@hi18n/well-formed-catalog-definitions": "error",
     },
   },
+  "recommended-requiring-type-checking": {
+    rules: {
+      "@hi18n/react-component-params": "error",
+    },
+  },
 };
 
 export const rules = {
@@ -32,6 +38,7 @@ export const rules = {
   "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
   "no-missing-translation-ids": ruleNoMissingTranslationIds,
   "no-missing-translation-ids-in-types": ruleNoMissingTranslationIdsInTypes,
+  "react-component-params": ruleReactComponentParams,
   "well-formed-book-references": ruleWellFormedBookReferences,
   "well-formed-book-definitions": ruleWellFormedBookDefinitions,
   "well-formed-catalog-definitions": ruleWellFormedCatalogDefinitions,
