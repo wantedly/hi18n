@@ -207,7 +207,14 @@ export class Book<Vocabulary extends VocabularyBase> {
     public readonly catalogs: Readonly<Record<string, Catalog<Vocabulary>>>
   ) {
     for (const [locale, catalog] of Object.entries(catalogs)) {
-      catalog.locale = locale;
+      // @ts-expect-error deliberately breaking privacy
+      if (catalog._looseLocale) {
+        catalog.locale = locale;
+      } else if (catalog.locale !== locale) {
+        throw new Error(
+          `Locale mismatch: expected ${locale}, got ${catalog.locale!}`
+        );
+      }
     }
   }
 }
@@ -228,9 +235,35 @@ export class Book<Vocabulary extends VocabularyBase> {
  *   ```
  */
 export class Catalog<Vocabulary extends VocabularyBase> {
+  // TODO: make it non-nullish and readonly in 0.2.0
   public locale?: string | undefined;
+  public readonly data: Readonly<Vocabulary>;
+  // TODO: remove it in 0.2.0
+  private _looseLocale = false;
   private _compiled: Record<string, CompiledMessage> = {};
-  constructor(public readonly data: Readonly<Vocabulary>) {}
+  /**
+   * @since 0.1.6 (`@hi18n/core`)
+   */
+  constructor(locale: string, data: Readonly<Vocabulary>);
+  /**
+   * @deprecated deprecated from 0.1.6. Please specify the locale.
+   * @since 0.1.0 (`@hi18n/core`)
+   */
+  constructor(data: Readonly<Vocabulary>);
+  constructor(
+    locale: string | Readonly<Vocabulary>,
+    data?: Readonly<Vocabulary>
+  ) {
+    if (typeof locale === "object") {
+      // For backwards-compatibility
+      // TODO: remove it in 0.2.0
+      this.data = locale;
+      this._looseLocale = true;
+    } else {
+      this.locale = locale;
+      this.data = data!;
+    }
+  }
 
   getCompiledMessage(id: string & keyof Vocabulary): CompiledMessage {
     if (!Object.prototype.hasOwnProperty.call(this._compiled, id)) {
