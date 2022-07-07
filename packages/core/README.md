@@ -7,7 +7,7 @@ See [hi18n's README](https://github.com/wantedly/hi18n#readme) for general infor
 Returns the first argument. Used for type-safe translations.
 
 ```typescript
-export default new Catalog<Vocabulary>({
+export default new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello, {name}!"),
 });
 ```
@@ -17,7 +17,7 @@ export default new Catalog<Vocabulary>({
 Creates a set of translated messages for a specific locale.
 
 ```typescript
-export default new Catalog<Vocabulary>({
+export default new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello, {name}!"),
 });
 ```

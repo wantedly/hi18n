@@ -337,8 +337,12 @@ type Resource = {
   captured: CaptureMap;
 };
 
-type CaptureMap = Record<string, GeneralizedNode>;
-type GeneralizedNode = TSESTree.Node | ArgumentsOf | PropsOf | CaptureFailure;
+export type CaptureMap = Record<string, GeneralizedNode>;
+export type GeneralizedNode =
+  | TSESTree.Node
+  | ArgumentsOf
+  | PropsOf
+  | CaptureFailure;
 
 type CaptureFailure = {
   type: "CaptureFailure";

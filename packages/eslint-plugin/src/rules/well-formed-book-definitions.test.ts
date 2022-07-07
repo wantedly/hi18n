@@ -51,8 +51,8 @@ new TSESLint.RuleTester({
     `,
     `
       import { Book, Catalog } from "@hi18n/core";
-      const catalogEn = new Catalog({});
-      const catalogJa = new Catalog({});
+      const catalogEn = new Catalog("en", {});
+      const catalogJa = new Catalog("ja", {});
       export const book = new Book({
         en: catalogEn,
         ja: catalogJa,

@@ -229,7 +229,7 @@ export class Book<Vocabulary extends VocabularyBase> {
  *   type Vocabulary = {
  *     "example/greeting": Message<{ name: string }>;
  *   };
- *   export default new Catalog<Vocabulary>({
+ *   export default new Catalog<Vocabulary>("en", {
  *     "example/greeting": msg("Hello, {name}!"),
  *   });
  *   ```

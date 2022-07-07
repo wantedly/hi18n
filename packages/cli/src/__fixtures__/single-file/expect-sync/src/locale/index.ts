@@ -9,7 +9,7 @@ export type Vocabulary = {
   "example/greeting-todo": Message;
 };
 
-const catalogEn = new Catalog<Vocabulary>({
+const catalogEn = new Catalog<Vocabulary>("en", {
   // "example/dynamic-todo": msg.todo("[TODO: example/dynamic-todo]"),
   // "example/greeting": msg.todo("[TODO: example/greeting]"),
   // "example/greeting-todo": msg.todo("[TODO: example/greeting-todo]"),
@@ -38,7 +38,7 @@ const catalogEn = new Catalog<Vocabulary>({
   // "example/greeting-todo": msg("Hello, world! (TODO)"),
 });
 
-const catalogJa = new Catalog<Vocabulary>({
+const catalogJa = new Catalog<Vocabulary>("ja", {
   // "example/dynamic-todo": msg.todo("[TODO: example/dynamic-todo]"),
   // "example/greeting": msg.todo("[TODO: example/greeting]"),
   // "example/greeting-todo": msg.todo("[TODO: example/greeting-todo]"),

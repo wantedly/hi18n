@@ -18,7 +18,7 @@ describe("collect-catalog-definitions", () => {
     linter.verify(
       `
       import { Catalog, msg } from "@hi18n/core";
-      export default new Catalog({
+      export default new Catalog("en", {
         "example/greeting": msg("Hello!"),
       });
     `,
@@ -52,10 +52,10 @@ describe("collect-catalog-definitions", () => {
     linter.verify(
       `
       import { Book, Catalog, msg } from "@hi18n/core";
-      const catalogEn = new Catalog({
+      const catalogEn = new Catalog("en", {
         "example/greeting": msg("Hello!"),
       });
-      const catalogJa = new Catalog({
+      const catalogJa = new Catalog("ja", {
         "example/greeting": msg("こんにちは!"),
       });
 

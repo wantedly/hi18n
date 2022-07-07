@@ -1,6 +1,6 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getStaticKey, lineIndent } from "../util";
-import { catalogTracker } from "../common-trackers";
+import { catalogTracker, getCatalogData } from "../common-trackers";
 import { parseComments, ParseError, Parser } from "../microparser";
 import { queryUsedTranslationIds } from "../used-ids";
 
@@ -28,7 +28,7 @@ export function create(
     const usedIds = queryUsedTranslationIds(context, node, true);
     const missingIdsSet = new Set(usedIds);
 
-    const catalogData = captured["catalogData"]!;
+    const catalogData = getCatalogData(captured);
     if (catalogData.type !== "ObjectExpression") return;
 
     for (const prop of catalogData.properties) {

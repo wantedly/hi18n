@@ -22,7 +22,7 @@ import { Book, Catalog, Message, msg } from "@hi18n/core";
 type Vocabulary = {
   "example/greeting": Message<{ name: string }>;
 };
-const catalogEn = new Catalog<Vocabulary>({
+const catalogEn = new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello, {name}!"),
 });
 export const book = new Book<Vocabulary>({ en: catalogEn });
@@ -152,8 +152,8 @@ In the single-file configuration, it is recommended to use the name `catalogEn` 
 
 ```typescript
 // Top-level file-scope local variables
-const catalogEn = new Catalog<Vocabulary>({ ... });
-const catalogJa = new Catalog<Vocabulary>({ ... });
+const catalogEn = new Catalog<Vocabulary>("en", { ... });
+const catalogJa = new Catalog<Vocabulary>("ja", { ... });
 export const book = new Book<Vocabulary>({
   en: catalogEn,
   ja: catalogJa,
@@ -164,10 +164,10 @@ In the multi-file configuration, it is recommended to use the default exports.
 
 ```typescript
 // en.ts
-export default new Catalog<Vocabulary>({ ... });
+export default new Catalog<Vocabulary>("en", { ... });
 
 // ja.ts
-export default new Catalog<Vocabulary>({ ... });
+export default new Catalog<Vocabulary>("ja", { ... });
 
 // index.ts
 import catalogEn from "./en";

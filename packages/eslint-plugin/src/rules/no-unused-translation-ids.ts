@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { commentOut, getStaticKey } from "../util";
-import { catalogTracker } from "../common-trackers";
+import { catalogTracker, getCatalogData } from "../common-trackers";
 import { queryUsedTranslationIds } from "../used-ids";
 
 type MessageIds = "unused-translation-id";
@@ -27,7 +27,7 @@ export function create(
     const usedIds = queryUsedTranslationIds(context, node, true);
     const usedIdsSet = new Set(usedIds);
 
-    const catalogData = captured["catalogData"]!;
+    const catalogData = getCatalogData(captured);
     if (catalogData.type !== "ObjectExpression") return;
 
     for (const prop of catalogData.properties) {

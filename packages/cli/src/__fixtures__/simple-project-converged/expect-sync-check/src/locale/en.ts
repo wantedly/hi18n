@@ -1,7 +1,7 @@
 import { Catalog, msg } from "@hi18n/core";
 import type { Vocabulary } from ".";
 
-export default new Catalog<Vocabulary>({
+export default new Catalog<Vocabulary>("en", {
   "example/dynamic-todo": msg.todo("[TODO: example/dynamic-todo]"),
   "example/greeting": msg("Hello, world!"),
   "example/greeting-todo-newtranslation": msg.todo(
