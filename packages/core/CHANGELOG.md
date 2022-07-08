@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.6
 
 - Add a new overload for `new Catalog` constructor. It accepts a locale identifier as the first argument.
   - Please make sure to update the ESLint plugin / CLI too to support the new format.
