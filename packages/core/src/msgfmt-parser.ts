@@ -1,3 +1,4 @@
+import { ParseError } from "./errors.js";
 import {
   ArgType,
   CompiledMessage,
@@ -45,7 +46,7 @@ function createParser(src: string): Parser {
 function parseMessageEOF(this: Parser): CompiledMessage {
   const msg = parseMessage_.call(this, false);
   if (this.pos < this.src.length) {
-    throw new Error(`Found an unmatching ${this.src[this.pos]!}`);
+    throw new ParseError(`Found an unmatching ${this.src[this.pos]!}`);
   }
   return msg;
 }
@@ -124,7 +125,7 @@ function parseMessageText(this: Parser, allowHash: boolean): string {
     buf += parseRawMessageText.call(this, inQuote);
   }
   if (inQuote) {
-    throw new Error("Unclosed quoted string");
+    throw new ParseError("Unclosed quoted string");
   }
   return buf;
 }
@@ -156,7 +157,7 @@ function parseArgument(this: Parser): CompiledMessage {
       const argType_ = nextToken.call(this, ["identifier"] as const)[1];
       switch (argType_) {
         case "choice":
-          throw new Error("choice is not supported");
+          throw new ParseError("choice is not supported");
           break;
         case "plural":
           return parsePluralArgument.call(this, name);
@@ -166,7 +167,7 @@ function parseArgument(this: Parser): CompiledMessage {
           break;
         default: {
           if (ARG_TYPES.indexOf(argType_) === -1) {
-            throw new Error(`Invalid argType: ${argType_}`);
+            throw new ParseError(`Invalid argType: ${argType_}`);
           }
           const argType = argType_ as ArgType;
           switch (
@@ -187,7 +188,7 @@ function parseArgument(this: Parser): CompiledMessage {
                 case "identifier": {
                   const argStyle = argStyleToken[1];
                   if (ARG_STYLES[argType].indexOf(argStyle) === -1) {
-                    throw new Error(
+                    throw new ParseError(
                       `Invalid argStyle for ${argType}: ${argStyle}`
                     );
                   }
@@ -201,7 +202,7 @@ function parseArgument(this: Parser): CompiledMessage {
                 }
                 case "::": {
                   if (argType !== "date") {
-                    throw new Error(`Invalid argStyle for ${argType}: ::`);
+                    throw new ParseError(`Invalid argStyle for ${argType}: ::`);
                   }
                   const skeletonText = nextToken.call(this, [
                     "identifier",
@@ -256,9 +257,9 @@ function parsePluralArgument(this: Parser, name: string | number): PluralArg {
     branches.push({ selector, message });
     token = nextToken.call(this, ["identifier", "=", "}"] as const);
   }
-  if (branches.length === 0) throw new Error("No branch found");
+  if (branches.length === 0) throw new ParseError("No branch found");
   if (branches[branches.length - 1]!.selector !== "other")
-    throw new Error("Last selector should be other");
+    throw new ParseError("Last selector should be other");
   return { type: "Plural", name, offset, branches };
 }
 
@@ -282,7 +283,9 @@ function parseElement(this: Parser, allowHash: boolean): ElementArg {
   const closingName = parseArgNameOrNumber.call(this, true);
   nextToken.call(this, [">"]);
   if (name !== closingName) {
-    throw new Error(`Tag ${name} closed with a different name: ${closingName}`);
+    throw new ParseError(
+      `Tag ${name} closed with a different name: ${closingName}`
+    );
   }
   return {
     type: "Element",
@@ -311,11 +314,11 @@ function nextToken<E extends readonly string[]>(
 ): [E[number], string] {
   const [kind, token, foundWhitespace] = nextTokenImpl.call(this);
   if (expected.indexOf(kind) === -1)
-    throw new Error(
+    throw new ParseError(
       `Unexpected token ${kind} (expected ${expected.join(", ")})`
     );
   if (noWhitespace && foundWhitespace && noWhitespace.indexOf(kind) !== -1)
-    throw new Error("No space allowed here");
+    throw new ParseError("No space allowed here");
   return [kind, token];
 }
 
@@ -357,7 +360,7 @@ function skipWhitespace(this: Parser): boolean {
 
 function parseNumber(token: string): number {
   if (!/^(?:0|[1-9][0-9]*)$/.test(token))
-    throw new Error(`Invalid number: ${token}`);
+    throw new ParseError(`Invalid number: ${token}`);
   return parseInt(token);
 }
 
@@ -391,10 +394,12 @@ function parseDateSkeleton(skeleton: string) {
         continue;
       }
     }
-    throw new Error(`Invalid date skeleton: ${match[0]!}`);
+    throw new ParseError(`Invalid date skeleton: ${match[0]!}`);
   }
   if (requiredDateFields.every((f) => options[f] === undefined)) {
-    throw new Error(`Insufficient fields in the date skeleton: ${skeleton}`);
+    throw new ParseError(
+      `Insufficient fields in the date skeleton: ${skeleton}`
+    );
   }
   return options as Intl.DateTimeFormatOptions;
 }

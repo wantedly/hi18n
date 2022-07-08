@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
 
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import {
   Book,
   Catalog,
@@ -9,6 +9,12 @@ import {
   msg,
   translationId,
   TranslationId,
+  MissingLocaleError,
+  NoLocaleError,
+  ErrorHandler,
+  MessageError,
+  MissingTranslationError,
+  ArgumentTypeError,
 } from "./index.js";
 
 type Vocabulary = {
@@ -85,7 +91,7 @@ describe("Book", () => {
       // @ts-expect-error
       t("example/non-existent-translation-id");
     }).toThrow(
-      "Missing translation in en for example/non-existent-translation-id"
+      "Error translating example/non-existent-translation-id in en: Missing translation"
     );
   });
 
@@ -124,11 +130,15 @@ describe("Book", () => {
     expect(() => {
       // @ts-expect-error
       t("example/greeting2");
-    }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
+    }).toThrow(
+      "Error translating example/greeting2 in en: Missing argument: name"
+    );
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", {});
-    }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
+    }).toThrow(
+      "Error translating example/greeting2 in en: Missing argument: name"
+    );
   });
 
   it("raises an error for invalid argument types", () => {
@@ -137,7 +147,7 @@ describe("Book", () => {
       // @ts-expect-error
       t("example/greeting2", { name: 42 });
     }).toThrow(
-      "Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)"
+      "Error translating example/greeting2 in en: Invalid argument name: expected string, got 42"
     );
   });
 
@@ -185,7 +195,9 @@ describe("Book", () => {
     expect(() => {
       // @ts-expect-error
       t("example/date", { today: date });
-    }).toThrow("timeZone not specified (locale=en, id=example/date)");
+    }).toThrow(
+      "Error translating example/date in en: Missing argument: timeZone"
+    );
   });
 
   describe("dynamic translation", () => {
@@ -211,7 +223,7 @@ describe("Book", () => {
       expect(() => {
         t.dynamic(id);
       }).toThrow(
-        "Missing translation in en for example/non-existent-translation-id"
+        "Error translating example/non-existent-translation-id in en: Missing translation"
       );
     });
 
@@ -251,11 +263,15 @@ describe("Book", () => {
       expect(() => {
         // @ts-expect-error
         t.dynamic(id);
-      }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
+      }).toThrow(
+        "Error translating example/greeting2 in en: Missing argument: name"
+      );
       expect(() => {
         // @ts-expect-error
         t.dynamic(id, {});
-      }).toThrow("Missing argument name (locale=en, id=example/greeting2)");
+      }).toThrow(
+        "Error translating example/greeting2 in en: Missing argument: name"
+      );
     });
 
     it("raises an error for invalid argument types", () => {
@@ -265,7 +281,7 @@ describe("Book", () => {
         // @ts-expect-error
         t.dynamic(id, { name: 42 });
       }).toThrow(
-        "Invalid argument name: expected string, got 42 (locale=en, id=example/greeting2)"
+        "Error translating example/greeting2 in en: Invalid argument name: expected string, got 42"
       );
     });
   });
@@ -288,6 +304,131 @@ describe("Book", () => {
       );
       expect(t.todo("example/foobar", { name: "John" })).toBe(
         "[TODO: example/foobar]"
+      );
+    });
+  });
+
+  describe("handleError", () => {
+    it("without implicitLocale, doesn't handle errors when locale is missing", () => {
+      const handleError = jest.fn<ErrorHandler>();
+      const book = new Book<Vocabulary>(
+        {
+          ja: catalogJa,
+          en: catalogEn,
+        },
+        { handleError }
+      );
+      expect(() => getTranslator(book, [])).toThrow(NoLocaleError);
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it("with implicitLocale, handles errors when locale is missing", () => {
+      const handleError = jest.fn<ErrorHandler>();
+      const book = new Book<Vocabulary>(
+        {
+          ja: catalogJa,
+          en: catalogEn,
+        },
+        { handleError, implicitLocale: "en" }
+      );
+      expect(() => getTranslator(book, [])).not.toThrow();
+      expect(handleError).toHaveBeenCalledWith(new NoLocaleError(), "error");
+
+      const { t } = getTranslator(book, []);
+      expect(t("example/greeting")).toBe("Hello!");
+    });
+
+    it("without implicitLocale, doesn't handle errors when locale is invalid", () => {
+      const handleError = jest.fn<ErrorHandler>();
+      const book = new Book<Vocabulary>(
+        {
+          ja: catalogJa,
+          en: catalogEn,
+        },
+        { handleError }
+      );
+      expect(() => getTranslator(book, "foo")).toThrow(
+        new MissingLocaleError({
+          locale: "foo",
+          availableLocales: ["ja", "en"],
+        })
+      );
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it("with implicitLocale, handles errors when locale is invalid", () => {
+      const handleError = jest.fn<ErrorHandler>();
+      const book = new Book<Vocabulary>(
+        {
+          ja: catalogJa,
+          en: catalogEn,
+        },
+        { handleError, implicitLocale: "en" }
+      );
+      expect(() => getTranslator(book, ["foo"])).not.toThrow();
+      expect(handleError).toHaveBeenCalledWith(
+        new MissingLocaleError({
+          locale: "foo",
+          availableLocales: ["ja", "en"],
+        }),
+        "error"
+      );
+
+      const { t } = getTranslator(book, ["foo"]);
+      expect(t("example/greeting")).toBe("Hello!");
+    });
+
+    it("handles errors when translation is missing", () => {
+      const handleError = jest.fn<ErrorHandler>();
+      const book = new Book<Vocabulary>(
+        {
+          ja: catalogJa,
+          en: catalogEn,
+        },
+        { handleError }
+      );
+
+      const { t } = getTranslator(book, "en");
+      // @ts-expect-error it is deliberate
+      expect(t("example/nonexistent")).toBe("[example/nonexistent]");
+
+      expect(handleError).toHaveBeenCalledWith(
+        new MessageError({
+          cause: new MissingTranslationError(),
+          id: "example/nonexistent",
+          locale: "en",
+        }),
+        "error"
+      );
+    });
+
+    it("handles errors when it failed to evaluate translations", () => {
+      const handleError = jest.fn<ErrorHandler>();
+      const book = new Book<Vocabulary>(
+        {
+          ja: catalogJa,
+          en: catalogEn,
+        },
+        { handleError }
+      );
+
+      const { t } = getTranslator(book, "en");
+      // @ts-expect-error it is deliberate
+      expect(t("example/greeting2", { name: null })).toBe(
+        "[example/greeting2]"
+      );
+
+      expect(handleError).toHaveBeenCalledWith(
+        new MessageError({
+          cause: new ArgumentTypeError({
+            argName: "name",
+            expectedType: "string",
+            got: null,
+          }),
+          id: "example/greeting2",
+          locale: "en",
+        }),
+        "error"
       );
     });
   });
