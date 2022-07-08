@@ -1,3 +1,9 @@
+## Unreleased
+
+- Add a new overload for `new Catalog` constructor. It accepts a locale identifier as the first argument.
+  - Please make sure to update the ESLint plugin / CLI too to support the new format.
+  - The old overload is deprecated.
+
 ## 0.1.5
 
 - Include less polyfills from core-js.

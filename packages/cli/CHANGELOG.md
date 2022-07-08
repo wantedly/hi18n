@@ -1,3 +1,7 @@
+## Unreleased
+
+- Support a new overload for `new Catalog` constructor. It accepts a locale identifier as the first argument.
+
 ## 0.1.6
 
 - Resolver improvements

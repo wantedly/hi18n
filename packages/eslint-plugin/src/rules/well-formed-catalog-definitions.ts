@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
-import { catalogTracker } from "../common-trackers";
+import { catalogTracker, getCatalogData } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { resolveAsLocation } from "../def-location";
 
@@ -52,7 +52,7 @@ export function create(
       });
     }
 
-    const catalogData = captured["catalogData"];
+    const catalogData = getCatalogData(captured);
     if (!catalogData) throw new Error("Cannot capture catalogData");
     if (catalogData.type !== "ObjectExpression") {
       context.report({

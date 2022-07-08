@@ -33,7 +33,7 @@ type Vocabulary = {
   }>;
 };
 
-const catalogJa = new Catalog<Vocabulary>({
+const catalogJa = new Catalog<Vocabulary>("ja", {
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
@@ -43,7 +43,7 @@ const catalogJa = new Catalog<Vocabulary>({
     "{newMessages,number}件のメッセージがあります。 <0>{messages,number}件の全てのメッセージを見る</0>"
   ),
 });
-const catalogEn = new Catalog<Vocabulary>({
+const catalogEn = new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg(

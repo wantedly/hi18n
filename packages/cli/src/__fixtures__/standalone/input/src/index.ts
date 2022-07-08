@@ -5,12 +5,12 @@ type Vocabulary = {
   "standalone/farewell": Message;
   "standalone/greeting": Message;
 };
-const catalogEn = new Catalog<Vocabulary>({
+const catalogEn = new Catalog<Vocabulary>("en", {
   // "standalone/ask": msg("Are you {name}?"),
   "standalone/farewell": msg("Bye!"),
   "standalone/greeting": msg("Hi!"),
 });
-const catalogJa = new Catalog<Vocabulary>({
+const catalogJa = new Catalog<Vocabulary>("ja", {
   // "standalone/ask": msg("きみ、{name}?"),
   "standalone/farewell": msg("んじゃ!"),
   "standalone/greeting": msg("んちゃ!"),

@@ -130,10 +130,10 @@ describe("collect-book-definitions", () => {
     linter.verify(
       `
       import { Book, Catalog, msg } from "@hi18n/core";
-      const catalogEn = new Catalog({
+      const catalogEn = new Catalog("en", {
         "example/greeting": msg("Hello!"),
       });
-      const catalogJa = new Catalog({
+      const catalogJa = new Catalog("ja", {
         "example/greeting": msg("こんにちは!"),
       });
 

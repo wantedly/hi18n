@@ -20,7 +20,7 @@ type Vocabulary = {
   "example/date2": Message<{ today: Date }>;
 };
 
-const catalogJa = new Catalog<Vocabulary>({
+const catalogJa = new Catalog<Vocabulary>("ja", {
   "example/greeting": msg("こんにちは!"),
   "example/greeting2": msg("こんにちは、{name}さん!"),
   "example/apples": msg("リンゴは{count,number}個あります。"),
@@ -28,7 +28,7 @@ const catalogJa = new Catalog<Vocabulary>({
   "example/date": msg("今日は{today,date}です。"),
   "example/date2": msg("今日は{today,date,::MMMMdjmm}です。"),
 });
-const catalogEn = new Catalog<Vocabulary>({
+const catalogEn = new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg(

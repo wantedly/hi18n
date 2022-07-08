@@ -1,4 +1,4 @@
-import { Tracker } from "./tracker";
+import { CaptureMap, GeneralizedNode, Tracker } from "./tracker";
 
 export function bookTracker(): Tracker {
   const tracker = new Tracker();
@@ -23,11 +23,25 @@ export function catalogTracker(): Tracker {
   tracker.watchMember('import("@hi18n/core")', "Catalog");
   tracker.watchConstruct('import("@hi18n/core").Catalog', [
     {
-      captureAs: "catalogData",
+      captureAs: "locale",
       path: ["0"],
+    },
+    {
+      captureAs: "catalogData",
+      path: ["1"],
     },
   ]);
   return tracker;
+}
+
+export function getCatalogData(captured: CaptureMap): GeneralizedNode {
+  const locale = captured["locale"]!;
+  const catalogData = captured["catalogData"]!;
+  if (locale.type === "ObjectExpression") {
+    return locale;
+  } else {
+    return catalogData;
+  }
 }
 
 export function translationCallTracker(): Tracker {
