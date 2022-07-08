@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/eslint-plugin",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Message internationalization meets immutability and type-safety - ESLint plugin",
   "keywords": [
     "intl",
