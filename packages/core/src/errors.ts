@@ -1,3 +1,12 @@
+/**
+ * An error for a specific message. It is thrown when:
+ *
+ * - the message is missing,
+ * - the message contains a syntax error, or
+ * - the message cannot be evaluated with the supplied parameters.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class MessageError extends Error {
   public override readonly cause: Error;
   public readonly locale?: string | undefined;
@@ -26,6 +35,11 @@ export class MessageError extends Error {
   }
 }
 
+/**
+ * Missing translation. Usually wrapped in {@link MessageError}.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class MissingTranslationError extends Error {
   static {
     this.prototype.name = this.name;
@@ -35,6 +49,11 @@ export class MissingTranslationError extends Error {
   }
 }
 
+/**
+ * No locale specified.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class NoLocaleError extends Error {
   static {
     this.prototype.name = this.name;
@@ -44,6 +63,11 @@ export class NoLocaleError extends Error {
   }
 }
 
+/**
+ * Locale is specified, but no such locale exists in the book.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class MissingLocaleError extends Error {
   public readonly locale: string;
   public readonly availableLocales: readonly string[];
@@ -64,18 +88,33 @@ export class MissingLocaleError extends Error {
   }
 }
 
+/**
+ * Parse error. Usually wrapped in {@link MessageError}.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class ParseError extends Error {
   static {
     this.prototype.name = this.name;
   }
 }
 
+/**
+ * An error during evaluating messages. Usually wrapped in {@link MessageError}.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class MessageEvaluationError extends Error {
   static {
     this.prototype.name = this.name;
   }
 }
 
+/**
+ * Missing translation argument. Usually wrapped in {@link MessageError}.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class MissingArgumentError extends MessageEvaluationError {
   public readonly argName: string | number;
   static {
@@ -92,6 +131,11 @@ export class MissingArgumentError extends MessageEvaluationError {
   }
 }
 
+/**
+ * Translation argument type mismatch. Usually wrapped in {@link MessageError}.
+ *
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export class ArgumentTypeError extends MessageEvaluationError {
   public readonly argName: string | number;
   public readonly expectedType: string;

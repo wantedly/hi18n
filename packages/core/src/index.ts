@@ -249,8 +249,45 @@ export class Book<Vocabulary extends VocabularyBase> {
   }
 }
 
+/**
+ * @since 0.1.7 (`@hi18n/core`)
+ */
 export type BookOptions = {
+  /**
+   * Custom error handler. {@link defaultErrorHandler} is used by default.
+   *
+   * @example
+   *   ```ts
+   *   export const book = new Book({
+   *     en: catalogEn,
+   *     ja: catalogJa,
+   *   }, {
+   *     handleError(error, level) {
+   *       if (level === "error") {
+   *         // Report to Sentry or somewhere
+   *       } else {
+   *         console.warn(error);
+   *       }
+   *     }
+   *   });
+   *   ```
+   *
+   * @since 0.1.7 (`@hi18n/core`)
+   */
   handleError?: ErrorHandler | undefined;
+  /**
+   * Locale fallback to use when no valid locale is specified.
+   *
+   * @example
+   *   ```ts
+   *   export const book = new Book({
+   *     en: catalogEn,
+   *     ja: catalogJa,
+   *   }, { implicitLocale: "en" });
+   *   ```
+   *
+   * @since 0.1.7 (`@hi18n/core`)
+   */
   implicitLocale?: string | undefined;
 };
 
