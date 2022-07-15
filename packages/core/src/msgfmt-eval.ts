@@ -1,5 +1,9 @@
+import {
+  ArgumentTypeError,
+  MessageEvaluationError,
+  MissingArgumentError,
+} from "./errors.js";
 import { CompiledMessage } from "./msgfmt.js";
-import type {} from "./errors";
 
 export type EvalOption<T> = {
   id?: string | undefined;
@@ -28,31 +32,31 @@ export function evaluateMessage<T = string>(
     }
     const { collect } = options;
     if (!collect)
-      throw new MessageError(
-        "Invalid message: not a default-collectable message",
-        options
+      throw new MessageEvaluationError(
+        "Invalid message: not a default-collectable message"
       );
     return collect(reduced);
   } else if (msg.type === "Var") {
     const value = (options.params ?? {})[msg.name];
     if (value === undefined)
-      throw new MessageError(`Missing argument ${msg.name}`, options);
+      throw new MissingArgumentError({
+        argName: msg.name,
+      });
     switch (msg.argType) {
       case undefined:
         if (typeof value !== "string")
-          throw new MessageError(
+          throw new MessageEvaluationError(
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `Invalid argument ${msg.name}: expected string, got ${value}`,
-            options
+            `Invalid argument ${msg.name}: expected string, got ${value}`
           );
         return value;
       case "number": {
         if (typeof value !== "number" && typeof value !== "bigint") {
-          throw new MessageError(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `Invalid argument ${msg.name}: expected number, got ${value}`,
-            options
-          );
+          throw new ArgumentTypeError({
+            argName: msg.name,
+            expectedType: "number",
+            got: value,
+          });
         }
         const formatOptions: Intl.NumberFormatOptions = {};
         let modifiedValue = value;
@@ -77,14 +81,16 @@ export function evaluateMessage<T = string>(
       case "date":
       case "time": {
         if (!isDateLike(value)) {
-          throw new MessageError(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            `Invalid argument ${msg.name}: expected Date, got ${value}`,
-            options
-          );
+          throw new ArgumentTypeError({
+            argName: msg.name,
+            expectedType: "Date",
+            got: value,
+          });
         }
         if (typeof options.timeZone !== "string") {
-          throw new MessageError("timeZone not specified", options);
+          throw new MissingArgumentError({
+            argName: "timeZone",
+          });
         }
         const formatOptions: Intl.DateTimeFormatOptions = {
           timeZone: options.timeZone,
@@ -111,18 +117,20 @@ export function evaluateMessage<T = string>(
     const value = (options.params ?? {})[msg.name];
     let relativeValue: number | bigint;
     if (value === undefined) {
-      throw new MessageError(`Missing argument ${msg.name}`, options);
+      throw new MissingArgumentError({
+        argName: msg.name,
+      });
     }
     if (typeof value === "number") {
       relativeValue = value - (msg.offset ?? 0);
     } else if (typeof value === "bigint") {
       relativeValue = value - BigInt(msg.offset ?? 0);
     } else {
-      throw new MessageError(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `Invalid argument ${msg.name}: expected number, got ${value}`,
-        options
-      );
+      throw new ArgumentTypeError({
+        argName: msg.name,
+        expectedType: "number",
+        got: value,
+      });
     }
     // TODO: allow injecting polyfill
     const pluralRules = new Intl.PluralRules(options.locale);
@@ -136,9 +144,8 @@ export function evaluateMessage<T = string>(
         return evaluateMessage(branch.message, options, relativeValue);
       }
     }
-    throw new MessageError(
-      `Non-exhaustive plural branches for ${value}`,
-      options
+    throw new MessageEvaluationError(
+      `Non-exhaustive plural branches for ${value}`
     );
   } else if (msg.type === "Number" && numberValue !== undefined) {
     // TODO: allow injecting polyfill
@@ -146,10 +153,14 @@ export function evaluateMessage<T = string>(
   } else if (msg.type === "Element") {
     const { wrap } = options;
     if (!wrap)
-      throw new MessageError("Invalid message: unexpected elementArg", options);
+      throw new MessageEvaluationError(
+        "Invalid message: unexpected elementArg"
+      );
     const value = (options.params ?? {})[msg.name];
     if (value === undefined)
-      throw new MessageError(`Missing argument ${msg.name}`, options);
+      throw new MissingArgumentError({
+        argName: msg.name,
+      });
     return wrap(
       value,
       msg.message !== undefined
@@ -157,7 +168,7 @@ export function evaluateMessage<T = string>(
         : undefined
     );
   }
-  throw new Error("Invalid message");
+  throw new MessageEvaluationError("Invalid message");
 }
 
 function reduceSubmessages<T>(
@@ -179,22 +190,6 @@ function reduceSubmessages<T>(
     }
   }
   return reduced;
-}
-
-export class MessageError extends Error {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(message: string, options: EvalOption<any>) {
-    const info: string[] = [];
-    info.push(`locale=${options.locale}`);
-    if (options.id != null) info.push(`id=${options.id}`);
-
-    super(`${message} (${info.join(", ")})`);
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, MessageError);
-    }
-    this.name = MessageError.name;
-  }
 }
 
 function isDateLike(obj: unknown): obj is Date {

@@ -34,16 +34,14 @@ describe("evaluageMessage", () => {
         locale: "en",
         params: {},
       })
-    ).toThrow("Missing argument name (locale=en, id=greeting.named)");
+    ).toThrow("Missing argument: name");
     expect(() =>
       evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
         id: "greeting.named",
         locale: "en",
         params: { name: 42 },
       })
-    ).toThrow(
-      "Invalid argument name: expected string, got 42 (locale=en, id=greeting.named)"
-    );
+    ).toThrow("Invalid argument name: expected string, got 42");
   });
 
   it("evaluates number interpolation", () => {
@@ -59,11 +57,11 @@ describe("evaluageMessage", () => {
       "42 apples"
     );
     expect(() => evaluateMessage(msg1, { locale: "en", params: {} })).toThrow(
-      "Missing argument count (locale=en)"
+      "Missing argument: count"
     );
     expect(() =>
       evaluateMessage(msg1, { locale: "en", params: { count: "foo" } })
-    ).toThrow("Invalid argument count: expected number, got foo (locale=en)");
+    ).toThrow("Invalid argument count: expected number, got foo");
 
     expect(
       evaluateMessage(msg1, { locale: "en", params: { count: 12345 } })

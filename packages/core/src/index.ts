@@ -1,14 +1,27 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any */
 
 import { CompiledMessage } from "./msgfmt.js";
-import { evaluateMessage } from "./msgfmt-eval.js";
+import { EvalOption, evaluateMessage } from "./msgfmt-eval.js";
 import { parseMessage } from "./msgfmt-parser.js";
 import type {
   ComponentPlaceholder,
   InferredMessageType,
 } from "./msgfmt-parser-types.js";
+import {
+  MessageError,
+  MissingLocaleError,
+  MissingTranslationError,
+  NoLocaleError,
+} from "./errors.js";
+import {
+  defaultErrorHandler,
+  ErrorHandler,
+  ErrorLevel,
+} from "./error-handling.js";
 
 export type { ComponentPlaceholder } from "./msgfmt-parser-types.js";
+export * from "./errors.js";
+export * from "./error-handling.js";
 
 declare const messageBrandSymbol: unique symbol;
 declare const translationIdBrandSymbol: unique symbol;
@@ -203,9 +216,15 @@ export function translationId<
  *   ```
  */
 export class Book<Vocabulary extends VocabularyBase> {
+  _handleError?: ErrorHandler | undefined;
+  _implicitLocale?: string | undefined;
   constructor(
-    public readonly catalogs: Readonly<Record<string, Catalog<Vocabulary>>>
+    public readonly catalogs: Readonly<Record<string, Catalog<Vocabulary>>>,
+    options: BookOptions = {}
   ) {
+    this._handleError = options.handleError;
+    this._implicitLocale = options.implicitLocale;
+
     for (const [locale, catalog] of Object.entries(catalogs)) {
       // @ts-expect-error deliberately breaking privacy
       if (catalog._looseLocale) {
@@ -216,8 +235,61 @@ export class Book<Vocabulary extends VocabularyBase> {
         );
       }
     }
+
+    if (
+      this._implicitLocale != null &&
+      !Object.hasOwn(catalogs, this._implicitLocale)
+    ) {
+      throw new Error(`Invalid implicitLocale: ${this._implicitLocale}`);
+    }
+  }
+
+  public handleError(e: Error, level: ErrorLevel) {
+    (this._handleError ?? defaultErrorHandler)(e, level);
   }
 }
+
+/**
+ * @since 0.1.7 (`@hi18n/core`)
+ */
+export type BookOptions = {
+  /**
+   * Custom error handler. {@link defaultErrorHandler} is used by default.
+   *
+   * @example
+   *   ```ts
+   *   export const book = new Book({
+   *     en: catalogEn,
+   *     ja: catalogJa,
+   *   }, {
+   *     handleError(error, level) {
+   *       if (level === "error") {
+   *         // Report to Sentry or somewhere
+   *       } else {
+   *         console.warn(error);
+   *       }
+   *     }
+   *   });
+   *   ```
+   *
+   * @since 0.1.7 (`@hi18n/core`)
+   */
+  handleError?: ErrorHandler | undefined;
+  /**
+   * Locale fallback to use when no valid locale is specified.
+   *
+   * @example
+   *   ```ts
+   *   export const book = new Book({
+   *     en: catalogEn,
+   *     ja: catalogJa,
+   *   }, { implicitLocale: "en" });
+   *   ```
+   *
+   * @since 0.1.7 (`@hi18n/core`)
+   */
+  implicitLocale?: string | undefined;
+};
 
 /**
  * A set of translated messages for a specific locale.
@@ -268,11 +340,7 @@ export class Catalog<Vocabulary extends VocabularyBase> {
   getCompiledMessage(id: string & keyof Vocabulary): CompiledMessage {
     if (!Object.prototype.hasOwnProperty.call(this._compiled, id)) {
       if (!Object.prototype.hasOwnProperty.call(this.data, id)) {
-        throw new Error(
-          `Missing translation in ${
-            this.locale ?? "<unknown locale>"
-          } for ${id}`
-        );
+        throw new MissingTranslationError();
       }
       const msg = this.data[id]!;
       this._compiled[id] = parseMessage(msg);
@@ -456,20 +524,51 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
   locales: string | string[]
 ): TranslatorObject<Vocabulary> {
-  if (Array.isArray(locales) && locales.length === 0) {
-    throw new Error("No locale specified");
-  }
-  const locale: string = Array.isArray(locales) ? locales[0]! : locales;
-  const catalog = book.catalogs[locale];
-  if (!catalog) throw new Error(`Missing locale: ${locale}`);
+  const localesArray = Array.isArray(locales) ? locales : [locales];
 
-  const t = (id: string, options: Record<string, unknown> = {}) => {
-    return evaluateMessage(catalog.getCompiledMessage(id), {
-      id,
-      locale,
-      timeZone: options["timeZone"] as string | undefined,
-      params: options,
-    });
+  const filteredLocales: string[] = [];
+  for (const locale of localesArray) {
+    if (Object.hasOwn(book.catalogs, locale)) {
+      filteredLocales.push(locale);
+    }
+  }
+
+  if (filteredLocales.length === 0) {
+    const error =
+      localesArray.length === 0
+        ? new NoLocaleError()
+        : new MissingLocaleError({
+            locale: localesArray[0]!,
+            availableLocales: Object.keys(book.catalogs),
+          });
+    if (book._implicitLocale != null) {
+      book.handleError(error, "error");
+      filteredLocales.push(book._implicitLocale);
+    } else {
+      throw error;
+    }
+  }
+
+  const locale = filteredLocales[0]!;
+  const catalog = book.catalogs[locale]!;
+
+  const t = (id: string, options: Record<string, unknown> = {}): string => {
+    try {
+      return compileAndEvaluateMessage<Vocabulary, string>(
+        catalog,
+        locale,
+        id,
+        {
+          timeZone: options["timeZone"] as string | undefined,
+          params: options,
+        }
+      );
+    } catch (e) {
+      if (!(e instanceof Error)) throw e;
+
+      book.handleError(e, "error");
+      return `[${id}]`;
+    }
   };
   t.dynamic = t;
   t.todo = (id: string) => {
@@ -482,17 +581,45 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
       id: K,
       interpolator: ComponentInterpolator<T, C>,
       options: MessageArguments<Vocabulary[K], C>
-    ) => {
-      return evaluateMessage<T>(catalog.getCompiledMessage(id), {
-        id,
-        locale,
-        timeZone: options["timeZone"] as string | undefined,
-        params: options,
-        collect: interpolator.collect,
-        wrap: interpolator.wrap as ComponentInterpolator<T, unknown>["wrap"],
-      });
+    ): T | string => {
+      try {
+        return compileAndEvaluateMessage<Vocabulary, T>(catalog, locale, id, {
+          timeZone: options["timeZone"] as string | undefined,
+          params: options,
+          collect: interpolator.collect,
+          wrap: interpolator.wrap as ComponentInterpolator<T, unknown>["wrap"],
+        });
+      } catch (e) {
+        if (!(e instanceof Error)) throw e;
+
+        book.handleError(e, "error");
+        return `[${id}]`;
+      }
     },
   };
+}
+
+function compileAndEvaluateMessage<Vocabulary extends VocabularyBase, T>(
+  catalog: Catalog<Vocabulary>,
+  locale: string,
+  id: string & keyof Vocabulary,
+  options: Omit<EvalOption<T>, "id" | "locale">
+) {
+  try {
+    return evaluateMessage<T>(catalog.getCompiledMessage(id), {
+      id,
+      locale,
+      ...options,
+    });
+  } catch (e) {
+    if (!(e instanceof Error)) throw e;
+
+    throw new MessageError({
+      cause: e,
+      id,
+      locale,
+    });
+  }
 }
 
 /**

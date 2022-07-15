@@ -1,3 +1,22 @@
+## Unreleased
+
+- Add `handleError` option to `new Book`.
+  The option can be passed as part of a second argument to the constructor.
+  With this option, you can ignore certain errors and report it in background instead.
+- Add `implicitLocale` option to `new Book`.
+  The option can be passed as part of a second argument to the constructor.
+  This option can be used in conjunction with `handleError` to fall back to English (or another language of your option)
+  in case someone forgets to configure locales before rendering.
+- Refactored error class hierarchy. Now the following classes are exposed:
+  - `MessageError`
+  - `MissingTranslationError`
+  - `NoLocaleError`
+  - `MissingLocaleError`
+  - `ParseError`
+  - `MessageEvaluationError`
+  - `MissingArgumentError`
+  - `ArgumentTypeError`
+
 ## 0.1.6
 
 - Add a new overload for `new Catalog` constructor. It accepts a locale identifier as the first argument.
