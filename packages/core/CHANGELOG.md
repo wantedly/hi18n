@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.7
 
 - Add `handleError` option to `new Book`.
   The option can be passed as part of a second argument to the constructor.
