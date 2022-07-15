@@ -1,3 +1,4 @@
+import { defaultErrorHandler, ErrorHandler } from "./error-handling.js";
 import {
   ArgumentTypeError,
   MessageEvaluationError,
@@ -10,6 +11,7 @@ export type EvalOption<T> = {
   locale: string;
   timeZone?: string | undefined;
   params?: Record<string, unknown>;
+  handleError?: ErrorHandler | undefined;
   collect?: ((submessages: (T | string)[]) => T | string) | undefined;
   wrap?:
     | ((component: unknown, message: T | string | undefined) => T | string)
@@ -73,6 +75,16 @@ export function evaluateMessage<T = string>(
             formatOptions.style = msg.argStyle;
             break;
         }
+        if (
+          (typeof Intl === "undefined" || !Intl.NumberFormat) &&
+          (msg.argStyle === undefined || msg.argStyle === "integer")
+        ) {
+          (options.handleError ?? defaultErrorHandler)(
+            new Error("Missing Intl.NumberFormat"),
+            "warn"
+          );
+          return `${modifiedValue}`;
+        }
         // TODO: allow injecting polyfill
         return new Intl.NumberFormat(options.locale, formatOptions).format(
           modifiedValue
@@ -132,9 +144,18 @@ export function evaluateMessage<T = string>(
         got: value,
       });
     }
-    // TODO: allow injecting polyfill
-    const pluralRules = new Intl.PluralRules(options.locale);
-    const rule: string = pluralRules.select(Number(relativeValue));
+    const rule: string = (() => {
+      if (typeof Intl === "undefined" || !Intl.PluralRules) {
+        (options.handleError ?? defaultErrorHandler)(
+          new Error("Missing Intl.PluralRules"),
+          "warn"
+        );
+        return "other";
+      }
+      // TODO: allow injecting polyfill
+      const pluralRules = new Intl.PluralRules(options.locale);
+      return pluralRules.select(Number(relativeValue));
+    })();
     for (const branch of msg.branches) {
       if (
         branch.selector === Number(value) ||
