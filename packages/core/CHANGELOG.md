@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.8
 
 - Implement fallbacks in case of missing Intl in the following cases:
   - If `Intl.NumberFormat` is missing, it falls back to `toString` in `{arg,number}` and `{arg,number,integer}`.
