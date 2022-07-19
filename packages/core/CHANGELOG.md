@@ -1,3 +1,10 @@
+## Unreleased
+
+- Implement fallbacks in case of missing Intl in the following cases:
+  - If `Intl.NumberFormat` is missing, it falls back to `toString` in `{arg,number}` and `{arg,number,integer}`.
+  - If `Intl.PluralRules` is missing, it falls back to the "other" branch in `{arg,plural,...}`.
+    - Exact matches like `=0` are still valid.
+
 ## 0.1.7
 
 - Add `handleError` option to `new Book`.

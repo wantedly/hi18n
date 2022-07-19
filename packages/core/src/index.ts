@@ -561,6 +561,7 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
         {
           timeZone: options["timeZone"] as string | undefined,
           params: options,
+          handleError: book._handleError,
         }
       );
     } catch (e) {
@@ -586,6 +587,7 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
         return compileAndEvaluateMessage<Vocabulary, T>(catalog, locale, id, {
           timeZone: options["timeZone"] as string | undefined,
           params: options,
+          handleError: book._handleError,
           collect: interpolator.collect,
           wrap: interpolator.wrap as ComponentInterpolator<T, unknown>["wrap"],
         });
