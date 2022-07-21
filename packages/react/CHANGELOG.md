@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.4
 
 - Allow using one React element multiple times in a translation.
   You can now add translations like `A<0/>B<0/>C` which uses
