@@ -1,3 +1,9 @@
+## Unreleased
+
+- Allow using one React element multiple times in a translation.
+  You can now add translations like `A<0/>B<0/>C` which uses
+  the element `0` twice.
+
 ## 0.1.3
 
 - Include less polyfills from core-js.
