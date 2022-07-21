@@ -1,7 +1,7 @@
 import React from "react";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import prettyFormat, { plugins as prettyFormatPlugins } from "pretty-format";
 import {
   Book,
@@ -26,6 +26,7 @@ type Vocabulary = {
   "example/apples": Message<{ count: number }>;
   "example/link": Message<{ 0: ComponentPlaceholder }>;
   "example/link2": Message<{ link: ComponentPlaceholder }>;
+  "example/multi": Message<{ strong: ComponentPlaceholder }>;
   "example/message-link": Message<{
     newMessages: number;
     messages: number;
@@ -39,6 +40,9 @@ const catalogJa = new Catalog<Vocabulary>("ja", {
   "example/apples": msg("リンゴは{count,number}個あります。"),
   "example/link": msg("<0>こちら</0>をクリック!"),
   "example/link2": msg("<link>こちら</link>をクリック!"),
+  "example/multi": msg(
+    "<strong>決定ボタン</strong>または<strong>Enter</strong>を押してください"
+  ),
   "example/message-link": msg(
     "{newMessages,number}件のメッセージがあります。 <0>{messages,number}件の全てのメッセージを見る</0>"
   ),
@@ -51,6 +55,9 @@ const catalogEn = new Catalog<Vocabulary>("en", {
   ),
   "example/link": msg("Click <0>here</0>!"),
   "example/link2": msg("Click <link>here</link>!"),
+  "example/multi": msg(
+    "Press the <strong>OK button</strong> or the <strong>Enter</strong> key."
+  ),
   "example/message-link": msg(
     "You have {newMessages,plural,one{# new message}other{# new messages}}. <0>See all the {messages,plural,one{# message}other{# messages}}</0>."
   ),
@@ -303,6 +310,19 @@ describe("Translate", () => {
       );
       cleanup();
     }
+  });
+
+  it("renders a component interpolation with multiple occurrences of the same component", () => {
+    const error = jest.spyOn(console, "error");
+    render(
+      <LocaleProvider locales="ja">
+        <Translate book={book} id="example/multi">
+          <strong key="strong" />
+        </Translate>
+      </LocaleProvider>
+    );
+    // React calls console.error() when key uniqueness is violated
+    expect(error).not.toHaveBeenCalled();
   });
 
   it("renders a component interpolation with plurals", () => {

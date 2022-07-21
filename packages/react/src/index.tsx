@@ -8,6 +8,7 @@ import {
   MessageArguments,
   getTranslator,
   InstantiateComponentTypes,
+  ComponentInterpolator,
 } from "@hi18n/core";
 
 export { LocaleContext } from "@hi18n/react-context";
@@ -223,13 +224,14 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
   extractComponents(children, params, { length: 0 });
   fillComponentKeys(params);
   const translator = useI18n(book);
+  const interpolator = getInterpolator();
   const translatedChildren = translator.translateWithComponents<
     React.ReactNode,
     React.ReactElement,
     K
   >(
     id,
-    { collect, wrap },
+    interpolator,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params as any
   );
@@ -324,13 +326,44 @@ function fillComponentKeys(params: Record<string | number, unknown>) {
   }
 }
 
-function collect(submessages: React.ReactNode[]): React.ReactNode {
-  return submessages;
+function getInterpolator(): ComponentInterpolator<
+  React.ReactNode,
+  React.ReactElement
+> {
+  const keys: Record<string, number> = {};
+
+  function generateKey(key: string): string {
+    if (!hasOwn(keys, key)) {
+      Object.defineProperty(keys, key, {
+        value: 1,
+        writable: true,
+        configurable: true,
+        enumerable: true,
+      });
+    }
+    const id = keys[key]++;
+    if (id === 1 && !/\$/.test(key)) {
+      return key;
+    } else {
+      return `${key}$${id}`;
+    }
+  }
+
+  function collect(submessages: React.ReactNode[]): React.ReactNode {
+    return submessages;
+  }
+
+  function wrap(
+    component: React.ReactElement,
+    message: React.ReactNode
+  ): React.ReactNode {
+    const newKey = generateKey(`${component.key}`);
+    return React.cloneElement(component, { key: newKey }, message);
+  }
+
+  return { collect, wrap };
 }
 
-function wrap(
-  component: React.ReactElement,
-  message: React.ReactNode
-): React.ReactNode {
-  return React.cloneElement(component, {}, message);
+function hasOwn(o: object, s: PropertyKey): boolean {
+  return Object.prototype.hasOwnProperty.call(o, s);
 }
