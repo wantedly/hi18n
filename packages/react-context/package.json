@@ -16,7 +16,7 @@
   },
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
-  "packageManager": "yarn@3.2.1",
+  "packageManager": "yarn@3.2.2",
   "files": [
     "index.js",
     "index.module.js",
