@@ -15,6 +15,7 @@ import {
   MessageError,
   MissingTranslationError,
   ArgumentTypeError,
+  preloadCatalogs,
 } from "./index.js";
 
 type Vocabulary = {
@@ -430,6 +431,118 @@ describe("Book", () => {
         }),
         "error"
       );
+    });
+  });
+
+  describe("lazy loading", () => {
+    it("allows lazy-loading", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await book.loadCatalog("ja");
+
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/greeting")).toBe("こんにちは!");
+    });
+
+    it("allows mixed eager/lazy-loading", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: catalogEn,
+      });
+      await book.loadCatalog("ja");
+
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/greeting")).toBe("こんにちは!");
+    });
+
+    it("loadCatalog does nothing if the catalog has already been loaded", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await book.loadCatalog("ja");
+      // again
+      await book.loadCatalog("ja");
+
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/greeting")).toBe("こんにちは!");
+    });
+
+    it("loadCatalog does nothing if the catalog is not a lazy-loaded one", async () => {
+      const book = new Book<Vocabulary>({
+        ja: catalogJa,
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await book.loadCatalog("ja");
+
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/greeting")).toBe("こんにちは!");
+    });
+
+    it("getTranslator errors if the locale is yet to be loaded", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await book.loadCatalog("ja");
+
+      expect(() => getTranslator(book, "en")).toThrow("Catalog not loaded: en");
+    });
+
+    it("getTranslator throw a Promise if requested", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await book.loadCatalog("ja");
+
+      expect(() => getTranslator(book, "en", { throwPromise: true })).toThrow(
+        Promise
+      );
+    });
+
+    it("getTranslator throw a Promise that resolves to the loaded state", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await book.loadCatalog("ja");
+
+      try {
+        getTranslator(book, "en", { throwPromise: true });
+      } catch (e) {
+        if (typeof (e as Promise<void>).then === "function") {
+          await (e as Promise<void>);
+        } else {
+          throw e;
+        }
+      }
+      const { t } = getTranslator(book, "ja");
+      expect(t("example/greeting")).toBe("こんにちは!");
+    });
+
+    it("loadCatalog errors on locale mismatch", async () => {
+      const book = new Book<Vocabulary>({
+        // locale mismatch
+        ja: () => Promise.resolve({ default: catalogEn }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await expect(book.loadCatalog("ja")).rejects.toThrow(
+        "Locale mismatch: expected ja, got en"
+      );
+    });
+
+    it("preloadCatalogs loads an appropriate catalog", async () => {
+      const book = new Book<Vocabulary>({
+        ja: () => Promise.resolve({ default: catalogJa }),
+        en: () => Promise.resolve({ default: catalogEn }),
+      });
+      await preloadCatalogs(book, ["zh", "ja"]); // -> ja is selected
+
+      const { t } = getTranslator(book, ["zh", "ja"]);
+      expect(t("example/greeting")).toBe("こんにちは!");
     });
   });
 });
