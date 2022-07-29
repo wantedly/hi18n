@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it, jest } from "@jest/globals";
@@ -186,6 +186,36 @@ describe("useI18n", () => {
     act(() => increment());
     expect(screen.queryByText("count = 2")).toBeInTheDocument();
     expect(translatorObjects.size).toBe(1);
+  });
+
+  it("suspends rendering if the locale is not available", async () => {
+    const book = new Book<Vocabulary>({
+      ja: () => Promise.resolve({ default: catalogJa }),
+      en: () => Promise.resolve({ default: catalogEn }),
+    });
+    const Greeter: React.FC = () => {
+      const { t } = useI18n(book);
+      return <a href="#foo">{t("example/greeting")}</a>;
+    };
+    let container;
+    act(() => {
+      ({ container } = render(
+        <LocaleProvider locales="ja">
+          <Suspense fallback="not loaded yet">
+            <Greeter />
+          </Suspense>
+        </LocaleProvider>
+      ));
+    });
+    expect(
+      screen.queryByRole("link", { name: /こんにちは!/i })
+    ).not.toBeInTheDocument();
+    expect(container).toHaveTextContent("not loaded yet");
+
+    // Wait until loaded
+    expect(
+      await screen.findByRole("link", { name: /こんにちは!/i })
+    ).toBeInTheDocument();
   });
 });
 
@@ -468,6 +498,32 @@ describe("Translate", () => {
         { plugins: [prettyFormatPlugins.ReactElement] }
       )
     );
+  });
+
+  it("suspends rendering if the locale is not available", async () => {
+    const book = new Book<Vocabulary>({
+      ja: () => Promise.resolve({ default: catalogJa }),
+      en: () => Promise.resolve({ default: catalogEn }),
+    });
+    let container;
+    act(() => {
+      ({ container } = render(
+        <LocaleProvider locales="ja">
+          <Suspense fallback="not loaded yet">
+            <Translate book={book} id="example/greeting" />
+          </Suspense>
+        </LocaleProvider>
+      ));
+    });
+    expect(
+      screen.queryByRole("link", { name: /こんにちは!/i })
+    ).not.toBeInTheDocument();
+    expect(container).toHaveTextContent("not loaded yet");
+
+    // Wait until loaded
+    expect(
+      await screen.findByRole("link", { name: /こんにちは!/i })
+    ).toBeInTheDocument();
   });
 });
 
