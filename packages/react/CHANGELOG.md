@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.5
 
 - Add support for dynamically loading Catalogs of specific languages. For details, see the changelog for `@hi18n/core` 0.1.9.
 
