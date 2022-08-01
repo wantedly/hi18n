@@ -12,6 +12,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
   },
   reportUnusedDisableDirectives: true,
   rules: {
+    "no-console": ["error", { allow: ["warn", "error"] }],
     "no-constant-condition": [
       "error",
       {
