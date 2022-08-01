@@ -60,19 +60,11 @@ export function create(
     }
     const [expectedParams, expectedComponentParams] = expectedParamsResult;
 
-    console.log("expected = ", expectedParams);
-    console.log("expected (component only) = ", expectedComponentParams);
-
     const argsFromProps = getComponentArgsFromProps(checker, tscTagNode);
-    console.log("args (props) = ", argsFromProps);
 
     const argsFromChildren = getComponentArgsFromChildren(
       checker,
       tscElementNode
-    );
-    console.log(
-      "args (children) = ",
-      argsFromChildren.map(([key]) => key)
     );
 
     // Find missing params

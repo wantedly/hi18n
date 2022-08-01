@@ -139,6 +139,7 @@ async function withProject<T>(
       if (process.env["UPDATE_SNAPSHOTS"]) {
         await fse.remove(expectDir);
         await fse.copy(outputDir, expectDir);
+        // eslint-disable-next-line no-console
         console.log("Updated the snapshots");
       } else if (process.env["SAVE_SNAPSHOTS"]) {
         const outputSaveDir = await fs.promises.mkdtemp(
