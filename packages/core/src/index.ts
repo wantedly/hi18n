@@ -214,6 +214,20 @@ export function translationId<
  *     ja: catalogJa,
  *   });
  *   ```
+ *
+ * @example You can use `import()` to lazy-load catalogs.
+ *   Note that you need to use extra setup to avoid the
+ *   "Catalog not loaded" error.
+ *
+ *   ```ts
+ *   type Vocabulary = {
+ *     "example/greeting": Message<{ name: string }>;
+ *   };
+ *   export const book = new Book<Vocabulary>({
+ *     en: () => import("./en"),
+ *     ja: () => import("./ja"),
+ *   });
+ *   ```
  */
 export class Book<Vocabulary extends VocabularyBase> {
   readonly catalogs: Record<string, Catalog<Vocabulary>>;
@@ -256,6 +270,13 @@ export class Book<Vocabulary extends VocabularyBase> {
     }
   }
 
+  /**
+   * Load a catalog for specific locale.
+   *
+   * Consider using {@link preloadCatalogs} instead.
+   *
+   * @param locale locale to load
+   */
   public async loadCatalog(locale: string): Promise<void> {
     const loader = this._loaders[locale];
     if (typeof loader !== "function") return;
@@ -321,6 +342,10 @@ export type BookOptions = {
 };
 
 /**
+ * A function to asynchronously load a catalog.
+ *
+ * It is usually provided as `() => import("...")`.
+ *
  * @since 0.1.9 (`@hi18n/core`)
  */
 export type CatalogLoader<Vocabulary extends VocabularyBase> = () => Promise<{
@@ -546,6 +571,7 @@ export type ComponentInterpolator<T, C> = {
  *
  * @param book the "book" (i.e. the set of translations) containing the desired messages.
  * @param locales a locale or a list of locale in the order of preference (the latter being not supported yet)
+ * @param options.throwPromise if true, it throws a Promise instance instead of an error. Used for React Suspense integration.
  * @returns A set of translation helpers
  *
  * @since 0.1.0 (`@hi18n/core`)
@@ -620,10 +646,21 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
   };
 }
 
+/** options for {@link getTranslator} */
 export type GetTranslatorOptions = {
+  /** if true, it throws a Promise instance instead of an error. Used for React Suspense integration. */
   throwPromise?: boolean | undefined;
 };
 
+/**
+ * Starts loading and waits for catalogs so that {@link getTranslator} does not error
+ * with "Catalog not loaded" error.
+ *
+ * It is a wrapper for {@link Book.loadCatalog}.
+ *
+ * @param book same as {@link getTranslator}'s `book` parameter.
+ * @param locales same as {@link getTranslator}'s `locales` parameter.
+ */
 export async function preloadCatalogs<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
   locales: string | string[]

@@ -1,3 +1,10 @@
+## Unreleased
+
+- New APIs for dynamically loading Catalogs of specific languages.
+  - Generalized `Book` constructor. Now you can pass lazy-loading function `() => import("...")` where a catalog object has been expected.
+  - `preloadCatalogs(book, locales)` to start loading catalogs. There is also `Book.prototype.loadCatalog()` but the former is preferred.
+  - `getTranslator` accepts a new `throwPromise` option. When `throwPromise` is true, it throws a Promise instance instead of a "catalog not loaded" error. This is used to support React Suspense in `@hi18n/react`.
+
 ## 0.1.8
 
 - Implement fallbacks in case of missing Intl in the following cases:

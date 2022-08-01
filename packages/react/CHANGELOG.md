@@ -1,3 +1,7 @@
+## Unreleased
+
+- Add support for dynamically loading Catalogs of specific languages. For details, see the changelog for `@hi18n/core` 0.1.9.
+
 ## 0.1.4
 
 - Allow using one React element multiple times in a translation.
