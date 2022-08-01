@@ -510,19 +510,21 @@ describe("Translate", () => {
       ({ container } = render(
         <LocaleProvider locales="ja">
           <Suspense fallback="not loaded yet">
-            <Translate book={book} id="example/greeting" />
+            <Translate book={book} id="example/link">
+              <a href="https://example.com/" />
+            </Translate>
           </Suspense>
         </LocaleProvider>
       ));
     });
     expect(
-      screen.queryByRole("link", { name: /こんにちは!/i })
+      screen.queryByRole("link", { name: /こちら/i })
     ).not.toBeInTheDocument();
     expect(container).toHaveTextContent("not loaded yet");
 
     // Wait until loaded
     expect(
-      await screen.findByRole("link", { name: /こんにちは!/i })
+      await screen.findByRole("link", { name: /こちら/i })
     ).toBeInTheDocument();
   });
 });
