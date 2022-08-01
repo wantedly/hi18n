@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.18.3",
-    "@hi18n/core": "workspace:^0.1.2",
+    "@hi18n/core": "workspace:^0.1.9",
     "@types/react": "^16.8.3 || ^17.0.0 || ^18.0.0",
     "core-js-pure": "^3.23.2"
   },

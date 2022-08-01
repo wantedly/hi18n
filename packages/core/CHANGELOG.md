@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.9
 
 - New APIs for dynamically loading Catalogs of specific languages.
   - Generalized `Book` constructor. Now you can pass lazy-loading function `() => import("...")` where a catalog object has been expected.
