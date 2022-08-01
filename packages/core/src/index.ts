@@ -276,6 +276,8 @@ export class Book<Vocabulary extends VocabularyBase> {
    * Consider using {@link preloadCatalogs} instead.
    *
    * @param locale locale to load
+   *
+   * @since 0.1.9 (`@hi18n/core`)
    */
   public async loadCatalog(locale: string): Promise<void> {
     const loader = this._loaders[locale];
@@ -646,7 +648,11 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
   };
 }
 
-/** options for {@link getTranslator} */
+/**
+ * options for {@link getTranslator}
+ *
+ * @since 0.1.9 (`@hi18n/core`)
+ */
 export type GetTranslatorOptions = {
   /** if true, it throws a Promise instance instead of an error. Used for React Suspense integration. */
   throwPromise?: boolean | undefined;
@@ -660,6 +666,8 @@ export type GetTranslatorOptions = {
  *
  * @param book same as {@link getTranslator}'s `book` parameter.
  * @param locales same as {@link getTranslator}'s `locales` parameter.
+ *
+ * @since 0.1.9 (`@hi18n/core`)
  */
 export async function preloadCatalogs<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
