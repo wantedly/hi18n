@@ -205,3 +205,108 @@ Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/
 - Interleaving with markups: `Please <link>read the license agreement</link> before continuing.`
 
 See [formatting.md](docs/formatting.md) for more details.
+
+## Loading only a specific language
+
+If you have many languages to support, you want to load only a specific locale. This is possible by the following steps:
+
+1. Declare dynamic loading in a book
+2. Preload catalogs before rendering
+
+### Declare dynamic loading in a book
+
+Switch from:
+
+```typescript
+import catalogEn from "./en";
+import catalogJa from "./ja";
+
+export const book = new Book<Vocabulary>({
+  en: catalogEn,
+  ja: catalogJa,
+});
+```
+
+to:
+
+```typescript
+export const book = new Book<Vocabulary>({
+  en: () => import("./en"),
+  ja: () => import("./ja"),
+});
+```
+
+Then hi18n does not load the catalogs immediately;
+instead you need to tell hi18n to load a specific catalog
+when you know which language to use.
+
+### Preload catalogs before rendering
+
+Switch from:
+
+```tsx
+// Start the app
+root.render(
+  <LocaleProvider locales="en">
+    <App />
+  </LocaleProvider>
+);
+```
+
+to:
+
+```tsx
+import { book } from "./path/to/translations";
+import { preloadCatalogs } from "@hi18n/core";
+
+await preloadCatalogs(book, "en");
+
+// Start the app
+root.render(
+  <LocaleProvider locales="en">
+    <App />
+  </LocaleProvider>
+);
+```
+
+to ensure catalogs are loaded before rendering.
+
+You may want to use `Promise.prototype.then` instead:
+
+```tsx
+import { book } from "./path/to/translations";
+import { preloadCatalogs } from "@hi18n/core";
+
+preloadCatalogs(book, "en")
+  .then(() => {
+    // Start the app
+    root.render(
+      <LocaleProvider locales="en">
+        <App />
+      </LocaleProvider>
+    );
+  })
+  .catch((e) => {
+    console.error("load error");
+  });
+```
+
+### Alternative: React Suspense
+
+If you are using React, you may instead use React Suspense to wait for the translations to be loaded.
+
+```tsx
+// Start the app
+root.render(
+  <LocaleProvider locales="en">
+    {/* when the translations are not yet available, loadingPage will be shown */}
+    <React.Suspense fallback={loadingPage}>
+      <App />
+    </React.Suspense>
+  </LocaleProvider>
+);
+```
+
+Then simply use the React API (`useI18n` or `<Translate>`) against dynamically loaded books.
+
+This is an **experimental API** which relies on React's undocumented API for suspension. The feature may break if React removes or changes the undocumented API.

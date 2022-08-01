@@ -214,18 +214,44 @@ export function translationId<
  *     ja: catalogJa,
  *   });
  *   ```
+ *
+ * @example You can use `import()` to lazy-load catalogs.
+ *   Note that you need to use extra setup to avoid the
+ *   "Catalog not loaded" error.
+ *
+ *   ```ts
+ *   type Vocabulary = {
+ *     "example/greeting": Message<{ name: string }>;
+ *   };
+ *   export const book = new Book<Vocabulary>({
+ *     en: () => import("./en"),
+ *     ja: () => import("./ja"),
+ *   });
+ *   ```
  */
 export class Book<Vocabulary extends VocabularyBase> {
+  readonly catalogs: Record<string, Catalog<Vocabulary>>;
+  readonly _loaders: Readonly<
+    Record<string, Catalog<Vocabulary> | CatalogLoader<Vocabulary>>
+  >;
   _handleError?: ErrorHandler | undefined;
   _implicitLocale?: string | undefined;
   constructor(
-    public readonly catalogs: Readonly<Record<string, Catalog<Vocabulary>>>,
+    catalogs: Readonly<
+      Record<string, Catalog<Vocabulary> | CatalogLoader<Vocabulary>>
+    >,
     options: BookOptions = {}
   ) {
+    this.catalogs = {};
+    this._loaders = catalogs;
     this._handleError = options.handleError;
     this._implicitLocale = options.implicitLocale;
 
     for (const [locale, catalog] of Object.entries(catalogs)) {
+      // Skip lazy-loaded catalogs
+      if (typeof catalog === "function") continue;
+
+      this.catalogs[locale] = catalog;
       // @ts-expect-error deliberately breaking privacy
       if (catalog._looseLocale) {
         catalog.locale = locale;
@@ -238,10 +264,36 @@ export class Book<Vocabulary extends VocabularyBase> {
 
     if (
       this._implicitLocale != null &&
-      !Object.hasOwn(catalogs, this._implicitLocale)
+      !hasOwn(catalogs, this._implicitLocale)
     ) {
       throw new Error(`Invalid implicitLocale: ${this._implicitLocale}`);
     }
+  }
+
+  /**
+   * Load a catalog for specific locale.
+   *
+   * Consider using {@link preloadCatalogs} instead.
+   *
+   * @param locale locale to load
+   *
+   * @since 0.1.9 (`@hi18n/core`)
+   */
+  public async loadCatalog(locale: string): Promise<void> {
+    const loader = this._loaders[locale];
+    if (typeof loader !== "function") return;
+
+    const { default: catalog } = await loader();
+    // @ts-expect-error deliberately breaking privacy
+    if (catalog._looseLocale) {
+      catalog.locale = locale;
+    } else if (catalog.locale !== locale) {
+      throw new Error(
+        `Locale mismatch: expected ${locale}, got ${catalog.locale!}`
+      );
+    }
+    if (this.catalogs[locale] != null) return;
+    this.catalogs[locale] = catalog;
   }
 
   public handleError(e: Error, level: ErrorLevel) {
@@ -292,6 +344,17 @@ export type BookOptions = {
 };
 
 /**
+ * A function to asynchronously load a catalog.
+ *
+ * It is usually provided as `() => import("...")`.
+ *
+ * @since 0.1.9 (`@hi18n/core`)
+ */
+export type CatalogLoader<Vocabulary extends VocabularyBase> = () => Promise<{
+  default: Catalog<Vocabulary>;
+}>;
+
+/**
  * A set of translated messages for a specific locale.
  *
  * @since 0.1.0 (`@hi18n/core`)
@@ -338,8 +401,8 @@ export class Catalog<Vocabulary extends VocabularyBase> {
   }
 
   getCompiledMessage(id: string & keyof Vocabulary): CompiledMessage {
-    if (!Object.prototype.hasOwnProperty.call(this._compiled, id)) {
-      if (!Object.prototype.hasOwnProperty.call(this.data, id)) {
+    if (!hasOwn(this._compiled, id)) {
+      if (!hasOwn(this.data, id)) {
         throw new MissingTranslationError();
       }
       const msg = this.data[id]!;
@@ -510,6 +573,7 @@ export type ComponentInterpolator<T, C> = {
  *
  * @param book the "book" (i.e. the set of translations) containing the desired messages.
  * @param locales a locale or a list of locale in the order of preference (the latter being not supported yet)
+ * @param options.throwPromise if true, it throws a Promise instance instead of an error. Used for React Suspense integration.
  * @returns A set of translation helpers
  *
  * @since 0.1.0 (`@hi18n/core`)
@@ -522,35 +586,18 @@ export type ComponentInterpolator<T, C> = {
  */
 export function getTranslator<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
-  locales: string | string[]
+  locales: string | string[],
+  options: GetTranslatorOptions = {}
 ): TranslatorObject<Vocabulary> {
-  const localesArray = Array.isArray(locales) ? locales : [locales];
-
-  const filteredLocales: string[] = [];
-  for (const locale of localesArray) {
-    if (Object.hasOwn(book.catalogs, locale)) {
-      filteredLocales.push(locale);
-    }
-  }
-
-  if (filteredLocales.length === 0) {
-    const error =
-      localesArray.length === 0
-        ? new NoLocaleError()
-        : new MissingLocaleError({
-            locale: localesArray[0]!,
-            availableLocales: Object.keys(book.catalogs),
-          });
-    if (book._implicitLocale != null) {
-      book.handleError(error, "error");
-      filteredLocales.push(book._implicitLocale);
+  const locale = selectLocale(book, locales);
+  const catalog = book.catalogs[locale];
+  if (catalog == null) {
+    if (options.throwPromise) {
+      throw book.loadCatalog(locale);
     } else {
-      throw error;
+      throw new Error(`Catalog not loaded: ${locale}`);
     }
   }
-
-  const locale = filteredLocales[0]!;
-  const catalog = book.catalogs[locale]!;
 
   const t = (id: string, options: Record<string, unknown> = {}): string => {
     try {
@@ -601,6 +648,72 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
   };
 }
 
+/**
+ * options for {@link getTranslator}
+ *
+ * @since 0.1.9 (`@hi18n/core`)
+ */
+export type GetTranslatorOptions = {
+  /** if true, it throws a Promise instance instead of an error. Used for React Suspense integration. */
+  throwPromise?: boolean | undefined;
+};
+
+/**
+ * Starts loading and waits for catalogs so that {@link getTranslator} does not error
+ * with "Catalog not loaded" error.
+ *
+ * It is a wrapper for {@link Book.loadCatalog}.
+ *
+ * @param book same as {@link getTranslator}'s `book` parameter.
+ * @param locales same as {@link getTranslator}'s `locales` parameter.
+ *
+ * @since 0.1.9 (`@hi18n/core`)
+ */
+export async function preloadCatalogs<Vocabulary extends VocabularyBase>(
+  book: Book<Vocabulary>,
+  locales: string | string[]
+): Promise<void> {
+  const locale = selectLocale(book, locales);
+  const catalog = book.catalogs[locale];
+  if (catalog == null) {
+    await book.loadCatalog(locale);
+  }
+}
+
+// To ensure deterministic behavior,
+// this function picks the locale whether the catalog has already been loaded or not.
+function selectLocale<Vocabulary extends VocabularyBase>(
+  book: Book<Vocabulary>,
+  locales: string | string[]
+): string {
+  const localesArray = Array.isArray(locales) ? locales : [locales];
+
+  const filteredLocales: string[] = [];
+  for (const locale of localesArray) {
+    if (hasOwn(book._loaders, locale)) {
+      filteredLocales.push(locale);
+    }
+  }
+
+  if (filteredLocales.length === 0) {
+    const error =
+      localesArray.length === 0
+        ? new NoLocaleError()
+        : new MissingLocaleError({
+            locale: localesArray[0]!,
+            availableLocales: Object.keys(book._loaders),
+          });
+    if (book._implicitLocale != null) {
+      book.handleError(error, "error");
+      filteredLocales.push(book._implicitLocale);
+    } else {
+      throw error;
+    }
+  }
+
+  return filteredLocales[0]!;
+}
+
 function compileAndEvaluateMessage<Vocabulary extends VocabularyBase, T>(
   catalog: Catalog<Vocabulary>,
   locale: string,
@@ -639,4 +752,8 @@ export function getDefaultTimeZone(): string {
     if (typeof timeZone === "string") return timeZone;
   }
   return "UTC";
+}
+
+function hasOwn(o: object, s: PropertyKey): boolean {
+  return Object.prototype.hasOwnProperty.call(o, s);
 }

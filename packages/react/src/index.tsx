@@ -80,6 +80,13 @@ export function useLocales(): string[] {
 /**
  * Retrieves translation helpers, using the locale from the context.
  *
+ * If the catalog is not loaded yet, it suspends the component being
+ * rendered. This is an **experimental API** which relies on React's
+ * undocumented API for suspension.
+ * To avoid this behavior,
+ * initialize the Book statically or use preloadCatalog from @hi18n/core
+ * to ensure the catalog is loaded before using this function.
+ *
  * @param book A "book" object containing translated messages
  * @returns An object containing functions necessary for translation
  *
@@ -106,7 +113,7 @@ export function useI18n<M extends VocabularyBase>(
 ): TranslatorObject<M> {
   const locales = useLocales();
   const i18n = React.useMemo(
-    () => getTranslator(book, locales),
+    () => getTranslator(book, locales, { throwPromise: true }),
     [book, locales]
   );
   return i18n;
@@ -177,6 +184,13 @@ type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
 
 /**
  * Renders the translated message, possibly interleaved with the elements you provide.
+ *
+ * If the catalog is not loaded yet, it suspends the component being
+ * rendered. This is an **experimental API** which relies on React's
+ * undocumented API for suspension.
+ * To avoid this behavior,
+ * initialize the Book statically or use preloadCatalog from @hi18n/core
+ * to ensure the catalog is loaded before rendering this component.
  *
  * @since 0.1.0 (`@hi18n/react`)
  *
