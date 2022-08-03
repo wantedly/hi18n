@@ -33,6 +33,14 @@ describe("sync", () => {
     );
   });
 
+  // eslint-disable-next-line jest/expect-expect
+  it("works with dynamic loading", async () => {
+    const output = new MockedOutput();
+    await withProject("dynamic-loading", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
+
   it("sync --check is successful if convergeed", async () => {
     const output = new MockedOutput();
     await withProject("simple-project-converged", "sync-check", async (cwd) => {

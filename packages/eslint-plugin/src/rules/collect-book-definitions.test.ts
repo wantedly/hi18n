@@ -180,4 +180,58 @@ describe("collect-book-definitions", () => {
       },
     ]);
   });
+
+  it("detects dynamically-loaded book definitions", () => {
+    const collected: BookDef[] = [];
+    const linter = new TSESLint.Linter();
+    linter.defineRule("@hi18n/collect-book-definitions", rule);
+    linter.verify(
+      `
+      import { Book } from "@hi18n/core";
+
+      export const book = new Book({
+        en: () => import("./en"),
+        ja: () => import("./ja"),
+      });
+    `,
+      {
+        ...baseConfig,
+        rules: {
+          "@hi18n/collect-book-definitions": [
+            "error",
+            (l: BookDef) => {
+              collected.push(l);
+            },
+          ],
+        },
+      }
+    );
+    expect(collected).toEqual([
+      {
+        bookLocation: {
+          path: "<input>",
+          localName: "book",
+          exportNames: ["book"],
+        },
+        catalogLinks: [
+          {
+            locale: "en",
+            catalogLocation: {
+              base: "<input>",
+              path: "./en",
+              exportName: "default",
+            },
+          },
+          {
+            locale: "ja",
+            catalogLocation: {
+              base: "<input>",
+              path: "./ja",
+              exportName: "default",
+            },
+          },
+        ],
+      },
+    ]);
+  });
 });
