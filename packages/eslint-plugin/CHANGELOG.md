@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.8
 
 - Support dynamically-loaded Catalogs introduced in `@hi18n/core` 0.1.9.
 
