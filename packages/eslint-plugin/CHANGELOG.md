@@ -1,3 +1,7 @@
+## Unreleased
+
+- Support dynamically-loaded Catalogs introduced in `@hi18n/core` 0.1.9.
+
 ## 0.1.7
 
 - Support a new overload for `new Catalog` constructor introduced in `@hi18n/core` 0.1.6. It accepts a locale identifier as the first argument.
