@@ -1,12 +1,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util";
 import { bookTracker } from "../common-trackers";
-import {
-  DefLocation,
-  DefReference,
-  lookupDefinitionSource,
-  resolveAsLocation,
-} from "../def-location";
+import { DefLocation, DefReference, resolveAsLocation } from "../def-location";
+import { getCatalogRef } from "../book-util";
 
 export type BookDef = {
   bookLocation: DefLocation;
@@ -60,14 +56,15 @@ export function create(
     const catalogLinks: CatalogLink[] = [];
 
     for (const prop of catalogs.properties) {
-      if (prop.type !== "Property") continue;
+      if (prop.type !== "Property" && prop.type !== "MethodDefinition") {
+        continue;
+      }
       const key = getStaticKey(prop);
       if (key === null) continue;
-      if (prop.value.type !== "Identifier") continue;
-      const catalogLocation = lookupDefinitionSource(
+      const catalogLocation = getCatalogRef(
         context.getSourceCode().scopeManager!,
         context.getFilename(),
-        prop.value
+        prop
       );
       if (!catalogLocation) continue;
       catalogLinks.push({

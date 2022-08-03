@@ -8,6 +8,7 @@ import {
 import { bookTracker } from "../common-trackers";
 import { capturedRoot } from "../tracker";
 import { lookupDefinitionSource, resolveAsLocation } from "../def-location";
+import { getCatalogRef } from "../book-util";
 
 type MessageIds =
   | "expose-book"
@@ -76,7 +77,7 @@ export function create(
       return;
     }
     for (const prop of catalogss.properties) {
-      if (prop.type !== "Property") {
+      if (prop.type !== "Property" && prop.type !== "MethodDefinition") {
         context.report({
           node: prop,
           messageId: "catalogs-invalid-spread",
@@ -91,17 +92,10 @@ export function create(
         });
         continue;
       }
-      if (prop.value.type !== "Identifier") {
-        context.report({
-          node: prop.key,
-          messageId: "clarify-catalog-reference",
-        });
-        continue;
-      }
-      const catalogLocation = lookupDefinitionSource(
+      const catalogLocation = getCatalogRef(
         context.getSourceCode().scopeManager!,
         context.getFilename(),
-        prop.value
+        prop
       );
       if (!catalogLocation) {
         context.report({

@@ -58,6 +58,34 @@ new TSESLint.RuleTester({
         ja: catalogJa,
       });
     `,
+    `
+      import { Book } from "@hi18n/core";
+      export const book = new Book({
+        en: () => import("./en"),
+        ja: () => import("./ja"),
+      });
+    `,
+    `
+      import { Book } from "@hi18n/core";
+      export const book = new Book({
+        en: () => { return import("./en"); },
+        ja: () => { return import("./ja"); },
+      });
+    `,
+    `
+      import { Book } from "@hi18n/core";
+      export const book = new Book({
+        en: function () { return import("./en"); },
+        ja: function () { return import("./ja"); },
+      });
+    `,
+    `
+      import { Book } from "@hi18n/core";
+      export const book = new Book({
+        en() { return import("./en"); },
+        ja() { return import("./ja"); },
+      });
+    `,
   ],
   invalid: [
     {
@@ -134,6 +162,50 @@ new TSESLint.RuleTester({
         export const book = new Book({
           en: catalogEn,
           ja: catalogJa,
+        });
+      `,
+      errors: [{ messageId: "clarify-catalog-reference" }],
+    },
+    {
+      code: `
+        import { Book } from "@hi18n/core";
+        import catalogEn from "./en";
+        export const book = new Book({
+          en: catalogEn,
+          ja: import("./ja"),
+        });
+      `,
+      errors: [{ messageId: "clarify-catalog-reference" }],
+    },
+    {
+      code: `
+        import { Book } from "@hi18n/core";
+        import catalogEn from "./en";
+        export const book = new Book({
+          en: catalogEn,
+          ja: () => 42,
+        });
+      `,
+      errors: [{ messageId: "clarify-catalog-reference" }],
+    },
+    {
+      code: `
+        import { Book } from "@hi18n/core";
+        import catalogEn from "./en";
+        export const book = new Book({
+          en: catalogEn,
+          ja: () => impoort("./" + locale),
+        });
+      `,
+      errors: [{ messageId: "clarify-catalog-reference" }],
+    },
+    {
+      code: `
+        import { Book } from "@hi18n/core";
+        import catalogEn from "./en";
+        export const book = new Book({
+          en: catalogEn,
+          ja: () => { console.log("foo"); return import("./ja"); },
         });
       `,
       errors: [{ messageId: "clarify-catalog-reference" }],
