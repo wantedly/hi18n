@@ -46,6 +46,8 @@ const DEFAULT_PARSER_OPTIONS: TSESLint.ParserOptions = {
 };
 
 const configKeys = [
+  "include",
+  "exclude",
   "parser",
   "parserOptions",
   "extensions",
@@ -55,6 +57,8 @@ const configKeys = [
 ];
 
 export type Config = {
+  include?: string[] | undefined;
+  exclude?: string[] | undefined;
   parser: ParserSpec;
   parserOptions: TSESLint.ParserOptions;
   extensions: string[];
@@ -73,6 +77,12 @@ export async function loadConfig(cwd: string): Promise<Config> {
   const { config, filepath } = cosmiconfigResult;
   if (!isObject(config)) {
     throw new Error("config: not an object");
+  }
+  if (!optional(isArrayOf(isString))(config["include"])) {
+    throw new Error("config.include: not an array of strings");
+  }
+  if (!optional(isArrayOf(isString))(config["exclude"])) {
+    throw new Error("config.exclude: not an array of strings");
   }
   if (!optional(oneof(isString, isParserDependency))(config["parser"])) {
     throw new Error("config.parser: not a string nor a parser object");
@@ -98,6 +108,8 @@ export async function loadConfig(cwd: string): Promise<Config> {
     }
   }
 
+  const include = config["include"];
+  const exclude = config["exclude"];
   const parser = resolveParser(config["parser"], filepath);
   const parserOptions =
     (config["parserOptions"] as TSESLint.ParserOptions | undefined) ??
@@ -114,6 +126,8 @@ export async function loadConfig(cwd: string): Promise<Config> {
   }
 
   return {
+    include,
+    exclude,
     parser,
     parserOptions,
     extensions,

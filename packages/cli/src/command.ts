@@ -17,7 +17,7 @@ export async function hi18n(
   program
     .command("sync")
     .description("Synchronize translation ids")
-    .argument("<files...>")
+    .argument("[files...]")
     .option("--exclude <files...>")
     .option(
       "-c, --check",

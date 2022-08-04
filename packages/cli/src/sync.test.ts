@@ -13,7 +13,7 @@ describe("sync", () => {
   it("works with standalone configuration", async () => {
     const output = new MockedOutput();
     await withProject("standalone", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 
@@ -21,7 +21,7 @@ describe("sync", () => {
   it("works with single-file configuration", async () => {
     const output = new MockedOutput();
     await withProject("single-file", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 
@@ -29,7 +29,7 @@ describe("sync", () => {
   it("works with multi-file configuration", async () => {
     const output = new MockedOutput();
     await withProject("simple-project", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 
@@ -37,7 +37,7 @@ describe("sync", () => {
   it("works with dynamic loading", async () => {
     const output = new MockedOutput();
     await withProject("dynamic-loading", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 
@@ -45,12 +45,7 @@ describe("sync", () => {
     const output = new MockedOutput();
     await withProject("simple-project-converged", "sync-check", async (cwd) => {
       await expect(
-        hi18n(
-          ["node", "hi18n", "sync", "--check", "src/**/*.ts"],
-          cwd,
-          output,
-          true
-        )
+        hi18n(["node", "hi18n", "sync", "--check"], cwd, output, true)
       ).resolves.toBe(undefined);
     });
   });
@@ -59,13 +54,26 @@ describe("sync", () => {
     const output = new MockedOutput();
     await withProject("simple-project", "sync-check", async (cwd) => {
       await expect(
-        hi18n(
-          ["node", "hi18n", "sync", "--check", "src/**/*.ts"],
-          cwd,
-          output,
-          true
-        )
+        hi18n(["node", "hi18n", "sync", "--check"], cwd, output, true)
       ).rejects.toThrow("Found diff in src/locale/en.ts");
+    });
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it("works without configuration if include is given", async () => {
+    const output = new MockedOutput();
+    await withProject("no-config", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+    );
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it("errors if include is not given", async () => {
+    const output = new MockedOutput();
+    await withProject("no-config", "sync-no-include", async (cwd) => {
+      await expect(
+        hi18n(["node", "hi18n", "sync"], cwd, output, true)
+      ).rejects.toThrow("No include specified");
     });
   });
 
@@ -73,7 +81,7 @@ describe("sync", () => {
   it("allows resolving paths with extensions as paths with different extensions", async () => {
     const output = new MockedOutput();
     await withProject("extension-removal", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 
@@ -81,7 +89,7 @@ describe("sync", () => {
   it("resolves mapped paths if configured as such", async () => {
     const output = new MockedOutput();
     await withProject("path-mapping", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 
@@ -89,7 +97,7 @@ describe("sync", () => {
   it("allows parser configuration", async () => {
     const output = new MockedOutput();
     await withProject("custom-parser", "sync", (cwd) =>
-      hi18n(["node", "hi18n", "sync", "src/**/*.ts"], cwd, output, true)
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });
 });
@@ -112,8 +120,14 @@ async function withProject<T>(
     await fse.copy(inputDir, outputDir);
     const result = await cb(outputDir);
 
-    const files1 = await util.promisify(glob)("**/*", { cwd: expectDir });
-    const files2 = await util.promisify(glob)("**/*", { cwd: outputDir });
+    const files1 = await util.promisify(glob)("**/*", {
+      cwd: expectDir,
+      dot: true,
+    });
+    const files2 = await util.promisify(glob)("**/*", {
+      cwd: outputDir,
+      dot: true,
+    });
     const allFiles = Array.from(new Set(files1.concat(files2)));
     allFiles.sort();
     const unmatchedFiles: string[] = [];
