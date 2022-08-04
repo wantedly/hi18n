@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.9
 
 - Add `config.include` and `config.exclude` options in `.hi18nrc.js` that replace the corresponding command line options.
   - Just type `hi18n sync` and you get your translations synchronized.

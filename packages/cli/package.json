@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Message internationalization meets immutability and type-safety - command line tool",
   "keywords": [
     "intl",
