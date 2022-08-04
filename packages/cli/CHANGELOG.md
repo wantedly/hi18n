@@ -1,3 +1,9 @@
+## Unreleased
+
+- Add `config.include` and `config.exclude` options in `.hi18nrc.js` that replace the corresponding command line options.
+  - Just type `hi18n sync` and you get your translations synchronized.
+  - This is now a recommended way to configure the command.
+
 ## 0.1.8
 
 - Support dynamically-loaded Catalogs introduced in `@hi18n/core` 0.1.9.

@@ -5,7 +5,7 @@ See [hi18n's README](https://github.com/wantedly/hi18n#readme) for general infor
 ## hi18n sync
 
 ```
-hi18n sync <...files> --ignore <glob>
+hi18n sync [...files] --ignore <glob>
 ```
 
 Synchronizes unused and missing translations.
@@ -23,6 +23,26 @@ Configuration is loaded via [cosmiconfig](https://github.com/davidtheclark/cosmi
 - `.hi18nrc.cjs`
 - `hi18n.config.js`
 - `hi18n.config.cjs`
+
+### `include` and `exclude`
+
+```javascript
+// .hi18nrc.js
+module.exports = {
+  include: ["src/**/*.ts", "src/**/*.tsx"],
+  exclude: ["**/*.d.ts"],
+};
+```
+
+- `include` is a required field unless given as a command-line argument.
+  This is a list of JavaScript/TypeScript files that hi18n reads.
+  Make sure to include:
+  - All files that declare Catalog, Vocabulary, or Book, and
+  - all files that use translation.
+- `exclude` is an optional field that hi18n should not read.
+  This is useful if hi18n fails to parse some files.
+
+Both `include` and `exclude` are processed by [glob](https://www.npmjs.com/package/glob).
 
 ### `parser` and `parserOptions`
 

@@ -16,14 +16,23 @@ import { loadConfig } from "./config";
 
 export type Options = {
   cwd: string;
-  include: string[];
+  include?: string[] | undefined;
   exclude?: string[] | undefined;
   checkOnly?: boolean | undefined;
 };
 
 export async function sync(options: Options) {
-  const { cwd: projectPath, include, exclude } = options;
+  const {
+    cwd: projectPath,
+    include: includeFromOpt,
+    exclude: excludeFromOpt,
+  } = options;
   const config = await loadConfig(projectPath);
+  const include = config.include ?? includeFromOpt;
+  const exclude = config.exclude ?? excludeFromOpt;
+  if (include === undefined || include.length === 0) {
+    throw new Error("No include specified");
+  }
   const linterConfig: TSESLint.Linter.Config = {
     parser: config.parser as string,
     parserOptions: config.parserOptions,

@@ -49,7 +49,22 @@ Instead of `useI18n`, you can also use the following items for translation:
 
 ## Updating vocabularies and catalogs
 
-Use the following command to synchronize vocabularies and catalogs:
+To update vocabularies and catalogs, first put a configuration:
+
+```javascript
+module.exports = {
+  // The files that hi18n should read
+  include: ["src/**/*.ts", "src/**/*.tsx"],
+};
+```
+
+Then use the following command to synchronize vocabularies and catalogs:
+
+```
+hi18n sync
+```
+
+Alternatively you can directly specify what files to include:
 
 ```
 hi18n sync 'src/**/*.ts' 'src/**/*.tsx'
