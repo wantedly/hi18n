@@ -7,5 +7,9 @@
     "tsBuildInfoFile": "../dist/tsconfig.main.tsbuildinfo"
   },
   "include": ["../src/**/*.ts"],
-  "exclude": ["../**/*.test.ts", "../src/__fixtures__/**/*.ts"]
+  "exclude": [
+    "../**/*.test.ts",
+    "../src/__fixtures__/**/*.ts",
+    "../src/testing/**/*.ts"
+  ]
 }

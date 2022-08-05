@@ -7,5 +7,5 @@
     "noEmit": true
   },
   "references": [{ "path": "./configs/tsconfig.main.json" }],
-  "include": ["src/**/*.test.ts"]
+  "include": ["src/**/*.test.ts", "src/testing/**/*.ts"]
 }

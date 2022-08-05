@@ -44,7 +44,7 @@
     "default": "./dist/index.js"
   },
   "scripts": {
-    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,src/__fixtures__/**/*'",
+    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,src/__fixtures__/**/*,src/testing/**/*'",
     "build": "yarn babel && yarn tsc",
     "clean": "rimraf dist",
     "fmt": "prettier . -w",

@@ -16,7 +16,7 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
       },
     },
     {
-      files: ["**/*.test.ts"],
+      files: ["**/*.test.ts", "src/testing/**/*.ts"],
       rules: {
         "node/no-unpublished-import": "off",
         "node/no-unpublished-require": "off",
