@@ -1,0 +1,10 @@
+{
+  "en": {
+    "example/greeting": "Hello, world!",
+    "example/greeting-unused": "Hello, world! (unused translation)"
+  },
+  "ja": {
+    "example/greeting": "こんにちは世界!",
+    "example/greeting-unused": "こんにちは世界! (未使用翻訳)"
+  }
+}

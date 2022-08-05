@@ -36,11 +36,13 @@ describe("collect-catalog-definitions", () => {
     );
     expect(collected).toEqual([
       {
+        locale: "en",
         catalogLocation: {
           path: "<input>",
           localName: undefined,
           exportNames: ["default"],
         },
+        messages: {},
       },
     ]);
   });
@@ -78,17 +80,66 @@ describe("collect-catalog-definitions", () => {
     );
     expect(collected).toEqual([
       {
+        locale: "en",
         catalogLocation: {
           path: "<input>",
           localName: "catalogEn",
           exportNames: [],
         },
+        messages: {},
       },
       {
+        locale: "ja",
         catalogLocation: {
           path: "<input>",
           localName: "catalogJa",
           exportNames: [],
+        },
+        messages: {},
+      },
+    ]);
+  });
+
+  it("collects messages", () => {
+    const collected: CatalogDef[] = [];
+    const linter = new TSESLint.Linter();
+    linter.defineRule("@hi18n/collect-catalog-definitions", rule);
+    linter.verify(
+      `
+      import { Catalog, msg } from "@hi18n/core";
+      export default new Catalog("en", {
+        "example/greeting": msg("Hello!"),
+        "example/greeting2": "Hello2!",
+      });
+    `,
+      {
+        ...baseConfig,
+        rules: {
+          "@hi18n/collect-catalog-definitions": [
+            "error",
+            (l: CatalogDef) => {
+              collected.push(l);
+            },
+            { requestMessages: true },
+          ],
+        },
+      }
+    );
+    expect(collected).toEqual([
+      {
+        locale: "en",
+        catalogLocation: {
+          path: "<input>",
+          localName: undefined,
+          exportNames: ["default"],
+        },
+        messages: {
+          "example/greeting": {
+            value: "Hello!",
+          },
+          "example/greeting2": {
+            value: "Hello2!",
+          },
         },
       },
     ]);
