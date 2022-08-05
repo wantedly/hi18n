@@ -20,7 +20,7 @@
     "@yarnpkg/sdks": "^3.0.0-rc.14",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-eslint-plugin": "^5.0.1",
+    "eslint-plugin-eslint-plugin": "^5.0.2",
     "eslint-plugin-jest": "^26.7.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-react": "^7.30.1",
