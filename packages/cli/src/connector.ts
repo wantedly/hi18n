@@ -1,4 +1,4 @@
-export type Connector = (params: unknown) => ConnectorObj;
+export type Connector = (configPath: string, params: unknown) => ConnectorObj;
 
 export type ConnectorObj = {
   importData?: Importer | undefined;

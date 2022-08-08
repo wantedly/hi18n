@@ -57,6 +57,7 @@ const configKeys = [
 ];
 
 export type Config = {
+  configPath: string;
   include?: string[] | undefined;
   exclude?: string[] | undefined;
   parser: ParserSpec;
@@ -126,6 +127,7 @@ export async function loadConfig(cwd: string): Promise<Config> {
   }
 
   return {
+    configPath: filepath,
     include,
     exclude,
     parser,

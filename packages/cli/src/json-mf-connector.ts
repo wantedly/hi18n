@@ -1,10 +1,13 @@
 import fs from "node:fs";
+import path from "node:path";
 import { Hi18nData, Hi18nCatalogData, ConnectorObj } from "./connector";
 
-export function connector(params: unknown): ConnectorObj {
-  const { path } = params as {
+export function connector(configPath: string, params: unknown): ConnectorObj {
+  const { path: relativePath } = params as {
     path: string;
   };
+
+  const jsonPath = path.resolve(path.dirname(configPath), relativePath);
 
   async function exportData(data: Hi18nData): Promise<void> {
     let json = "{\n";
@@ -27,11 +30,11 @@ export function connector(params: unknown): ConnectorObj {
     });
     json += "}\n";
 
-    await fs.promises.writeFile(path, json, "utf-8");
+    await fs.promises.writeFile(jsonPath, json, "utf-8");
   }
 
   async function importData(): Promise<Hi18nData> {
-    const json = await fs.promises.readFile(path, "utf-8");
+    const json = await fs.promises.readFile(jsonPath, "utf-8");
     const obj = JSON.parse(json) as Record<string, Record<string, string>>;
 
     const translations: Record<string, Hi18nCatalogData> = {};

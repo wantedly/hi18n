@@ -78,7 +78,9 @@ export async function export_(options: Options) {
       catalogData[key] = { raw: messageDef.value };
     }
   }
-  const c = jsonMfConnector({ path: path.resolve(cwd, "translations.json") });
+  const c = jsonMfConnector(config.configPath, {
+    path: "translations.json",
+  });
   if (!c.exportData) {
     throw new Error("This connector doesn't support exporting");
   }
