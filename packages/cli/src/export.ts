@@ -6,7 +6,6 @@ import { TSESLint } from "@typescript-eslint/utils";
 import { rules, CatalogDef } from "@hi18n/eslint-plugin";
 import { loadConfig } from "./config";
 import { Hi18nCatalogData } from "./connector";
-import { connector as jsonMfConnector } from "./json-mf-connector";
 
 export type Options = {
   cwd: string;
@@ -19,6 +18,10 @@ export async function export_(options: Options) {
   const exclude = config.exclude;
   if (include === undefined || include.length === 0) {
     throw new Error("No include specified");
+  }
+
+  if (!config.connector) {
+    throw new Error("Connector not configured");
   }
 
   const linterConfig: TSESLint.Linter.Config = {
@@ -78,7 +81,7 @@ export async function export_(options: Options) {
       catalogData[key] = { raw: messageDef.value };
     }
   }
-  const c = jsonMfConnector(config.configPath, {
+  const c = config.connector.connector(config.configPath, {
     path: "translations.json",
   });
   if (!c.exportData) {

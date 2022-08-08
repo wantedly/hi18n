@@ -7,6 +7,10 @@ export function connector(configPath: string, params: unknown): ConnectorObj {
     path: string;
   };
 
+  if (typeof relativePath !== "string") {
+    throw new Error("connectorOptions.path is not a string");
+  }
+
   const jsonPath = path.resolve(path.dirname(configPath), relativePath);
 
   async function exportData(data: Hi18nData): Promise<void> {
