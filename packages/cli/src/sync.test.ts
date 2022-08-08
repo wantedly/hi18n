@@ -61,7 +61,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("errors if include is not given", async () => {
     const output = new MockedOutput();
     await withProject("no-config", "sync-no-include", async (cwd) => {
@@ -91,6 +90,14 @@ describe("sync", () => {
   it("allows parser configuration", async () => {
     const output = new MockedOutput();
     await withProject("custom-parser", "sync", (cwd) =>
+      hi18n(["node", "hi18n", "sync"], cwd, output, true)
+    );
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it("imports data passively in sync", async () => {
+    const output = new MockedOutput();
+    await withProject("import-json", "sync", (cwd) =>
       hi18n(["node", "hi18n", "sync"], cwd, output, true)
     );
   });

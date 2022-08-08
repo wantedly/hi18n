@@ -81,9 +81,10 @@ export async function export_(options: Options) {
       catalogData[key] = { raw: messageDef.value };
     }
   }
-  const c = config.connector.connector(config.configPath, {
-    path: "translations.json",
-  });
+  const c = config.connector.connector(
+    config.configPath,
+    config.connectorOptions
+  );
   if (!c.exportData) {
     throw new Error("This connector doesn't support exporting");
   }
