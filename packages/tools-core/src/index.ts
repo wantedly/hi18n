@@ -15,5 +15,3 @@ export type Hi18nCatalogData = Record<string, Message>;
 export type Message = {
   raw: string;
 };
-
-export {};

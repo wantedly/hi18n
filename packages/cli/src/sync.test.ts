@@ -1,6 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import { hi18n } from "./command";
-import { MockedOutput, withProject } from "./testing/common";
+import { MockedOutput, initFixtures } from "@hi18n/dev-utils";
+
+const { withProject } = initFixtures(__dirname);
 
 describe("sync", () => {
   // eslint-disable-next-line jest/expect-expect

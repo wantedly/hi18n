@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Hi18nData, Hi18nCatalogData, ConnectorObj } from "./connector";
+import { Hi18nData, Hi18nCatalogData, ConnectorObj } from "@hi18n/tools-core";
 
 export function connector(configPath: string, params: unknown): ConnectorObj {
   const { path: relativePath } = params as {
