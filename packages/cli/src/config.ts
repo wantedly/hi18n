@@ -2,7 +2,7 @@ import path from "node:path";
 import { cosmiconfig } from "cosmiconfig";
 import { ParserServices, TSESLint, TSESTree } from "@typescript-eslint/utils";
 import resolve from "resolve";
-import { Connector } from "./connector";
+import { Connector } from "@hi18n/tools-core";
 import * as jsonMfConnector from "./json-mf-connector";
 
 const explorer = cosmiconfig("hi18n");

@@ -5,7 +5,7 @@ import glob from "glob";
 import { TSESLint } from "@typescript-eslint/utils";
 import { rules, CatalogDef } from "@hi18n/eslint-plugin";
 import { loadConfig } from "./config";
-import { Hi18nCatalogData } from "./connector";
+import { Hi18nCatalogData } from "@hi18n/tools-core";
 
 export type Options = {
   cwd: string;
