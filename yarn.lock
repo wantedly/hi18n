@@ -23,7 +23,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:^7.18.10":
+"@babel/cli@npm:^7.18.10, @babel/cli@npm:^7.18.9":
   version: 7.18.10
   resolution: "@babel/cli@npm:7.18.10"
   dependencies:
@@ -1167,7 +1167,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-runtime@npm:^7.18.10":
+"@babel/plugin-transform-runtime@npm:^7.18.10, @babel/plugin-transform-runtime@npm:^7.18.9":
   version: 7.18.10
   resolution: "@babel/plugin-transform-runtime@npm:7.18.10"
   dependencies:
@@ -1275,7 +1275,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:^7.18.10":
+"@babel/preset-env@npm:^7.18.10, @babel/preset-env@npm:^7.18.9":
   version: 7.18.10
   resolution: "@babel/preset-env@npm:7.18.10"
   dependencies:
