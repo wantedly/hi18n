@@ -73,7 +73,7 @@
     "@babel/plugin-transform-runtime": "^7.18.10",
     "@babel/preset-env": "^7.18.10",
     "@babel/preset-typescript": "^7.18.6",
-    "@babel/types": "^7.18.10",
+    "@babel/types": "^7.18.13",
     "@hi18n/core": "workspace:*",
     "@hi18n/dev-utils": "workspace:*",
     "@jest/globals": "^28.1.3",
