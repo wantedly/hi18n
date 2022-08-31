@@ -4,6 +4,7 @@ import { lookupDefinitionSource } from "../def-location";
 import { capturedRoot } from "../tracker";
 
 type MessageIds = "clarify-book-reference";
+type Options = [];
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
@@ -19,8 +20,10 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: Options = [];
+
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
 ): TSESLint.RuleListener {
   const tracker = translationCallTracker();
   tracker.listen("translation", (_node, captured) => {
