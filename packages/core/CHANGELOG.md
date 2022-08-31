@@ -1,3 +1,7 @@
+## 0.1.10
+
+- Prevent minifier from changing error name
+
 ## 0.1.9
 
 - New APIs for dynamically loading Catalogs of specific languages.

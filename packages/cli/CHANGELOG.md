@@ -1,3 +1,12 @@
+## 0.1.10
+
+- Add `connector`/`connectorOptions` configurations.
+- Add `hi18n export` command.
+  - When `connector` is configured, it exports hi18n's translation data to the specified format.
+- Implement passive importing in `hi18n sync`.
+  - When `connector` is configured, the corresponding external source is referenced
+    to complement missing translations.
+
 ## 0.1.9
 
 - Add `config.include` and `config.exclude` options in `.hi18nrc.js` that replace the corresponding command line options.

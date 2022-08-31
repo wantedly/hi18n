@@ -12,7 +12,7 @@ export class MessageError extends Error {
   public readonly locale?: string | undefined;
   public readonly id: string;
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "MessageError";
   }
   constructor(
     options: ErrorOptions & {
@@ -42,7 +42,7 @@ export class MessageError extends Error {
  */
 export class MissingTranslationError extends Error {
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "MissingTranslationError";
   }
   constructor(message = "Missing translation", options?: ErrorOptions) {
     super(message, options);
@@ -56,7 +56,7 @@ export class MissingTranslationError extends Error {
  */
 export class NoLocaleError extends Error {
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "NoLocaleError";
   }
   constructor(message = "No locale specified", options?: ErrorOptions) {
     super(message, options);
@@ -72,7 +72,7 @@ export class MissingLocaleError extends Error {
   public readonly locale: string;
   public readonly availableLocales: readonly string[];
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "MissingLocaleError";
   }
   constructor(
     options: ErrorOptions & {
@@ -95,7 +95,7 @@ export class MissingLocaleError extends Error {
  */
 export class ParseError extends Error {
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "ParseError";
   }
 }
 
@@ -106,7 +106,7 @@ export class ParseError extends Error {
  */
 export class MessageEvaluationError extends Error {
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "MessageEvaluationError";
   }
 }
 
@@ -118,7 +118,7 @@ export class MessageEvaluationError extends Error {
 export class MissingArgumentError extends MessageEvaluationError {
   public readonly argName: string | number;
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "MissingArgumentError";
   }
   constructor(
     options: ErrorOptions & {
@@ -141,7 +141,7 @@ export class ArgumentTypeError extends MessageEvaluationError {
   public readonly expectedType: string;
   public readonly got: unknown;
   static {
-    this.prototype.name = this.name;
+    this.prototype.name = "ArgumentTypeError";
   }
   constructor(
     options: ErrorOptions & {

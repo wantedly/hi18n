@@ -311,5 +311,37 @@ new TSESLint.RuleTester({
           "example/greeting": msg.todo("[TODO: example/greeting]"),});
       `,
     },
+    {
+      code: `
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog("en", {
+          "example/greeting2": msg("Hello, world!"),
+        });
+      `,
+      settings: {
+        "@hi18n/linkage": {
+          "<input>?exported=default": "book.ts",
+        },
+        "@hi18n/used-translation-ids": {
+          "book.ts": ["example/greeting", "example/greeting2"],
+        },
+        "@hi18n/value-hints": {
+          en: {
+            "example/greeting": "Hello!",
+          },
+          ja: {
+            "example/greeting": "こんにちは!",
+          },
+        },
+      },
+      errors: [{ messageId: "missing-translation-ids" }],
+      output: `
+        import { Catalog, msg } from "@hi18n/core";
+        export default new Catalog("en", {
+          "example/greeting": msg("Hello!"),
+          "example/greeting2": msg("Hello, world!"),
+        });
+      `,
+    },
   ],
 });

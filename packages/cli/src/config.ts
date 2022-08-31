@@ -2,6 +2,8 @@ import path from "node:path";
 import { cosmiconfig } from "cosmiconfig";
 import { ParserServices, TSESLint, TSESTree } from "@typescript-eslint/utils";
 import resolve from "resolve";
+import { Connector } from "@hi18n/tools-core";
+import * as jsonMfConnector from "./json-mf-connector";
 
 const explorer = cosmiconfig("hi18n");
 
@@ -25,6 +27,11 @@ export type ESLintParserResult<T> = {
   services?: ParserServices | undefined;
   visitorKeys?: Record<string, string[]> | undefined;
   scopeManager?: TSESLint.Scope.ScopeManager | undefined;
+};
+
+export type ConnectorSpec = string | ConnectorDependency;
+export type ConnectorDependency = {
+  connector: Connector;
 };
 
 const DEFAULT_EXTENSIONS = [
@@ -54,9 +61,12 @@ const configKeys = [
   "extensionsToRemove",
   "baseUrl",
   "paths",
+  "connector",
+  "connectorOptions",
 ];
 
 export type Config = {
+  configPath: string;
   include?: string[] | undefined;
   exclude?: string[] | undefined;
   parser: ParserSpec;
@@ -65,6 +75,8 @@ export type Config = {
   extensionsToRemove: string[];
   baseUrl?: string | undefined;
   paths?: Record<string, string[]> | undefined;
+  connector: ConnectorDependency | undefined;
+  connectorOptions: unknown;
 };
 
 export async function loadConfig(cwd: string): Promise<Config> {
@@ -102,6 +114,12 @@ export async function loadConfig(cwd: string): Promise<Config> {
   if (!optional(isRecordOf(isArrayOf(isString)))(config["paths"])) {
     throw new Error("config.paths: not a record of arrays of strings");
   }
+  if (!optional(oneof(isString, isConnectorDependency))(config["connector"])) {
+    throw new Error("config.connector: not a string nor a parser object");
+  }
+  if (!optional(isObject)(config["connectorOptions"])) {
+    throw new Error("config.connectorOptions: not an object");
+  }
   for (const key of Object.keys(config)) {
     if (!configKeys.includes(key)) {
       throw new Error(`Unrecognized config: ${key}`);
@@ -125,7 +143,11 @@ export async function loadConfig(cwd: string): Promise<Config> {
     throw new Error("baseUrl must be specified");
   }
 
+  const connector = resolveConnector(config["connector"], filepath);
+  const connectorOptions = config["connectorOptions"] ?? {};
+
   return {
+    configPath: filepath,
     include,
     exclude,
     parser,
@@ -134,6 +156,8 @@ export async function loadConfig(cwd: string): Promise<Config> {
     extensionsToRemove,
     baseUrl,
     paths,
+    connector,
+    connectorOptions,
   };
 }
 
@@ -155,6 +179,24 @@ function resolveParser(
     definition: require("@babel/eslint-parser"),
     filePath: require.resolve("@babel/eslint-parser"),
   };
+}
+
+function resolveConnector(
+  connector: ConnectorSpec | undefined,
+  filepath: string
+): ConnectorDependency | undefined {
+  if (connector === "@hi18n/cli/json-mf-connector") {
+    return jsonMfConnector;
+  } else if (typeof connector === "string") {
+    const connectorPath = resolve.sync(connector, {
+      basedir: path.dirname(filepath),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return require(connectorPath);
+  } else if (typeof connector === "object") {
+    return connector;
+  }
+  return undefined;
 }
 
 function expandExtensions(extensions: string[] | undefined): string[] {
@@ -229,4 +271,8 @@ function isParserDependency(x: unknown): x is ParserDependency {
     (isFunction(x["definition"]["parseForESLint"]) ||
       isFunction(x["definition"]["parse"]))
   );
+}
+
+function isConnectorDependency(x: unknown): x is ConnectorDependency {
+  return isObject(x) && isFunction(x["connector"]);
 }

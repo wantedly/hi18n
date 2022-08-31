@@ -10,6 +10,14 @@ hi18n sync [...files] --ignore <glob>
 
 Synchronizes unused and missing translations.
 
+## hi18n export
+
+```
+hi18n export
+```
+
+Exports hi18n's data into external files. You must configure `connector` / `connectorOptions` before using it.
+
 ## Configuration
 
 Configuration is loaded via [cosmiconfig](https://github.com/davidtheclark/cosmiconfig). Cosmiconfig's documentation explains a lot, but in short, it reads:
@@ -130,3 +138,33 @@ module.exports = {
 Configures path mapping. Requires `baseUrl` to be set.
 
 It resembles the behavior of [tsconfig's paths](https://www.typescriptlang.org/tsconfig#paths).
+
+### `connector` / `connectorOptions`
+
+```javascript
+// .hi18nrc.js
+module.exports = {
+  connector: "@hi18n/cli/json-mf-connector",
+  connectorOptions: {
+    path: "./export.json",
+  },
+};
+```
+
+Configures export/import functionality.
+
+- You can export data using `hi18n export` command.
+- You can import data using `hi18n sync` command (called passive importing).
+  It uses the imported data only when the new translation is requested and
+  the translation id matches one of the imported translations.
+- Active importing is not yet implemented.
+
+`connector` must be one of the following:
+
+- `@hi18n/cli/json-mf-connector` is treated specially and refers to `@hi18n/cli`'s built-in connector.
+- A path to a module. See `@hi18n/tools-core`'s API references for necessary APIs to implement connectors.
+  - `@hi18n/connector-i18n-js` is a connector for [i18n-js](https://github.com/fnando/i18n).
+
+The builtin connector `@hi18n/cli/json-mf-connector` accepts the following options:
+
+- `path` (required) ... a file path to the JSON file.

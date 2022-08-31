@@ -1,0 +1,6 @@
+en:
+  messages:
+    greeting: Hello, %{name}!
+    unread:
+      one: You have %{count} unread message.
+      other: You have %{count} unread messages.

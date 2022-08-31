@@ -1,0 +1,7 @@
+{
+  "include": ["src/**/*.ts"],
+  "connector": "@hi18n/cli/json-mf-connector",
+  "connectorOptions": {
+    "path": "translations.json"
+  }
+}
