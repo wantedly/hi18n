@@ -161,10 +161,8 @@ describe("Book", () => {
       expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
         "Today is Jan 2, 2006."
       );
-      expect(t("example/date2", { today: date, timeZone: "MST" })).toBe(
-        /v16/.test(process.version)
-          ? "Today is January 2, 3:04 PM."
-          : "Today is January 2 at 3:04 PM."
+      expect(t("example/date2", { today: date, timeZone: "MST" })).toMatch(
+        /^(Today is January 2, 3:04 PM\.|Today is January 2 at 3:04 PM\.)$/
       );
     }
     {
