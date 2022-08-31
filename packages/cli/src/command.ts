@@ -1,4 +1,5 @@
 import { Command, OutputConfiguration } from "commander";
+import { export_ } from "./export";
 import { sync } from "./sync";
 
 export async function hi18n(
@@ -25,6 +26,8 @@ export async function hi18n(
     )
     .action(syncCommand);
 
+  program.command("export").description("export data").action(exportCommand);
+
   async function syncCommand(
     files: string[],
     options: {
@@ -37,6 +40,12 @@ export async function hi18n(
       include: files,
       exclude: options.exclude,
       checkOnly: options.check,
+    });
+  }
+
+  async function exportCommand() {
+    await export_({
+      cwd,
     });
   }
 

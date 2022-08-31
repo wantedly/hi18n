@@ -23,6 +23,7 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
 export function create(
   context: Readonly<TSESLint.RuleContext<MessageIds, []>>
 ): TSESLint.RuleListener {
+  const valueHints = getValueHints(context);
   const tracker = catalogTracker();
   tracker.listen('new import("@hi18n/core").Catalog()', (node, captured) => {
     const usedIds = queryUsedTranslationIds(context, node, true);
@@ -30,6 +31,12 @@ export function create(
 
     const catalogData = getCatalogData(captured);
     if (catalogData.type !== "ObjectExpression") return;
+
+    let locale: string | undefined = undefined;
+    const localeNode = captured["locale"]!;
+    if (localeNode.type === "Literal" && typeof localeNode.value === "string") {
+      locale = localeNode.value;
+    }
 
     for (const prop of catalogData.properties) {
       if (prop.type !== "Property") continue;
@@ -72,7 +79,19 @@ export function create(
                   lo = mid + 1;
                 }
               }
-              const placeholderText = `[TODO: ${missingId}]`;
+              let placeholderValue = `msg.todo(${JSON.stringify(
+                `[TODO: ${missingId}]`
+              )})`;
+              if (
+                locale &&
+                valueHints &&
+                valueHints[locale] &&
+                valueHints[locale]![missingId]
+              ) {
+                placeholderValue = `msg(${JSON.stringify(
+                  valueHints[locale]![missingId]
+                )})`;
+              }
               const insertAt = lo;
               if (insertAt === 0) {
                 const firstCandidate = sortedCandidates[0];
@@ -91,7 +110,7 @@ export function create(
                 }
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
-                )}: msg.todo(${JSON.stringify(placeholderText)}),`;
+                )}: ${placeholderValue},`;
                 const token = context
                   .getSourceCode()
                   .getFirstToken(catalogData)!;
@@ -105,7 +124,7 @@ export function create(
                 ).loc.start.column;
                 const text = `\n${" ".repeat(indent)}${JSON.stringify(
                   missingId
-                )}: msg.todo(${JSON.stringify(placeholderText)}),`;
+                )}: ${placeholderValue},`;
                 const node = extendNode(
                   context.getSourceCode(),
                   lastCandidate.node
@@ -293,4 +312,21 @@ function extendNode(
     }
   }
   return lastToken;
+}
+
+function getValueHints<
+  TMessageIds extends string,
+  TOptions extends readonly unknown[]
+>(
+  context: Readonly<TSESLint.RuleContext<TMessageIds, TOptions>>
+): Record<string, Record<string, string>> | undefined {
+  const valueHints: unknown = context.settings["@hi18n/value-hints"];
+  if (valueHints !== undefined && !isObject(valueHints)) {
+    throw new Error("Invalid valueHints");
+  }
+  return valueHints as Record<string, Record<string, string>> | undefined;
+}
+
+function isObject(obj: unknown): obj is Record<string, unknown> {
+  return typeof obj === "object" && obj !== null;
 }

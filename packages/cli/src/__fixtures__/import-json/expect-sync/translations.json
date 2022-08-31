@@ -1,0 +1,12 @@
+{
+  "en": {
+    "example/farewell": "Bye!",
+    "example/greeting": "Hello!",
+    "example/greeting2": "Hello, world!"
+  },
+  "ja": {
+    "example/farewell": "さようなら!",
+    "example/greeting": "こんにちは!",
+    "example/greeting2": "こんにちは世界!"
+  }
+}

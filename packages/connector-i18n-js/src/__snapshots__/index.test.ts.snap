@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`importData imports data from config/locales 1`] = `
+Object {
+  "translations": Object {
+    "en": Object {
+      "messages.greeting": Object {
+        "raw": "Hello, {name}!",
+      },
+      "messages.unread": Object {
+        "raw": "{count, plural, one {You have # unread message.} other {You have # unread messages.}}",
+      },
+      "messages.unread.one": Object {
+        "raw": "You have {count} unread message.",
+      },
+      "messages.unread.other": Object {
+        "raw": "You have {count} unread messages.",
+      },
+    },
+    "ja": Object {
+      "messages.greeting": Object {
+        "raw": "こんにちは、{name}さん!",
+      },
+      "messages.unread": Object {
+        "raw": "未読のメッセージが{count}件あります",
+      },
+    },
+  },
+}
+`;

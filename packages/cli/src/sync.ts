@@ -173,6 +173,26 @@ export async function sync(options: Options) {
     }
     rewriteTargetFiles.add(bookDef.bookLocation.path);
   }
+
+  const valueHints: Record<string, Record<string, string>> = {};
+
+  // Set up passive importing
+  if (config.connector) {
+    const c = config.connector.connector(
+      config.configPath,
+      config.connectorOptions
+    );
+    if (c.importData) {
+      const data = await c.importData();
+      for (const [locale, catalog] of Object.entries(data.translations)) {
+        const vhCatalog = (valueHints[locale] ??= {});
+        for (const [id, msg] of Object.entries(catalog)) {
+          vhCatalog[id] ??= msg.raw;
+        }
+      }
+    }
+  }
+
   for (const rewriteTargetFile of Array.from(rewriteTargetFiles).sort()) {
     const source = await fs.promises.readFile(rewriteTargetFile, "utf-8");
     const report = linter.verifyAndFix(
@@ -188,6 +208,7 @@ export async function sync(options: Options) {
         settings: {
           "@hi18n/linkage": linkage,
           "@hi18n/used-translation-ids": usedTranslationIds,
+          "@hi18n/value-hints": valueHints,
         },
       },
       { filename: rewriteTargetFile }

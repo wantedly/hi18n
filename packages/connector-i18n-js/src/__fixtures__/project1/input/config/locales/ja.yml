@@ -1,0 +1,4 @@
+ja:
+  messages:
+    greeting: こんにちは、%{name}さん!
+    unread: 未読のメッセージが%{count}件あります
