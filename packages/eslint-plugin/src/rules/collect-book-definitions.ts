@@ -15,6 +15,7 @@ export type CatalogLink = {
 export type BookDefCallback = (record: BookDef) => void;
 
 type MessageIds = never;
+type Options = [BookDefCallback];
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
@@ -26,8 +27,14 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: Options = [
+  () => {
+    /* do nothing */
+  },
+];
+
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, [BookDefCallback]>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
 ): TSESLint.RuleListener {
   if (context.options[0] === undefined) {
     throw new Error(

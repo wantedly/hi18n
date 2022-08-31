@@ -18,6 +18,7 @@ type MessageIds =
   | "catalogs-invalid-id"
   | "catalog-type-must-be-type-alias"
   | "catalog-type-must-contain-only-simple-signatures";
+type Options = [];
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
@@ -43,8 +44,10 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: Options = [];
+
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
 ): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, captured) => {

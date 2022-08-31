@@ -5,6 +5,7 @@ import { bookTracker } from "../common-trackers";
 import { queryUsedTranslationIds } from "../used-ids";
 
 type MessageIds = "unused-translation-id";
+type Options = [];
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
@@ -20,8 +21,10 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: Options = [];
+
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
 ): TSESLint.RuleListener {
   const tracker = bookTracker();
   tracker.listen("book", (node, _captured) => {

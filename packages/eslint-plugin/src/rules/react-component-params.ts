@@ -6,6 +6,7 @@ type MessageIds =
   | "invalid-signature"
   | "missing-component-argument"
   | "extra-component-argument";
+type Options = [];
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "problem",
@@ -21,8 +22,10 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: Options = [];
+
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
 ): TSESLint.RuleListener {
   const tracker = translationCallTracker();
   // For some reason we visit the node twice. It should ideally be unnecessary.
