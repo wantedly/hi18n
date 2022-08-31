@@ -144,7 +144,7 @@ export async function loadConfig(cwd: string): Promise<Config> {
   }
 
   const connector = resolveConnector(config["connector"], filepath);
-  const connectorOptions = config["connectorOptions"];
+  const connectorOptions = config["connectorOptions"] ?? {};
 
   return {
     configPath: filepath,
