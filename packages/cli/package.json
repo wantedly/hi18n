@@ -40,17 +40,11 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./api": {
-      "types": "./dist/api.d.ts",
-      "default": "./dist/api.js"
-    }
+    "types": "./dist/index.d.ts",
+    "default": "./dist/index.js"
   },
   "scripts": {
-    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,src/__fixtures__/**/*,src/testing/**/*'",
+    "babel": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts,src/__fixtures__/**/*'",
     "build": "yarn babel && yarn tsc",
     "clean": "rimraf dist",
     "fmt": "prettier . -w",
