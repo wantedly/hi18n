@@ -5,6 +5,7 @@ import { capturedRoot } from "../tracker";
 import { getStaticKey } from "../util";
 
 type MessageIds = "migrate-trans-jsx" | "migrate-underscore";
+type OptionList = [Options];
 
 type Options = {
   bookPath: string;
@@ -35,6 +36,12 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   ],
 };
 
+export const defaultOptions: OptionList = [
+  {
+    bookPath: "<book path>",
+  },
+];
+
 const MIGRATABLE_PROP_NAMES = [
   "id",
   // // Old name for "message"
@@ -56,7 +63,7 @@ const MIGRATABLE_PROP_NAMES = [
 ];
 
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, [Options]>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, OptionList>>
 ): TSESLint.RuleListener {
   let bookPath = path.relative(
     path.dirname(context.getFilename()),

@@ -5,6 +5,7 @@ import { parseComments, ParseError, Parser } from "../microparser";
 import { queryUsedTranslationIds } from "../used-ids";
 
 type MessageIds = "missing-translation-ids";
+type Options = [];
 
 export const meta: TSESLint.RuleMetaData<MessageIds> = {
   type: "suggestion",
@@ -20,8 +21,10 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: Options = [];
+
 export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, []>>
+  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
 ): TSESLint.RuleListener {
   const valueHints = getValueHints(context);
   const tracker = catalogTracker();

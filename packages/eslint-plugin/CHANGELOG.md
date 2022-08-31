@@ -1,6 +1,7 @@
 ## 0.1.9
 
 - Add internal APIs for passive importing in `@hi18n/cli`.
+- Add defaultOptions to the rules (to fix type error with recent typescript-eslint)
 
 ## 0.1.8
 

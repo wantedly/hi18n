@@ -17,6 +17,7 @@ export type CatalogDefCallback = (record: CatalogDef) => void;
 export type Options = {
   requestMessages?: boolean | undefined;
 };
+export type OptionList = [CatalogDefCallback, Options?];
 
 type MessageIds = never;
 
@@ -30,10 +31,14 @@ export const meta: TSESLint.RuleMetaData<MessageIds> = {
   schema: {},
 };
 
+export const defaultOptions: OptionList = [
+  () => {
+    /* do nothing */
+  },
+];
+
 export function create(
-  context: Readonly<
-    TSESLint.RuleContext<MessageIds, [CatalogDefCallback, Options?]>
-  >
+  context: Readonly<TSESLint.RuleContext<MessageIds, OptionList>>
 ): TSESLint.RuleListener {
   if (context.options[0] === undefined) {
     throw new Error(
