@@ -27,7 +27,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "jest": "^28.1.3",
     "prettier": "^2.7.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2"
   },
   "resolutions": {
     "jest-resolve": "patch:jest-resolve@npm:28.1.1#.yarn/patches/jest-resolve-npm-28.1.1-5f1937a1f8.patch",

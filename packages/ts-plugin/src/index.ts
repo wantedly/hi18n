@@ -164,7 +164,10 @@ function init(modules: {
 
 function setupProxy<T>(original: T): T {
   const proxy = Object.create(null) as Record<string, unknown>;
-  for (const [k, v] of Object.entries(original) as [string, unknown][]) {
+  for (const [k, v] of Object.entries(original as object) as [
+    string,
+    unknown
+  ][]) {
     if (typeof v === "function") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
       proxy[k] = (...args: any[]) => v.apply(original, args);
