@@ -1559,8 +1559,6 @@ __metadata:
     prettier: ^2.7.1
     rimraf: ^3.0.2
     typescript: ^4.8.2
-  bin:
-    hi18n: ./bin/hi18n.js
   languageName: unknown
   linkType: soft
 
@@ -1613,8 +1611,6 @@ __metadata:
     prettier: ^2.7.1
     rimraf: ^3.0.2
     typescript: ^4.8.2
-  bin:
-    hi18n: ./bin/hi18n.js
   languageName: unknown
   linkType: soft
 
@@ -1736,8 +1732,6 @@ __metadata:
     prettier: ^2.7.1
     rimraf: ^3.0.2
     typescript: ^4.8.2
-  bin:
-    hi18n: ./bin/hi18n.js
   languageName: unknown
   linkType: soft
 
