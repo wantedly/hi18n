@@ -1,5 +1,5 @@
 module.exports = {
-  targets: "defaults, not ie 11, not ie_mob 11",
+  targets: "defaults, not ie 11, not ie_mob 11, node 14.0",
   presets: [
     ["@babel/preset-env", { modules: "commonjs" }],
     // Use the classic runtime until we drop support for React < 18.0
