@@ -86,7 +86,7 @@
     "@typescript-eslint/types": "^5.39.0",
     "babel-jest": "^29.1.2",
     "babel-plugin-polyfill-corejs3": "^0.6.0",
-    "eslint": "^8.23.0",
+    "eslint": "^8.24.0",
     "eslint-plugin-eslint-plugin": "^5.0.6",
     "eslint-plugin-node": "^11.1.0",
     "espree": "^9.4.0",
