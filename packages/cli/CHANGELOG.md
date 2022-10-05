@@ -1,3 +1,7 @@
+## 0.1.11
+
+- Bump `@hi18n/tools-core`
+
 ## 0.1.10
 
 - Add `connector`/`connectorOptions` configurations.
