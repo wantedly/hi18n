@@ -28,7 +28,7 @@
   },
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
-  "packageManager": "yarn@3.2.3",
+  "packageManager": "yarn@3.2.4",
   "files": [
     "dist/**/*",
     "!dist/*.tsbuildinfo",
