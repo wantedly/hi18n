@@ -1526,7 +1526,7 @@ __metadata:
     prettier: ^2.7.1
     resolve: ^1.22.0
     rimraf: ^3.0.2
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   bin:
     hi18n: ./bin/hi18n.js
   languageName: unknown
@@ -1559,7 +1559,7 @@ __metadata:
     js-yaml: ^4.1.0
     prettier: ^2.7.1
     rimraf: ^3.0.2
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
@@ -1583,7 +1583,7 @@ __metadata:
     prettier: ^2.7.1
     rimraf: ^3.0.2
     ts-jest-resolver: ^2.0.0
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
@@ -1611,7 +1611,7 @@ __metadata:
     jest: ^29.1.2
     prettier: ^2.7.1
     rimraf: ^3.0.2
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
@@ -1649,7 +1649,7 @@ __metadata:
     prettier: ^2.7.1
     react: ^18.2.0
     rimraf: ^3.0.2
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0
     typescript: "*"
@@ -1706,7 +1706,7 @@ __metadata:
     react-dom: ^18.2.0
     rimraf: ^3.0.2
     ts-jest-resolver: ^2.0.0
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   peerDependencies:
     "@hi18n/react-context": "workspace:^0.1.0"
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1732,7 +1732,7 @@ __metadata:
     jest: ^29.1.2
     prettier: ^2.7.1
     rimraf: ^3.0.2
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
@@ -1746,7 +1746,7 @@ __metadata:
     prettier: ^2.7.1
     rimraf: ^3.0.2
     tslib: ^2.4.0
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
@@ -7067,7 +7067,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     jest: ^29.1.2
     prettier: ^2.7.1
-    typescript: ^4.8.2
+    typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
@@ -7624,23 +7624,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.2":
-  version: 4.8.2
-  resolution: "typescript@npm:4.8.2"
+"typescript@npm:^4.9.5":
+  version: 4.9.5
+  resolution: "typescript@npm:4.9.5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 7f5b81d0d558c9067f952c7af52ab7f19c2e70a916817929e4a5b256c93990bf3178eccb1ac8a850bc75df35f6781b6f4cb3370ce20d8b1ded92ed462348f628
+  checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.8.2#~builtin<compat/typescript>":
-  version: 4.8.2
-  resolution: "typescript@patch:typescript@npm%3A4.8.2#~builtin<compat/typescript>::version=4.8.2&hash=a1c5e5"
+"typescript@patch:typescript@^4.9.5#~builtin<compat/typescript>":
+  version: 4.9.5
+  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=a1c5e5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 5cb0f02f414f5405f4b0e7ee1fd7fa9177b6a8783c9017b6cad85f56ce4c4f93e0e6f2ce37e863cb597d44227cd009474c9fbd85bf7a50004e5557426cb58079
+  checksum: 2eee5c37cad4390385db5db5a8e81470e42e8f1401b0358d7390095d6f681b410f2c4a0c496c6ff9ebd775423c7785cdace7bcdad76c7bee283df3d9718c0f20
   languageName: node
   linkType: hard
 
