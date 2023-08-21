@@ -1632,7 +1632,7 @@ __metadata:
     "@jest/globals": ^29.1.2
     "@types/babel__core": ^7.1.19
     "@types/eslint": ^8.4.6
-    "@types/node": ^17.0.32
+    "@types/node": ^17.0.45
     "@types/react": ^18.0.21
     "@typescript-eslint/parser": ^5.39.0
     "@typescript-eslint/types": ^5.39.0
@@ -1740,7 +1740,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/ts-plugin@workspace:packages/ts-plugin"
   dependencies:
-    "@types/node": ^17.0.32
+    "@types/node": ^17.0.45
     eslint: ^8.24.0
     eslint-plugin-node: ^11.1.0
     prettier: ^2.7.1
@@ -2465,10 +2465,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^17.0.32":
-  version: 17.0.32
-  resolution: "@types/node@npm:17.0.32"
-  checksum: afb05704b42032566b3da8b2d80a68883cd3b888472d1b8b4dd6c84f8fad371454f083d4e28bd30c10589187296119d92aba255638b30067afe062b5922388a5
+"@types/node@npm:^17.0.45":
+  version: 17.0.45
+  resolution: "@types/node@npm:17.0.45"
+  checksum: aa04366b9103b7d6cfd6b2ef64182e0eaa7d4462c3f817618486ea0422984c51fc69fd0d436eae6c9e696ddfdbec9ccaa27a917f7c2e8c75c5d57827fe3d95e8
   languageName: node
   linkType: hard
 
