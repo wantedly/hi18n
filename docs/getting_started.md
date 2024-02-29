@@ -739,3 +739,6 @@ export default new Catalog<Vocabulary>({
 ```
 
 ここでの TODO は見た目には変わりがなく、辞書で翻訳が必要である旨を明示的に表す機能のみとなります。
+
+### refs
+- [hi18n (i18nライブラリ) 入門&紹介シリーズ目次](https://www.wantedly.com/companies/wantedly/post_articles/406614)
