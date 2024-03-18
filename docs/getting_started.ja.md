@@ -2,6 +2,117 @@
 
 ## hi18n を用いた Ruby(haml) 実装
 
+### 設定
+
+#### Rails app with Asset Pipeline
+Asset Pipelineを使う場合、以下の内容を `app/assets/javascripts/application.js` に追加する必要があります.
+
+```
+//
+// This is optional (in case you have `I18n is not defined` error)
+// If you want to put this line, you must put it BEFORE `i18n/translations`
+//= require i18n
+// Some people even need to add the extension to make it work, see https://github.com/fnando/i18n-js/issues/283
+//= require i18n.js
+//
+// This is a must
+//= require i18n/translations
+```
+
+#### Rails app without Asset Pipeline
+まず、以下の内容を `application.html` (layout file)に追加してください。その後続きの内容に沿って JS ファイルを取得します。
+
+```
+<%# This is just an example, you can put `i18n.js` and `translations.js` anywhere you like %>
+<%# Unlike the Asset Pipeline example, you need to require both **in order** %>
+<%= javascript_include_tag "i18n" %>
+<%= javascript_include_tag "translations" %>
+```
+
+#### `translations.js`を取得する2つのほうほう
+
+1. `config/application.rb`ファイルに`config.middleware.use I18n::JS::Middleware`を追加するだけで`I18n::JS::Middleware`によって`translations.js`ファイルを自動的に生成することができます
+2. `translations.js`を生成したくないまたは生成しないことを好む場合は、ミドルウェア行を`config/environments/development.rb`ファイルに移動しデプロイ前に`rake i18n:js:export`を実行します。これにより、`config/i18n-js.yml`に定義されているカスタムスコープを含むすべての翻訳ファイルがエクスポートされます。`I18n.available_locales`が設定されている場合（例えば、Railsの`config/application.rb`ファイル内）、指定されたロケールのみがエクスポートされます。現在の`i18n.js`のバージョンもエクスポートされダウンロードによるバージョンの不一致を避けます。
+
+#### 設定エクスポート（翻訳）
+
+`I18n::JS::Middleware`または`rake i18n:js:export`によって生成されたエクスポート済み翻訳ファイルは、設定ファイル`config/i18n-js.yml`を使用してカスタマイズすることができます（この作成に`rails generate i18n:js:config`を使用します）。さらに、異なるフォルダーに異なる翻訳でより多くのファイルを生成することもできます。この設定は、Asset Pipelineを使用して翻訳する開発者にも影響します。ただし、`//= require i18n/translations`を追加するとすべての翻訳が要求されるため、fileオプションは除外されます。
+
+Examples:
+```
+translations:
+- file: 'public/javascripts/path-to-your-messages-file.js'
+  only: '*.date.formats'
+- file: 'public/javascripts/path-to-your-second-file.js'
+  only: ['*.activerecord', '*.admin.*.title']
+```
+`only`が省略された場合、すべての翻訳が保存されます。また、初めに`*`を確認してください。`*`はすべての言語のエクスポートを指定します。一つの言語のみをエクスポートしたい場合は以下のように行うことができます:
+
+```
+translations:
+- file: 'public/javascripts/en.js'
+  only: 'en.*'
+- file: 'public/javascripts/pt-BR.js'
+  only: 'pt-BR.*'
+```
+必要に応じて、`%{locale}`プレースホルダーを指定することで、利用可能なロケールごとに翻訳ファイルを自動生成することができます。
+
+```
+translations:
+- file: "public/javascripts/i18n/%{locale}.js"
+  only: '*'
+- file: "public/javascripts/frontend/i18n/%{locale}.js"
+  only: ['*.frontend', '*.users.*']
+```
+設定ファイルにERBを含めることもできます。
+
+```
+translations:
+<% Widgets.each do |widget| %>
+- file: <%= "'#{widget.file}'" %>
+  only: <%= "'#{widget.only}'" %>
+<% end %>
+```
+特定のフレーズやフレーズのグループ全体を除外する場合には`except設定オプション`にYAMLキーを指定します。出力されたJS翻訳ファイル（エクスポートされたものやミドルウェアによって生成されたもの）は`except設定パラメーター`にリストされたキーを省略します。
+
+```
+translations:
+  - except: ['*.active_admin', '*.ransack', '*.activerecord.errors']
+```
+
+#### 設定エクスポート（その他）
+- `I18n::JS.config_file_path`
+  - 期待される型: 文字列
+  - デフォルト: `config/i18n-js.yml`
+  - 挙動: その場所から設定ファイルを読み込もうとします
+- `I18n::JS.export_i18n_js_dir_path`
+  - 期待される型: 文字列
+  - デフォルト: `public/javascripts`
+  - 挙動:
+    - 任意の文字列: `Rails.root`に対する相対パスとしてのフォルダーを考慮し、`rake i18n:js:export`でそのフォルダーに`i18n.js`をエクスポートします
+    - 文字列以外のもの(nil, false, :noneなど): i18n.jsのエクスポートを無効にします
+- `I18n::JS.sort_translation_keys`
+  - 期待される型: ブール値
+  - デフォルト: `true`
+  - 挙動:
+    - すべての翻訳キーを深くソートして、同じ翻訳に対して同一の出力を生成するかどうかを設定します
+    - アセットパイプラインのために同一のアセットフィンガープリントを保証するには`true`に設定します
+- 設定ファイルで`export_i18n_js`や`sort_translation_keys`も設定することができます。
+
+```
+export_i18n_js: false
+# OR
+export_i18n_js: "my/path"
+
+sort_translation_keys: false
+
+translations:
+  - ...
+```
+
+#### 参考ドキュメント
+- [rubydoc: i18n-js](https://www.rubydoc.info/gems/i18n-js/3.0.2)
+
 ### 基本的な使い方
 
 ```rb
@@ -71,20 +182,6 @@ end
 
 ```rb
 if facebook_option_available?  # o
-```
-
-### i18n のスコープ(翻訳キー)を追加し、それを js から読み込む
-
-js から新しく翻訳データを読み込ませたい場合は、以下の手順が必要です。
-
-1. スコープを yaml に追記する。
-2. 1 で追記したスコープを [/config/i18n-js.yml](https://github.com/wantedly/wantedly/blob/master/config/i18n-js.yml) に追記する。
-
-ここで追加されたスコープは [/frontend/assets/javascripts/shims/I18n.js](https://github.com/wantedly/wantedly/blob/master/frontend/assets/javascripts/shims/I18n.js) をインポートすることで以下のよう使えるようになります。
-
-```js
-import { t } from "path/to/shims/I18n";
-t("scope.action");
 ```
 
 ## hi18n を用いた React 実装
