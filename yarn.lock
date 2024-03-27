@@ -1633,7 +1633,7 @@ __metadata:
     "@types/babel__core": ^7.1.19
     "@types/eslint": ^8.4.6
     "@types/node": ^17.0.32
-    "@types/react": ^18.0.21
+    "@types/react": ^18.2.73
     "@typescript-eslint/parser": ^5.39.0
     "@typescript-eslint/types": ^5.39.0
     "@typescript-eslint/utils": ^5.22.0
@@ -1688,7 +1688,7 @@ __metadata:
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^13.4.0
     "@types/react": ^16.8.3 || ^17.0.0 || ^18.0.0
-    "@types/react-dom": ^18.0.6
+    "@types/react-dom": ^18.2.22
     "@types/testing-library__jest-dom": ^5.14.5
     babel-jest: ^29.1.2
     babel-plugin-polyfill-corejs3: ^0.6.0
@@ -2493,23 +2493,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.0.6":
-  version: 18.0.6
-  resolution: "@types/react-dom@npm:18.0.6"
+"@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.22":
+  version: 18.2.22
+  resolution: "@types/react-dom@npm:18.2.22"
   dependencies:
     "@types/react": "*"
-  checksum: db571047af1a567631758700b9f7d143e566df939cfe5fbf7535347cc0c726a1cdbb5e3f8566d076e54cf708b6c1166689de194a9ba09ee35efc9e1d45911685
+  checksum: 83bb3ddcd7894f20a9a6cbc2befe75d8b76984734020c455b4c50cad625a4025250d8e1d247ef6264e484d47d5a94f2dd11f77c1dcac6a5de998cb447d85b720
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^16.3.11 || ^17.0.0 || ^18.0.0, @types/react@npm:^16.8.3 || ^17.0.0 || ^18.0.0, @types/react@npm:^18.0.21":
-  version: 18.0.21
-  resolution: "@types/react@npm:18.0.21"
+"@types/react@npm:*, @types/react@npm:^16.3.11 || ^17.0.0 || ^18.0.0, @types/react@npm:^16.8.3 || ^17.0.0 || ^18.0.0, @types/react@npm:^18.2.73":
+  version: 18.2.73
+  resolution: "@types/react@npm:18.2.73"
   dependencies:
     "@types/prop-types": "*"
-    "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 36c1a7c9d507e81e2e629c1ad3db51d7b84d8b010c2d5008da411874286c6a5ccc711ae1d4c470efc0bdc77153cc8804a40e927e929e5164c669ca41b84b846d
+  checksum: 0921d3e3286f11365e796f01eff4fb64de315c68f569e0bbfdaa7680dc4b774c7e8dc416d72d77f7f16a0c2075048429386a55bbfd43ac507d1dddc8d44142e7
   languageName: node
   linkType: hard
 
@@ -2526,13 +2525,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: e99fc7cc6265407987b30deda54c1c24bb1478803faf6037557a774b2f034c5b097ffd65847daa87e82a61a250d919f35c3588654b0fdaa816906650f596d1b0
-  languageName: node
-  linkType: hard
-
-"@types/scheduler@npm:*":
-  version: 0.16.2
-  resolution: "@types/scheduler@npm:0.16.2"
-  checksum: b6b4dcfeae6deba2e06a70941860fb1435730576d3689225a421280b7742318d1548b3d22c1f66ab68e414f346a9542f29240bc955b6332c5b11e561077583bc
   languageName: node
   linkType: hard
 
