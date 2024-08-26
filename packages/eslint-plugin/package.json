@@ -79,7 +79,7 @@
     "@hi18n/react-context": "workspace:*",
     "@jest/globals": "^29.1.2",
     "@types/babel__core": "^7.1.19",
-    "@types/eslint": "^8.4.6",
+    "@types/eslint": "^8.56.12",
     "@types/node": "^17.0.32",
     "@types/react": "^18.0.21",
     "@typescript-eslint/parser": "^5.39.0",
