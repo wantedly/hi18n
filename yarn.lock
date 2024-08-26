@@ -1509,7 +1509,7 @@ __metadata:
     "@hi18n/eslint-plugin": "workspace:^0.1.9"
     "@hi18n/tools-core": "workspace:^0.1.1"
     "@jest/globals": ^29.1.2
-    "@types/eslint": ^8.4.6
+    "@types/eslint": ^8.56.12
     "@types/glob": ^8.0.0
     "@types/resolve": ^1.20.2
     "@typescript-eslint/utils": ^5.21.0
@@ -1631,7 +1631,7 @@ __metadata:
     "@hi18n/react-context": "workspace:*"
     "@jest/globals": ^29.1.2
     "@types/babel__core": ^7.1.19
-    "@types/eslint": ^8.4.6
+    "@types/eslint": ^8.56.12
     "@types/node": ^17.0.32
     "@types/react": ^18.0.21
     "@typescript-eslint/parser": ^5.39.0
@@ -2323,13 +2323,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:^8.4.6":
-  version: 8.4.6
-  resolution: "@types/eslint@npm:8.4.6"
+"@types/eslint@npm:^8.56.12":
+  version: 8.56.12
+  resolution: "@types/eslint@npm:8.56.12"
   dependencies:
     "@types/estree": "*"
     "@types/json-schema": "*"
-  checksum: bfaf27b00031b2238139003965475d023306119e467947f7a43a41e380918e365618e2ae6a6ae638697f6421a6bb1571db078695ff5e548f23618000b38acd23
+  checksum: 0f7710ee02a256c499514251f527f84de964bb29487db840408e4cde79283124a38935597636d2265756c34dd1d902e1b00ae78930d4a0b55111909cb7b80d84
   languageName: node
   linkType: hard
 
