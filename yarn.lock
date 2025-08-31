@@ -1666,6 +1666,7 @@ __metadata:
     "@types/react": "npm:^16.3.11 || ^17.0.0 || ^18.0.0"
     eslint: "npm:^8.24.0"
     prettier: "npm:^2.7.1"
+    react: "npm:^18.2.0"
   peerDependencies:
     react: ^16.3.0 || ^17.0.0 || ^18.0.0
   languageName: unknown
