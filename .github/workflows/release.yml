@@ -34,12 +34,16 @@ jobs:
       - name: Install Dependencies
         run: yarn install --immutable
 
+      - name: Configure git to use PUBLISH_GITHUB_TOKEN
+        run: git config --global url."https://${{ secrets.PUBLISH_GITHUB_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+
       - name: Create Release Pull Request or prepare publish
         id: changesets
         uses: changesets/action@v1
         with:
           publish: yarn changeset publish
-          commitMode: github-api
         env:
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
