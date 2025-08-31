@@ -1,29 +1,31 @@
-## 0.1.11
+## 0.1.0
 
-- Bump `@hi18n/tools-core`
+Initial release.
 
-## 0.1.10
+## 0.1.1
 
-- Add `connector`/`connectorOptions` configurations.
-- Add `hi18n export` command.
-  - When `connector` is configured, it exports hi18n's translation data to the specified format.
-- Implement passive importing in `hi18n sync`.
-  - When `connector` is configured, the corresponding external source is referenced
-    to complement missing translations.
+- Fix binary name
 
-## 0.1.9
+## 0.1.2
 
-- Add `config.include` and `config.exclude` options in `.hi18nrc.js` that replace the corresponding command line options.
-  - Just type `hi18n sync` and you get your translations synchronized.
-  - This is now a recommended way to configure the command.
+- Add support for `translationId`, `t.todo` and `<Translate.Todo>`
 
-## 0.1.8
+## 0.1.3
 
-- Support dynamically-loaded Catalogs introduced in `@hi18n/core` 0.1.9.
+- Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
+- Fix error where codes like `const [, x] = [];` cannot appear with `import { Translate } from "@hi18n/react";`.
 
-## 0.1.7
+## 0.1.4
 
-- Support a new overload for `new Catalog` constructor introduced in `@hi18n/core` 0.1.6. It accepts a locale identifier as the first argument.
+- Placeholder is changed from `msg()` to `msg.todo("[TODO: example/greeting]")`.
+
+## 0.1.5
+
+- Implement `hi18n sync --check` (shorthand: `-c`) option to raise an error when files would be changed.
+  It is useful when you want to ensure synchronization in your CI.
+- Switched command line parser (yargs to commander). The behavior may slightly change.
+- Fix `TypeError: Cannot read properties of undefined (reading 'node')`
+  on an empty Vocabulary or an empty Catalog.
 
 ## 0.1.6
 
@@ -35,31 +37,29 @@
 - Allow configuring parsers
   - You can have `parser` and `parserOptions` configurations very much like in `.eslintrc`.
 
-## 0.1.5
+## 0.1.7
 
-- Implement `hi18n sync --check` (shorthand: `-c`) option to raise an error when files would be changed.
-  It is useful when you want to ensure synchronization in your CI.
-- Switched command line parser (yargs to commander). The behavior may slightly change.
-- Fix `TypeError: Cannot read properties of undefined (reading 'node')`
-  on an empty Vocabulary or an empty Catalog.
+- Support a new overload for `new Catalog` constructor introduced in `@hi18n/core` 0.1.6. It accepts a locale identifier as the first argument.
 
-## 0.1.4
+## 0.1.8
 
-- Placeholder is changed from `msg()` to `msg.todo("[TODO: example/greeting]")`.
+- Support dynamically-loaded Catalogs introduced in `@hi18n/core` 0.1.9.
 
-## 0.1.3
+## 0.1.9
 
-- Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
-- Fix error where codes like `const [, x] = [];` cannot appear with `import { Translate } from "@hi18n/react";`.
+- Add `config.include` and `config.exclude` options in `.hi18nrc.js` that replace the corresponding command line options.
+  - Just type `hi18n sync` and you get your translations synchronized.
+  - This is now a recommended way to configure the command.
 
-## 0.1.2
+## 0.1.10
 
-- Add support for `translationId`, `t.todo` and `<Translate.Todo>`
+- Add `connector`/`connectorOptions` configurations.
+- Add `hi18n export` command.
+  - When `connector` is configured, it exports hi18n's translation data to the specified format.
+- Implement passive importing in `hi18n sync`.
+  - When `connector` is configured, the corresponding external source is referenced
+    to complement missing translations.
 
-## 0.1.1
+## 0.1.11
 
-- Fix binary name
-
-## 0.1.0
-
-Initial release.
+- Bump `@hi18n/tools-core`
