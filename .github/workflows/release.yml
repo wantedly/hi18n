@@ -8,7 +8,10 @@ on:
 permissions:
   # Required for OIDC (Trusted Publishing)
   id-token: write
-  contents: read
+  # Required to push release branches
+  contents: write
+  # Required to create release Pull Requests
+  pull-requests: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
