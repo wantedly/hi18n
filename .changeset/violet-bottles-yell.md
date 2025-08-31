@@ -9,4 +9,4 @@
 "@hi18n/ts-plugin": patch
 ---
 
-chore(misc): use pnpm mode
+chore(misc): set up Changesets to manage releases
