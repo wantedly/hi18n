@@ -321,7 +321,9 @@ describe("evaluageMessage", () => {
           timeZone: "MST",
           params: { foo: date },
         })
-      ).toBe("3:04:05 PM GMT-7");
+      ).toBe(
+        /^v18/.test(process.version) ? "3:04:05 PM GMT-7" : "3:04:05 PM MST"
+      );
     }
     {
       const msg: CompiledMessage = {
@@ -336,7 +338,11 @@ describe("evaluageMessage", () => {
           timeZone: "MST",
           params: { foo: date },
         })
-      ).toBe("3:04:05 PM GMT-07:00");
+      ).toBe(
+        /^v18/.test(process.version)
+          ? "3:04:05 PM GMT-07:00"
+          : "3:04:05 PM Mountain Standard Time"
+      );
     }
   });
 
