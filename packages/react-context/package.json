@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/react-context",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "Message internationalization meets immutability and type-safety - shared React context",
   "keywords": [
     "hi18n"
