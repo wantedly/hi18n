@@ -1641,7 +1641,7 @@ __metadata:
     babel-plugin-polyfill-corejs3: "npm:^0.6.0"
     core-js-pure: "npm:^3.23.2"
     eslint: "npm:^8.24.0"
-    eslint-plugin-eslint-plugin: "npm:^5.0.6"
+    eslint-plugin-eslint-plugin: "npm:^5.5.1"
     eslint-plugin-node: "npm:^11.1.0"
     eslint-visitor-keys: "npm:^3.3.0"
     espree: "npm:^9.4.0"
@@ -4013,15 +4013,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-eslint-plugin@npm:^5.0.6":
-  version: 5.0.6
-  resolution: "eslint-plugin-eslint-plugin@npm:5.0.6"
+"eslint-plugin-eslint-plugin@npm:^5.5.1":
+  version: 5.5.1
+  resolution: "eslint-plugin-eslint-plugin@npm:5.5.1"
   dependencies:
     eslint-utils: "npm:^3.0.0"
-    estraverse: "npm:^5.2.0"
+    estraverse: "npm:^5.3.0"
   peerDependencies:
     eslint: ">=7.0.0"
-  checksum: 10/6fcfb0b77bde6dc6561ecc87b73d29d11f24a76785dfeedb5e6fe3c63acbae6289231ff3ad98c66a81ac6f68fbfdf3e05371bb7f25caaf7bfafd34fc70e670e3
+  checksum: 10/bce4e4a3de0480641ac1531f312487684fb8479b47234c2c0da0cd1309f0721cd95f00ba963f97e636958b3f69f181077a80be18829d2f805f468c24afe84e6b
   languageName: node
   linkType: hard
 
@@ -7061,7 +7061,7 @@ __metadata:
     "@yarnpkg/sdks": "npm:^3.0.0-rc.22"
     eslint: "npm:^8.24.0"
     eslint-config-prettier: "npm:^8.5.0"
-    eslint-plugin-eslint-plugin: "npm:^5.0.6"
+    eslint-plugin-eslint-plugin: "npm:^5.5.1"
     eslint-plugin-jest: "npm:^27.1.0"
     eslint-plugin-node: "npm:^11.1.0"
     eslint-plugin-react: "npm:^7.31.8"
