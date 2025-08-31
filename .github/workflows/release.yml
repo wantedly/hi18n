@@ -8,10 +8,11 @@ on:
 permissions:
   # Required for OIDC (Trusted Publishing)
   id-token: write
-  # Required to push release branches
-  contents: write
-  # Required to create release Pull Requests
-  pull-requests: write
+  contents: read
+  # # Required to push release branches
+  # contents: write
+  # # Required to create release Pull Requests
+  # pull-requests: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -19,6 +20,8 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    # To use a dedicated GITHUB_TOKEN and also
+    # to pass the trusted publishing condition.
     environment: publish
     steps:
       - name: Checkout Repo
@@ -38,4 +41,5 @@ jobs:
         with:
           publish: yarn changeset publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
