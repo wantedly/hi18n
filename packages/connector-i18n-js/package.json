@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/connector-i18n-js",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "description": "Converter between i18n-js and @hi18n/core",
   "keywords": [
     "intl",
@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.18.3",
-    "@hi18n/tools-core": "workspace:^0.1.2",
+    "@hi18n/tools-core": "workspace:^0.1.1",
     "core-js-pure": "^3.23.2",
     "glob": "^8.0.3",
     "js-yaml": "^4.1.0"
