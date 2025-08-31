@@ -1,8 +1,14 @@
+# `@hi18n/core`
+
 ## 0.1.10
+
+### Patch Changes
 
 - Prevent minifier from changing error name
 
 ## 0.1.9
+
+### Patch Changes
 
 - New APIs for dynamically loading Catalogs of specific languages.
   - Generalized `Book` constructor. Now you can pass lazy-loading function `() => import("...")` where a catalog object has been expected.
@@ -11,12 +17,16 @@
 
 ## 0.1.8
 
+### Patch Changes
+
 - Implement fallbacks in case of missing Intl in the following cases:
   - If `Intl.NumberFormat` is missing, it falls back to `toString` in `{arg,number}` and `{arg,number,integer}`.
   - If `Intl.PluralRules` is missing, it falls back to the "other" branch in `{arg,plural,...}`.
     - Exact matches like `=0` are still valid.
 
 ## 0.1.7
+
+### Patch Changes
 
 - Add `handleError` option to `new Book`.
   The option can be passed as part of a second argument to the constructor.
@@ -37,11 +47,15 @@
 
 ## 0.1.6
 
+### Patch Changes
+
 - Add a new overload for `new Catalog` constructor. It accepts a locale identifier as the first argument.
   - Please make sure to update the ESLint plugin / CLI too to support the new format.
   - The old overload is deprecated.
 
 ## 0.1.5
+
+### Patch Changes
 
 - Include less polyfills from core-js.
 - Reduce polyfill for matchAll and Array.prototype.includes.
@@ -49,10 +63,14 @@
 
 ## 0.1.4
 
+### Patch Changes
+
 - Support `offset:` parameter in plural translations.
 - Fix bug where date skeletons `{foo,date,::MMMMdjmm}` is not actually applied.
 
 ## 0.1.3
+
+### Patch Changes
 
 - Support `#` in plural translations.
 - Implement `{foo,number,integer}` and `{foo,number,percent}` formats.
@@ -72,15 +90,21 @@
 
 ## 0.1.2
 
+### Patch Changes
+
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
 - Add `"sideEffects": false` for better tree-shaking.
 - Accept multiple locales in `getTranslator`. For now, only the first element is relevant.
 
 ## 0.1.1
 
+### Patch Changes
+
 - Add `translationId` and `t.dynamic` for dynamically selecting translations
 - Add `t.todo` for bootstrapping new translations
 
 ## 0.1.0
+
+### Patch Changes
 
 Initial release.

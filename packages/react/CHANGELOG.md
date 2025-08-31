@@ -1,8 +1,14 @@
+# `@hi18n/react`
+
 ## 0.1.5
+
+### Patch Changes
 
 - Add support for dynamically loading Catalogs of specific languages. For details, see the changelog for `@hi18n/core` 0.1.9.
 
 ## 0.1.4
+
+### Patch Changes
 
 - Allow using one React element multiple times in a translation.
   You can now add translations like `A<0/>B<0/>C` which uses
@@ -10,9 +16,13 @@
 
 ## 0.1.3
 
+### Patch Changes
+
 - Include less polyfills from core-js.
 
 ## 0.1.2
+
+### Patch Changes
 
 - Add prepack script. It allows you to use unreleased versions from git with yarn v2 or later.
 - Add `"sideEffects": false` for better tree-shaking.
@@ -24,10 +34,14 @@
 
 ## 0.1.1
 
+### Patch Changes
+
 - Add `Translate.Dynamic` for dynamically selecting translations
 - Add `Translate.Todo` for bootstrapping new translations
 - Fix "Cannot find module react/jsx-runtime" error with ESM (dist/index.mjs).
 
 ## 0.1.0
+
+### Patch Changes
 
 Initial release.
