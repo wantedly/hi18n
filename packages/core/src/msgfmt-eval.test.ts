@@ -322,9 +322,7 @@ describe("evaluageMessage", () => {
           params: { foo: date },
         })
       ).toBe(
-        /^v18/.test(process.version)
-        ? "3:04:05 PM GMT-7"
-        : "3:04:05 PM MST"
+        /^v18/.test(process.version) ? "3:04:05 PM GMT-7" : "3:04:05 PM MST"
       );
     }
     {
@@ -342,8 +340,8 @@ describe("evaluageMessage", () => {
         })
       ).toBe(
         /^v18/.test(process.version)
-        ? "3:04:05 PM GMT-07:00"
-        : "3:04:05 PM Mountain Standard Time"
+          ? "3:04:05 PM GMT-07:00"
+          : "3:04:05 PM Mountain Standard Time"
       );
     }
   });
