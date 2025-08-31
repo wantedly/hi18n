@@ -6,6 +6,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Don't run action on both branch and pull request
+    # Ref: https://github.com/orgs/community/discussions/26389
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.repository != github.event.pull_request.head.repo.full_name)
+
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
