@@ -1,5 +1,20 @@
 # `@hi18n/cli`
 
+## 0.1.12
+
+### Patch Changes
+
+- bafd25f: chore(misc): Test in Node.js 22
+- fbe729b: Align CHANGELOG format with Changesets
+- 38253a0: chore(misc): use pnpm mode
+- 6a5c0bd: chore(misc): set up Changesets to manage releases
+- Updated dependencies [bafd25f]
+- Updated dependencies [fbe729b]
+- Updated dependencies [38253a0]
+- Updated dependencies [6a5c0bd]
+  - @hi18n/eslint-plugin@0.1.10
+  - @hi18n/tools-core@0.1.2
+
 ## 0.1.11
 
 ### Patch Changes
