@@ -2,6 +2,7 @@
 "@hi18n/cli": patch
 "@hi18n/connector-i18n-js": patch
 "@hi18n/core": patch
+"@hi18n/dev-utils": patch
 "@hi18n/eslint-plugin": patch
 "@hi18n/react": patch
 "@hi18n/react-context": patch
@@ -9,4 +10,4 @@
 "@hi18n/ts-plugin": patch
 ---
 
-chore(misc): use pnpm mode
+chore(misc): set up Changesets to manage releases
