@@ -328,7 +328,11 @@ function extractComponents(
       params[state.length] = React.cloneElement(node, { key: state.length });
       state.length++;
     }
-    extractComponents(node.props.children, params, state);
+    extractComponents(
+      (node.props as { children?: React.ReactElement }).children,
+      params,
+      state
+    );
   } else if (Array.isArray(node)) {
     for (const child of node) {
       extractComponents(child, params, state);
