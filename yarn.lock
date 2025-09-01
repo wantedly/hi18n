@@ -1984,7 +1984,7 @@ __metadata:
     prettier: "npm:^2.7.1"
     resolve: "npm:^1.22.0"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   bin:
     hi18n: ./bin/hi18n.js
@@ -2015,7 +2015,7 @@ __metadata:
     js-yaml: "npm:^4.1.0"
     prettier: "npm:^2.7.1"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
@@ -2036,7 +2036,7 @@ __metadata:
     eslint: "npm:^8.24.0"
     prettier: "npm:^2.7.1"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
@@ -2062,7 +2062,7 @@ __metadata:
     glob: "npm:^8.0.1"
     prettier: "npm:^2.7.1"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
@@ -2096,7 +2096,7 @@ __metadata:
     espree: "npm:^9.4.0"
     prettier: "npm:^2.7.1"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0
@@ -2150,7 +2150,7 @@ __metadata:
     react: "npm:^19.1.1"
     react-dom: "npm:^19.1.1"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   peerDependencies:
     "@hi18n/react-context": "workspace:^0.1.2"
@@ -2174,7 +2174,7 @@ __metadata:
     eslint-plugin-node: "npm:^11.1.0"
     prettier: "npm:^2.7.1"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
@@ -2188,8 +2188,8 @@ __metadata:
     eslint-plugin-node: "npm:^11.1.0"
     prettier: "npm:^2.7.1"
     rimraf: "npm:^3.0.2"
-    tslib: "npm:^2.4.0"
-    typescript: "npm:^4.8.2"
+    tslib: "npm:^2.8.1"
+    typescript: "npm:^5.9.2"
   languageName: unknown
   linkType: soft
 
@@ -6344,7 +6344,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.31.8"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     prettier: "npm:^2.7.1"
-    typescript: "npm:^4.8.2"
+    typescript: "npm:^5.9.2"
   languageName: unknown
   linkType: soft
 
@@ -6846,10 +6846,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "tslib@npm:2.4.0"
-  checksum: 10/d8379e68b36caf082c1905ec25d17df8261e1d68ddc1abfd6c91158a064f6e4402039ae7c02cf4c81d12e3a2a2c7cd8ea2f57b233eb80136a2e3e7279daf2911
+"tslib@npm:^2.8.1":
+  version: 2.8.1
+  resolution: "tslib@npm:2.8.1"
+  checksum: 10/3e2e043d5c2316461cb54e5c7fe02c30ef6dccb3384717ca22ae5c6b5bc95232a6241df19c622d9c73b809bea33b187f6dbc73030963e29950c2141bc32a79f7
   languageName: node
   linkType: hard
 
@@ -6880,23 +6880,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.2":
-  version: 4.8.2
-  resolution: "typescript@npm:4.8.2"
+"typescript@npm:^5.9.2":
+  version: 5.9.2
+  resolution: "typescript@npm:5.9.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/1fbdc1e5f73de0c0c5a41210ed8679b86c55f54a4c6411a3f23071dc9ae54d0ab74ad4d41dbd7cb9e931d24b0bcfd1abb5444ecd03cb9075997b185dcc2d1df1
+  checksum: 10/cc2fe6c822819de5d453fa25aa9f32096bf70dde215d481faa1ad84a283dfb264e33988ed8f6d36bc803dd0b16dbe943efa311a798ef76d5b3892a05dfbfd628
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^4.8.2#optional!builtin<compat/typescript>":
-  version: 4.8.2
-  resolution: "typescript@patch:typescript@npm%3A4.8.2#optional!builtin<compat/typescript>::version=4.8.2&hash=3b564f"
+"typescript@patch:typescript@npm%3A^5.9.2#optional!builtin<compat/typescript>":
+  version: 5.9.2
+  resolution: "typescript@patch:typescript@npm%3A5.9.2#optional!builtin<compat/typescript>::version=5.9.2&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/27090d5391b31e9d4c5409bcc7034b7d1b32bf0f4aa622b12342a76207fe2350b221419dd61533a90e1dff989eaff35bae040454afb4fb418170cb28d69e2e4c
+  checksum: 10/bd810ab13e8e557225a8b5122370385440b933e4e077d5c7641a8afd207fdc8be9c346e3c678adba934b64e0e70b0acf5eef9493ea05170a48ce22bef845fdc7
   languageName: node
   linkType: hard
 

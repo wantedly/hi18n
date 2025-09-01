@@ -46,9 +46,11 @@ export function create(
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
     // <Translate> ... </Translate> or <Translate />
-    const tscElementNode = parserServices.esTreeNodeToTSNodeMap.get(node);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const tscElementNode: ts.JsxElement | ts.JsxSelfClosingElement =
+      parserServices.esTreeNodeToTSNodeMap.get(node);
     // <Translate> or <Translate />
-    const tscTagNode = getOpenTag(tscElementNode);
+    const tscTagNode: ts.JsxOpeningLikeElement = getOpenTag(tscElementNode);
 
     const expectedParamsResult = getExpectedComponentParams(
       checker,
@@ -181,7 +183,10 @@ function getComponentArgsFromProps(
   const args: string[] = [];
   for (const prop of tscTagNode.attributes.properties) {
     if (ts.isJsxAttribute(prop)) {
-      args.push(prop.name.text);
+      if (!prop.name.getText) {
+        args.push((prop.name as { text: string }).text);
+      }
+      args.push(prop.name.getText());
     } else if (ts.isJsxSpreadAttribute(prop)) {
       const attrTypes = checker.getTypeAtLocation(prop.expression);
       for (const subpropSym of attrTypes.getProperties()) {
@@ -243,7 +248,10 @@ function extractTypeAlias(
 function findKey(tag: ts.JsxOpeningLikeElement): string | undefined {
   for (const prop of tag.attributes.properties) {
     if (!ts.isJsxAttribute(prop)) continue;
-    if (prop.name.text !== "key") continue;
+    const text = !prop.name.getText
+      ? (prop.name as { text: string }).text
+      : prop.name.getText();
+    if (text !== "key") continue;
 
     if (prop.initializer) {
       if (ts.isStringLiteral(prop.initializer)) {
