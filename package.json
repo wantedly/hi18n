@@ -26,7 +26,7 @@
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^2.7.1",
-    "typescript": "^4.8.2"
+    "typescript": "^5.9.2"
   },
   "resolutions": {
     "pretty-format/react-is": "^19.0.0"

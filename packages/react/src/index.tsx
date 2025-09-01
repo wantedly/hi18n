@@ -367,7 +367,7 @@ function getInterpolator(): ComponentInterpolator<
         enumerable: true,
       });
     }
-    const id = keys[key]++;
+    const id = keys[key]!++;
     if (id === 1 && !/\$/.test(key)) {
       return key;
     } else {
