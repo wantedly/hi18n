@@ -1,11 +1,4 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  jest,
-} from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, vitest } from "vitest";
 import { CompiledMessage } from "./msgfmt.js";
 import { evaluateMessage } from "./msgfmt-eval.js";
 import { ErrorHandler } from "./error-handling.js";
@@ -117,7 +110,7 @@ describe("evaluageMessage", () => {
     });
 
     it("evaluates number interpolation", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const msg1: CompiledMessage = [
         { type: "Var", name: "count", argType: "number" },
         " apples",
@@ -157,7 +150,7 @@ describe("evaluageMessage", () => {
     });
 
     it("evaluates integer styles", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const msg1: CompiledMessage = {
         type: "Var",
         name: "foo",
@@ -322,7 +315,12 @@ describe("evaluageMessage", () => {
           params: { foo: date },
         })
       ).toBe(
-        /^v18/.test(process.version) ? "3:04:05 PM GMT-7" : "3:04:05 PM MST"
+        /^v18/.test(
+          (globalThis as unknown as { process: { version: string } }).process
+            .version
+        )
+          ? "3:04:05 PM GMT-7"
+          : "3:04:05 PM MST"
       );
     }
     {
@@ -339,7 +337,10 @@ describe("evaluageMessage", () => {
           params: { foo: date },
         })
       ).toBe(
-        /^v18/.test(process.version)
+        /^v18/.test(
+          (globalThis as unknown as { process: { version: string } }).process
+            .version
+        )
           ? "3:04:05 PM GMT-07:00"
           : "3:04:05 PM Mountain Standard Time"
       );
@@ -516,7 +517,7 @@ describe("evaluageMessage", () => {
     });
 
     it("evaluates plural interpolation", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const msg1: CompiledMessage = {
         type: "Plural",
         name: "count",
@@ -643,7 +644,7 @@ describe("evaluageMessage", () => {
     });
 
     it("evaluates plural interpolation with offsets", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const msg1: CompiledMessage = {
         type: "Plural",
         name: "count",

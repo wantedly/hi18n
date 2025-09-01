@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`importData imports data from config/locales 1`] = `
+exports[`importData > imports data from config/locales 1`] = `
 {
   "translations": {
     "en": {

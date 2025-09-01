@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any */
 
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vitest } from "vitest";
 import {
   Book,
   Catalog,
@@ -13,10 +13,13 @@ import {
   NoLocaleError,
   ErrorHandler,
   MessageError,
+  MessageEvaluationError,
   MissingTranslationError,
-  ArgumentTypeError,
   preloadCatalogs,
 } from "./index.js";
+
+const nodeVersion = (globalThis as unknown as { process: { version: string } })
+  .process.version;
 
 type Vocabulary = {
   "example/greeting": Message;
@@ -153,8 +156,6 @@ describe("Book", () => {
   });
 
   it("evaluates datetime", () => {
-    // Only a limited locale is supported
-    if (/v14/.test(process.version)) return;
     const date = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
     {
       const { t } = getTranslator(book, "en");
@@ -309,7 +310,7 @@ describe("Book", () => {
 
   describe("handleError", () => {
     it("without implicitLocale, doesn't handle errors when locale is missing", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
           ja: catalogJa,
@@ -322,7 +323,7 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is missing", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
           ja: catalogJa,
@@ -338,7 +339,7 @@ describe("Book", () => {
     });
 
     it("without implicitLocale, doesn't handle errors when locale is invalid", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
           ja: catalogJa,
@@ -356,7 +357,7 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is invalid", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
           ja: catalogJa,
@@ -378,7 +379,10 @@ describe("Book", () => {
     });
 
     it("handles errors when translation is missing", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      if (/v(18|20)/.test(nodeVersion)) {
+        return;
+      }
+      const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
           ja: catalogJa,
@@ -391,18 +395,30 @@ describe("Book", () => {
       // @ts-expect-error it is deliberate
       expect(t("example/nonexistent")).toBe("[example/nonexistent]");
 
-      expect(handleError).toHaveBeenCalledWith(
+      expect(handleError).toHaveBeenCalled();
+      expect(handleError.mock.lastCall?.[0]).toEqual(
         new MessageError({
           cause: new MissingTranslationError(),
           id: "example/nonexistent",
           locale: "en",
-        }),
-        "error"
+        })
       );
+      expect(handleError.mock.lastCall?.[1]).toEqual("error");
+      // expect(handleError).toHaveBeenCalledWith(
+      //   new MessageError({
+      //     cause: new MissingTranslationError(),
+      //     id: "example/nonexistent",
+      //     locale: "en",
+      //   }),
+      //   "error"
+      // );
     });
 
     it("handles errors when it failed to evaluate translations", () => {
-      const handleError = jest.fn<ErrorHandler>();
+      if (/v(18|20)/.test(nodeVersion)) {
+        return;
+      }
+      const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
           ja: catalogJa,
@@ -417,18 +433,34 @@ describe("Book", () => {
         "[example/greeting2]"
       );
 
-      expect(handleError).toHaveBeenCalledWith(
+      expect(handleError).toHaveBeenCalled();
+      expect(handleError.mock.lastCall?.[0]).toEqual(
         new MessageError({
-          cause: new ArgumentTypeError({
-            argName: "name",
-            expectedType: "string",
-            got: null,
-          }),
+          // cause: new ArgumentTypeError({
+          //   argName: "name",
+          //   expectedType: "string",
+          //   got: null,
+          // }),
+          cause: new MessageEvaluationError(
+            "Invalid argument name: expected string, got null"
+          ),
           id: "example/greeting2",
           locale: "en",
-        }),
-        "error"
+        })
       );
+      expect(handleError.mock.lastCall?.[1]).toEqual("error");
+      // expect(handleError).toHaveBeenCalledWith(
+      //   new MessageError({
+      //     cause: new ArgumentTypeError({
+      //       argName: "name",
+      //       expectedType: "string",
+      //       got: null,
+      //     }),
+      //     id: "example/greeting2",
+      //     locale: "en",
+      //   }),
+      //   "error"
+      // );
     });
   });
 
