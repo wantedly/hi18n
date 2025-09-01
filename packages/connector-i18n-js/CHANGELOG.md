@@ -1,5 +1,13 @@
 # `@hi18n/connector-i18n-js`
 
+## 0.1.3
+
+### Patch Changes
+
+- d3f3120: chore(misc): migrate from Jest to Vitest
+- Updated dependencies [d3f3120]
+  - @hi18n/tools-core@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes

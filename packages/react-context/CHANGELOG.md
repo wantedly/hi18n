@@ -1,5 +1,11 @@
 # `@hi18n/react-context`
 
+## 0.1.2
+
+### Patch Changes
+
+- a6ef0aa: chore(deps): support React 19
+
 ## 0.1.1
 
 ### Patch Changes
