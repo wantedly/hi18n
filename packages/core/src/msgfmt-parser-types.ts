@@ -99,12 +99,12 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
   ? CheckName<Name> extends ParseError<infer Error>
     ? ParseResult<Accum, S, Error>
     : NextToken<ST> extends Token<"}", any, infer STT>
-    ? ParseMessage<STT, Accum & Record<CheckName<Name>, string>>
+    ? ParseMessage<STT, Accum & Record<CheckName<Name> & PropertyKey, string>>
     : NextToken<ST> extends Token<",", any, infer STT>
     ? NextToken<STT> extends Token<"identifier", "choice", any>
       ? ParseResult<Accum, S, "choice is not supported">
       : NextToken<STT> extends Token<"identifier", "plural", infer STTT>
-      ? ParsePluralArgument<STTT, CheckName<Name>, Accum>
+      ? ParsePluralArgument<STTT, CheckName<Name> & (string | number), Accum>
       : NextToken<STT> extends Token<
           "identifier",
           "select" | "selectordinal",
@@ -115,7 +115,7 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
       ? NextToken<STTT> extends Token<"}", any, infer STTTT>
         ? ParseMessage<
             STTTT,
-            Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>
+            Accum & Record<CheckName<Name> & PropertyKey, ArgTypeMap[NextToken<STT>[1]]>
           >
         : NextToken<STTT> extends Token<",", any, infer STTTT>
         ? NextToken<STTTT> extends Token<
@@ -126,7 +126,7 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
           ? NextToken<STTTTT> extends Token<"}", any, infer STTTTTT>
             ? ParseMessage<
                 STTTTTT,
-                Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>
+                Accum & Record<CheckName<Name> & PropertyKey, ArgTypeMap[NextToken<STT>[1]]>
               >
             : ParseResult<
                 Accum,
@@ -145,7 +145,7 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
               NextToken<STTTTTT> extends Token<"}", any, infer STTTTTTT>
               ? ParseMessage<
                   STTTTTTT,
-                  Accum & Record<CheckName<Name>, ArgTypeMap[NextToken<STT>[1]]>
+                  Accum & Record<CheckName<Name> & PropertyKey, ArgTypeMap[NextToken<STT>[1]]>
                 >
               : ParseResult<
                   Accum,
@@ -278,7 +278,7 @@ type ParseElement<S extends string, Accum> = NextToken<S> extends Token<
         ? ParseResult<Accum, S, "No space allowed here">
         : ParseMessage<
             STTT,
-            Accum & Record<CheckName<Name>, ComponentPlaceholder>
+            Accum & Record<CheckName<Name> & PropertyKey, ComponentPlaceholder>
           >
       : ParseResult<
           Accum,
@@ -308,7 +308,7 @@ type ParseElement<S extends string, Accum> = NextToken<S> extends Token<
               ? NameEqual<Name, ClosingName> extends true
                 ? ParseMessage<
                     RemTTTT,
-                    Accum & Record<CheckName<Name>, ComponentPlaceholder>
+                    Accum & Record<CheckName<Name> & PropertyKey, ComponentPlaceholder>
                   >
                 : ParseResult<
                     Accum,
