@@ -6,8 +6,8 @@ on:
       - master
 
 permissions:
-  # Required for OIDC (Trusted Publishing)
-  id-token: write
+  # # Required for OIDC (Trusted Publishing)
+  # id-token: write
   # Required to push release branches
   contents: write
   # Required to create release Pull Requests
@@ -42,6 +42,7 @@ jobs:
         env:
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.PUBLISH_NPM_TOKEN }}
 
       - name: Update lockfile
         if: steps.changesets.outputs.pullRequestNumber
