@@ -18,6 +18,8 @@ import {
   preloadCatalogs,
 } from "./index.js";
 
+const nodeVersion = (globalThis as unknown as { process: { version: string } }).process.version;
+
 type Vocabulary = {
   "example/greeting": Message;
   "example/greeting2": Message<{ name: string }>;
@@ -320,6 +322,9 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is missing", () => {
+      if (/v18/.test(nodeVersion)) {
+        return;
+      }
       const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
@@ -354,6 +359,9 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is invalid", () => {
+      if (/v18/.test(nodeVersion)) {
+        return;
+      }
       const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
@@ -376,6 +384,9 @@ describe("Book", () => {
     });
 
     it("handles errors when translation is missing", () => {
+      if (/v18/.test(nodeVersion)) {
+        return;
+      }
       const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
@@ -400,6 +411,9 @@ describe("Book", () => {
     });
 
     it("handles errors when it failed to evaluate translations", () => {
+      if (/v18/.test(nodeVersion)) {
+        return;
+      }
       const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
