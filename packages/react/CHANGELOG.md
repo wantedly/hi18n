@@ -1,5 +1,17 @@
 # `@hi18n/react`
 
+## 0.1.7
+
+### Patch Changes
+
+- d3f3120: chore(misc): migrate from Jest to Vitest
+- a6ef0aa: chore(deps): support React 19
+- 8c21974: refactor(react): future-proof context changes
+- Updated dependencies [d3f3120]
+- Updated dependencies [a6ef0aa]
+  - @hi18n/core@0.1.12
+  - @hi18n/react-context@0.1.2
+
 ## 0.1.6
 
 ### Patch Changes

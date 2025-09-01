@@ -1,5 +1,11 @@
 # `@hi18n/eslint-plugin`
 
+## 0.1.11
+
+### Patch Changes
+
+- d3f3120: chore(misc): migrate from Jest to Vitest
+
 ## 0.1.10
 
 ### Patch Changes
