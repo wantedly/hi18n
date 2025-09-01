@@ -13,6 +13,7 @@ import {
 } from "@hi18n/core";
 import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
+import { LocaleContext } from "@hi18n/react-context";
 
 declare module "expect/build" {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface, jest/no-export
@@ -146,6 +147,35 @@ describe("useLocales", () => {
     act(() => increment());
     expect(screen.queryByText("count = 2")).toBeInTheDocument();
     expect(localeObjects.size).toBe(1);
+  });
+
+  it("is future-proof for when an array of strings is passed instead", () => {
+    const LocaleLength: React.FC = () => {
+      const locales = useLocales();
+      return <>It has {locales.length} locales in context.</>;
+    };
+    {
+      render(
+        <LocaleContext.Provider value={["en", "ja", "zh-CN"] as string | string[] as string}>
+          <LocaleLength />
+        </LocaleContext.Provider>
+      );
+      expect(
+        screen.queryByText("It has 3 locales in context.")
+      ).toBeInTheDocument();
+      cleanup();
+    }
+    {
+      render(
+        <LocaleContext.Provider value={[] as string | string[] as string}>
+          <LocaleLength />
+        </LocaleContext.Provider>
+      );
+      expect(
+        screen.queryByText("It has 0 locales in context.")
+      ).toBeInTheDocument();
+      cleanup();
+    }
   });
 });
 
