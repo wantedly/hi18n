@@ -18,7 +18,8 @@ import {
   preloadCatalogs,
 } from "./index.js";
 
-const nodeVersion = (globalThis as unknown as { process: { version: string } }).process.version;
+const nodeVersion = (globalThis as unknown as { process: { version: string } })
+  .process.version;
 
 type Vocabulary = {
   "example/greeting": Message;
@@ -400,7 +401,7 @@ describe("Book", () => {
           cause: new MissingTranslationError(),
           id: "example/nonexistent",
           locale: "en",
-        }),
+        })
       );
       expect(handleError.mock.lastCall?.[1]).toEqual("error");
       // expect(handleError).toHaveBeenCalledWith(
@@ -445,7 +446,7 @@ describe("Book", () => {
           ),
           id: "example/greeting2",
           locale: "en",
-        }),
+        })
       );
       expect(handleError.mock.lastCall?.[1]).toEqual("error");
       // expect(handleError).toHaveBeenCalledWith(
