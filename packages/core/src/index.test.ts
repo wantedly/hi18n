@@ -415,7 +415,8 @@ describe("Book", () => {
         "[example/greeting2]"
       );
 
-      expect(handleError).toHaveBeenCalledWith(
+      expect(handleError).toHaveBeenCalled();
+      expect(handleError.mock.lastCall?.[0]).toEqual(
         new MessageError({
           // cause: new ArgumentTypeError({
           //   argName: "name",
@@ -428,8 +429,20 @@ describe("Book", () => {
           id: "example/greeting2",
           locale: "en",
         }),
-        "error"
       );
+      expect(handleError.mock.lastCall?.[1]).toEqual("error");
+      // expect(handleError).toHaveBeenCalledWith(
+      //   new MessageError({
+      //     cause: new ArgumentTypeError({
+      //       argName: "name",
+      //       expectedType: "string",
+      //       got: null,
+      //     }),
+      //     id: "example/greeting2",
+      //     locale: "en",
+      //   }),
+      //   "error"
+      // );
     });
   });
 
