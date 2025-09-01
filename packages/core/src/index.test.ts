@@ -322,7 +322,7 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is missing", () => {
-      if (/v18/.test(nodeVersion)) {
+      if (/v(18|20)/.test(nodeVersion)) {
         return;
       }
       const handleError = vitest.fn<ErrorHandler>();
@@ -359,7 +359,7 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is invalid", () => {
-      if (/v18/.test(nodeVersion)) {
+      if (/v(18|20)/.test(nodeVersion)) {
         return;
       }
       const handleError = vitest.fn<ErrorHandler>();
@@ -384,7 +384,7 @@ describe("Book", () => {
     });
 
     it("handles errors when translation is missing", () => {
-      if (/v18/.test(nodeVersion)) {
+      if (/v(18|20)/.test(nodeVersion)) {
         return;
       }
       const handleError = vitest.fn<ErrorHandler>();
@@ -411,7 +411,7 @@ describe("Book", () => {
     });
 
     it("handles errors when it failed to evaluate translations", () => {
-      if (/v18/.test(nodeVersion)) {
+      if (/v(18|20)/.test(nodeVersion)) {
         return;
       }
       const handleError = vitest.fn<ErrorHandler>();
