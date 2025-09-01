@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-empty-function, jest/expect-expect */
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-empty-function */
 
-import { describe, it } from "@jest/globals";
+import { describe, it } from "vitest";
 import type { Message } from "./index.js";
 import type {
   ComponentPlaceholder,

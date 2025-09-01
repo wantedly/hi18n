@@ -1,7 +1,11 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 import React, { Suspense } from "react";
 import { act, cleanup, render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import { describe, expect, it, jest } from "@jest/globals";
+import "@testing-library/jest-dom/vitest";
+import { beforeEach, describe, expect, it, vitest } from "vitest";
 import prettyFormat, { plugins as prettyFormatPlugins } from "pretty-format";
 import {
   Book,
@@ -13,12 +17,6 @@ import {
 } from "@hi18n/core";
 import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
-
-declare module "expect/build" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface, jest/no-export
-  export interface Matchers<R extends void | Promise<void>>
-    extends globalThis.jest.Matchers<R> {}
-}
 
 type Vocabulary = {
   "example/greeting": Message;
@@ -65,6 +63,10 @@ const catalogEn = new Catalog<Vocabulary>("en", {
 const book = new Book<Vocabulary>({
   ja: catalogJa,
   en: catalogEn,
+});
+
+beforeEach(() => {
+  cleanup();
 });
 
 describe("useLocales", () => {
@@ -343,7 +345,7 @@ describe("Translate", () => {
   });
 
   it("renders a component interpolation with multiple occurrences of the same component", () => {
-    const error = jest.spyOn(console, "error");
+    const error = vitest.spyOn(console, "error");
     render(
       <LocaleProvider locales="ja">
         <Translate book={book} id="example/multi">

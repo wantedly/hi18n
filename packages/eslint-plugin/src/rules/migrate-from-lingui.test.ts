@@ -1,5 +1,9 @@
+import { describe, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
 import * as rule from "./migrate-from-lingui";
+
+TSESLint.RuleTester.describe = describe;
+TSESLint.RuleTester.it = it;
 
 new TSESLint.RuleTester({
   parser: require.resolve("espree"),

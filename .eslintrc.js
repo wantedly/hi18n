@@ -5,7 +5,13 @@ module.exports = /** @type {import("eslint").Linter.Config} */ ({
     "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
+  // TODO: replace jest -> vitest once we have ESLint upgraded
   plugins: ["jest", "@typescript-eslint/eslint-plugin"],
+  settings: {
+    jest: {
+      version: 29,
+    },
+  },
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",

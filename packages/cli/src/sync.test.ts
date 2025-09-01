@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { hi18n } from "./command";
 import { MockedOutput, initFixtures } from "@hi18n/dev-utils";
 

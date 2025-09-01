@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { isProperty, isTSSignature, ParseError, tokenize } from "./microparser";
 
 describe("isProperty", () => {
