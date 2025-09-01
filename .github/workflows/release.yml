@@ -34,6 +34,9 @@ jobs:
       - name: Install Dependencies
         run: yarn install --immutable
 
+      - name: Prebuild (necessary because of dependencies within the repo)
+        run: yarn build
+
       - name: Create Release Pull Request or prepare publish
         id: changesets
         uses: changesets/action@v1
