@@ -322,9 +322,6 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is missing", () => {
-      if (/v(18|20)/.test(nodeVersion)) {
-        return;
-      }
       const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
@@ -359,9 +356,6 @@ describe("Book", () => {
     });
 
     it("with implicitLocale, handles errors when locale is invalid", () => {
-      if (/v(18|20)/.test(nodeVersion)) {
-        return;
-      }
       const handleError = vitest.fn<ErrorHandler>();
       const book = new Book<Vocabulary>(
         {
@@ -400,14 +394,23 @@ describe("Book", () => {
       // @ts-expect-error it is deliberate
       expect(t("example/nonexistent")).toBe("[example/nonexistent]");
 
-      expect(handleError).toHaveBeenCalledWith(
+      expect(handleError).toHaveBeenCalled();
+      expect(handleError.mock.lastCall?.[0]).toEqual(
         new MessageError({
           cause: new MissingTranslationError(),
           id: "example/nonexistent",
           locale: "en",
         }),
-        "error"
       );
+      expect(handleError.mock.lastCall?.[1]).toEqual("error");
+      // expect(handleError).toHaveBeenCalledWith(
+      //   new MessageError({
+      //     cause: new MissingTranslationError(),
+      //     id: "example/nonexistent",
+      //     locale: "en",
+      //   }),
+      //   "error"
+      // );
     });
 
     it("handles errors when it failed to evaluate translations", () => {
