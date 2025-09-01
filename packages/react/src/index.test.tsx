@@ -156,7 +156,9 @@ describe("useLocales", () => {
     };
     {
       render(
-        <LocaleContext.Provider value={["en", "ja", "zh-CN"] as string | string[] as string}>
+        <LocaleContext.Provider
+          value={["en", "ja", "zh-CN"] as string | string[] as string}
+        >
           <LocaleLength />
         </LocaleContext.Provider>
       );

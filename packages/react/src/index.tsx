@@ -71,9 +71,15 @@ export const LocaleProvider: React.FC<{
 export function useLocales(): string[] {
   // Extending string -> string | readonly string[]
   // to future-proof changes in how context is propagated.
-  const localesConcat: string | readonly string[] = React.useContext(LocaleContext);
+  const localesConcat: string | readonly string[] =
+    React.useContext(LocaleContext);
   const locales = React.useMemo(
-    () => (Array.isArray(localesConcat) ? localesConcat : localesConcat === "" ? [] : localesConcat.split("\n")),
+    () =>
+      Array.isArray(localesConcat)
+        ? localesConcat
+        : localesConcat === ""
+        ? []
+        : localesConcat.split("\n"),
     [localesConcat]
   );
   return locales;
