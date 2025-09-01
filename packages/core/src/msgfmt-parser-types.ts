@@ -115,7 +115,11 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
       ? NextToken<STTT> extends Token<"}", any, infer STTTT>
         ? ParseMessage<
             STTTT,
-            Accum & Record<CheckName<Name> & PropertyKey, ArgTypeMap[NextToken<STT>[1]]>
+            Accum &
+              Record<
+                CheckName<Name> & PropertyKey,
+                ArgTypeMap[NextToken<STT>[1]]
+              >
           >
         : NextToken<STTT> extends Token<",", any, infer STTTT>
         ? NextToken<STTTT> extends Token<
@@ -126,7 +130,11 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
           ? NextToken<STTTTT> extends Token<"}", any, infer STTTTTT>
             ? ParseMessage<
                 STTTTTT,
-                Accum & Record<CheckName<Name> & PropertyKey, ArgTypeMap[NextToken<STT>[1]]>
+                Accum &
+                  Record<
+                    CheckName<Name> & PropertyKey,
+                    ArgTypeMap[NextToken<STT>[1]]
+                  >
               >
             : ParseResult<
                 Accum,
@@ -145,7 +153,11 @@ type ParseArgument<S extends string, Accum> = NextToken<S> extends Token<
               NextToken<STTTTTT> extends Token<"}", any, infer STTTTTTT>
               ? ParseMessage<
                   STTTTTTT,
-                  Accum & Record<CheckName<Name> & PropertyKey, ArgTypeMap[NextToken<STT>[1]]>
+                  Accum &
+                    Record<
+                      CheckName<Name> & PropertyKey,
+                      ArgTypeMap[NextToken<STT>[1]]
+                    >
                 >
               : ParseResult<
                   Accum,
@@ -308,7 +320,11 @@ type ParseElement<S extends string, Accum> = NextToken<S> extends Token<
               ? NameEqual<Name, ClosingName> extends true
                 ? ParseMessage<
                     RemTTTT,
-                    Accum & Record<CheckName<Name> & PropertyKey, ComponentPlaceholder>
+                    Accum &
+                      Record<
+                        CheckName<Name> & PropertyKey,
+                        ComponentPlaceholder
+                      >
                   >
                 : ParseResult<
                     Accum,

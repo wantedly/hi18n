@@ -46,9 +46,11 @@ export function create(
     const parserServices = ESLintUtils.getParserServices(context);
     const checker = parserServices.program.getTypeChecker();
     // <Translate> ... </Translate> or <Translate />
-    const tscElementNode = parserServices.esTreeNodeToTSNodeMap.get(node);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const tscElementNode: ts.JsxElement | ts.JsxSelfClosingElement =
+      parserServices.esTreeNodeToTSNodeMap.get(node);
     // <Translate> or <Translate />
-    const tscTagNode = getOpenTag(tscElementNode);
+    const tscTagNode: ts.JsxOpeningLikeElement = getOpenTag(tscElementNode);
 
     const expectedParamsResult = getExpectedComponentParams(
       checker,
@@ -246,10 +248,9 @@ function extractTypeAlias(
 function findKey(tag: ts.JsxOpeningLikeElement): string | undefined {
   for (const prop of tag.attributes.properties) {
     if (!ts.isJsxAttribute(prop)) continue;
-    const text =
-      !prop.name.getText
+    const text = !prop.name.getText
       ? (prop.name as { text: string }).text
-      : prop.name.getText()
+      : prop.name.getText();
     if (text !== "key") continue;
 
     if (prop.initializer) {

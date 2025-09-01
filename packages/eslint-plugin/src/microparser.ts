@@ -666,7 +666,7 @@ const KEYWORDS = [
 function verifyString(content: string) {
   for (const match of content.matchAll(/\\([0-9xu])/g)) {
     const directive = match[1]!;
-    const escStart = match.index! + 2;
+    const escStart = match.index + 2;
     if (directive === "x") {
       // "\xFF"
       if (!/^[0-9a-fA-F]{2}/.test(content.substring(escStart))) {
