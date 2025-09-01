@@ -181,7 +181,10 @@ function getComponentArgsFromProps(
   const args: string[] = [];
   for (const prop of tscTagNode.attributes.properties) {
     if (ts.isJsxAttribute(prop)) {
-      args.push(prop.name.text);
+      if (!prop.name.getText) {
+        args.push((prop.name as { text: string }).text);
+      }
+      args.push(prop.name.getText());
     } else if (ts.isJsxSpreadAttribute(prop)) {
       const attrTypes = checker.getTypeAtLocation(prop.expression);
       for (const subpropSym of attrTypes.getProperties()) {
@@ -243,7 +246,11 @@ function extractTypeAlias(
 function findKey(tag: ts.JsxOpeningLikeElement): string | undefined {
   for (const prop of tag.attributes.properties) {
     if (!ts.isJsxAttribute(prop)) continue;
-    if (prop.name.text !== "key") continue;
+    const text =
+      !prop.name.getText
+      ? (prop.name as { text: string }).text
+      : prop.name.getText()
+    if (text !== "key") continue;
 
     if (prop.initializer) {
       if (ts.isStringLiteral(prop.initializer)) {
