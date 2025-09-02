@@ -1,5 +1,11 @@
 # `@hi18n/ts-plugin`
 
+## 0.1.3
+
+### Patch Changes
+
+- 9a55438: chore(build): Use TypeScript to build packages
+
 ## 0.1.2
 
 ### Patch Changes
