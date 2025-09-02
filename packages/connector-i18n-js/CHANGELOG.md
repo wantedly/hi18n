@@ -1,5 +1,14 @@
 # `@hi18n/connector-i18n-js`
 
+## 0.1.4
+
+### Patch Changes
+
+- 10baf8f: fix(monorepo): ensure workspace dependencies are removed from published materials
+- 19e0ca6: chore(build): bump TypeScript to 5.9
+- Updated dependencies [19e0ca6]
+  - @hi18n/tools-core@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes

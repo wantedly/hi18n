@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/dev-utils",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Internal utilities for hi18n development",
   "keywords": [

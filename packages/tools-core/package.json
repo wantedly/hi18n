@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/tools-core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Common definitions for @hi18n/cli",
   "keywords": [
     "intl",

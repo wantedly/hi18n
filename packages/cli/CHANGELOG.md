@@ -1,5 +1,16 @@
 # `@hi18n/cli`
 
+## 0.1.14
+
+### Patch Changes
+
+- 10baf8f: fix(monorepo): ensure workspace dependencies are removed from published materials
+- 19e0ca6: chore(build): bump TypeScript to 5.9
+- Updated dependencies [10baf8f]
+- Updated dependencies [19e0ca6]
+  - @hi18n/eslint-plugin@0.1.12
+  - @hi18n/tools-core@0.1.4
+
 ## 0.1.13
 
 ### Patch Changes
