@@ -1,3 +1,4 @@
 /dist
+/cjs/dist
 /src/__fixtures__/*/expect-*
 /src/__fixtures__/custom-parser/input/src/broken.ts
