@@ -37,6 +37,9 @@ jobs:
       - name: Prebuild (necessary because of dependencies within the repo)
         run: yarn build
 
+      - name: Configure use of NPM_TOKEN
+        run: yarn config set npmAuthToken '${NPM_TOKEN-}'
+
       - name: Create Release Pull Request or prepare publish
         id: changesets
         uses: changesets/action@v1
