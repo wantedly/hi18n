@@ -1,0 +1,110 @@
+diff --git a/dist/changesets-cli.cjs.js b/dist/changesets-cli.cjs.js
+index 53fc925f8aa492e7333033483e9f3e45839963ad..0ac9f0a347caa4943f882c8d657b0da0c6443bf2 100644
+--- a/dist/changesets-cli.cjs.js
++++ b/dist/changesets-cli.cjs.js
+@@ -634,9 +634,10 @@ async function getPublishTool(cwd) {
+   const pm = await packageManagerDetector.detect({
+     cwd
+   });
+-  if (!pm || pm.name !== "pnpm") return {
++  if (!pm) return {
+     name: "npm"
+   };
++  if (pn.name === "pnpm") {
+   try {
+     let result = await spawn__default["default"]("pnpm", ["--version"], {
+       cwd
+@@ -653,6 +654,28 @@ async function getPublishTool(cwd) {
+       shouldAddNoGitChecks: false
+     };
+   }
++  }
++  if (pm.name === "yarn") {
++    try {
++      let result = await spawn__default.default("yarn", ["--version"], { cwd });
++      let version = result.stdout.toString().trim();
++      let parsed = semverParse__default.default(version);
++
++      // Yarn v2 introduced `yarn npm publish` which should be used
++      // to ensure packages are packed correctly prior to publishing
++      if (parsed != null && parsed.major >= 2) {
++        return {
++          name: "yarn",
++          version: parsed,
++        };
++      }
++      return { name: "npm" };
++    } catch (e) {
++      return { name: "npm" };
++    }
++  }
++
++  return { name: "npm" };
+ }
+ async function getTokenIsRequired() {
+   const {
+@@ -771,6 +794,9 @@ async function internalPublish(packageJson, opts, twoFactorState) {
+   } = publishTool.name === "pnpm" ? await spawn__default["default"]("pnpm", ["publish", "--json", ...publishFlags], {
+     env: Object.assign({}, process.env, envOverride),
+     cwd: opts.cwd
++  }) : publishTool.name === "yarn" ? await spawn__default.default("yarn", ["publish", "--json", ...publishFlags], {
++    env: Object.assign({}, process.env, envOverride),
++    cwd: opts.cwd
+   }) : await spawn__default["default"](publishTool.name, ["publish", opts.publishDir, "--json", ...publishFlags], {
+     env: Object.assign({}, process.env, envOverride)
+   });
+diff --git a/dist/changesets-cli.esm.js b/dist/changesets-cli.esm.js
+index 6c363c0551d7a5b69e2e48be0bcd757699609094..ee0daec368d5ad32f5a6640ad3982ec4da76b1e0 100644
+--- a/dist/changesets-cli.esm.js
++++ b/dist/changesets-cli.esm.js
+@@ -596,9 +596,10 @@ async function getPublishTool(cwd) {
+   const pm = await detect({
+     cwd
+   });
+-  if (!pm || pm.name !== "pnpm") return {
++  if (!pm) return {
+     name: "npm"
+   };
++  if (pn.name === "pnpm") {
+   try {
+     let result = await spawn$1("pnpm", ["--version"], {
+       cwd
+@@ -615,6 +616,28 @@ async function getPublishTool(cwd) {
+       shouldAddNoGitChecks: false
+     };
+   }
++  }
++  if (pm.name === "yarn") {
++    try {
++      let result = await spawn$1("yarn", ["--version"], { cwd });
++      let version = result.stdout.toString().trim();
++      let parsed = semverParse(version);
++
++      // Yarn v2 introduced `yarn npm publish` which should be used
++      // to ensure packages are packed correctly prior to publishing
++      if (parsed != null && parsed.major >= 2) {
++        return {
++          name: "yarn",
++          version: parsed,
++        };
++      }
++      return { name: "npm" };
++    } catch (e) {
++      return { name: "npm" };
++    }
++  }
++
++  return { name: "npm" };
+ }
+ async function getTokenIsRequired() {
+   const {
+@@ -733,6 +756,9 @@ async function internalPublish(packageJson, opts, twoFactorState) {
+   } = publishTool.name === "pnpm" ? await spawn$1("pnpm", ["publish", "--json", ...publishFlags], {
+     env: Object.assign({}, process.env, envOverride),
+     cwd: opts.cwd
++  }) : publishTool.name === "yarn" ? await spawn$1("yarn", ["publish", "--json", ...publishFlags], {
++    env: Object.assign({}, process.env, envOverride),
++    cwd: opts.cwd
+   }) : await spawn$1(publishTool.name, ["publish", opts.publishDir, "--json", ...publishFlags], {
+     env: Object.assign({}, process.env, envOverride)
+   });
