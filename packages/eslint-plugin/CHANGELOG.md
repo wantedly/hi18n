@@ -1,5 +1,12 @@
 # `@hi18n/eslint-plugin`
 
+## 0.1.12
+
+### Patch Changes
+
+- 10baf8f: fix(monorepo): ensure workspace dependencies are removed from published materials
+- 19e0ca6: chore(build): bump TypeScript to 5.9
+
 ## 0.1.11
 
 ### Patch Changes

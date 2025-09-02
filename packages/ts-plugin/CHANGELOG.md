@@ -1,5 +1,11 @@
 # `@hi18n/ts-plugin`
 
+## 0.1.2
+
+### Patch Changes
+
+- 19e0ca6: chore(build): bump TypeScript to 5.9
+
 ## 0.1.1
 
 ### Patch Changes

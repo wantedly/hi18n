@@ -1,5 +1,14 @@
 # `@hi18n/react`
 
+## 0.1.8
+
+### Patch Changes
+
+- 10baf8f: fix(monorepo): ensure workspace dependencies are removed from published materials
+- 19e0ca6: chore(build): bump TypeScript to 5.9
+- Updated dependencies [19e0ca6]
+  - @hi18n/core@0.1.13
+
 ## 0.1.7
 
 ### Patch Changes
