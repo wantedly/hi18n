@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./collect-translation-ids";
-import { TranslationUsage } from "./collect-translation-ids";
+import * as rule from "./collect-translation-ids.js";
+import { TranslationUsage } from "./collect-translation-ids.js";
 
 describe("collect-translation-ids", () => {
   it("detects translation ids", () => {

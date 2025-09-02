@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./well-formed-book-references";
+import * as rule from "./well-formed-book-references.js";
 
 TSESLint.RuleTester.describe = describe;
 TSESLint.RuleTester.it = it;

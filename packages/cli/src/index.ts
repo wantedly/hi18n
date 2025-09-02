@@ -1,4 +1,4 @@
-import { hi18n } from "./command";
+import { hi18n } from "./command.js";
 
 const result = hi18n();
 result.catch((e) => {

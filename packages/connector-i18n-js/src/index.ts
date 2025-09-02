@@ -4,7 +4,7 @@ import util from "node:util";
 import glob from "glob";
 import yaml from "js-yaml";
 import { Hi18nData, Hi18nCatalogData, ConnectorObj } from "@hi18n/tools-core";
-import { convertMessage, isMessage } from "./message";
+import { convertMessage, isMessage } from "./message.js";
 
 export function connector(configPath: string, params: unknown): ConnectorObj {
   const { root: relativeRoot = ".", include = ["config/locales/*.yml"] } =

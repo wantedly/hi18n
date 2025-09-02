@@ -1,6 +1,6 @@
 import { Command, OutputConfiguration } from "commander";
-import { export_ } from "./export";
-import { sync } from "./sync";
+import { export_ } from "./export.js";
+import { sync } from "./sync.js";
 
 export async function hi18n(
   argv?: readonly string[],

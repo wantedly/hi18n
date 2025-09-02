@@ -1,14 +1,14 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getStaticKey } from "../util";
+import { getStaticKey } from "../util.js";
 import {
   extractAsObjectType,
   findTypeParameter,
   resolveTypeLevelVariable,
-} from "../ts-util";
-import { bookTracker } from "../common-trackers";
-import { capturedRoot } from "../tracker";
-import { lookupDefinitionSource, resolveAsLocation } from "../def-location";
-import { getCatalogRef } from "../book-util";
+} from "../ts-util.js";
+import { bookTracker } from "../common-trackers.js";
+import { capturedRoot } from "../tracker.js";
+import { lookupDefinitionSource, resolveAsLocation } from "../def-location.js";
+import { getCatalogRef } from "../book-util.js";
 
 type MessageIds =
   | "expose-book"

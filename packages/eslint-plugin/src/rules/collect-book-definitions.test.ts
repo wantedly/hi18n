@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./collect-book-definitions";
-import { BookDef } from "./collect-book-definitions";
+import * as rule from "./collect-book-definitions.js";
+import { BookDef } from "./collect-book-definitions.js";
 
 const baseConfig: TSESLint.Linter.Config = {
   parserOptions: {

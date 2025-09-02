@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./collect-catalog-definitions";
-import { CatalogDef } from "./collect-catalog-definitions";
+import * as rule from "./collect-catalog-definitions.js";
+import { CatalogDef } from "./collect-catalog-definitions.js";
 
 const baseConfig: TSESLint.Linter.Config = {
   parserOptions: {

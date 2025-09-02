@@ -1,9 +1,0 @@
-{
-  "extends": "../../../configs/tsconfig.base.json",
-  "compilerOptions": {
-    "lib": ["ESNext"],
-    "emitDeclarationOnly": false,
-    "importHelpers": true,
-    "module": "commonjs"
-  }
-}

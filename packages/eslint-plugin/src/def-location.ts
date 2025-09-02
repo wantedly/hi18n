@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getImportName, resolveVariable } from "./util";
+import { getImportName, resolveVariable } from "./util.js";
 
 export type DefLocation = {
   path: string;

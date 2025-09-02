@@ -7,12 +7,15 @@
   ],
   "scripts": {
     "build": "yarn workspaces foreach -Apt run build",
+    "clean": "yarn workspaces foreach -Ap run clean",
     "fmt": "yarn workspaces foreach -Ap run fmt",
     "fmt:check": "yarn workspaces foreach -Ap run fmt:check",
     "lint": "yarn build && yarn lint:nobuild",
     "lint:nobuild": "yarn workspaces foreach -Ap --exclude root run lint",
     "test": "yarn build && yarn test:nobuild",
-    "test:nobuild": "yarn workspaces foreach -Ap --exclude root run test --watch=false"
+    "test:nobuild": "yarn workspaces foreach -Ap --exclude root run test --watch=false",
+    "tsc": "yarn build && yarn tsc:nobuild",
+    "tsc:nobuild": "yarn workspaces foreach -Ap --exclude root run tsc"
   },
   "devDependencies": {
     "@changesets/cli": "patch:@changesets/cli@npm%3A2.29.6#~/.yarn/patches/@changesets-cli-npm-2.29.6-ac8361deb8.patch",
@@ -29,6 +32,7 @@
     "typescript": "^5.9.2"
   },
   "resolutions": {
-    "pretty-format/react-is": "^19.0.0"
+    "pretty-format/react-is": "^19.0.0",
+    "eslint-visitor-keys@npm:^3.3.0": "patch:eslint-visitor-keys@npm%3A3.3.0#~/.yarn/patches/eslint-visitor-keys-npm-3.3.0-d329af7c8c.patch"
   }
 }

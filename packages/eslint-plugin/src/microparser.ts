@@ -114,8 +114,11 @@ export function isTSSignature(text: string): boolean {
 }
 
 export class Parser {
+  tokens: TSESTree.Token[];
   pos = 0;
-  constructor(public tokens: TSESTree.Token[]) {}
+  constructor(tokens: TSESTree.Token[]) {
+    this.tokens = tokens;
+  }
 
   parseIdentifierName(): TSESTree.Identifier {
     const token = this.nextToken();

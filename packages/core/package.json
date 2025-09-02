@@ -28,42 +28,30 @@
   "license": "MIT",
   "files": [
     "dist/**/*",
-    "!dist/*.tsbuildinfo",
+    "cjs/**/*",
     "src/**/*",
     "!src/**/*.test.ts"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "type": "module",
+  "main": "./cjs/dist/index.js",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.mjs",
-    "require": "./dist/index.js"
+    "require": "./cjs/dist/index.js",
+    "default": "./dist/index.js"
   },
   "sideEffects": false,
   "scripts": {
-    "babel:cjs": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts'",
-    "babel:esm": "babel -x .ts src -d dist --source-maps --ignore '**/*.d.ts,**/*.test.ts' --config-file ./babel-esm.config.js --out-file-extension .mjs",
-    "build": "yarn babel:cjs && yarn babel:esm && yarn tsc",
-    "clean": "rimraf dist",
+    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
+    "build:cjs": "tsc -p tsconfig.build-cjs.json",
+    "build:esm": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist cjs/dist",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
-    "lint": "eslint 'src/**/*.ts' .eslintrc.js babel.config.js babel-esm.config.js",
-    "prepack": "yarn clean && yarn build",
+    "lint": "eslint 'src/**/*.ts' .eslintrc.cjs",
+    "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
-    "tsc": "tsc --build"
-  },
-  "dependencies": {
-    "@babel/runtime": "^7.18.3",
-    "core-js-pure": "^3.23.2"
+    "tsc": "tsc"
   },
   "devDependencies": {
-    "@babel/cli": "^7.19.3",
-    "@babel/core": "^7.19.3",
-    "@babel/plugin-transform-runtime": "^7.19.1",
-    "@babel/preset-env": "^7.19.3",
-    "@babel/preset-typescript": "^7.18.6",
-    "babel-plugin-polyfill-corejs3": "^0.6.0",
-    "babel-plugin-replace-import-extension": "^1.1.3",
     "eslint": "^8.24.0",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
