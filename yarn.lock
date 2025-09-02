@@ -2004,10 +2004,10 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.18.6"
     "@babel/runtime": "npm:^7.18.3"
     "@babel/types": "npm:^7.19.3"
-    "@hi18n/core": "workspace:*"
-    "@hi18n/dev-utils": "workspace:*"
-    "@hi18n/eslint-plugin": "workspace:^0.1.12"
-    "@hi18n/tools-core": "workspace:^0.1.4"
+    "@hi18n/core": "npm:*"
+    "@hi18n/dev-utils": "npm:*"
+    "@hi18n/eslint-plugin": "npm:^0.1.12"
+    "@hi18n/tools-core": "npm:^0.1.4"
     "@types/eslint": "npm:^8.4.6"
     "@types/glob": "npm:^8.0.0"
     "@types/resolve": "npm:^1.20.2"
@@ -2039,9 +2039,9 @@ __metadata:
     "@babel/preset-env": "npm:^7.19.3"
     "@babel/preset-typescript": "npm:^7.18.6"
     "@babel/runtime": "npm:^7.18.3"
-    "@hi18n/core": "workspace:*"
-    "@hi18n/dev-utils": "workspace:*"
-    "@hi18n/tools-core": "workspace:^0.1.4"
+    "@hi18n/core": "npm:*"
+    "@hi18n/dev-utils": "npm:*"
+    "@hi18n/tools-core": "npm:^0.1.4"
     "@types/glob": "npm:^8.0.0"
     "@types/js-yaml": "npm:^4.0.5"
     "@types/node": "npm:^18.7.6"
@@ -2058,7 +2058,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/core@workspace:*, @hi18n/core@workspace:^0.1.13, @hi18n/core@workspace:packages/core":
+"@hi18n/core@npm:*, @hi18n/core@npm:^0.1.13, @hi18n/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@hi18n/core@workspace:packages/core"
   dependencies:
@@ -2079,7 +2079,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/dev-utils@workspace:*, @hi18n/dev-utils@workspace:packages/dev-utils":
+"@hi18n/dev-utils@npm:*, @hi18n/dev-utils@workspace:packages/dev-utils":
   version: 0.0.0-use.local
   resolution: "@hi18n/dev-utils@workspace:packages/dev-utils"
   dependencies:
@@ -2105,7 +2105,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/eslint-plugin@workspace:^0.1.12, @hi18n/eslint-plugin@workspace:packages/eslint-plugin":
+"@hi18n/eslint-plugin@npm:^0.1.12, @hi18n/eslint-plugin@workspace:packages/eslint-plugin":
   version: 0.0.0-use.local
   resolution: "@hi18n/eslint-plugin@workspace:packages/eslint-plugin"
   dependencies:
@@ -2116,9 +2116,9 @@ __metadata:
     "@babel/preset-env": "npm:^7.19.3"
     "@babel/preset-typescript": "npm:^7.18.6"
     "@babel/runtime": "npm:^7.18.3"
-    "@hi18n/core": "workspace:*"
-    "@hi18n/react": "workspace:*"
-    "@hi18n/react-context": "workspace:*"
+    "@hi18n/core": "npm:*"
+    "@hi18n/react": "npm:*"
+    "@hi18n/react-context": "npm:*"
     "@types/babel__core": "npm:^7.1.19"
     "@types/eslint": "npm:^8.4.6"
     "@types/node": "npm:^17.0.32"
@@ -2145,7 +2145,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/react-context@workspace:*, @hi18n/react-context@workspace:^0.1.2, @hi18n/react-context@workspace:packages/react-context":
+"@hi18n/react-context@npm:*, @hi18n/react-context@npm:^0.1.2, @hi18n/react-context@workspace:packages/react-context":
   version: 0.0.0-use.local
   resolution: "@hi18n/react-context@workspace:packages/react-context"
   dependencies:
@@ -2158,7 +2158,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/react@workspace:*, @hi18n/react@workspace:packages/react":
+"@hi18n/react@npm:*, @hi18n/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@hi18n/react@workspace:packages/react"
   dependencies:
@@ -2169,8 +2169,8 @@ __metadata:
     "@babel/preset-react": "npm:^7.18.6"
     "@babel/preset-typescript": "npm:^7.18.6"
     "@babel/runtime": "npm:^7.18.3"
-    "@hi18n/core": "workspace:^0.1.13"
-    "@hi18n/react-context": "workspace:^0.1.2"
+    "@hi18n/core": "npm:^0.1.13"
+    "@hi18n/react-context": "npm:^0.1.2"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.8.0"
     "@testing-library/react": "npm:^16.3.0"
@@ -2191,12 +2191,12 @@ __metadata:
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   peerDependencies:
-    "@hi18n/react-context": "workspace:^0.1.2"
+    "@hi18n/react-context": ^0.1.2
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   languageName: unknown
   linkType: soft
 
-"@hi18n/tools-core@workspace:^0.1.4, @hi18n/tools-core@workspace:packages/tools-core":
+"@hi18n/tools-core@npm:^0.1.4, @hi18n/tools-core@workspace:packages/tools-core":
   version: 0.0.0-use.local
   resolution: "@hi18n/tools-core@workspace:packages/tools-core"
   dependencies:
