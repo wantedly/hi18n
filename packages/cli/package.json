@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/cli",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Message internationalization meets immutability and type-safety - command line tool",
   "keywords": [
     "intl",
@@ -57,8 +57,8 @@
   "dependencies": {
     "@babel/core": "^7.17.10",
     "@babel/eslint-parser": "^7.17.0",
-    "@hi18n/eslint-plugin": "^0.1.12",
-    "@hi18n/tools-core": "^0.1.4",
+    "@hi18n/eslint-plugin": "^0.1.13",
+    "@hi18n/tools-core": "^0.1.5",
     "@typescript-eslint/utils": "^5.21.0",
     "commander": "^9.2.0",
     "cosmiconfig": "^7.0.1",

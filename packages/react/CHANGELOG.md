@@ -1,5 +1,13 @@
 # `@hi18n/react`
 
+## 0.1.9
+
+### Patch Changes
+
+- 9a55438: chore(build): Use TypeScript to build packages
+- Updated dependencies [9a55438]
+  - @hi18n/core@0.1.14
+
 ## 0.1.8
 
 ### Patch Changes

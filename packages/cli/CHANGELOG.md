@@ -1,5 +1,14 @@
 # `@hi18n/cli`
 
+## 0.1.15
+
+### Patch Changes
+
+- 9a55438: chore(build): Use TypeScript to build packages
+- Updated dependencies [9a55438]
+  - @hi18n/eslint-plugin@0.1.13
+  - @hi18n/tools-core@0.1.5
+
 ## 0.1.14
 
 ### Patch Changes

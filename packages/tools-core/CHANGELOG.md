@@ -1,5 +1,11 @@
 # `@hi18n/tools-core`
 
+## 0.1.5
+
+### Patch Changes
+
+- 9a55438: chore(build): Use TypeScript to build packages
+
 ## 0.1.4
 
 ### Patch Changes
