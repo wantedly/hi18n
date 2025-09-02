@@ -1,8 +1,12 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { getStaticKey } from "../util";
-import { bookTracker } from "../common-trackers";
-import { DefLocation, DefReference, resolveAsLocation } from "../def-location";
-import { getCatalogRef } from "../book-util";
+import { getStaticKey } from "../util.js";
+import { bookTracker } from "../common-trackers.js";
+import {
+  DefLocation,
+  DefReference,
+  resolveAsLocation,
+} from "../def-location.js";
+import { getCatalogRef } from "../book-util.js";
 
 export type BookDef = {
   bookLocation: DefLocation;

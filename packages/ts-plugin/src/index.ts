@@ -1,13 +1,11 @@
 // eslint-disable-next-line node/no-unpublished-import
-import type ts from "typescript/lib/tsserverlibrary";
+import type ts from "typescript";
 
 type Config = {
   locales: string[];
 };
 
-function init(modules: {
-  typescript: typeof import("typescript/lib/tsserverlibrary");
-}) {
+function init(modules: { typescript: typeof import("typescript") }) {
   const ts = modules.typescript;
 
   function create(info: ts.server.PluginCreateInfo) {
@@ -180,7 +178,7 @@ function setupProxy<T>(original: T): T {
 
 // https://github.com/microsoft/typescript-template-language-service-decorator/blob/2.3.1/src/nodes.ts#L16-L27
 function findNode(
-  typescript: typeof import("typescript/lib/tsserverlibrary"),
+  typescript: typeof import("typescript"),
   sourceFile: ts.SourceFile,
   position: number
 ): ts.Node | undefined {
@@ -192,4 +190,4 @@ function findNode(
   return find(sourceFile);
 }
 
-export = init;
+export default init;

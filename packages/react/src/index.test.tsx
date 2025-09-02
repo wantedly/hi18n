@@ -6,7 +6,7 @@ import React, { Suspense } from "react";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { beforeEach, describe, expect, it, vitest } from "vitest";
-import prettyFormat, { plugins as prettyFormatPlugins } from "pretty-format";
+import prettyFormat_, { plugins as prettyFormatPlugins } from "pretty-format";
 import {
   Book,
   Catalog,
@@ -18,6 +18,10 @@ import {
 import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
 import { ComponentPlaceholder } from "@hi18n/core";
 import { LocaleContext } from "@hi18n/react-context";
+
+const prettyFormat = prettyFormat_ as {
+  default: unknown;
+} as unknown as typeof prettyFormat_.default;
 
 type Vocabulary = {
   "example/greeting": Message;

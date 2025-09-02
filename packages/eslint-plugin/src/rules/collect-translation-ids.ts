@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { translationCallTracker } from "../common-trackers";
-import { DefReference, lookupDefinitionSource } from "../def-location";
+import { translationCallTracker } from "../common-trackers.js";
+import { DefReference, lookupDefinitionSource } from "../def-location.js";
 
 export type TranslationUsage = {
   id: string;

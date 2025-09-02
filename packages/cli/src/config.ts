@@ -3,7 +3,7 @@ import { cosmiconfig } from "cosmiconfig";
 import { ParserServices, TSESLint, TSESTree } from "@typescript-eslint/utils";
 import resolve from "resolve";
 import { Connector } from "@hi18n/tools-core";
-import * as jsonMfConnector from "./json-mf-connector";
+import * as jsonMfConnector from "./json-mf-connector.js";
 
 const explorer = cosmiconfig("hi18n");
 

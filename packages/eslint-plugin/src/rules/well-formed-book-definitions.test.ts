@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./well-formed-book-definitions";
-import type {} from "../tseslint-babel";
+import * as rule from "./well-formed-book-definitions.js";
+import type {} from "../tseslint-babel.js";
 
 TSESLint.RuleTester.describe = describe;
 TSESLint.RuleTester.it = it;
@@ -230,15 +230,10 @@ new TSESLint.RuleTester({
 });
 
 new TSESLint.RuleTester({
-  parser: require.resolve("@babel/eslint-parser"),
+  parser: require.resolve("@typescript-eslint/parser"),
   parserOptions: {
-    ecmaVersion: "latest",
+    ecmaVersion: 2015,
     sourceType: "module",
-    babelOptions: {
-      parserOpts: {
-        plugins: ["typescript"],
-      },
-    },
   },
 }).run("@hi18n/no-nonstandard-books (with TypeScript)", rule, {
   valid: [

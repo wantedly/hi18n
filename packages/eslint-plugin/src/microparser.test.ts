@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isProperty, isTSSignature, ParseError, tokenize } from "./microparser";
+import {
+  isProperty,
+  isTSSignature,
+  ParseError,
+  tokenize,
+} from "./microparser.js";
 
 describe("isProperty", () => {
   it("parses a property", () => {

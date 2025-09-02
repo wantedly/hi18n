@@ -1,5 +1,5 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { resolveAsLocation, serializedLocations } from "./def-location";
+import { resolveAsLocation, serializedLocations } from "./def-location.js";
 
 export function queryUsedTranslationIds<
   TMessageIds extends string,

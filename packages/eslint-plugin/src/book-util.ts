@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { DefReference, lookupDefinitionSource } from "./def-location";
+import { DefReference, lookupDefinitionSource } from "./def-location.js";
 
 export function getCatalogRef(
   scopeManager: TSESLint.Scope.ScopeManager,

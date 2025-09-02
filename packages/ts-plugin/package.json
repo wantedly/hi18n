@@ -19,27 +19,26 @@
   "license": "MIT",
   "files": [
     "dist/**/*",
-    "!dist/*.tsbuildinfo",
+    "cjs/**/*",
     "src/**/*",
     "!src/**/*.test.ts"
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "type": "module",
+  "main": "./cjs/wrapper.js",
   "exports": {
-    "types": "./dist/index.d.ts",
+    "require": "./cjs/wrapper.js",
     "default": "./dist/index.js"
   },
   "scripts": {
-    "build": "yarn tsc",
-    "clean": "rimraf dist",
+    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
+    "build:cjs": "tsc -p tsconfig.build-cjs.json",
+    "build:esm": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist cjs/dist",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
-    "lint": "eslint 'src/**/*.ts' .eslintrc.js",
-    "prepack": "yarn clean && yarn build",
-    "tsc": "tsc --build"
-  },
-  "dependencies": {
-    "tslib": "^2.8.1"
+    "lint": "eslint 'src/**/*.ts' .eslintrc.cjs",
+    "prepack": "$npm_execpath run clean && $npm_execpath run build",
+    "tsc": "tsc"
   },
   "devDependencies": {
     "@types/node": "^17.0.32",

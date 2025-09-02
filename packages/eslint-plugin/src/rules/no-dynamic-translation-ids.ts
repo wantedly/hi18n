@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { translationCallTracker } from "../common-trackers";
-import { capturedRoot } from "../tracker";
+import { translationCallTracker } from "../common-trackers.js";
+import { capturedRoot } from "../tracker.js";
 
 type MessageIds = "no-dynamic-keys";
 type Options = [];

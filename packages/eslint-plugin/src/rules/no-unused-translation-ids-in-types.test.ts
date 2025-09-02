@@ -1,21 +1,16 @@
 import { describe, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-unused-translation-ids-in-types";
-import type {} from "../tseslint-babel";
+import * as rule from "./no-unused-translation-ids-in-types.js";
+import type {} from "../tseslint-babel.js";
 
 TSESLint.RuleTester.describe = describe;
 TSESLint.RuleTester.it = it;
 
 new TSESLint.RuleTester({
-  parser: require.resolve("@babel/eslint-parser"),
+  parser: require.resolve("@typescript-eslint/parser"),
   parserOptions: {
-    ecmaVersion: "latest",
+    ecmaVersion: 2015,
     sourceType: "module",
-    babelOptions: {
-      parserOpts: {
-        plugins: ["typescript"],
-      },
-    },
   },
 }).run("@hi18n/no-unused-translation-ids-in-types", rule, {
   valid: [

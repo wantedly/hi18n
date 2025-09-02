@@ -1,7 +1,7 @@
 import path from "node:path";
 import { describe, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./react-component-params";
+import * as rule from "./react-component-params.js";
 
 TSESLint.RuleTester.describe = describe;
 TSESLint.RuleTester.it = it;

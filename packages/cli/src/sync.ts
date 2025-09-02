@@ -12,7 +12,7 @@ import {
   CatalogDef,
   TranslationUsage,
 } from "@hi18n/eslint-plugin";
-import { loadConfig } from "./config";
+import { loadConfig } from "./config.js";
 
 export type Options = {
   cwd: string;

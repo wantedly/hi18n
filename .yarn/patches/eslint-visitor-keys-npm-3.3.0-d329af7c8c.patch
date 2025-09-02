@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 5368ad5a14ccd71db5cfc3922d305655a0ff8b50..a5392624994050cf5d968b70e139ada06185c9b4 100644
+--- a/package.json
++++ b/package.json
+@@ -8,6 +8,7 @@
+   "exports": {
+     ".": [
+       {
++        "types": "./dist/index.d.ts",
+         "import": "./lib/index.js",
+         "require": "./dist/eslint-visitor-keys.cjs"
+       },

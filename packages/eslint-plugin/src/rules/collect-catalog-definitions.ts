@@ -1,8 +1,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { catalogTracker, getCatalogData } from "../common-trackers";
-import { DefLocation, resolveAsLocation } from "../def-location";
-import { CaptureMap } from "../tracker";
-import { getStaticKey } from "../util";
+import { catalogTracker, getCatalogData } from "../common-trackers.js";
+import { DefLocation, resolveAsLocation } from "../def-location.js";
+import { CaptureMap } from "../tracker.js";
+import { getStaticKey } from "../util.js";
 
 export type CatalogDef = {
   locale?: string | undefined;

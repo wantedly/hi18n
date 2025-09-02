@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { hi18n } from "./command";
+import { hi18n } from "./command.js";
 import { MockedOutput, initFixtures } from "@hi18n/dev-utils";
 
 const { withProject } = initFixtures(__dirname);

@@ -1,11 +1,4 @@
 {
-  "extends": "./configs/tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": ".",
-    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
-    "emitDeclarationOnly": false,
-    "noEmit": true
-  },
-  "references": [{ "path": "./configs/tsconfig.main.json" }],
-  "include": ["src/**/*.test.ts"]
+  "extends": "../../tsconfig.json",
+  "exclude": ["dist/**/*", "cjs/dist/**/*"]
 }

@@ -1,9 +1,9 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getStaticKey, lineIndent } from "../util";
-import { bookTracker } from "../common-trackers";
-import { findTypeDefinition } from "../ts-util";
-import { parseComments, ParseError, Parser } from "../microparser";
-import { queryUsedTranslationIds } from "../used-ids";
+import { getStaticKey, lineIndent } from "../util.js";
+import { bookTracker } from "../common-trackers.js";
+import { findTypeDefinition } from "../ts-util.js";
+import { parseComments, ParseError, Parser } from "../microparser.js";
+import { queryUsedTranslationIds } from "../used-ids.js";
 
 type MessageIds = "missing-translation-ids";
 type Options = [];

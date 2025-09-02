@@ -4,7 +4,7 @@ import util from "node:util";
 import glob from "glob";
 import { TSESLint } from "@typescript-eslint/utils";
 import { rules, CatalogDef } from "@hi18n/eslint-plugin";
-import { loadConfig } from "./config";
+import { loadConfig } from "./config.js";
 import { Hi18nCatalogData } from "@hi18n/tools-core";
 
 export type Options = {

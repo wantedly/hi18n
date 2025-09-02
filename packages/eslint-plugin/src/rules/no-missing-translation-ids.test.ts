@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-missing-translation-ids";
+import * as rule from "./no-missing-translation-ids.js";
 
 TSESLint.RuleTester.describe = describe;
 TSESLint.RuleTester.it = it;

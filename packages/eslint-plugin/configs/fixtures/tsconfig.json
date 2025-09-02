@@ -3,5 +3,6 @@
     "strict": true,
     "esModuleInterop": true,
     "jsx": "react-jsx"
-  }
+  },
+  "files": ["estree.ts", "estree.tsx"]
 }
