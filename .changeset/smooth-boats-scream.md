@@ -5,4 +5,4 @@
 "@hi18n/react": patch
 ---
 
-fix(monorepo): ensure workspace dependencies from published materials
+fix(monorepo): ensure workspace dependencies are removed from published materials
