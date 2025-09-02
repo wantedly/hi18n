@@ -1,5 +1,5 @@
 diff --git a/dist/changesets-cli.cjs.js b/dist/changesets-cli.cjs.js
-index 53fc925f8aa492e7333033483e9f3e45839963ad..0ac9f0a347caa4943f882c8d657b0da0c6443bf2 100644
+index 53fc925f8aa492e7333033483e9f3e45839963ad..7f5a1dc3e79eabf568cfc35c4ba429fc402f2c5d 100644
 --- a/dist/changesets-cli.cjs.js
 +++ b/dist/changesets-cli.cjs.js
 @@ -634,9 +634,10 @@ async function getPublishTool(cwd) {
@@ -10,7 +10,7 @@ index 53fc925f8aa492e7333033483e9f3e45839963ad..0ac9f0a347caa4943f882c8d657b0da0
 +  if (!pm) return {
      name: "npm"
    };
-+  if (pn.name === "pnpm") {
++  if (pm.name === "pnpm") {
    try {
      let result = await spawn__default["default"]("pnpm", ["--version"], {
        cwd
@@ -54,7 +54,7 @@ index 53fc925f8aa492e7333033483e9f3e45839963ad..0ac9f0a347caa4943f882c8d657b0da0
      env: Object.assign({}, process.env, envOverride)
    });
 diff --git a/dist/changesets-cli.esm.js b/dist/changesets-cli.esm.js
-index 6c363c0551d7a5b69e2e48be0bcd757699609094..ee0daec368d5ad32f5a6640ad3982ec4da76b1e0 100644
+index 6c363c0551d7a5b69e2e48be0bcd757699609094..6edad986768506564a6c0acd04bcde7d26497f10 100644
 --- a/dist/changesets-cli.esm.js
 +++ b/dist/changesets-cli.esm.js
 @@ -596,9 +596,10 @@ async function getPublishTool(cwd) {
@@ -65,7 +65,7 @@ index 6c363c0551d7a5b69e2e48be0bcd757699609094..ee0daec368d5ad32f5a6640ad3982ec4
 +  if (!pm) return {
      name: "npm"
    };
-+  if (pn.name === "pnpm") {
++  if (pm.name === "pnpm") {
    try {
      let result = await spawn$1("pnpm", ["--version"], {
        cwd
