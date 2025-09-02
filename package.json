@@ -19,8 +19,8 @@
   },
   "devDependencies": {
     "@changesets/cli": "patch:@changesets/cli@npm%3A2.29.6#~/.yarn/patches/@changesets-cli-npm-2.29.6-ac8361deb8.patch",
-    "@typescript-eslint/eslint-plugin": "^5.39.0",
-    "@typescript-eslint/parser": "^5.39.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-eslint-plugin": "^5.0.6",
