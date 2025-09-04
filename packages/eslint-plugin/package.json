@@ -35,10 +35,10 @@
     "!src/**/*.test.ts"
   ],
   "type": "module",
-  "main": "./cjs/dist/index.js",
+  "main": "./cjs/wrapper.js",
   "exports": {
     ".": {
-      "require": "./cjs/dist/index.js",
+      "require": "./cjs/wrapper.js",
       "default": "./dist/index.js"
     },
     "./internal-rules": {
