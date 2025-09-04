@@ -4,5 +4,5 @@
     "esModuleInterop": true,
     "jsx": "react-jsx"
   },
-  "files": ["estree.ts", "estree.tsx"]
+  "files": ["file.ts", "react.tsx"]
 }

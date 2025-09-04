@@ -1,18 +1,21 @@
-import { describe, it } from "vitest";
-import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-unused-translation-ids-in-types.js";
-import type {} from "../tseslint-babel.js";
+import { afterAll, describe, it } from "vitest";
+import * as tsParser from "@typescript-eslint/parser";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { rule } from "./no-unused-translation-ids-in-types.js";
 
-TSESLint.RuleTester.describe = describe;
-TSESLint.RuleTester.it = it;
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
 
-new TSESLint.RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: {
-    ecmaVersion: 2015,
-    sourceType: "module",
+new RuleTester({
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: {
+      ecmaVersion: 2015,
+      sourceType: "module",
+    },
   },
-}).run("@hi18n/no-unused-translation-ids-in-types", rule, {
+}).run("no-unused-translation-ids-in-types", rule, {
   valid: [
     {
       code: `
@@ -38,7 +41,7 @@ new TSESLint.RuleTester({
       `,
       settings: {
         "@hi18n/used-translation-ids": {
-          "<input>?exported=book": [
+          "file.ts?exported=book": [
             "example/greeting",
             "example/greeting2",
             "example/greeting3",
@@ -71,7 +74,7 @@ new TSESLint.RuleTester({
       `,
       settings: {
         "@hi18n/used-translation-ids": {
-          "<input>?exported=book": [
+          "file.ts?exported=book": [
             "example/greeting",
             "example/greeting2",
             "example/greeting3",
@@ -106,7 +109,7 @@ new TSESLint.RuleTester({
       `,
       settings: {
         "@hi18n/used-translation-ids": {
-          "<input>?exported=book": [
+          "file.ts?exported=book": [
             "example/greeting",
             "example/greeting3",
             "example/greeting4",
@@ -164,7 +167,7 @@ new TSESLint.RuleTester({
       `,
       settings: {
         "@hi18n/used-translation-ids": {
-          "<input>?exported=book": [
+          "file.ts?exported=book": [
             "example/greeting",
             "example/greeting3",
             "example/greeting4",

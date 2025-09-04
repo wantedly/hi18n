@@ -74,7 +74,7 @@ Default:
 
 ```javascript
 {
-  parser: "@babel/eslint-parser",
+  parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",

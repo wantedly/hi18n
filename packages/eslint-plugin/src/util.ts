@@ -4,7 +4,7 @@ export function getImportName(
   spec: TSESTree.ImportSpecifier | TSESTree.ImportDefaultSpecifier
 ): string {
   if (spec.type === "ImportSpecifier") {
-    return spec.imported.name;
+    return nameOf(spec.imported);
   } else {
     return "default";
   }
@@ -129,7 +129,7 @@ export function commentOut(text: string, indent: number): string {
       if (i === 0) {
         return `// ${line}`;
       } else {
-        const spaces = /^\s*/.exec(line)![0]!.length;
+        const spaces = /^\s*/.exec(line)![0].length;
         const cutAt = Math.min(spaces, indent);
         return `${line.substring(0, cutAt)}// ${line.substring(cutAt)}`;
       }
@@ -143,5 +143,14 @@ export function lineIndent(
 ): number {
   const line = sourceCode.lines[token.loc.start.line - 1];
   if (typeof line !== "string") return 0;
-  return /^\s*/.exec(line)![0]!.length;
+  return /^\s*/.exec(line)![0].length;
+}
+
+export function nameOf(
+  node: TSESTree.Identifier | TSESTree.StringLiteral
+): string {
+  if (node.type === "Literal") {
+    return node.value;
+  }
+  return node.name;
 }

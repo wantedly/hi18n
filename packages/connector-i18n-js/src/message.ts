@@ -47,7 +47,7 @@ function convertSingleMessage(msg: string, pluralMode = false): string {
     } else {
       result += `{${name}}`;
     }
-    pos = match.index + match[0]!.length;
+    pos = match.index + match[0].length;
   }
   return result;
 }

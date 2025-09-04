@@ -7,14 +7,14 @@ type Vocabulary = {
   // "standalone/greeting": Message;
 };
 const catalogEn = new Catalog<Vocabulary>("en", {
-  // "standalone/answer": msg.todo("[TODO: standalone/answer]"),
-  // "standalone/ask": msg("Are you {name}?"),
+  "standalone/answer": msg.todo("[TODO: standalone/answer]"),
+  "standalone/ask": msg("Are you {name}?"),
   "standalone/farewell": msg("Bye!"),
   // "standalone/greeting": msg("Hi!"),
 });
 const catalogJa = new Catalog<Vocabulary>("ja", {
-  // "standalone/answer": msg.todo("[TODO: standalone/answer]"),
-  // "standalone/ask": msg("きみ、{name}?"),
+  "standalone/answer": msg.todo("[TODO: standalone/answer]"),
+  "standalone/ask": msg("きみ、{name}?"),
   "standalone/farewell": msg("んじゃ!"),
   // "standalone/greeting": msg("んちゃ!"),
 });

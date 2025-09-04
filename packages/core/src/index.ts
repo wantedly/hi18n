@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 
 import { CompiledMessage } from "./msgfmt.js";
 import { EvalOption, evaluateMessage } from "./msgfmt-eval.js";
@@ -405,7 +405,7 @@ export class Catalog<Vocabulary extends VocabularyBase> {
       if (!hasOwn(this.data, id)) {
         throw new MissingTranslationError();
       }
-      const msg = this.data[id]!;
+      const msg = this.data[id];
       this._compiled[id] = parseMessage(msg);
     }
     return this._compiled[id]!;
@@ -593,6 +593,7 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
   const catalog = book.catalogs[locale];
   if (catalog == null) {
     if (options.throwPromise) {
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw book.loadCatalog(locale);
     } else {
       throw new Error(`Catalog not loaded: ${locale}`);

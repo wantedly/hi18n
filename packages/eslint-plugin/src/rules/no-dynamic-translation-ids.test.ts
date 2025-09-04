@@ -1,18 +1,22 @@
-import { describe, it } from "vitest";
-import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./no-dynamic-translation-ids.js";
+import { afterAll, describe, it } from "vitest";
+import * as espree from "espree";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { rule } from "./no-dynamic-translation-ids.js";
 
-TSESLint.RuleTester.describe = describe;
-TSESLint.RuleTester.it = it;
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
 
-new TSESLint.RuleTester({
-  parser: require.resolve("espree"),
-  parserOptions: {
-    ecmaVersion: 2015,
-    sourceType: "module",
-    ecmaFeatures: { jsx: true },
+new RuleTester({
+  languageOptions: {
+    parser: espree,
+    parserOptions: {
+      ecmaVersion: 2015,
+      sourceType: "module",
+      ecmaFeatures: { jsx: true },
+    },
   },
-}).run("@hi18n/no-dynamic-translation-ids", rule, {
+}).run("no-dynamic-translation-ids", rule, {
   valid: [
     `
       import { getTranslator } from "@hi18n/core";

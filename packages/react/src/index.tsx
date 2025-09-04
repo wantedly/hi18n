@@ -284,7 +284,7 @@ export type DynamicTranslateProps<
  *   </Translate.Dynamic>
  *   ```
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 Translate.Dynamic = Translate as <Vocabulary extends VocabularyBase, Args = {}>(
   props: DynamicTranslateProps<Vocabulary, Args>
 ) => React.ReactElement | null;
@@ -342,7 +342,7 @@ function extractComponents(
 
 function fillComponentKeys(params: Record<string | number, unknown>) {
   for (const [key, value] of Object.entries(
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     params as Record<string | number, {} | null | undefined>
   )) {
     if (!React.isValidElement(value)) continue;

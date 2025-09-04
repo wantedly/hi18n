@@ -1,6 +1,7 @@
 import { ESLintUtils, TSESTree, type TSESLint } from "@typescript-eslint/utils";
 import * as ts from "typescript";
 import { translationCallTracker } from "../common-trackers.js";
+import { createRule } from "./create-rule.ts";
 
 type MessageIds =
   | "invalid-signature"
@@ -8,110 +9,110 @@ type MessageIds =
   | "extra-component-argument";
 type Options = [];
 
-export const meta: TSESLint.RuleMetaData<MessageIds> = {
-  type: "problem",
-  docs: {
-    description: "additional type checking for the <Translate> component",
-    recommended: "error",
+export const rule = createRule<Options, MessageIds>({
+  name: "react-component-params",
+  meta: {
+    type: "problem",
+    docs: {
+      description: "additional type checking for the <Translate> component",
+      recommended: true,
+    },
+    messages: {
+      "invalid-signature": "Lint failed: invalid signature",
+      "missing-component-argument": "missing argument: {{ paramNames }}",
+      "extra-component-argument": "unknown component name: {{ argName }}",
+    },
+    schema: [],
   },
-  messages: {
-    "invalid-signature": "Lint failed: invalid signature",
-    "missing-component-argument": "missing argument: {{ paramNames }}",
-    "extra-component-argument": "unknown component name: {{ argName }}",
-  },
-  schema: {},
-};
 
-export const defaultOptions: Options = [];
+  defaultOptions: [],
 
-export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, Options>>
-): TSESLint.RuleListener {
-  const tracker = translationCallTracker();
-  // For some reason we visit the node twice. It should ideally be unnecessary.
-  const visited: Set<TSESTree.Node> = new Set();
-  tracker.listen("translation", (node, captured) => {
-    const idNode = captured["id"]!;
-    if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
-      return;
-    }
-    if (node.type !== "JSXElement") {
-      return;
-    }
-
-    if (visited.has(node)) return;
-    visited.add(node);
-
-    // Start querying tsc
-    const parserServices = ESLintUtils.getParserServices(context);
-    const checker = parserServices.program.getTypeChecker();
-    // <Translate> ... </Translate> or <Translate />
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const tscElementNode: ts.JsxElement | ts.JsxSelfClosingElement =
-      parserServices.esTreeNodeToTSNodeMap.get(node);
-    // <Translate> or <Translate />
-    const tscTagNode: ts.JsxOpeningLikeElement = getOpenTag(tscElementNode);
-
-    const expectedParamsResult = getExpectedComponentParams(
-      checker,
-      tscTagNode
-    );
-    if (!expectedParamsResult) {
-      context.report({
-        node,
-        messageId: "invalid-signature",
-      });
-      return;
-    }
-    const [expectedParams, expectedComponentParams] = expectedParamsResult;
-
-    const argsFromProps = getComponentArgsFromProps(checker, tscTagNode);
-
-    const argsFromChildren = getComponentArgsFromChildren(
-      checker,
-      tscElementNode
-    );
-
-    // Find missing params
-    const foundArgNames = new Set(
-      argsFromProps.concat(argsFromChildren.map(([key]) => key))
-    );
-    const missingParamNames: string[] = [];
-    for (const expectedParam of expectedComponentParams) {
-      if (!foundArgNames.has(expectedParam)) {
-        missingParamNames.push(expectedParam);
+  create(context): TSESLint.RuleListener {
+    const tracker = translationCallTracker();
+    // For some reason we visit the node twice. It should ideally be unnecessary.
+    const visited: Set<TSESTree.Node> = new Set();
+    tracker.listen("translation", (node, captured) => {
+      const idNode = captured["id"]!;
+      if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
+        return;
       }
-    }
-    if (missingParamNames.length > 0) {
-      context.report({
-        node: parserServices.tsNodeToESTreeNodeMap.get(tscTagNode),
-        messageId: "missing-component-argument",
-        data: {
-          paramNames: missingParamNames.join(", "),
-        },
-      });
-    }
+      if (node.type !== "JSXElement") {
+        return;
+      }
 
-    // Find extra args
-    const expectedParamsSet = new Set(expectedParams);
-    for (const [argName, argNode] of argsFromChildren) {
-      if (!expectedParamsSet.has(argName)) {
+      if (visited.has(node)) return;
+      visited.add(node);
+
+      // Start querying tsc
+      const parserServices = ESLintUtils.getParserServices(context);
+      const checker = parserServices.program.getTypeChecker();
+      // <Translate> ... </Translate> or <Translate />
+      const tscElementNode: ts.JsxElement | ts.JsxSelfClosingElement =
+        parserServices.esTreeNodeToTSNodeMap.get(node);
+      // <Translate> or <Translate />
+      const tscTagNode: ts.JsxOpeningLikeElement = getOpenTag(tscElementNode);
+
+      const expectedParamsResult = getExpectedComponentParams(
+        checker,
+        tscTagNode
+      );
+      if (!expectedParamsResult) {
         context.report({
-          node: parserServices.tsNodeToESTreeNodeMap.get(argNode),
-          messageId: "extra-component-argument",
+          node,
+          messageId: "invalid-signature",
+        });
+        return;
+      }
+      const [expectedParams, expectedComponentParams] = expectedParamsResult;
+
+      const argsFromProps = getComponentArgsFromProps(checker, tscTagNode);
+
+      const argsFromChildren = getComponentArgsFromChildren(
+        checker,
+        tscElementNode
+      );
+
+      // Find missing params
+      const foundArgNames = new Set(
+        argsFromProps.concat(argsFromChildren.map(([key]) => key))
+      );
+      const missingParamNames: string[] = [];
+      for (const expectedParam of expectedComponentParams) {
+        if (!foundArgNames.has(expectedParam)) {
+          missingParamNames.push(expectedParam);
+        }
+      }
+      if (missingParamNames.length > 0) {
+        context.report({
+          node: parserServices.tsNodeToESTreeNodeMap.get(tscTagNode),
+          messageId: "missing-component-argument",
           data: {
-            argName,
+            paramNames: missingParamNames.join(", "),
           },
         });
       }
-    }
-  });
-  return {
-    ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager!, node);
-    },
-  };
-}
+
+      // Find extra args
+      const expectedParamsSet = new Set(expectedParams);
+      for (const [argName, argNode] of argsFromChildren) {
+        if (!expectedParamsSet.has(argName)) {
+          context.report({
+            node: parserServices.tsNodeToESTreeNodeMap.get(argNode),
+            messageId: "extra-component-argument",
+            data: {
+              argName,
+            },
+          });
+        }
+      }
+    });
+    return {
+      ImportDeclaration(node) {
+        tracker.trackImport(context.getSourceCode().scopeManager!, node);
+      },
+    };
+  },
+});
 
 function getExpectedComponentParams(
   checker: ts.TypeChecker,

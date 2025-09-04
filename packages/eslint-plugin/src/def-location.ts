@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getImportName, resolveVariable } from "./util.js";
+import { getImportName, nameOf, resolveVariable } from "./util.js";
 
 export type DefLocation = {
   path: string;
@@ -31,7 +31,9 @@ export function resolveAsLocation(
     expr.parent.init === expr &&
     expr.parent.parent &&
     expr.parent.parent.type === "VariableDeclaration" &&
-    expr.parent.parent.declarations.includes(expr.parent) &&
+    (expr.parent.parent.declarations as TSESTree.Node[]).includes(
+      expr.parent
+    ) &&
     expr.parent.id.type === "Identifier"
   ) {
     // Something like const x = 42;
@@ -62,9 +64,9 @@ export function resolveAsLocation(
     for (const decl of program.body) {
       if (decl.type !== "ExportNamedDeclaration") continue;
       for (const spec of decl.specifiers) {
-        if (spec.local.name === localName) {
+        if (nameOf(spec.local) === localName) {
           // Named exports
-          exportNames.push(spec.exported.name);
+          exportNames.push(nameOf(spec.exported));
         }
       }
     }

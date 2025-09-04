@@ -1,18 +1,22 @@
-import { describe, it } from "vitest";
-import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./well-formed-book-references.js";
+import { afterAll, describe, it } from "vitest";
+import * as espree from "espree";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { rule } from "./well-formed-book-references.js";
 
-TSESLint.RuleTester.describe = describe;
-TSESLint.RuleTester.it = it;
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
 
-new TSESLint.RuleTester({
-  parser: require.resolve("espree"),
-  parserOptions: {
-    ecmaVersion: 2015,
-    sourceType: "module",
-    ecmaFeatures: { jsx: true },
+new RuleTester({
+  languageOptions: {
+    parser: espree,
+    parserOptions: {
+      ecmaVersion: 2015,
+      sourceType: "module",
+      ecmaFeatures: { jsx: true },
+    },
   },
-}).run("@hi18n/well-formed-book-references", rule, {
+}).run("well-formed-book-references", rule, {
   valid: [
     `
       import { getTranslator } from "@hi18n/core";

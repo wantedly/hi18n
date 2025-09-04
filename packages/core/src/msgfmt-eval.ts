@@ -48,7 +48,7 @@ export function evaluateMessage<T = string>(
       case undefined:
         if (typeof value !== "string")
           throw new MessageEvaluationError(
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-base-to-string
             `Invalid argument ${msg.name}: expected string, got ${value}`
           );
         return value;

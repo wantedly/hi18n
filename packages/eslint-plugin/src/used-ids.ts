@@ -41,14 +41,14 @@ export function queryUsedTranslationIds<
           throw new Error("Invalid linkage map");
         }
         if (Object.prototype.hasOwnProperty.call(usedIdsMap, linkedLocPath)) {
-          return checkStringArray(usedIdsMap[linkedLocPath]!);
+          return checkStringArray(usedIdsMap[linkedLocPath]);
         }
       }
     }
   } else {
     for (const locPath of serializedLocations(nodeLocation)) {
       if (Object.prototype.hasOwnProperty.call(usedIdsMap, locPath)) {
-        return checkStringArray(usedIdsMap[locPath]!);
+        return checkStringArray(usedIdsMap[locPath]);
       }
     }
   }

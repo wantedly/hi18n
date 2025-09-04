@@ -1,55 +1,105 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import * as ruleCollectBookDefinitions from "./rules/collect-book-definitions.js";
-import * as ruleCollectCatalogDefinitions from "./rules/collect-catalog-definitions.js";
-import * as ruleCollectTranslationIds from "./rules/collect-translation-ids.js";
-import * as ruleMigrateFromLingui from "./rules/migrate-from-lingui.js";
-import * as ruleNoDynamicTranslationIds from "./rules/no-dynamic-translation-ids.js";
-import * as ruleNoMissingTranslationIds from "./rules/no-missing-translation-ids.js";
-import * as ruleNoMissingTranslationIdsInTypes from "./rules/no-missing-translation-ids-in-types.js";
-import * as ruleNoUnusedTranslationIds from "./rules/no-unused-translation-ids.js";
-import * as ruleNoUnusedTranslationIdsInTypes from "./rules/no-unused-translation-ids-in-types.js";
-import * as ruleReactComponentParams from "./rules/react-component-params.js";
-import * as ruleWellFormedBookDefinitions from "./rules/well-formed-book-definitions.js";
-import * as ruleWellFormedBookReferences from "./rules/well-formed-book-references.js";
-import * as ruleWellFormedCatalogDefinitions from "./rules/well-formed-catalog-definitions.js";
+import { rule as ruleMigrateFromLingui } from "./rules/migrate-from-lingui.js";
+import { rule as ruleNoDynamicTranslationIds } from "./rules/no-dynamic-translation-ids.js";
+import { rule as ruleReactComponentParams } from "./rules/react-component-params.js";
+import { rule as ruleWellFormedBookDefinitions } from "./rules/well-formed-book-definitions.js";
+import { rule as ruleWellFormedBookReferences } from "./rules/well-formed-book-references.js";
+import { rule as ruleWellFormedCatalogDefinitions } from "./rules/well-formed-catalog-definitions.js";
 
-export const configs: Record<string, TSESLint.Linter.Config> = {
-  recommended: {
-    plugins: ["@hi18n"],
-    rules: {
-      "@hi18n/no-dynamic-translation-ids": "error",
-      "@hi18n/well-formed-book-references": "error",
-      "@hi18n/well-formed-book-definitions": "error",
-      "@hi18n/well-formed-catalog-definitions": "error",
-    },
-  },
-  "recommended-requiring-type-checking": {
-    rules: {
-      "@hi18n/react-component-params": "error",
-    },
+export type Plugin = {
+  meta: {
+    name: string;
+    version?: string;
+  };
+  rules: {
+    "migrate-from-lingui": typeof ruleMigrateFromLingui;
+    "no-dynamic-translation-ids": typeof ruleNoDynamicTranslationIds;
+    "react-component-params": typeof ruleReactComponentParams;
+    "well-formed-book-references": typeof ruleWellFormedBookReferences;
+    "well-formed-book-definitions": typeof ruleWellFormedBookDefinitions;
+    "well-formed-catalog-definitions": typeof ruleWellFormedCatalogDefinitions;
+  };
+  configs: SharedConfigs;
+};
+
+export type SharedConfigs = {
+  "flat/recommended": TSESLint.FlatConfig.Config;
+  "flat/recommended-type-checked-only": TSESLint.FlatConfig.Config;
+  "flat/recommended-type-checked": TSESLint.FlatConfig.Config;
+  recommended: TSESLint.ClassicConfig.Config;
+  "recommended-type-checked-only": TSESLint.ClassicConfig.Config;
+  "recommended-type-checked": TSESLint.ClassicConfig.Config;
+  /** @deprecated - please use "recommended-type-checked" instead. */
+  "recommended-requiring-type-checking": TSESLint.ClassicConfig.Config;
+};
+
+/** Initialize partially to build cyclic references */
+const plugin: Plugin = {} as Plugin;
+
+const flatRecommended: TSESLint.FlatConfig.Config = {
+  plugins: { "@hi18n": plugin },
+  rules: {
+    "@hi18n/no-dynamic-translation-ids": "error",
+    "@hi18n/well-formed-book-references": "error",
+    "@hi18n/well-formed-book-definitions": "error",
+    "@hi18n/well-formed-catalog-definitions": "error",
   },
 };
 
-export const rules = {
-  "collect-book-definitions": ruleCollectBookDefinitions,
-  "collect-catalog-definitions": ruleCollectCatalogDefinitions,
-  "collect-translation-ids": ruleCollectTranslationIds,
-  "migrate-from-lingui": ruleMigrateFromLingui,
-  "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
-  "no-missing-translation-ids": ruleNoMissingTranslationIds,
-  "no-missing-translation-ids-in-types": ruleNoMissingTranslationIdsInTypes,
-  "react-component-params": ruleReactComponentParams,
-  "well-formed-book-references": ruleWellFormedBookReferences,
-  "well-formed-book-definitions": ruleWellFormedBookDefinitions,
-  "well-formed-catalog-definitions": ruleWellFormedCatalogDefinitions,
-  "no-unused-translation-ids": ruleNoUnusedTranslationIds,
-  "no-unused-translation-ids-in-types": ruleNoUnusedTranslationIdsInTypes,
-} as const;
+const flatRecommendedTypeCheckedOnly: TSESLint.FlatConfig.Config = {
+  plugins: { "@hi18n": plugin },
+  rules: {
+    "@hi18n/react-component-params": "error",
+  },
+};
 
-const _test: TSESLint.Linter.Plugin = { configs, rules };
+const flatRecommendedTypeChecked: TSESLint.FlatConfig.Config = {
+  plugins: { "@hi18n": plugin },
+  rules: {
+    ...flatRecommended.rules,
+    ...flatRecommendedTypeCheckedOnly.rules,
+  },
+};
 
-export { serializedLocations, serializeReference } from "./def-location.js";
-export type { DefLocation, DefReference } from "./def-location.js";
-export type { BookDef, CatalogLink } from "./rules/collect-book-definitions.js";
-export type { CatalogDef } from "./rules/collect-catalog-definitions.js";
-export type { TranslationUsage } from "./rules/collect-translation-ids.js";
+const classicRecommended: TSESLint.ClassicConfig.Config = {
+  plugins: ["@hi18n"],
+  rules: flatRecommended.rules!,
+};
+
+const classicRecommendedTypeCheckedOnly: TSESLint.ClassicConfig.Config = {
+  plugins: ["@hi18n"],
+  rules: flatRecommendedTypeCheckedOnly.rules!,
+};
+
+const classicRecommendedTypeChecked: TSESLint.ClassicConfig.Config = {
+  plugins: ["@hi18n"],
+  rules: flatRecommendedTypeChecked.rules!,
+};
+
+const pluginContents: Plugin = {
+  meta: {
+    // TODO: copy name/version from package.json
+    name: "@hi18n/eslint-plugin",
+  },
+  rules: {
+    "migrate-from-lingui": ruleMigrateFromLingui,
+    "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
+    "react-component-params": ruleReactComponentParams,
+    "well-formed-book-references": ruleWellFormedBookReferences,
+    "well-formed-book-definitions": ruleWellFormedBookDefinitions,
+    "well-formed-catalog-definitions": ruleWellFormedCatalogDefinitions,
+  },
+  configs: {
+    "flat/recommended": flatRecommended,
+    "flat/recommended-type-checked-only": flatRecommendedTypeCheckedOnly,
+    "flat/recommended-type-checked": flatRecommendedTypeChecked,
+    recommended: classicRecommended,
+    "recommended-type-checked-only": classicRecommendedTypeCheckedOnly,
+    "recommended-type-checked": classicRecommendedTypeChecked,
+    "recommended-requiring-type-checking": classicRecommendedTypeChecked,
+  },
+};
+
+Object.assign(plugin, pluginContents);
+
+export { plugin as default };

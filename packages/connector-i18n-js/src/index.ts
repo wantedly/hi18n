@@ -45,7 +45,6 @@ export function connector(configPath: string, params: unknown): ConnectorObj {
       for (const [locale, yamlLocaleData] of Object.entries(yamlData)) {
         const localeTranslations = (translations[locale] ??= {});
 
-        // eslint-disable-next-line no-inner-declarations
         function traverse(obj: unknown, key: string) {
           if (isMessage(obj) && key.length > 0) {
             localeTranslations[key.substring(1)] = { raw: convertMessage(obj) };
