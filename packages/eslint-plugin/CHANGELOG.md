@@ -1,5 +1,11 @@
 # `@hi18n/eslint-plugin`
 
+## 0.2.0
+
+### Minor Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+
 ## 0.1.13
 
 ### Patch Changes

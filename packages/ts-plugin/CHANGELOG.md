@@ -1,5 +1,11 @@
 # `@hi18n/ts-plugin`
 
+## 0.1.4
+
+### Patch Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+
 ## 0.1.3
 
 ### Patch Changes

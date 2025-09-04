@@ -1,5 +1,11 @@
 # `@hi18n/dev-utils`
 
+## 0.1.5
+
+### Patch Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+
 ## 0.1.4
 
 ### Patch Changes

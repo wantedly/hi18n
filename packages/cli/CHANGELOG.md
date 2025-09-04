@@ -1,5 +1,17 @@
 # `@hi18n/cli`
 
+## 0.2.0
+
+### Minor Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+
+### Patch Changes
+
+- Updated dependencies [c478ab5]
+  - @hi18n/eslint-plugin@0.2.0
+  - @hi18n/tools-core@0.1.6
+
 ## 0.1.15
 
 ### Patch Changes
