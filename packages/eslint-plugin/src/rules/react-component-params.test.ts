@@ -1,21 +1,25 @@
 import path from "node:path";
-import { describe, it } from "vitest";
-import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./react-component-params.js";
+import { afterAll, describe, it } from "vitest";
+import * as tsParser from "@typescript-eslint/parser";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { rule } from "./react-component-params.js";
 
-TSESLint.RuleTester.describe = describe;
-TSESLint.RuleTester.it = it;
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
 
-new TSESLint.RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: {
-    ecmaVersion: 2015,
-    sourceType: "module",
-    ecmaFeatures: { jsx: true },
-    project: "./tsconfig.json",
-    tsconfigRootDir: path.resolve(__dirname, "../../configs/fixtures"),
+new RuleTester({
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: {
+      ecmaVersion: 2015,
+      sourceType: "module",
+      ecmaFeatures: { jsx: true },
+      project: "./tsconfig.json",
+      tsconfigRootDir: path.resolve(__dirname, "../../configs/fixtures"),
+    },
   },
-}).run("@hi18n/react-component-params", rule, {
+}).run("react-component-params", rule, {
   valid: [
     `
       import { Book, ComponentPlaceholder, Message } from "@hi18n/core";

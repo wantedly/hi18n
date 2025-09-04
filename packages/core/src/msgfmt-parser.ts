@@ -134,7 +134,7 @@ function parseMessageText(this: Parser, allowHash: boolean): string {
 function parseRawMessageText(this: Parser, inQuote: boolean): string {
   const re = inQuote ? this.reQuotedText : this.reText;
   re.lastIndex = this.pos;
-  const text = re.exec(this.src)![0]!;
+  const text = re.exec(this.src)![0];
   this.pos += text.length;
   return text;
 }

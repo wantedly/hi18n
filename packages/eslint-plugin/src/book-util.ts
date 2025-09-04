@@ -4,7 +4,8 @@ import { DefReference, lookupDefinitionSource } from "./def-location.js";
 export function getCatalogRef(
   scopeManager: TSESLint.Scope.ScopeManager,
   base: string,
-  prop: TSESTree.ObjectLiteralElement
+  // Support MethodDefinition for compat
+  prop: TSESTree.ObjectLiteralElement | TSESTree.MethodDefinition
 ): DefReference | undefined {
   if (!(prop.type === "Property" || prop.type === "MethodDefinition")) {
     return undefined;

@@ -1,13 +1,37 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./collect-translation-ids.js";
-import { TranslationUsage } from "./collect-translation-ids.js";
+import { TranslationUsage, getRule } from "./collect-translation-ids.js";
+
+function getConfig(collected: TranslationUsage[]): TSESLint.FlatConfig.Config {
+  return {
+    plugins: {
+      "@hi18n": {
+        rules: {
+          "collect-translation-ids": getRule((l: TranslationUsage) => {
+            collected.push(l);
+          }),
+        },
+      },
+    },
+    languageOptions: {
+      parserOptions: {
+        ecmaVersion: "latest",
+        ecmaFeatures: {
+          jsx: true,
+        },
+        sourceType: "module",
+      },
+    },
+    rules: {
+      "@hi18n/collect-translation-ids": "error",
+    },
+  };
+}
 
 describe("collect-translation-ids", () => {
   it("detects translation ids", () => {
     const collected: TranslationUsage[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("collect-translation-ids", rule);
     linter.verify(
       `
       import { getTranslator } from "@hi18n/core";
@@ -30,23 +54,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt("example.greeting3");
     `,
-      {
-        parserOptions: {
-          ecmaVersion: "latest",
-          ecmaFeatures: {
-            jsx: true,
-          },
-          sourceType: "module",
-        },
-        rules: {
-          "collect-translation-ids": [
-            "error",
-            (u: TranslationUsage) => {
-              collected.push(u);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
@@ -95,7 +103,6 @@ describe("collect-translation-ids", () => {
   it("detects translation ids with locally-defined books", () => {
     const collected: TranslationUsage[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("collect-translation-ids", rule);
     linter.verify(
       `
       import { Book, getTranslator } from "@hi18n/core";
@@ -119,23 +126,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt("example.greeting3");
     `,
-      {
-        parserOptions: {
-          ecmaVersion: "latest",
-          ecmaFeatures: {
-            jsx: true,
-          },
-          sourceType: "module",
-        },
-        rules: {
-          "collect-translation-ids": [
-            "error",
-            (u: TranslationUsage) => {
-              collected.push(u);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
@@ -179,7 +170,6 @@ describe("collect-translation-ids", () => {
   it("detects dynamically-referenced translation ids", () => {
     const collected: TranslationUsage[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("collect-translation-ids", rule);
     linter.verify(
       `
       import { getTranslator, translationId } from "@hi18n/core";
@@ -207,23 +197,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt.dynamic(id5);
     `,
-      {
-        parserOptions: {
-          ecmaVersion: "latest",
-          ecmaFeatures: {
-            jsx: true,
-          },
-          sourceType: "module",
-        },
-        rules: {
-          "collect-translation-ids": [
-            "error",
-            (u: TranslationUsage) => {
-              collected.push(u);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
@@ -272,7 +246,6 @@ describe("collect-translation-ids", () => {
   it("detects bootstrapping translation ids", () => {
     const collected: TranslationUsage[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("collect-translation-ids", rule);
     linter.verify(
       `
       import { getTranslator } from "@hi18n/core";
@@ -297,23 +270,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt.todo("example.greeting3");
     `,
-      {
-        parserOptions: {
-          ecmaVersion: "latest",
-          ecmaFeatures: {
-            jsx: true,
-          },
-          sourceType: "module",
-        },
-        rules: {
-          "collect-translation-ids": [
-            "error",
-            (u: TranslationUsage) => {
-              collected.push(u);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {

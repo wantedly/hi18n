@@ -36,14 +36,14 @@
     "clean": "rimraf dist cjs/dist",
     "fmt": "prettier . -w",
     "fmt:check": "prettier . -c",
-    "lint": "eslint 'src/**/*.ts' .eslintrc.cjs",
+    "lint": "eslint 'src/**/*.ts' eslint.config.js",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "tsc": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^17.0.32",
-    "eslint": "^8.24.0",
-    "eslint-plugin-node": "^11.1.0",
+    "@types/node": "^22.13.14",
+    "eslint": "^9.34.0",
+    "eslint-plugin-n": "^17.21.3",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2"

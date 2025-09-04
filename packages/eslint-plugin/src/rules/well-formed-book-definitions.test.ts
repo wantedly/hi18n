@@ -1,18 +1,22 @@
-import { describe, it } from "vitest";
-import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./well-formed-book-definitions.js";
-import type {} from "../tseslint-babel.js";
+import { afterAll, describe, it } from "vitest";
+import * as espree from "espree";
+import * as tsParser from "@typescript-eslint/parser";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { rule } from "./well-formed-book-definitions.js";
 
-TSESLint.RuleTester.describe = describe;
-TSESLint.RuleTester.it = it;
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
 
-new TSESLint.RuleTester({
-  parser: require.resolve("espree"),
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+new RuleTester({
+  languageOptions: {
+    parser: espree,
+    parserOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+    },
   },
-}).run("@hi18n/well-formed-book-definitions", rule, {
+}).run("well-formed-book-definitions", rule, {
   valid: [
     `
       import { Book } from "@hi18n/core";
@@ -229,13 +233,15 @@ new TSESLint.RuleTester({
   ],
 });
 
-new TSESLint.RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: {
-    ecmaVersion: 2015,
-    sourceType: "module",
+new RuleTester({
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: {
+      ecmaVersion: 2015,
+      sourceType: "module",
+    },
   },
-}).run("@hi18n/no-nonstandard-books (with TypeScript)", rule, {
+}).run("no-nonstandard-books (with TypeScript)", rule, {
   valid: [
     `
       import { Book } from "@hi18n/core";

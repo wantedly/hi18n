@@ -3,7 +3,10 @@ import path from "node:path";
 import util from "node:util";
 import glob from "glob";
 import { TSESLint } from "@typescript-eslint/utils";
-import { rules, CatalogDef } from "@hi18n/eslint-plugin";
+import {
+  getCollectCatalogDefinitionsRule,
+  CatalogDef,
+} from "@hi18n/eslint-plugin/internal-rules";
 import { loadConfig } from "./config.js";
 import { Hi18nCatalogData } from "@hi18n/tools-core";
 
@@ -24,18 +27,24 @@ export async function export_(options: Options) {
     throw new Error("Connector not configured");
   }
 
-  const linterConfig: TSESLint.Linter.Config = {
-    parser: config.parser as string,
-    parserOptions: config.parserOptions,
+  const catalogDefs: CatalogDef[] = [];
+  const linterConfig: TSESLint.FlatConfig.Config = {
+    languageOptions: {
+      parser: config.parser as TSESLint.Parser.LooseParserModule,
+      parserOptions: config.parserOptions,
+    },
+    plugins: {
+      "@hi18n": {
+        rules: {
+          "collect-catalog-definitions": getCollectCatalogDefinitionsRule(
+            (record) => catalogDefs.push(record)
+          ),
+        },
+      },
+    },
   };
 
   const linter = new TSESLint.Linter({ cwd });
-
-  const catalogDefs: CatalogDef[] = [];
-  linter.defineRule(
-    "@hi18n/collect-catalog-definitions",
-    rules["collect-catalog-definitions"]
-  );
 
   const files: string[] = [];
   for (const includeGlob of include) {
@@ -52,20 +61,20 @@ export async function export_(options: Options) {
     const source = await fs.promises.readFile(filename, "utf-8");
     const messages = linter.verify(
       source,
-      {
-        ...linterConfig,
-        rules: {
-          "@hi18n/collect-catalog-definitions": [
-            "error",
-            (c: CatalogDef) => {
-              catalogDefs.push(c);
-            },
-            {
-              requestMessages: true,
-            },
-          ],
+      [
+        { files: ["**"] },
+        {
+          ...linterConfig,
+          rules: {
+            "@hi18n/collect-catalog-definitions": [
+              "error",
+              {
+                requestMessages: true,
+              },
+            ],
+          },
         },
-      },
+      ],
       { filename }
     );
     checkMessages(relative, messages);

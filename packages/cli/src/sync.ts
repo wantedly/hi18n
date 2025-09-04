@@ -5,13 +5,19 @@ import path from "node:path";
 import util from "node:util";
 import resolve from "resolve";
 import {
-  rules,
+  getCollectBookDefinitionsRule,
+  getCollectCatalogDefinitionsRule,
+  getCollectTranslationIdsRule,
+  noMissingTranslationIdsInTypesRule,
+  noMissingTranslationIdsRule,
+  noUnusedTranslationIdsInTypesRule,
+  noUnusedTranslationIdsRule,
   serializedLocations,
   serializeReference,
   BookDef,
   CatalogDef,
   TranslationUsage,
-} from "@hi18n/eslint-plugin";
+} from "@hi18n/eslint-plugin/internal-rules";
 import { loadConfig } from "./config.js";
 
 export type Options = {
@@ -33,45 +39,39 @@ export async function sync(options: Options) {
   if (include === undefined || include.length === 0) {
     throw new Error("No include specified");
   }
-  const linterConfig: TSESLint.Linter.Config = {
-    parser: config.parser as string,
-    parserOptions: config.parserOptions,
+
+  const translationUsages: TranslationUsage[] = [];
+  const bookDefs: BookDef[] = [];
+  const catalogDefs: CatalogDef[] = [];
+  const linterConfig: TSESLint.FlatConfig.Config = {
+    languageOptions: {
+      parser: config.parser as TSESLint.Parser.LooseParserModule,
+      parserOptions: config.parserOptions,
+    },
+    plugins: {
+      "@hi18n": {
+        rules: {
+          "collect-translation-ids": getCollectTranslationIdsRule((record) =>
+            translationUsages.push(record)
+          ),
+          "collect-book-definitions": getCollectBookDefinitionsRule((record) =>
+            bookDefs.push(record)
+          ),
+          "collect-catalog-definitions": getCollectCatalogDefinitionsRule(
+            (record) => catalogDefs.push(record)
+          ),
+          "no-missing-translation-ids": noMissingTranslationIdsRule,
+          "no-unused-translation-ids": noUnusedTranslationIdsRule,
+          "no-missing-translation-ids-in-types":
+            noMissingTranslationIdsInTypesRule,
+          "no-unused-translation-ids-in-types":
+            noUnusedTranslationIdsInTypesRule,
+        },
+      },
+    },
   };
 
   const linter = new TSESLint.Linter({ cwd: projectPath });
-
-  const translationUsages: TranslationUsage[] = [];
-  linter.defineRule(
-    "@hi18n/collect-translation-ids",
-    rules["collect-translation-ids"]
-  );
-  const bookDefs: BookDef[] = [];
-  linter.defineRule(
-    "@hi18n/collect-book-definitions",
-    rules["collect-book-definitions"]
-  );
-  const catalogDefs: CatalogDef[] = [];
-  linter.defineRule(
-    "@hi18n/collect-catalog-definitions",
-    rules["collect-catalog-definitions"]
-  );
-
-  linter.defineRule(
-    "@hi18n/no-missing-translation-ids",
-    rules["no-missing-translation-ids"]
-  );
-  linter.defineRule(
-    "@hi18n/no-unused-translation-ids",
-    rules["no-unused-translation-ids"]
-  );
-  linter.defineRule(
-    "@hi18n/no-missing-translation-ids-in-types",
-    rules["no-missing-translation-ids-in-types"]
-  );
-  linter.defineRule(
-    "@hi18n/no-unused-translation-ids-in-types",
-    rules["no-unused-translation-ids-in-types"]
-  );
 
   const files: string[] = [];
   for (const includeGlob of include) {
@@ -88,29 +88,17 @@ export async function sync(options: Options) {
     const source = await fs.promises.readFile(filename, "utf-8");
     const messages = linter.verify(
       source,
-      {
-        ...linterConfig,
-        rules: {
-          "@hi18n/collect-translation-ids": [
-            "error",
-            (u: TranslationUsage) => {
-              translationUsages.push(u);
-            },
-          ],
-          "@hi18n/collect-book-definitions": [
-            "error",
-            (b: BookDef) => {
-              bookDefs.push(b);
-            },
-          ],
-          "@hi18n/collect-catalog-definitions": [
-            "error",
-            (c: CatalogDef) => {
-              catalogDefs.push(c);
-            },
-          ],
+      [
+        { files: ["**"] },
+        {
+          ...linterConfig,
+          rules: {
+            "@hi18n/collect-translation-ids": "error",
+            "@hi18n/collect-book-definitions": "error",
+            "@hi18n/collect-catalog-definitions": "error",
+          },
         },
-      },
+      ],
       { filename }
     );
     checkMessages(relative, messages);
@@ -194,33 +182,47 @@ export async function sync(options: Options) {
   }
 
   for (const rewriteTargetFile of Array.from(rewriteTargetFiles).sort()) {
-    const source = await fs.promises.readFile(rewriteTargetFile, "utf-8");
-    const report = linter.verifyAndFix(
-      source,
-      {
-        ...linterConfig,
-        rules: {
-          "@hi18n/no-missing-translation-ids": "warn",
-          "@hi18n/no-unused-translation-ids": "warn",
-          "@hi18n/no-missing-translation-ids-in-types": "warn",
-          "@hi18n/no-unused-translation-ids-in-types": "warn",
-        },
-        settings: {
-          "@hi18n/linkage": linkage,
-          "@hi18n/used-translation-ids": usedTranslationIds,
-          "@hi18n/value-hints": valueHints,
-        },
-      },
-      { filename: rewriteTargetFile }
-    );
-    checkMessages(rewriteTargetFile, report.messages);
-    if (report.fixed) {
+    const original = await fs.promises.readFile(rewriteTargetFile, "utf-8");
+    let current = await fs.promises.readFile(rewriteTargetFile, "utf-8");
+
+    function applyFix(
+      rules: Partial<Record<string, TSESLint.SharedConfig.RuleEntry>>
+    ): boolean {
+      const report = linter.verifyAndFix(
+        current,
+        [
+          { files: ["**"] },
+          {
+            ...linterConfig,
+            rules,
+            settings: {
+              "@hi18n/linkage": linkage,
+              "@hi18n/used-translation-ids": usedTranslationIds,
+              "@hi18n/value-hints": valueHints,
+            },
+          },
+        ],
+        { filename: rewriteTargetFile }
+      );
+      checkMessages(rewriteTargetFile, report.messages);
+      if (report.fixed) {
+        current = report.output;
+      }
+      return report.fixed;
+    }
+
+    applyFix({ "@hi18n/no-unused-translation-ids": "warn" });
+    applyFix({ "@hi18n/no-unused-translation-ids-in-types": "warn" });
+    applyFix({ "@hi18n/no-missing-translation-ids": "warn" });
+    applyFix({ "@hi18n/no-missing-translation-ids-in-types": "warn" });
+
+    if (current !== original) {
       if (options.checkOnly) {
         throw new Error(
           `Found diff in ${path.relative(projectPath, rewriteTargetFile)}`
         );
       }
-      await fs.promises.writeFile(rewriteTargetFile, report.output, "utf-8");
+      await fs.promises.writeFile(rewriteTargetFile, current, "utf-8");
     }
   }
 }
@@ -234,8 +236,11 @@ function checkMessages(
       // We load ESLint with minimal rules. Ignore the "missing rule" error.
       continue;
     }
-    if (message.severity >= 2)
+    if (message.severity >= 2) {
       throw new Error(`Error on ${filepath}: ${message.message}`);
+    } else if (message.severity >= 1) {
+      console.warn(`Warning on ${filepath}: ${message.message}`);
+    }
   }
 }
 

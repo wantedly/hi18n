@@ -2,7 +2,8 @@ import path from "node:path";
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { linguiTracker } from "../common-trackers.js";
 import { capturedRoot } from "../tracker.js";
-import { getStaticKey } from "../util.js";
+import { getStaticKey, nameOf } from "../util.js";
+import { createRule } from "./create-rule.ts";
 
 type MessageIds = "migrate-trans-jsx" | "migrate-underscore";
 type OptionList = [Options];
@@ -11,36 +12,317 @@ type Options = {
   bookPath: string;
 };
 
-export const meta: TSESLint.RuleMetaData<MessageIds> = {
-  type: "problem",
-  fixable: "code",
-  docs: {
-    description: "helps migrating from LinguiJS",
-    recommended: "warn",
-  },
-  messages: {
-    "migrate-trans-jsx": "Migrate <Trans> to hi18n",
-    "migrate-underscore": "Migrate i18n._ to hi18n",
-  },
-  schema: [
-    {
-      type: "object",
-      required: ["bookPath"],
-      properties: {
-        bookPath: {
-          type: "string",
+export const rule = createRule<OptionList, MessageIds>({
+  name: "migrate-from-lingui",
+  meta: {
+    type: "problem",
+    fixable: "code",
+    docs: {
+      description: "helps migrating from LinguiJS",
+      recommended: false,
+    },
+    messages: {
+      "migrate-trans-jsx": "Migrate <Trans> to hi18n",
+      "migrate-underscore": "Migrate i18n._ to hi18n",
+    },
+    schema: [
+      {
+        type: "object",
+        required: ["bookPath"],
+        properties: {
+          bookPath: {
+            type: "string",
+            description:
+              "The path to the book where the migrated translation should go",
+          },
         },
+        additionalProperties: false,
       },
-      additionalProperties: false,
+    ],
+    defaultOptions: [
+      {
+        bookPath: "<book path>",
+      },
+    ],
+  },
+
+  defaultOptions: [
+    {
+      bookPath: "<book path>",
     },
   ],
-};
 
-export const defaultOptions: OptionList = [
-  {
-    bookPath: "<book path>",
+  create(context): TSESLint.RuleListener {
+    let bookPath = path.relative(
+      path.dirname(context.getFilename()),
+      context.options[0].bookPath
+    );
+    if (!/^\.\.?(?:\/|$)/.test(bookPath)) bookPath = `./${bookPath}`;
+    const tracker = linguiTracker();
+    tracker.listen("translationJSX", (node, captured) => {
+      const propsNode = captured["props"]!;
+      const justReport = () => {
+        context.report({
+          node: capturedRoot(propsNode),
+          messageId: "migrate-trans-jsx",
+        });
+      };
+      if (propsNode.type !== "PropsOf") {
+        return justReport();
+      }
+      for (const attr of propsNode.node.openingElement.attributes) {
+        if (attr.type === "JSXSpreadAttribute") {
+          return justReport();
+        }
+        if (
+          attr.name.type !== "JSXIdentifier" ||
+          !MIGRATABLE_PROP_NAMES.includes(attr.name.name)
+        ) {
+          return justReport();
+        }
+      }
+
+      const idNode = captured["id"]!;
+      if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
+        return justReport();
+      }
+      const id: string = idNode.value;
+
+      let renderInElement: string | undefined = undefined;
+      const renderNode = captured["render"]!;
+      if (renderNode.type === "JSXElement") {
+        // Lingui v2 component-like use of render
+        renderInElement = context.getSourceCode().getText(renderNode);
+      } else if (renderNode.type !== "CaptureFailure") {
+        // render is not supported yet
+        return justReport();
+      }
+      const componentNode = captured["component"]!;
+      if (
+        (componentNode.type === "Identifier" ||
+          componentNode.type === "MemberExpression") &&
+        eligibleForJSXTagNameExpression(componentNode)
+      ) {
+        renderInElement = `<${context
+          .getSourceCode()
+          .getText(componentNode)} />`;
+      } else if (componentNode.type !== "CaptureFailure") {
+        // render/renderInComponent is not supported yet
+        return justReport();
+      }
+
+      const params = new Map<string, string>();
+      for (const valuesNode of [captured["values"]!, captured["components"]!]) {
+        if (valuesNode.type === "ObjectExpression") {
+          for (const prop of valuesNode.properties) {
+            if (prop.type !== "Property") return justReport();
+            const key = getStaticKey(prop);
+            if (key === null) return justReport();
+            if (params.has(key)) return justReport();
+            params.set(key, context.getSourceCode().getText(prop.value));
+          }
+        } else if (valuesNode.type === "ArrayExpression") {
+          let i = 0;
+          for (const elem of valuesNode.elements) {
+            if (elem == null) return justReport();
+            if (elem.type === "SpreadElement") return justReport();
+            const key = `${i}`;
+            if (params.has(key)) return justReport();
+            params.set(key, context.getSourceCode().getText(elem));
+            i++;
+          }
+        } else if (valuesNode.type !== "CaptureFailure") {
+          return justReport();
+        }
+      }
+
+      context.report({
+        node: capturedRoot(propsNode),
+        messageId: "migrate-trans-jsx",
+        *fix(fixer) {
+          const [translateImportFixes, translateComponentName] =
+            getOrInsertImport(
+              context.getSourceCode(),
+              context.getSourceCode().scopeManager!,
+              fixer,
+              "@hi18n/react",
+              "Translate",
+              ["@lingui/react", "@lingui/macro"]
+            );
+          yield* translateImportFixes;
+
+          const [bookImportFixes, bookName] = getOrInsertImport(
+            context.getSourceCode(),
+            context.getSourceCode().scopeManager!,
+            fixer,
+            bookPath,
+            "book",
+            [],
+            true
+          );
+          yield* bookImportFixes;
+
+          const attrs: string[] = [];
+          attrs.push(`book={${bookName}}`);
+          attrs.push(`id=${jsxAttributeString(id)}`);
+          if (renderInElement !== undefined) {
+            attrs.push(`renderInElement={${renderInElement}}`);
+          }
+          for (const [paramKey, paramValue] of params) {
+            if (
+              /^[\p{ID_Start}$_][-\p{ID_Continue}$\u200C\u200D]*$/u.test(
+                paramKey
+              )
+            ) {
+              attrs.push(`${paramKey}={${paramValue}}`);
+            } else if (/^(?:0|[1-9][0-9]*)$/.test(paramKey)) {
+              attrs.push(`{...{ ${paramKey}: ${paramValue} }}`);
+            } else {
+              attrs.push(`{...{ ${JSON.stringify(paramKey)}: ${paramValue} }}`);
+            }
+          }
+
+          if (node.type === "JSXElement" && node.closingElement) {
+            yield fixer.replaceText(
+              node.openingElement,
+              `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")}>`
+            );
+            yield fixer.replaceText(
+              node.closingElement,
+              `</${translateComponentName}>`
+            );
+          } else {
+            yield fixer.replaceText(
+              node,
+              `<${translateComponentName}${attrs
+                .map((s) => ` ${s}`)
+                .join("")} />`
+            );
+          }
+        },
+      });
+    });
+    return {
+      ImportDeclaration(node) {
+        tracker.trackImport(context.getSourceCode().scopeManager!, node);
+      },
+      CallExpression(node) {
+        if (
+          node.callee.type === "MemberExpression" &&
+          node.callee.object.type === "Identifier" &&
+          node.callee.object.name === "i18n" &&
+          !node.callee.computed &&
+          node.callee.property.type === "Identifier" &&
+          node.callee.property.name === "_"
+        ) {
+          // i18n._(...)
+          const justReport = () => {
+            context.report({
+              node,
+              messageId: "migrate-underscore",
+            });
+          };
+          if (
+            !node.arguments.every(
+              (arg): arg is TSESTree.Expression => arg.type !== "SpreadElement"
+            )
+          ) {
+            return justReport();
+          }
+          if (node.arguments.length <= 0 || node.arguments.length >= 3) {
+            return justReport();
+          }
+
+          const messageIdNode = node.arguments[0]!;
+          let messageIdSource_: string | undefined = undefined;
+          if (
+            messageIdNode.type === "Literal" &&
+            typeof messageIdNode.value === "string"
+          ) {
+            // i18n._("foo")
+            messageIdSource_ = context.getSourceCode().getText(messageIdNode);
+          } else if (
+            messageIdNode.type === "CallExpression" &&
+            messageIdNode.callee.type === "Identifier" &&
+            messageIdNode.callee.name === "i18nMark" &&
+            messageIdNode.arguments.length === 1 &&
+            messageIdNode.arguments[0]!.type === "Literal" &&
+            typeof (messageIdNode.arguments[0]! as TSESTree.Literal).value ===
+              "string"
+          ) {
+            // i18n._(i18nMark("foo"))
+            messageIdSource_ = context
+              .getSourceCode()
+              .getText(messageIdNode.arguments[0]);
+          }
+          if (messageIdSource_ === undefined) {
+            return justReport();
+          }
+          const messageIdSource: string = messageIdSource_;
+
+          const valuesNode = node.arguments[1];
+          let valuesSource: string | undefined = undefined;
+          if (valuesNode) {
+            if (valuesNode.type !== "ObjectExpression") {
+              return justReport();
+            }
+            valuesSource = context.getSourceCode().getText(valuesNode);
+          }
+
+          const hooksScope = findNearestHooksScope(node);
+          if (!hooksScope) {
+            return justReport();
+          }
+
+          context.report({
+            node,
+            messageId: "migrate-underscore",
+            *fix(fixer) {
+              const [useI18nImportFixes, useI18nName] = getOrInsertImport(
+                context.getSourceCode(),
+                context.getSourceCode().scopeManager!,
+                fixer,
+                "@hi18n/react",
+                "useI18n",
+                ["@lingui/react", "@lingui/macro"]
+              );
+              yield* useI18nImportFixes;
+
+              const [bookImportFixes, bookName] = getOrInsertImport(
+                context.getSourceCode(),
+                context.getSourceCode().scopeManager!,
+                fixer,
+                bookPath,
+                "book",
+                [],
+                true
+              );
+              yield* bookImportFixes;
+
+              const [useI18nCallFixes, tName] = getOrInsertUseI18n(
+                context.getSourceCode(),
+                fixer,
+                hooksScope,
+                useI18nName,
+                bookName
+              );
+              yield* useI18nCallFixes;
+
+              if (valuesSource) {
+                yield fixer.replaceText(
+                  node,
+                  `${tName}(${messageIdSource}, ${valuesSource})`
+                );
+              } else {
+                yield fixer.replaceText(node, `${tName}(${messageIdSource})`);
+              }
+            },
+          });
+        }
+      },
+    };
   },
-];
+});
 
 const MIGRATABLE_PROP_NAMES = [
   "id",
@@ -61,272 +343,6 @@ const MIGRATABLE_PROP_NAMES = [
   // Component interpolation parameters
   "components",
 ];
-
-export function create(
-  context: Readonly<TSESLint.RuleContext<MessageIds, OptionList>>
-): TSESLint.RuleListener {
-  let bookPath = path.relative(
-    path.dirname(context.getFilename()),
-    context.options[0].bookPath
-  );
-  if (!/^\.\.?(?:\/|$)/.test(bookPath)) bookPath = `./${bookPath}`;
-  const tracker = linguiTracker();
-  tracker.listen("translationJSX", (node, captured) => {
-    const propsNode = captured["props"]!;
-    const justReport = () => {
-      context.report({
-        node: capturedRoot(propsNode),
-        messageId: "migrate-trans-jsx",
-      });
-    };
-    if (propsNode.type !== "PropsOf") {
-      return justReport();
-    }
-    for (const attr of propsNode.node.openingElement.attributes) {
-      if (attr.type === "JSXSpreadAttribute") {
-        return justReport();
-      }
-      if (
-        attr.name.type !== "JSXIdentifier" ||
-        !MIGRATABLE_PROP_NAMES.includes(attr.name.name)
-      ) {
-        return justReport();
-      }
-    }
-
-    const idNode = captured["id"]!;
-    if (idNode.type !== "Literal" || typeof idNode.value !== "string") {
-      return justReport();
-    }
-    const id: string = idNode.value;
-
-    let renderInElement: string | undefined = undefined;
-    const renderNode = captured["render"]!;
-    if (renderNode.type === "JSXElement") {
-      // Lingui v2 component-like use of render
-      renderInElement = context.getSourceCode().getText(renderNode);
-    } else if (renderNode.type !== "CaptureFailure") {
-      // render is not supported yet
-      return justReport();
-    }
-    const componentNode = captured["component"]!;
-    if (
-      (componentNode.type === "Identifier" ||
-        componentNode.type === "MemberExpression") &&
-      eligibleForJSXTagNameExpression(componentNode)
-    ) {
-      renderInElement = `<${context.getSourceCode().getText(componentNode)} />`;
-    } else if (componentNode.type !== "CaptureFailure") {
-      // render/renderInComponent is not supported yet
-      return justReport();
-    }
-
-    const params = new Map<string, string>();
-    for (const valuesNode of [captured["values"]!, captured["components"]!]) {
-      if (valuesNode.type === "ObjectExpression") {
-        for (const prop of valuesNode.properties) {
-          if (prop.type !== "Property") return justReport();
-          const key = getStaticKey(prop);
-          if (key === null) return justReport();
-          if (params.has(key)) return justReport();
-          params.set(key, context.getSourceCode().getText(prop.value));
-        }
-      } else if (valuesNode.type === "ArrayExpression") {
-        let i = 0;
-        for (const elem of valuesNode.elements) {
-          if (elem.type === "SpreadElement") return justReport();
-          const key = `${i}`;
-          if (params.has(key)) return justReport();
-          params.set(key, context.getSourceCode().getText(elem));
-          i++;
-        }
-      } else if (valuesNode.type !== "CaptureFailure") {
-        return justReport();
-      }
-    }
-
-    context.report({
-      node: capturedRoot(propsNode),
-      messageId: "migrate-trans-jsx",
-      *fix(fixer) {
-        const [translateImportFixes, translateComponentName] =
-          getOrInsertImport(
-            context.getSourceCode(),
-            context.getSourceCode().scopeManager!,
-            fixer,
-            "@hi18n/react",
-            "Translate",
-            ["@lingui/react", "@lingui/macro"]
-          );
-        yield* translateImportFixes;
-
-        const [bookImportFixes, bookName] = getOrInsertImport(
-          context.getSourceCode(),
-          context.getSourceCode().scopeManager!,
-          fixer,
-          bookPath,
-          "book",
-          [],
-          true
-        );
-        yield* bookImportFixes;
-
-        const attrs: string[] = [];
-        attrs.push(`book={${bookName}}`);
-        attrs.push(`id=${jsxAttributeString(id)}`);
-        if (renderInElement !== undefined) {
-          attrs.push(`renderInElement={${renderInElement}}`);
-        }
-        for (const [paramKey, paramValue] of params) {
-          if (
-            /^[\p{ID_Start}$_][-\p{ID_Continue}$\u200C\u200D]*$/u.test(paramKey)
-          ) {
-            attrs.push(`${paramKey}={${paramValue}}`);
-          } else if (/^(?:0|[1-9][0-9]*)$/.test(paramKey)) {
-            attrs.push(`{...{ ${paramKey}: ${paramValue} }}`);
-          } else {
-            attrs.push(`{...{ ${JSON.stringify(paramKey)}: ${paramValue} }}`);
-          }
-        }
-
-        if (node.type === "JSXElement" && node.closingElement) {
-          yield fixer.replaceText(
-            node.openingElement,
-            `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")}>`
-          );
-          yield fixer.replaceText(
-            node.closingElement,
-            `</${translateComponentName}>`
-          );
-        } else {
-          yield fixer.replaceText(
-            node,
-            `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")} />`
-          );
-        }
-      },
-    });
-  });
-  return {
-    ImportDeclaration(node) {
-      tracker.trackImport(context.getSourceCode().scopeManager!, node);
-    },
-    CallExpression(node) {
-      if (
-        node.callee.type === "MemberExpression" &&
-        node.callee.object.type === "Identifier" &&
-        node.callee.object.name === "i18n" &&
-        !node.callee.computed &&
-        node.callee.property.type === "Identifier" &&
-        node.callee.property.name === "_"
-      ) {
-        // i18n._(...)
-        const justReport = () => {
-          context.report({
-            node,
-            messageId: "migrate-underscore",
-          });
-        };
-        if (
-          !node.arguments.every(
-            (arg): arg is TSESTree.Expression => arg.type !== "SpreadElement"
-          )
-        ) {
-          return justReport();
-        }
-        if (node.arguments.length <= 0 || node.arguments.length >= 3) {
-          return justReport();
-        }
-
-        const messageIdNode = node.arguments[0]!;
-        let messageIdSource_: string | undefined = undefined;
-        if (
-          messageIdNode.type === "Literal" &&
-          typeof messageIdNode.value === "string"
-        ) {
-          // i18n._("foo")
-          messageIdSource_ = context.getSourceCode().getText(messageIdNode);
-        } else if (
-          messageIdNode.type === "CallExpression" &&
-          messageIdNode.callee.type === "Identifier" &&
-          messageIdNode.callee.name === "i18nMark" &&
-          messageIdNode.arguments.length === 1 &&
-          messageIdNode.arguments[0]!.type === "Literal" &&
-          typeof (messageIdNode.arguments[0]! as TSESTree.Literal).value ===
-            "string"
-        ) {
-          // i18n._(i18nMark("foo"))
-          messageIdSource_ = context
-            .getSourceCode()
-            .getText(messageIdNode.arguments[0]);
-        }
-        if (messageIdSource_ === undefined) {
-          return justReport();
-        }
-        const messageIdSource: string = messageIdSource_;
-
-        const valuesNode = node.arguments[1];
-        let valuesSource: string | undefined = undefined;
-        if (valuesNode) {
-          if (valuesNode.type !== "ObjectExpression") {
-            return justReport();
-          }
-          valuesSource = context.getSourceCode().getText(valuesNode);
-        }
-
-        const hooksScope = findNearestHooksScope(node);
-        if (!hooksScope) {
-          return justReport();
-        }
-
-        context.report({
-          node,
-          messageId: "migrate-underscore",
-          *fix(fixer) {
-            const [useI18nImportFixes, useI18nName] = getOrInsertImport(
-              context.getSourceCode(),
-              context.getSourceCode().scopeManager!,
-              fixer,
-              "@hi18n/react",
-              "useI18n",
-              ["@lingui/react", "@lingui/macro"]
-            );
-            yield* useI18nImportFixes;
-
-            const [bookImportFixes, bookName] = getOrInsertImport(
-              context.getSourceCode(),
-              context.getSourceCode().scopeManager!,
-              fixer,
-              bookPath,
-              "book",
-              [],
-              true
-            );
-            yield* bookImportFixes;
-
-            const [useI18nCallFixes, tName] = getOrInsertUseI18n(
-              context.getSourceCode(),
-              fixer,
-              hooksScope,
-              useI18nName,
-              bookName
-            );
-            yield* useI18nCallFixes;
-
-            if (valuesSource) {
-              yield fixer.replaceText(
-                node,
-                `${tName}(${messageIdSource}, ${valuesSource})`
-              );
-            } else {
-              yield fixer.replaceText(node, `${tName}(${messageIdSource})`);
-            }
-          },
-        });
-      }
-    },
-  };
-}
 
 function getOrInsertImport(
   sourceCode: TSESLint.SourceCode,
@@ -354,7 +370,8 @@ function getOrInsertImport(
         if (
           (spec.type === "ImportDefaultSpecifier" &&
             importName === "default") ||
-          (spec.type === "ImportSpecifier" && spec.imported.name === importName)
+          (spec.type === "ImportSpecifier" &&
+            nameOf(spec.imported) === importName)
         ) {
           return [[], spec.local.name];
         }

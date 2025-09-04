@@ -5,7 +5,6 @@ import { MockedOutput, initFixtures } from "@hi18n/dev-utils";
 const { withProject } = initFixtures(__dirname);
 
 describe("sync", () => {
-  // eslint-disable-next-line jest/expect-expect
   it("works with standalone configuration", async () => {
     const output = new MockedOutput();
     await withProject("standalone", "sync", (cwd) =>
@@ -13,7 +12,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("works with single-file configuration", async () => {
     const output = new MockedOutput();
     await withProject("single-file", "sync", (cwd) =>
@@ -21,7 +19,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("works with multi-file configuration", async () => {
     const output = new MockedOutput();
     await withProject("simple-project", "sync", (cwd) =>
@@ -29,7 +26,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("works with dynamic loading", async () => {
     const output = new MockedOutput();
     await withProject("dynamic-loading", "sync", (cwd) =>
@@ -55,7 +51,6 @@ describe("sync", () => {
     });
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("works without configuration if include is given", async () => {
     const output = new MockedOutput();
     await withProject("no-config", "sync", (cwd) =>
@@ -72,7 +67,6 @@ describe("sync", () => {
     });
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("allows resolving paths with extensions as paths with different extensions", async () => {
     const output = new MockedOutput();
     await withProject("extension-removal", "sync", (cwd) =>
@@ -80,7 +74,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("resolves mapped paths if configured as such", async () => {
     const output = new MockedOutput();
     await withProject("path-mapping", "sync", (cwd) =>
@@ -88,7 +81,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("allows parser configuration", async () => {
     const output = new MockedOutput();
     await withProject("custom-parser", "sync", (cwd) =>
@@ -96,7 +88,6 @@ describe("sync", () => {
     );
   });
 
-  // eslint-disable-next-line jest/expect-expect
   it("imports data passively in sync", async () => {
     const output = new MockedOutput();
     await withProject("import-json", "sync", (cwd) =>

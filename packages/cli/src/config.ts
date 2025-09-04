@@ -7,11 +7,7 @@ import * as jsonMfConnector from "./json-mf-connector.js";
 
 const explorer = cosmiconfig("hi18n");
 
-export type ParserSpec = string | ParserDependency;
-export type ParserDependency = {
-  definition: ParserDefinition;
-  filePath: string;
-};
+export type ParserSpec = string | TSESLint.Parser.LooseParserModule;
 export type ParserDefinition = ESLintParser | GenericParser;
 export type ESLintParser = {
   parseForESLint: (
@@ -96,7 +92,7 @@ export async function loadConfig(cwd: string): Promise<Config> {
   if (!optional(isArrayOf(isString))(config["exclude"])) {
     throw new Error("config.exclude: not an array of strings");
   }
-  if (!optional(oneof(isString, isParserDependency))(config["parser"])) {
+  if (!optional(oneof(isString, isLooseParserModule))(config["parser"])) {
     throw new Error("config.parser: not a string nor a parser object");
   }
   if (!optional(isObject)(config["parserOptions"])) {
@@ -164,21 +160,18 @@ export async function loadConfig(cwd: string): Promise<Config> {
 function resolveParser(
   parser: ParserSpec | undefined,
   filepath: string
-): ParserDependency {
+): TSESLint.Parser.LooseParserModule {
   if (typeof parser === "string") {
     const parserPath = resolve.sync(parser, {
       basedir: path.dirname(filepath),
     });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    return { definition: require(parserPath), filePath: parserPath };
-  } else if (typeof parser === "object") {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-return
+    return require(parserPath);
+  } else if (typeof parser === "object" && parser != null) {
     return parser;
   }
-  return {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    definition: require("@babel/eslint-parser"),
-    filePath: require.resolve("@babel/eslint-parser"),
-  };
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-return
+  return require("@typescript-eslint/parser");
 }
 
 function resolveConnector(
@@ -191,7 +184,7 @@ function resolveConnector(
     const connectorPath = resolve.sync(connector, {
       basedir: path.dirname(filepath),
     });
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-return
     return require(connectorPath);
   } else if (typeof connector === "object") {
     return connector;
@@ -231,7 +224,7 @@ function isString(x: unknown): x is string {
   return typeof x === "string";
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function isFunction(x: unknown): x is Function {
   return typeof x === "function";
 }
@@ -263,13 +256,12 @@ function oneof<Types extends any[]>(
   };
 }
 
-function isParserDependency(x: unknown): x is ParserDependency {
+function isLooseParserModule(
+  x: unknown
+): x is TSESLint.Parser.LooseParserModule {
+  const xx = x as Record<string, unknown>;
   return (
-    isObject(x) &&
-    isString(x["filePath"]) &&
-    isObject(x["definition"]) &&
-    (isFunction(x["definition"]["parseForESLint"]) ||
-      isFunction(x["definition"]["parse"]))
+    typeof xx.parseForESLint === "function" || typeof xx.parse === "function"
   );
 }
 

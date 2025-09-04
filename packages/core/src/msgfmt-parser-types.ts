@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 
 // The parser algorithm is written to vastly match what is implemented in ./msgfmt-parser.ts, but with a few differences.
 
 import type { Message } from "./index.js";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const componentPlaceholderSymbol: unique symbol;
 export type ComponentPlaceholder = typeof componentPlaceholderSymbol;
 

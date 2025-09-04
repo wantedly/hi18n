@@ -1,17 +1,21 @@
-import { describe, it } from "vitest";
-import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./well-formed-catalog-definitions.js";
+import { afterAll, describe, it } from "vitest";
+import * as espree from "espree";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import { rule } from "./well-formed-catalog-definitions.js";
 
-TSESLint.RuleTester.describe = describe;
-TSESLint.RuleTester.it = it;
+RuleTester.afterAll = afterAll;
+RuleTester.describe = describe;
+RuleTester.it = it;
 
-new TSESLint.RuleTester({
-  parser: require.resolve("espree"),
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+new RuleTester({
+  languageOptions: {
+    parser: espree,
+    parserOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+    },
   },
-}).run("@hi18n/well-formed-catalog-definitions", rule, {
+}).run("well-formed-catalog-definitions", rule, {
   valid: [
     `
       import { Catalog } from "@hi18n/core";

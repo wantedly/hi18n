@@ -87,7 +87,13 @@ export function findTypeDefinition(
   body: TSESTree.TSInterfaceBody | TSESTree.TSTypeLiteral;
   signatures: TSESTree.TypeElement[];
 } | null {
-  const typeParameters = node.typeParameters;
+  const typeParameters =
+    node.typeArguments ??
+    (
+      node as {
+        typeParameters?: TSESTree.TSTypeParameterInstantiation | undefined;
+      }
+    ).typeParameters;
   if (!typeParameters) return null;
 
   const typeParam = findTypeParameter(node);
@@ -103,7 +109,13 @@ export function findTypeParameter(
   node: TSESTree.Node
 ): TSESTree.TSTypeReference | null {
   if (node.type !== "NewExpression") return null;
-  const typeParameters = node.typeParameters;
+  const typeParameters =
+    node.typeArguments ??
+    (
+      node as {
+        typeParameters?: TSESTree.TSTypeParameterInstantiation | undefined;
+      }
+    ).typeParameters;
   if (!typeParameters) return null;
   if (typeParameters.type !== "TSTypeParameterInstantiation") return null;
   if (typeParameters.params.length < 1) return null;

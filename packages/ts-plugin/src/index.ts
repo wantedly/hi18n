@@ -1,4 +1,4 @@
-// eslint-disable-next-line node/no-unpublished-import
+// eslint-disable-next-line n/no-unpublished-import
 import type ts from "typescript";
 
 type Config = {

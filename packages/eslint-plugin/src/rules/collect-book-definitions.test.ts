@@ -1,20 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import * as rule from "./collect-book-definitions.js";
-import { BookDef } from "./collect-book-definitions.js";
+import { BookDef, getRule } from "./collect-book-definitions.js";
 
-const baseConfig: TSESLint.Linter.Config = {
-  parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
-  },
-};
+function getConfig(collected: BookDef[]): TSESLint.FlatConfig.Config {
+  return {
+    plugins: {
+      "@hi18n": {
+        rules: {
+          "collect-book-definitions": getRule((l: BookDef) => {
+            collected.push(l);
+          }),
+        },
+      },
+    },
+    languageOptions: {
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    rules: {
+      "@hi18n/collect-book-definitions": "error",
+    },
+  };
+}
 
 describe("collect-book-definitions", () => {
   it("detects book definitions", () => {
     const collected: BookDef[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("@hi18n/collect-book-definitions", rule);
     linter.verify(
       `
       import { Book } from "@hi18n/core";
@@ -26,17 +40,7 @@ describe("collect-book-definitions", () => {
         ja: catalogJa,
       });
     `,
-      {
-        ...baseConfig,
-        rules: {
-          "@hi18n/collect-book-definitions": [
-            "error",
-            (l: BookDef) => {
-              collected.push(l);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
@@ -70,7 +74,6 @@ describe("collect-book-definitions", () => {
   it("detects locally-defined book definitions", () => {
     const collected: BookDef[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("@hi18n/collect-book-definitions", rule);
     linter.verify(
       `
       import { Book } from "@hi18n/core";
@@ -82,17 +85,7 @@ describe("collect-book-definitions", () => {
         ja: catalogJa,
       });
     `,
-      {
-        ...baseConfig,
-        rules: {
-          "@hi18n/collect-book-definitions": [
-            "error",
-            (l: BookDef) => {
-              collected.push(l);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
@@ -126,7 +119,6 @@ describe("collect-book-definitions", () => {
   it("detects book definitions referencing locally-defined catalogs", () => {
     const collected: BookDef[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("@hi18n/collect-book-definitions", rule);
     linter.verify(
       `
       import { Book, Catalog, msg } from "@hi18n/core";
@@ -142,17 +134,7 @@ describe("collect-book-definitions", () => {
         ja: catalogJa,
       });
     `,
-      {
-        ...baseConfig,
-        rules: {
-          "@hi18n/collect-book-definitions": [
-            "error",
-            (l: BookDef) => {
-              collected.push(l);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
@@ -184,7 +166,6 @@ describe("collect-book-definitions", () => {
   it("detects dynamically-loaded book definitions", () => {
     const collected: BookDef[] = [];
     const linter = new TSESLint.Linter();
-    linter.defineRule("@hi18n/collect-book-definitions", rule);
     linter.verify(
       `
       import { Book } from "@hi18n/core";
@@ -194,17 +175,7 @@ describe("collect-book-definitions", () => {
         ja: () => import("./ja"),
       });
     `,
-      {
-        ...baseConfig,
-        rules: {
-          "@hi18n/collect-book-definitions": [
-            "error",
-            (l: BookDef) => {
-              collected.push(l);
-            },
-          ],
-        },
-      }
+      getConfig(collected)
     );
     expect(collected).toEqual([
       {
