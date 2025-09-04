@@ -1,5 +1,11 @@
 # `@hi18n/eslint-plugin`
 
+## 0.2.1
+
+### Patch Changes
+
+- b887523: fix(eslint-plugin): recover default export compat
+
 ## 0.2.0
 
 ### Migration Guide
