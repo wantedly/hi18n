@@ -1,5 +1,13 @@
 # `@hi18n/connector-i18n-js`
 
+## 0.1.6
+
+### Patch Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+- Updated dependencies [c478ab5]
+  - @hi18n/tools-core@0.1.6
+
 ## 0.1.5
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/connector-i18n-js",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Converter between i18n-js and @hi18n/core",
   "keywords": [
     "intl",
@@ -52,7 +52,7 @@
     "tsc": "tsc"
   },
   "dependencies": {
-    "@hi18n/tools-core": "^0.1.5",
+    "@hi18n/tools-core": "^0.1.6",
     "glob": "^8.0.3",
     "js-yaml": "^4.1.0"
   },

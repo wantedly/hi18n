@@ -1,5 +1,11 @@
 # `@hi18n/core`
 
+## 0.1.15
+
+### Patch Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+
 ## 0.1.14
 
 ### Patch Changes

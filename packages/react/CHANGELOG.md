@@ -1,5 +1,14 @@
 # `@hi18n/react`
 
+## 0.1.10
+
+### Patch Changes
+
+- c478ab5: feat(eslint): support ESLint 9
+- Updated dependencies [c478ab5]
+  - @hi18n/react-context@0.1.3
+  - @hi18n/core@0.1.15
+
 ## 0.1.9
 
 ### Patch Changes
