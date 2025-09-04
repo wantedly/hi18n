@@ -1,5 +1,11 @@
 # `@hi18n/eslint-plugin`
 
+## 0.2.2
+
+### Patch Changes
+
+- 5819394: chore(eslint-plugin): make more conveniently typed
+
 ## 0.2.1
 
 ### Patch Changes
