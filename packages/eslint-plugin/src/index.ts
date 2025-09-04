@@ -5,38 +5,30 @@ import { rule as ruleReactComponentParams } from "./rules/react-component-params
 import { rule as ruleWellFormedBookDefinitions } from "./rules/well-formed-book-definitions.js";
 import { rule as ruleWellFormedBookReferences } from "./rules/well-formed-book-references.js";
 import { rule as ruleWellFormedCatalogDefinitions } from "./rules/well-formed-catalog-definitions.js";
+import type { ESLint, Linter } from "eslint";
 
-export type Plugin = {
-  meta: {
-    name: string;
-    version?: string;
-  };
-  rules: {
-    "migrate-from-lingui": typeof ruleMigrateFromLingui;
-    "no-dynamic-translation-ids": typeof ruleNoDynamicTranslationIds;
-    "react-component-params": typeof ruleReactComponentParams;
-    "well-formed-book-references": typeof ruleWellFormedBookReferences;
-    "well-formed-book-definitions": typeof ruleWellFormedBookDefinitions;
-    "well-formed-catalog-definitions": typeof ruleWellFormedCatalogDefinitions;
-  };
-  configs: SharedConfigs;
-};
+export type Plugin = TSESLint.FlatConfig.Plugin &
+  ESLint.Plugin & { configs: SharedConfigs };
 
 export type SharedConfigs = {
-  "flat/recommended": TSESLint.FlatConfig.Config;
-  "flat/recommended-type-checked-only": TSESLint.FlatConfig.Config;
-  "flat/recommended-type-checked": TSESLint.FlatConfig.Config;
-  recommended: TSESLint.ClassicConfig.Config;
-  "recommended-type-checked-only": TSESLint.ClassicConfig.Config;
-  "recommended-type-checked": TSESLint.ClassicConfig.Config;
+  "flat/recommended": Config;
+  "flat/recommended-type-checked-only": Config;
+  "flat/recommended-type-checked": Config;
+  recommended: LegacyConfig;
+  "recommended-type-checked-only": LegacyConfig;
+  "recommended-type-checked": LegacyConfig;
   /** @deprecated - please use "recommended-type-checked" instead. */
-  "recommended-requiring-type-checking": TSESLint.ClassicConfig.Config;
+  "recommended-requiring-type-checking": LegacyConfig;
 };
 
-/** Initialize partially to build cyclic references */
+export type Config = TSESLint.FlatConfig.Config & Linter.Config;
+export type LegacyConfig = TSESLint.ClassicConfig.Config & Linter.LegacyConfig;
+
+// Initialize partially to build cyclic references
+/** The ESLint plugin for hi18n. */
 const plugin: Plugin = {} as Plugin;
 
-const flatRecommended: TSESLint.FlatConfig.Config = {
+const flatRecommended: Config = {
   plugins: { "@hi18n": plugin },
   rules: {
     "@hi18n/no-dynamic-translation-ids": "error",
@@ -46,14 +38,14 @@ const flatRecommended: TSESLint.FlatConfig.Config = {
   },
 };
 
-const flatRecommendedTypeCheckedOnly: TSESLint.FlatConfig.Config = {
+const flatRecommendedTypeCheckedOnly: Config = {
   plugins: { "@hi18n": plugin },
   rules: {
     "@hi18n/react-component-params": "error",
   },
 };
 
-const flatRecommendedTypeChecked: TSESLint.FlatConfig.Config = {
+const flatRecommendedTypeChecked: Config = {
   plugins: { "@hi18n": plugin },
   rules: {
     ...flatRecommended.rules,
@@ -61,22 +53,26 @@ const flatRecommendedTypeChecked: TSESLint.FlatConfig.Config = {
   },
 };
 
-const classicRecommended: TSESLint.ClassicConfig.Config = {
+const classicRecommended: LegacyConfig = {
   plugins: ["@hi18n"],
   rules: flatRecommended.rules!,
 };
 
-const classicRecommendedTypeCheckedOnly: TSESLint.ClassicConfig.Config = {
+const classicRecommendedTypeCheckedOnly: LegacyConfig = {
   plugins: ["@hi18n"],
   rules: flatRecommendedTypeCheckedOnly.rules!,
 };
 
-const classicRecommendedTypeChecked: TSESLint.ClassicConfig.Config = {
+const classicRecommendedTypeChecked: LegacyConfig = {
   plugins: ["@hi18n"],
   rules: flatRecommendedTypeChecked.rules!,
 };
 
-const pluginContents: Plugin = {
+type ModifiedPluginType = Omit<TSESLint.FlatConfig.Plugin, "configs"> & {
+  configs: SharedConfigs;
+};
+
+const pluginContents: ModifiedPluginType = {
   meta: {
     // TODO: copy name/version from package.json
     name: "@hi18n/eslint-plugin",
