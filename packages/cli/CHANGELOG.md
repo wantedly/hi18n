@@ -2,6 +2,32 @@
 
 ## 0.2.0
 
+### Migration Guide
+
+The default parser has been changed from `@babel/eslint-parser` to `@typescript-eslint/parser`. If you want to continue using `@babel/eslint-parser`, then first install it:
+
+```console
+$ npm install -D @babel/core @babel/eslint-parser
+# or:
+$ yarn add -D @babel/core @babel/eslint-parser
+```
+
+then configure the CLI to use the parser:
+
+```javascript
+// .hi18nrc.js
+module.exports = {
+  parser: "@babel/eslint-parser",
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+};
+```
+
 ### Minor Changes
 
 - c478ab5: feat(eslint): support ESLint 9

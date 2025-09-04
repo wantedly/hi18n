@@ -2,6 +2,29 @@
 
 ## 0.2.0
 
+### Migration Guide
+
+It now supports [ESLint 9.0](https://eslint.org/docs/latest/use/migrate-to-9.0.0) and [Flat Config](https://eslint.org/docs/latest/use/configure/migration-guide)!
+
+We now advise you to leverage the flat config feature:
+
+```javascript
+// eslint.config.js
+import hi18n from "@hi18n/eslint-plugin";
+
+export default [
+  // ...
+
+  hi18n.configs["flat/recommended"],
+  // Useful if TypeScript is configured in your project
+  hi18n.configs["flat/recommended-type-checked-only"],
+
+  // ...
+];
+```
+
+Also, the internal rules are no longer exported from the main entry point `@hi18n/eslint-plugin`. They are moved into `@hi18n/eslint-plugin/internal-rules` and their interfaces are slightly changed.
+
 ### Minor Changes
 
 - c478ab5: feat(eslint): support ESLint 9

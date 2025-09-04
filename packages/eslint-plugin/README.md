@@ -16,14 +16,16 @@ yarn add -D @hi18n/eslint-plugin
 And:
 
 ```javascript
-// .eslintrc.js
-module.exports = {
-  extends: [
-    // ...
-    "plugin:@hi18n/recommended",
-    // Useful if TypeScript is configured in your project
-    "plugin:@hi18n/recommended-requiring-type-checking",
-  ],
+// eslint.config.js
+import hi18n from "@hi18n/eslint-plugin";
+
+export default [
   // ...
-};
+
+  hi18n.configs["flat/recommended"],
+  // Useful if TypeScript is configured in your project
+  hi18n.configs["flat/recommended-type-checked-only"],
+
+  // ...
+];
 ```
