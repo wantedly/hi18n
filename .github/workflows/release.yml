@@ -54,6 +54,8 @@ jobs:
         if: steps.changesets.outputs.pullRequestNumber
         run: |
           YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
-          git add yarn.lock
-          git commit -m "ci: update lockfile"
-          git push origin HEAD:changeset-release/master --force
+          if ! git diff --quiet yarn.lock; then
+            git add yarn.lock
+            git commit -m "ci: update lockfile"
+            git push origin HEAD:changeset-release/master --force
+          fi
