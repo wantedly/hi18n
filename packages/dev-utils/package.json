@@ -44,8 +44,6 @@
     "build:cjs": "tsc -p tsconfig.build-cjs.json",
     "build:esm": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist cjs/dist",
-    "fmt": "prettier . -w",
-    "fmt:check": "prettier . -c",
     "lint": "eslint 'src/**/*.ts' eslint.config.js",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
@@ -61,7 +59,6 @@
     "@types/glob": "^8.0.0",
     "eslint": "^9.34.0",
     "eslint-plugin-n": "^17.21.3",
-    "prettier": "^3.6.2",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

@@ -31,8 +31,6 @@
   },
   "sideEffects": false,
   "scripts": {
-    "fmt": "prettier . -w",
-    "fmt:check": "prettier . -c",
     "lint": "eslint index.d.ts index.js index.module.js"
   },
   "dependencies": {
@@ -43,7 +41,6 @@
   },
   "devDependencies": {
     "eslint": "^9.34.0",
-    "prettier": "^3.6.2",
     "react": "^19.1.1"
   }
 }

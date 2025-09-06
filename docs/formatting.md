@@ -246,7 +246,6 @@ evaluate("Easy come.<br/>Easy go.", { br: <br /> })
   - Skeleton specifier `::`
   - Offset specifier `offset:`
 - In a tag, whitespaces can only appear after the tag name. `/>` should also appear consecutively.
-
   - Valid: `<foo>`, `<foo >`, `</foo>`, `</foo >`, `<foo/>`, `<foo />`
   - Invalid: `< foo>`, `</ foo>`, `< /foo>`, `< foo/>`, `<foo/ >`
 

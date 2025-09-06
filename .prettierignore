@@ -1,0 +1,3 @@
+/.yarn
+/packages/cli/src/__fixtures__/*/expect-*/**
+/packages/cli/src/__fixtures__/custom-parser/input/src/broken.ts
