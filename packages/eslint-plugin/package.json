@@ -83,7 +83,6 @@
     "eslint-plugin-eslint-plugin": "^7.0.0",
     "eslint-plugin-n": "^17.21.3",
     "espree": "^10.4.0",
-    "prettier": "^3.6.2",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
