@@ -47,7 +47,6 @@
     "build:cjs": "tsc -p tsconfig.build-cjs.json",
     "build:esm": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist cjs/dist",
-    "lint": "eslint 'src/**/*.tsx' eslint.config.js",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
     "tsc": "tsc"
@@ -66,9 +65,6 @@
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/react-dom": "^19.1.9",
-    "eslint": "^9.34.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^26.1.0",
     "pretty-format": "^30.0.5",
     "react": "^19.1.1",

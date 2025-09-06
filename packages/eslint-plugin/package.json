@@ -51,7 +51,6 @@
     "build:cjs": "tsc -p tsconfig.build-cjs.json",
     "build:esm": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist cjs/dist",
-    "lint": "eslint 'src/**/*.ts' eslint.config.js",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
     "tsc": "tsc"
@@ -80,8 +79,6 @@
     "@typescript-eslint/rule-tester": "^8.42.0",
     "@typescript-eslint/types": "^8.42.0",
     "eslint": "^9.34.0",
-    "eslint-plugin-eslint-plugin": "^7.0.0",
-    "eslint-plugin-n": "^17.21.3",
     "espree": "^10.4.0",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2",
