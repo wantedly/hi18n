@@ -982,7 +982,7 @@ __metadata:
     "@types/resolve": "npm:^1.20.2"
     "@typescript-eslint/parser": "npm:^8.42.0"
     "@typescript-eslint/utils": "npm:^8.42.0"
-    commander: "npm:^9.2.0"
+    commander: "npm:^9.2.0 || ^14.0.0"
     cosmiconfig: "npm:^7.0.1"
     eslint: "npm:^9.34.0"
     glob: "npm:^8.0.1"
@@ -1029,7 +1029,7 @@ __metadata:
   dependencies:
     "@types/fs-extra": "npm:^9.0.13"
     "@types/glob": "npm:^8.0.0"
-    commander: "npm:^9.2.0"
+    commander: "npm:^9.2.0 || ^14.0.0"
     fs-extra: "npm:^10.1.0"
     glob: "npm:^8.0.1"
     rimraf: "npm:^3.0.2"
@@ -2370,10 +2370,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "commander@npm:9.2.0"
-  checksum: 10/db4855c6cd7694d4117e17ec353c7fcc678695e008e12dd5cd45ebaf3fd15607a476df690bf658c7a20a661743580fb0150c825087d773847a24392891e7b4bc
+"commander@npm:^9.2.0 || ^14.0.0":
+  version: 14.0.0
+  resolution: "commander@npm:14.0.0"
+  checksum: 10/c05418bfc35a3e8b5c67bd9f75f5b773f386f9b85f83e70e7c926047f270929cb06cf13cd68f387dd6e7e23c6157de8171b28ba606abd3e6256028f1f789becf
   languageName: node
   linkType: hard
 
