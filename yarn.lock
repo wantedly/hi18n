@@ -679,7 +679,7 @@ __metadata:
     "@hi18n/tools-core": "npm:^0.1.6"
     "@types/glob": "npm:^8.0.0"
     "@types/js-yaml": "npm:^4.0.5"
-    "@types/node": "npm:^22.13.14"
+    "@types/node": "npm:^22.18.1"
     glob: "npm:^8.0.3"
     js-yaml: "npm:^4.1.0"
     rimraf: "npm:^3.0.2"
@@ -722,7 +722,7 @@ __metadata:
     "@hi18n/react-context": "npm:*"
     "@types/eslint": "npm:^9.6.1"
     "@types/espree": "npm:^10.1.0"
-    "@types/node": "npm:^22.13.14"
+    "@types/node": "npm:^22.18.1"
     "@typescript-eslint/parser": "npm:^8.42.0"
     "@typescript-eslint/rule-tester": "npm:^8.42.0"
     "@typescript-eslint/types": "npm:^8.42.0"
@@ -791,7 +791,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/ts-plugin@workspace:packages/ts-plugin"
   dependencies:
-    "@types/node": "npm:^22.13.14"
+    "@types/node": "npm:^22.18.1"
     rimraf: "npm:^3.0.2"
     typescript: "npm:^5.9.2"
   languageName: unknown
@@ -1240,12 +1240,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.13.14":
-  version: 22.18.0
-  resolution: "@types/node@npm:22.18.0"
+"@types/node@npm:*, @types/node@npm:^22.18.1":
+  version: 22.18.1
+  resolution: "@types/node@npm:22.18.1"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10/c4e4cdac52aae71e120fb4a02a08f774366e8bd6654de9376fb1113fb66cfa2706176b72f188069cdecdb40e5cdde2befa031dc720a0cc0b1e349af9e38492ad
+  checksum: 10/da67f3c3fa4107fbca704e7a71fee36c27f3b6f44af1c466cd5c71eab76a9ffcd6a16f3b97d1e757b9763f1fa1085eebb60cb648c272e36794aca7305b2a15d9
   languageName: node
   linkType: hard
 

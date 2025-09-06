@@ -58,7 +58,7 @@
     "@hi18n/dev-utils": "*",
     "@types/glob": "^8.0.0",
     "@types/js-yaml": "^4.0.5",
-    "@types/node": "^22.13.14",
+    "@types/node": "^22.18.1",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
