@@ -31,8 +31,6 @@
   },
   "sideEffects": false,
   "scripts": {
-    "fmt": "prettier . -w",
-    "fmt:check": "prettier . -c",
     "lint": "eslint index.d.ts index.js index.module.js"
   },
   "dependencies": {

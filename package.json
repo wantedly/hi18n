@@ -9,8 +9,8 @@
   "scripts": {
     "build": "yarn workspaces foreach -Apt run build",
     "clean": "yarn workspaces foreach -Ap run clean",
-    "fmt": "yarn workspaces foreach -Ap run fmt",
-    "fmt:check": "yarn workspaces foreach -Ap run fmt:check",
+    "fmt": "prettier -w .",
+    "fmt:check": "prettier -c .",
     "lint": "yarn build && yarn lint:nobuild",
     "lint:nobuild": "yarn workspaces foreach -Ap --exclude root run lint",
     "test": "yarn build && yarn test:nobuild",

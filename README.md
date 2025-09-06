@@ -264,7 +264,7 @@ Switch from:
 root.render(
   <LocaleProvider locales="en">
     <App />
-  </LocaleProvider>
+  </LocaleProvider>,
 );
 ```
 
@@ -280,7 +280,7 @@ await preloadCatalogs(book, "en");
 root.render(
   <LocaleProvider locales="en">
     <App />
-  </LocaleProvider>
+  </LocaleProvider>,
 );
 ```
 
@@ -298,7 +298,7 @@ preloadCatalogs(book, "en")
     root.render(
       <LocaleProvider locales="en">
         <App />
-      </LocaleProvider>
+      </LocaleProvider>,
     );
   })
   .catch((e) => {
@@ -318,7 +318,7 @@ root.render(
     <React.Suspense fallback={loadingPage}>
       <App />
     </React.Suspense>
-  </LocaleProvider>
+  </LocaleProvider>,
 );
 ```
 

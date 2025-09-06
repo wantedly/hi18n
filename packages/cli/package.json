@@ -47,8 +47,6 @@
     "build:cjs": "tsc -p tsconfig.build-cjs.json",
     "build:esm": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist cjs/dist",
-    "fmt": "prettier . -w",
-    "fmt:check": "prettier . -c",
     "lint": "eslint 'src/**/*.ts' eslint.config.js",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
