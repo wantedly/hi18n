@@ -39,7 +39,7 @@ export const rule = createRule<Options, MessageIds>({
       const bookLocation = lookupDefinitionSource(
         context.getSourceCode().scopeManager!,
         context.getFilename(),
-        bookNode
+        bookNode,
       );
       if (!bookLocation) {
         context.report({

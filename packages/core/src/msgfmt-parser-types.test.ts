@@ -16,7 +16,7 @@ describe("InferredMessageType", () => {
   // Just in case. This is not a recommended usage because it disrupts usage detection.
   it("distributes union", () => {
     expectType<InferredMessageType<"{foo}" | "{bar}">>().to(
-      beTypeEqual<Message<{ foo: string; bar: string }>>()
+      beTypeEqual<Message<{ foo: string; bar: string }>>(),
     );
   });
 
@@ -32,16 +32,16 @@ describe("InferredMessageType", () => {
         Message<{
           abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz: string;
         }>
-      >()
+      >(),
     );
   });
 
   it("infers simple arguments", () => {
     expectType<InferredMessageType<"{name}">>().to(
-      beTypeEqual<Message<{ name: string }>>()
+      beTypeEqual<Message<{ name: string }>>(),
     );
     expectType<InferredMessageType<"{name} {value}">>().to(
-      beTypeEqual<Message<{ name: string; value: string }>>()
+      beTypeEqual<Message<{ name: string; value: string }>>(),
     );
   });
 
@@ -53,16 +53,16 @@ describe("InferredMessageType", () => {
     expectType<InferredMessageType<"{}">>().to(
       beTypeEqual<
         ParseError<"Unexpected token } (expected number, identifier)">
-      >()
+      >(),
     );
     expectType<InferredMessageType<"{nam">>().to(
-      beTypeEqual<ParseError<"Unexpected token EOF (expected }, ,)">>()
+      beTypeEqual<ParseError<"Unexpected token EOF (expected }, ,)">>(),
     );
     expectType<InferredMessageType<"{2nd}">>().to(
-      beTypeEqual<ParseError<"Invalid number: 2nd">>()
+      beTypeEqual<ParseError<"Invalid number: 2nd">>(),
     );
     expectType<InferredMessageType<"{name foo}">>().to(
-      beTypeEqual<ParseError<"Unexpected token identifier (expected }, ,)">>()
+      beTypeEqual<ParseError<"Unexpected token identifier (expected }, ,)">>(),
     );
   });
 
@@ -70,10 +70,10 @@ describe("InferredMessageType", () => {
     it("parses plain texts", () => {
       expectType<InferredMessageType<"">>().to(beTypeEqual<Message>());
       expectType<InferredMessageType<"Hello, world!">>().to(
-        beTypeEqual<Message>()
+        beTypeEqual<Message>(),
       );
       expectType<InferredMessageType<"こんにちは世界!">>().to(
-        beTypeEqual<Message>()
+        beTypeEqual<Message>(),
       );
       expectType<InferredMessageType<"1 + 1 = 2">>().to(beTypeEqual<Message>());
       expectType<InferredMessageType<"#">>().to(beTypeEqual<Message>());
@@ -81,16 +81,16 @@ describe("InferredMessageType", () => {
 
     it("parses texts with single quotes", () => {
       expectType<InferredMessageType<"I'm not a fond of this syntax.">>().to(
-        beTypeEqual<Message>()
+        beTypeEqual<Message>(),
       );
       expectType<InferredMessageType<"a'b {name} c'd">>().to(
-        beTypeEqual<Message<{ name: string }>>()
+        beTypeEqual<Message<{ name: string }>>(),
       );
     });
 
     it("parses texts with double quotes", () => {
       expectType<InferredMessageType<"I''m not a fond of this syntax.">>().to(
-        beTypeEqual<Message>()
+        beTypeEqual<Message>(),
       );
     });
 
@@ -101,38 +101,38 @@ describe("InferredMessageType", () => {
       >().to(beTypeEqual<Message>());
       // They are always quotable although conditional
       expectType<InferredMessageType<"'# {}' '| {}'">>().to(
-        beTypeEqual<Message>()
+        beTypeEqual<Message>(),
       );
       expectType<InferredMessageType<"'< {}'">>().to(beTypeEqual<Message>());
     });
 
     it("errors on unclosed quoted strings", () => {
       expectType<InferredMessageType<"'{foo}">>().to(
-        beTypeEqual<ParseError<"Unclosed quoted string">>()
+        beTypeEqual<ParseError<"Unclosed quoted string">>(),
       );
     });
 
     it("parses noneArg", () => {
       expectType<InferredMessageType<"{foo}">>().to(
-        beTypeEqual<Message<{ foo: string }>>()
+        beTypeEqual<Message<{ foo: string }>>(),
       );
       expectType<InferredMessageType<"foo { foo }">>().to(
-        beTypeEqual<Message<{ foo: string }>>()
+        beTypeEqual<Message<{ foo: string }>>(),
       );
       expectType<InferredMessageType<"foo { foo } bar { bar }">>().to(
-        beTypeEqual<Message<{ foo: string; bar: string }>>()
+        beTypeEqual<Message<{ foo: string; bar: string }>>(),
       );
       expectType<InferredMessageType<"{2}{ 0 }, {1}">>().to(
-        beTypeEqual<Message<{ 0: string; 1: string; 2: string }>>()
+        beTypeEqual<Message<{ 0: string; 1: string; 2: string }>>(),
       );
     });
 
     it("parses simpleArg", () => {
       expectType<InferredMessageType<"{foo,number}">>().to(
-        beTypeEqual<Message<{ foo: number }>>()
+        beTypeEqual<Message<{ foo: number }>>(),
       );
       expectType<InferredMessageType<"foo { foo , number }">>().to(
-        beTypeEqual<Message<{ foo: number }>>()
+        beTypeEqual<Message<{ foo: number }>>(),
       );
       expectType<
         InferredMessageType<"foo { foo , date } bar { bar , time }">
@@ -146,81 +146,81 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{">>().to(
         beTypeEqual<
           ParseError<"Unexpected token EOF (expected number, identifier)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{$">>().to(
         beTypeEqual<
           ParseError<"Unexpected token $ (expected number, identifier)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{123foo}">>().to(
-        beTypeEqual<ParseError<"Invalid number: 123foo">>()
+        beTypeEqual<ParseError<"Invalid number: 123foo">>(),
       );
       expectType<InferredMessageType<"{0123}">>().to(
-        beTypeEqual<ParseError<"Invalid number: 0123">>()
+        beTypeEqual<ParseError<"Invalid number: 0123">>(),
       );
       expectType<InferredMessageType<"{foo">>().to(
-        beTypeEqual<ParseError<"Unexpected token EOF (expected }, ,)">>()
+        beTypeEqual<ParseError<"Unexpected token EOF (expected }, ,)">>(),
       );
       expectType<InferredMessageType<"{foo%">>().to(
-        beTypeEqual<ParseError<"Unexpected token % (expected }, ,)">>()
+        beTypeEqual<ParseError<"Unexpected token % (expected }, ,)">>(),
       );
     });
 
     it("errors on invalid argType", () => {
       expectType<InferredMessageType<"{foo,}">>().to(
-        beTypeEqual<ParseError<"Unexpected token } (expected identifier)">>()
+        beTypeEqual<ParseError<"Unexpected token } (expected identifier)">>(),
       );
       expectType<InferredMessageType<"{foo,$}">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected identifier)">>()
+        beTypeEqual<ParseError<"Unexpected token $ (expected identifier)">>(),
       );
       expectType<InferredMessageType<"{foo,integer}">>().to(
-        beTypeEqual<ParseError<"Invalid argType: integer">>()
+        beTypeEqual<ParseError<"Invalid argType: integer">>(),
       );
       expectType<InferredMessageType<"{foo,number$}">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected }, ,)">>()
+        beTypeEqual<ParseError<"Unexpected token $ (expected }, ,)">>(),
       );
       expectType<InferredMessageType<"{foo,number">>().to(
-        beTypeEqual<ParseError<"Unexpected token EOF (expected }, ,)">>()
+        beTypeEqual<ParseError<"Unexpected token EOF (expected }, ,)">>(),
       );
     });
 
     it("parses styles in simpleArg", () => {
       expectType<InferredMessageType<"{foo,number,integer}">>().to(
-        beTypeEqual<Message<{ foo: number }>>()
+        beTypeEqual<Message<{ foo: number }>>(),
       );
       expectType<InferredMessageType<"{foo,number,currency}">>().to(
-        beTypeEqual<Message<{ foo: number }>>()
+        beTypeEqual<Message<{ foo: number }>>(),
       );
       expectType<InferredMessageType<"{foo,number,percent}">>().to(
-        beTypeEqual<Message<{ foo: number }>>()
+        beTypeEqual<Message<{ foo: number }>>(),
       );
       expectType<InferredMessageType<"{foo,date,short}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,date,medium}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,date,long}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,date,full}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,date,::MMMMdjmm}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,time,short}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,time,medium}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,time,long}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
       expectType<InferredMessageType<"{foo,time,full}">>().to(
-        beTypeEqual<Message<{ foo: Date }>>()
+        beTypeEqual<Message<{ foo: Date }>>(),
       );
     });
 
@@ -228,22 +228,22 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"{foo,number,$}">>().to(
         beTypeEqual<
           ParseError<"Unexpected token $ (expected identifier, ::)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{foo,number,foobar}">>().to(
-        beTypeEqual<ParseError<"Invalid argStyle for number: foobar">>()
+        beTypeEqual<ParseError<"Invalid argStyle for number: foobar">>(),
       );
       expectType<InferredMessageType<"{foo,number,integer$}">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected })">>()
+        beTypeEqual<ParseError<"Unexpected token $ (expected })">>(),
       );
       expectType<InferredMessageType<"{foo,date,integer}">>().to(
-        beTypeEqual<ParseError<"Invalid argStyle for date: integer">>()
+        beTypeEqual<ParseError<"Invalid argStyle for date: integer">>(),
       );
       expectType<InferredMessageType<"{foo,number,full}">>().to(
-        beTypeEqual<ParseError<"Invalid argStyle for number: full">>()
+        beTypeEqual<ParseError<"Invalid argStyle for number: full">>(),
       );
       expectType<InferredMessageType<"{foo,spellout,integer}">>().to(
-        beTypeEqual<ParseError<"Invalid argStyle for spellout: integer">>()
+        beTypeEqual<ParseError<"Invalid argStyle for spellout: integer">>(),
       );
       // TODO
       // expectType<InferredMessageType<"{foo,date,::YYYYwwEEEE}">>().to(
@@ -253,7 +253,7 @@ describe("InferredMessageType", () => {
 
     it("errors on choiceArg", () => {
       expectType<InferredMessageType<"{foo,choice,0#zero|1#one}">>().to(
-        beTypeEqual<ParseError<"choice is not supported">>()
+        beTypeEqual<ParseError<"choice is not supported">>(),
       );
     });
 
@@ -286,84 +286,84 @@ describe("InferredMessageType", () => {
 
     it("errors on invalid pluralArg", () => {
       expectType<InferredMessageType<"{foo,plural">>().to(
-        beTypeEqual<ParseError<"Unexpected token EOF (expected ,)">>()
+        beTypeEqual<ParseError<"Unexpected token EOF (expected ,)">>(),
       );
       expectType<InferredMessageType<"{foo,plural%">>().to(
-        beTypeEqual<ParseError<"Unexpected token % (expected ,)">>()
+        beTypeEqual<ParseError<"Unexpected token % (expected ,)">>(),
       );
       expectType<InferredMessageType<"{foo,plural}">>().to(
-        beTypeEqual<ParseError<"Unexpected token } (expected ,)">>()
+        beTypeEqual<ParseError<"Unexpected token } (expected ,)">>(),
       );
       expectType<InferredMessageType<"{foo,plural,$}">>().to(
         beTypeEqual<
           ParseError<"Unexpected token $ (expected offset:, identifier, =, })">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{foo,plural,}">>().to(
-        beTypeEqual<ParseError<"No branch found">>()
+        beTypeEqual<ParseError<"No branch found">>(),
       );
       expectType<InferredMessageType<"{foo,plural,=foo{}other{}}">>().to(
         beTypeEqual<
           ParseError<"Unexpected token identifier (expected number)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{foo,plural,= 42{}other{}}">>().to(
-        beTypeEqual<ParseError<"No space allowed here">>()
+        beTypeEqual<ParseError<"No space allowed here">>(),
       );
       expectType<InferredMessageType<"{foo,plural,one other{}}">>().to(
-        beTypeEqual<ParseError<"Unexpected token identifier (expected {)">>()
+        beTypeEqual<ParseError<"Unexpected token identifier (expected {)">>(),
       );
       expectType<InferredMessageType<"{foo,plural,=42 other{}">>().to(
-        beTypeEqual<ParseError<"Unexpected token identifier (expected {)">>()
+        beTypeEqual<ParseError<"Unexpected token identifier (expected {)">>(),
       );
       expectType<InferredMessageType<"{foo,plural,one?{}other{}}">>().to(
-        beTypeEqual<ParseError<"Unexpected token ? (expected {)">>()
+        beTypeEqual<ParseError<"Unexpected token ? (expected {)">>(),
       );
       expectType<InferredMessageType<"{foo,plural,42{}other{}}">>().to(
         beTypeEqual<
           ParseError<"Unexpected token number (expected offset:, identifier, =, })">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{foo,plural,one{},other{}}">>().to(
         beTypeEqual<
           ParseError<"Unexpected token , (expected identifier, =, })">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{foo,plural,one{}other{">>().to(
-        beTypeEqual<ParseError<"Unexpected token EOF (expected })">>()
+        beTypeEqual<ParseError<"Unexpected token EOF (expected })">>(),
       );
       expectType<InferredMessageType<"{foo,plural,one{}other{'}}">>().to(
-        beTypeEqual<ParseError<"Unclosed quoted string">>()
+        beTypeEqual<ParseError<"Unclosed quoted string">>(),
       );
       expectType<InferredMessageType<"{foo,plural,one{}other{},}">>().to(
         beTypeEqual<
           ParseError<"Unexpected token , (expected identifier, =, })">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"{foo,plural,one{}other}">>().to(
-        beTypeEqual<ParseError<"Unexpected token } (expected {)">>()
+        beTypeEqual<ParseError<"Unexpected token } (expected {)">>(),
       );
       expectType<InferredMessageType<"{foo,plural,one{}}">>().to(
-        beTypeEqual<ParseError<"Last selector should be other">>()
+        beTypeEqual<ParseError<"Last selector should be other">>(),
       );
     });
 
     it("parses elementArg", () => {
       expectType<InferredMessageType<"Click <0>here</0>!">>().to(
-        beTypeEqual<Message<{ 0: ComponentPlaceholder }>>()
+        beTypeEqual<Message<{ 0: ComponentPlaceholder }>>(),
       );
       expectType<InferredMessageType<"Click <0 > here </0 > !">>().to(
-        beTypeEqual<Message<{ 0: ComponentPlaceholder }>>()
+        beTypeEqual<Message<{ 0: ComponentPlaceholder }>>(),
       );
       expectType<InferredMessageType<"<foo><3></3></foo>">>().to(
         beTypeEqual<
           Message<{ 3: ComponentPlaceholder; foo: ComponentPlaceholder }>
-        >()
+        >(),
       );
       expectType<InferredMessageType<"<foo/> and <bar />">>().to(
         beTypeEqual<
           Message<{ foo: ComponentPlaceholder; bar: ComponentPlaceholder }>
-        >()
+        >(),
       );
     });
 
@@ -371,50 +371,50 @@ describe("InferredMessageType", () => {
       expectType<InferredMessageType<"<$foo></foo>">>().to(
         beTypeEqual<
           ParseError<"Unexpected token $ (expected number, identifier)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"<foo$></foo>">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected /, >)">>()
+        beTypeEqual<ParseError<"Unexpected token $ (expected /, >)">>(),
       );
       expectType<InferredMessageType<"<foo></$foo>">>().to(
         beTypeEqual<
           ParseError<"Unexpected token $ (expected number, identifier)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"<foo></foo$>">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected >)">>()
+        beTypeEqual<ParseError<"Unexpected token $ (expected >)">>(),
       );
       expectType<InferredMessageType<"<foo/$>">>().to(
-        beTypeEqual<ParseError<"Unexpected token $ (expected >)">>()
+        beTypeEqual<ParseError<"Unexpected token $ (expected >)">>(),
       );
       expectType<InferredMessageType<"<foo>">>().to(
-        beTypeEqual<ParseError<"Unexpected token EOF (expected <)">>()
+        beTypeEqual<ParseError<"Unexpected token EOF (expected <)">>(),
       );
       expectType<InferredMessageType<"</foo>">>().to(
-        beTypeEqual<ParseError<"Found an unmatching <">>()
+        beTypeEqual<ParseError<"Found an unmatching <">>(),
       );
       expectType<InferredMessageType<"< foo></foo>">>().to(
-        beTypeEqual<ParseError<"No space allowed here">>()
+        beTypeEqual<ParseError<"No space allowed here">>(),
       );
       expectType<InferredMessageType<"<foo></ foo>">>().to(
-        beTypeEqual<ParseError<"No space allowed here">>()
+        beTypeEqual<ParseError<"No space allowed here">>(),
       );
       expectType<InferredMessageType<"<foo>< /foo>">>().to(
         beTypeEqual<
           ParseError<"Unexpected token / (expected number, identifier)">
-        >()
+        >(),
       );
       expectType<InferredMessageType<"<foo/ >">>().to(
-        beTypeEqual<ParseError<"No space allowed here">>()
+        beTypeEqual<ParseError<"No space allowed here">>(),
       );
       expectType<InferredMessageType<"<foo></bar>">>().to(
-        beTypeEqual<ParseError<"Tag foo closed with a different name: bar">>()
+        beTypeEqual<ParseError<"Tag foo closed with a different name: bar">>(),
       );
       expectType<InferredMessageType<"<0123/>">>().to(
-        beTypeEqual<ParseError<"Invalid number: 0123">>()
+        beTypeEqual<ParseError<"Invalid number: 0123">>(),
       );
       expectType<InferredMessageType<"<123foo/>">>().to(
-        beTypeEqual<ParseError<"Invalid number: 123foo">>()
+        beTypeEqual<ParseError<"Invalid number: 123foo">>(),
       );
     });
   });

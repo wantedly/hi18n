@@ -55,7 +55,7 @@ export const rule = createRule<OptionList, MessageIds>({
   create(context): TSESLint.RuleListener {
     let bookPath = path.relative(
       path.dirname(context.getFilename()),
-      context.options[0].bookPath
+      context.options[0].bookPath,
     );
     if (!/^\.\.?(?:\/|$)/.test(bookPath)) bookPath = `./${bookPath}`;
     const tracker = linguiTracker();
@@ -147,7 +147,7 @@ export const rule = createRule<OptionList, MessageIds>({
               fixer,
               "@hi18n/react",
               "Translate",
-              ["@lingui/react", "@lingui/macro"]
+              ["@lingui/react", "@lingui/macro"],
             );
           yield* translateImportFixes;
 
@@ -158,7 +158,7 @@ export const rule = createRule<OptionList, MessageIds>({
             bookPath,
             "book",
             [],
-            true
+            true,
           );
           yield* bookImportFixes;
 
@@ -171,7 +171,7 @@ export const rule = createRule<OptionList, MessageIds>({
           for (const [paramKey, paramValue] of params) {
             if (
               /^[\p{ID_Start}$_][-\p{ID_Continue}$\u200C\u200D]*$/u.test(
-                paramKey
+                paramKey,
               )
             ) {
               attrs.push(`${paramKey}={${paramValue}}`);
@@ -185,18 +185,18 @@ export const rule = createRule<OptionList, MessageIds>({
           if (node.type === "JSXElement" && node.closingElement) {
             yield fixer.replaceText(
               node.openingElement,
-              `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")}>`
+              `<${translateComponentName}${attrs.map((s) => ` ${s}`).join("")}>`,
             );
             yield fixer.replaceText(
               node.closingElement,
-              `</${translateComponentName}>`
+              `</${translateComponentName}>`,
             );
           } else {
             yield fixer.replaceText(
               node,
               `<${translateComponentName}${attrs
                 .map((s) => ` ${s}`)
-                .join("")} />`
+                .join("")} />`,
             );
           }
         },
@@ -224,7 +224,7 @@ export const rule = createRule<OptionList, MessageIds>({
           };
           if (
             !node.arguments.every(
-              (arg): arg is TSESTree.Expression => arg.type !== "SpreadElement"
+              (arg): arg is TSESTree.Expression => arg.type !== "SpreadElement",
             )
           ) {
             return justReport();
@@ -284,7 +284,7 @@ export const rule = createRule<OptionList, MessageIds>({
                 fixer,
                 "@hi18n/react",
                 "useI18n",
-                ["@lingui/react", "@lingui/macro"]
+                ["@lingui/react", "@lingui/macro"],
               );
               yield* useI18nImportFixes;
 
@@ -295,7 +295,7 @@ export const rule = createRule<OptionList, MessageIds>({
                 bookPath,
                 "book",
                 [],
-                true
+                true,
               );
               yield* bookImportFixes;
 
@@ -304,14 +304,14 @@ export const rule = createRule<OptionList, MessageIds>({
                 fixer,
                 hooksScope,
                 useI18nName,
-                bookName
+                bookName,
               );
               yield* useI18nCallFixes;
 
               if (valuesSource) {
                 yield fixer.replaceText(
                   node,
-                  `${tName}(${messageIdSource}, ${valuesSource})`
+                  `${tName}(${messageIdSource}, ${valuesSource})`,
                 );
               } else {
                 yield fixer.replaceText(node, `${tName}(${messageIdSource})`);
@@ -351,7 +351,7 @@ function getOrInsertImport(
   source: string,
   importName: string,
   positionHintSources: string[],
-  doInsertAfter?: boolean
+  doInsertAfter?: boolean,
 ): [TSESLint.RuleFix[], string] {
   const program = scopeManager.globalScope!.block;
   const programScope = scopeManager.acquire(program, true)!;
@@ -408,11 +408,11 @@ function getOrInsertImport(
       return [[fixer.insertTextAfter(lastSpecifier, `, ${specText}`)], newName];
     } else if (
       importNode.specifiers.some(
-        (spec) => spec.type === "ImportDefaultSpecifier"
+        (spec) => spec.type === "ImportDefaultSpecifier",
       )
     ) {
       const defaultSpec = importNode.specifiers.find(
-        (spec) => spec.type === "ImportDefaultSpecifier"
+        (spec) => spec.type === "ImportDefaultSpecifier",
       )!;
       const tokens = sourceCode.getTokensAfter(defaultSpec, 2);
       if (
@@ -470,7 +470,7 @@ function getOrInsertImport(
       [
         fixer.insertTextAfter(
           lastImport,
-          `\n${indent}import { ${specText} } from ${JSON.stringify(source)};`
+          `\n${indent}import { ${specText} } from ${JSON.stringify(source)};`,
         ),
       ],
       newName,
@@ -482,7 +482,7 @@ function getOrInsertImport(
     [
       fixer.insertTextBefore(
         insertBefore,
-        `import { ${specText} } from ${JSON.stringify(source)};\n${indent}`
+        `import { ${specText} } from ${JSON.stringify(source)};\n${indent}`,
       ),
     ],
     newName,
@@ -494,7 +494,7 @@ function isHooksScopeName(name: string): boolean {
 }
 
 function findNearestHooksScope(
-  startNode: TSESTree.Node
+  startNode: TSESTree.Node,
 ): TSESTree.BlockStatement | undefined {
   let node: TSESTree.Node = startNode;
   while (true) {
@@ -534,7 +534,7 @@ function getOrInsertUseI18n(
   fixer: TSESLint.RuleFixer,
   block: TSESTree.BlockStatement,
   useI18nName: string,
-  bookName: string
+  bookName: string,
   // source: string,
   // importName: string,
   // positionHintSources: string[],
@@ -579,7 +579,7 @@ function getOrInsertUseI18n(
     [
       fixer.insertTextAfter(
         openBraceToken,
-        `\n${indent}const { t } = ${useI18nName}(${bookName});`
+        `\n${indent}const { t } = ${useI18nName}(${bookName});`,
       ),
     ],
     "t",
@@ -588,7 +588,7 @@ function getOrInsertUseI18n(
 
 function eligibleForJSXTagNameExpression(
   node: TSESTree.Expression,
-  whole = true
+  whole = true,
 ): boolean {
   switch (node.type) {
     case "Identifier":

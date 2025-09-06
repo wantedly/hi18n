@@ -54,7 +54,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt("example.greeting3");
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -126,7 +126,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt("example.greeting3");
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -197,7 +197,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt.dynamic(id5);
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -270,7 +270,7 @@ describe("collect-translation-ids", () => {
       const { t: ttt } = getTranslator(book, "en");
       ttt.todo("example.greeting3");
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {

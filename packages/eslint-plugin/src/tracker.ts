@@ -25,7 +25,7 @@ export class Tracker {
   watchMember(
     resName: string,
     memberName: string,
-    watchAs: string = `${resName}.${memberName}`
+    watchAs: string = `${resName}.${memberName}`,
   ) {
     const res = this.getResourceHooks(resName);
     if (Object.prototype.hasOwnProperty.call(res.members, memberName)) {
@@ -39,7 +39,7 @@ export class Tracker {
   watchCall(
     resName: string,
     captures: CaptureSpec[] = [],
-    watchAs: string = `${resName}()`
+    watchAs: string = `${resName}()`,
   ) {
     const resHooks = this.getResourceHooks(resName);
     resHooks.calls.push({ resName: watchAs, captures });
@@ -47,7 +47,7 @@ export class Tracker {
   watchConstruct(
     resName: string,
     captures: CaptureSpec[] = [],
-    watchAs: string = `new ${resName}()`
+    watchAs: string = `new ${resName}()`,
   ) {
     const resHooks = this.getResourceHooks(resName);
     resHooks.constructs.push({ resName: watchAs, captures });
@@ -55,7 +55,7 @@ export class Tracker {
   watchJSXElement(
     resName: string,
     captures: CaptureSpec[] = [],
-    watchAs: string = `<${resName} />`
+    watchAs: string = `<${resName} />`,
   ) {
     const resHooks = this.getResourceHooks(resName);
     resHooks.jsxElements.push({ resName: watchAs, captures });
@@ -78,7 +78,7 @@ export class Tracker {
 
   listen(
     resName: string,
-    listener: (node: TSESTree.Node, captured: CaptureMap) => void
+    listener: (node: TSESTree.Node, captured: CaptureMap) => void,
   ) {
     this.getResourceHooks(resName).listeners.push(listener);
   }
@@ -92,13 +92,13 @@ export class Tracker {
 
   trackImport(
     scopeManager: TSESLint.Scope.ScopeManager,
-    node: TSESTree.ImportDeclaration
+    node: TSESTree.ImportDeclaration,
   ) {
     if (typeof node.source.value !== "string") return;
     if (
       !Object.prototype.hasOwnProperty.call(
         this.watchingImports,
-        node.source.value
+        node.source.value,
       )
     )
       return;
@@ -122,7 +122,7 @@ export class Tracker {
     scopeManager: TSESLint.Scope.ScopeManager,
     node: TSESTree.Node,
     varName: string,
-    res: Resource
+    res: Resource,
   ) {
     const varDecl = scopeManager
       .getDeclaredVariables(node)
@@ -151,7 +151,7 @@ export class Tracker {
       | TSESTree.JSXElement
       | TSESTree.JSXIdentifier
       | TSESTree.JSXMemberExpression,
-    res: Resource
+    res: Resource,
   ) {
     this.fire(res, expr);
     if (!expr.parent) return;
@@ -223,7 +223,7 @@ export class Tracker {
     scopeManager: TSESLint.Scope.ScopeManager,
     decl: TSESTree.VariableDeclarator,
     pat: TSESTree.DestructuringPattern,
-    res: Resource
+    res: Resource,
   ) {
     switch (pat.type) {
       case "Identifier":
@@ -258,7 +258,7 @@ export class Tracker {
                   scopeManager,
                   decl,
                   prop.value as TSESTree.DestructuringPattern,
-                  subRes
+                  subRes,
                 );
               }
             }
@@ -374,7 +374,7 @@ export function capturedRoot(node: GeneralizedNode): TSESTree.Node {
 
 function captureArguments(
   expr: TSESTree.CallExpression | TSESTree.NewExpression,
-  captures: CaptureSpec[]
+  captures: CaptureSpec[],
 ): CaptureMap {
   const captured: CaptureMap = {};
   for (const { captureAs, path } of captures) {
@@ -389,7 +389,7 @@ function captureArguments(
 
 function captureProps(
   elem: TSESTree.JSXElement,
-  captures: CaptureSpec[]
+  captures: CaptureSpec[],
 ): CaptureMap {
   const captured: CaptureMap = {};
   for (const { captureAs, path } of captures) {
@@ -404,7 +404,7 @@ function captureProps(
 
 function iterateCapture(
   current: GeneralizedNode,
-  segment: string
+  segment: string,
 ): GeneralizedNode {
   if (current.type === "CaptureFailure") {
     return { type: "CaptureFailure", node: current, memberName: segment };
@@ -488,7 +488,7 @@ function isPattern(node: TSESTree.Node): boolean {
 }
 
 function collectReactJSXVars(
-  scopeManager: TSESLint.Scope.ScopeManager
+  scopeManager: TSESLint.Scope.ScopeManager,
 ): Map<TSESLint.Scope.Variable, TSESTree.JSXIdentifier[]> {
   const root = scopeManager.globalScope!.block;
   const referenceMap = new Map<
@@ -535,7 +535,7 @@ function collectReactJSXVars(
     node:
       | TSESTree.JSXIdentifier
       | TSESTree.JSXNamespacedName
-      | TSESTree.JSXMemberExpression
+      | TSESTree.JSXMemberExpression,
   ): TSESTree.JSXIdentifier | null {
     if (node.type === "JSXIdentifier") return node;
     else if (node.type === "JSXMemberExpression")

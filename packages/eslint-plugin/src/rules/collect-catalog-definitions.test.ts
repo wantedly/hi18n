@@ -4,7 +4,7 @@ import { CatalogDef, getRule } from "./collect-catalog-definitions.js";
 
 function getConfig(
   collected: CatalogDef[],
-  options: { requestMessages?: boolean | undefined } = {}
+  options: { requestMessages?: boolean | undefined } = {},
 ): TSESLint.FlatConfig.Config {
   const { requestMessages = false } = options;
   return {
@@ -40,7 +40,7 @@ describe("collect-catalog-definitions", () => {
         "example/greeting": msg("Hello!"),
       });
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -73,7 +73,7 @@ describe("collect-catalog-definitions", () => {
         ja: catalogJa,
       });
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -108,7 +108,7 @@ describe("collect-catalog-definitions", () => {
         "example/greeting2": "Hello2!",
       });
     `,
-      getConfig(collected, { requestMessages: true })
+      getConfig(collected, { requestMessages: true }),
     );
     expect(collected).toEqual([
       {

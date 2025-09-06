@@ -56,18 +56,15 @@ export type VocabularyBase = Record<string, Message<any>>;
  */
 export type MessageArguments<
   M extends Message<any>,
-  C
+  C,
 > = InstantiateComponentTypes<
   InjectAdditionalParams<AbstractMessageArguments<M>>,
   C
 >;
 
 // It if uses Date, we need timeZone as well.
-export type InjectAdditionalParams<Args> = true extends HasDate<
-  Args[keyof Args]
->
-  ? Args & { timeZone: string }
-  : Args;
+export type InjectAdditionalParams<Args> =
+  true extends HasDate<Args[keyof Args]> ? Args & { timeZone: string } : Args;
 
 export type HasDate<T> = T extends Date ? true : never;
 
@@ -91,7 +88,7 @@ export type InstantiateComponentType<T, C> = T extends ComponentPlaceholder
  */
 export type TranslationId<
   Vocabulary extends VocabularyBase,
-  Args = {}
+  Args = {},
 > = string & {
   [translationIdBrandSymbol]: (catalog: Vocabulary, args: Args) => void;
 };
@@ -106,7 +103,7 @@ export type TranslationId<
  */
 export type SimpleMessageKeys<
   Vocabulary extends VocabularyBase,
-  K extends string & keyof Vocabulary = string & keyof Vocabulary
+  K extends string & keyof Vocabulary = string & keyof Vocabulary,
 > = K extends unknown
   ? {} extends MessageArguments<Vocabulary[K], never>
     ? K
@@ -185,10 +182,10 @@ msg.todo = function todo<S extends string>(s: S): InferredMessageType<S> {
  */
 export function translationId<
   Vocabulary extends VocabularyBase,
-  K extends string & keyof Vocabulary
+  K extends string & keyof Vocabulary,
 >(
   book: Book<Vocabulary>,
-  id: K
+  id: K,
 ): TranslationId<Vocabulary, AbstractMessageArguments<Vocabulary[K]>> {
   const _book = book;
   return id as string as TranslationId<
@@ -240,7 +237,7 @@ export class Book<Vocabulary extends VocabularyBase> {
     catalogs: Readonly<
       Record<string, Catalog<Vocabulary> | CatalogLoader<Vocabulary>>
     >,
-    options: BookOptions = {}
+    options: BookOptions = {},
   ) {
     this.catalogs = {};
     this._loaders = catalogs;
@@ -257,7 +254,7 @@ export class Book<Vocabulary extends VocabularyBase> {
         catalog.locale = locale;
       } else if (catalog.locale !== locale) {
         throw new Error(
-          `Locale mismatch: expected ${locale}, got ${catalog.locale!}`
+          `Locale mismatch: expected ${locale}, got ${catalog.locale!}`,
         );
       }
     }
@@ -289,7 +286,7 @@ export class Book<Vocabulary extends VocabularyBase> {
       catalog.locale = locale;
     } else if (catalog.locale !== locale) {
       throw new Error(
-        `Locale mismatch: expected ${locale}, got ${catalog.locale!}`
+        `Locale mismatch: expected ${locale}, got ${catalog.locale!}`,
       );
     }
     if (this.catalogs[locale] != null) return;
@@ -387,7 +384,7 @@ export class Catalog<Vocabulary extends VocabularyBase> {
   constructor(data: Readonly<Vocabulary>);
   constructor(
     locale: string | Readonly<Vocabulary>,
-    data?: Readonly<Vocabulary>
+    data?: Readonly<Vocabulary>,
   ) {
     if (typeof locale === "object") {
       // For backwards-compatibility
@@ -447,7 +444,7 @@ export type TranslatorObject<Vocabulary extends VocabularyBase> = {
   translateWithComponents<T, C, K extends string & keyof Vocabulary>(
     id: K,
     interpolator: ComponentInterpolator<T, C>,
-    options: MessageArguments<Vocabulary[K], C>
+    options: MessageArguments<Vocabulary[K], C>,
   ): T | string;
 };
 
@@ -517,7 +514,7 @@ type TranslatorFunction<Vocabulary extends VocabularyBase> = {
    */
   <K extends string & keyof Vocabulary>(
     id: K,
-    options: MessageArguments<Vocabulary[K], never>
+    options: MessageArguments<Vocabulary[K], never>,
   ): string;
 };
 
@@ -553,7 +550,7 @@ type DynamicTranslatorFunction<Vocabulary extends VocabularyBase> = {
    */
   <Args>(
     id: TranslationId<Vocabulary, Args>,
-    options: InstantiateComponentTypes<InjectAdditionalParams<Args>, never>
+    options: InstantiateComponentTypes<InjectAdditionalParams<Args>, never>,
   ): string;
 };
 
@@ -587,7 +584,7 @@ export type ComponentInterpolator<T, C> = {
 export function getTranslator<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
   locales: string | string[],
-  options: GetTranslatorOptions = {}
+  options: GetTranslatorOptions = {},
 ): TranslatorObject<Vocabulary> {
   const locale = selectLocale(book, locales);
   const catalog = book.catalogs[locale];
@@ -610,7 +607,7 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
           timeZone: options["timeZone"] as string | undefined,
           params: options,
           handleError: book._handleError,
-        }
+        },
       );
     } catch (e) {
       if (!(e instanceof Error)) throw e;
@@ -629,7 +626,7 @@ export function getTranslator<Vocabulary extends VocabularyBase>(
     translateWithComponents: <T, C, K extends string & keyof Vocabulary>(
       id: K,
       interpolator: ComponentInterpolator<T, C>,
-      options: MessageArguments<Vocabulary[K], C>
+      options: MessageArguments<Vocabulary[K], C>,
     ): T | string => {
       try {
         return compileAndEvaluateMessage<Vocabulary, T>(catalog, locale, id, {
@@ -672,7 +669,7 @@ export type GetTranslatorOptions = {
  */
 export async function preloadCatalogs<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
-  locales: string | string[]
+  locales: string | string[],
 ): Promise<void> {
   const locale = selectLocale(book, locales);
   const catalog = book.catalogs[locale];
@@ -685,7 +682,7 @@ export async function preloadCatalogs<Vocabulary extends VocabularyBase>(
 // this function picks the locale whether the catalog has already been loaded or not.
 function selectLocale<Vocabulary extends VocabularyBase>(
   book: Book<Vocabulary>,
-  locales: string | string[]
+  locales: string | string[],
 ): string {
   const localesArray = Array.isArray(locales) ? locales : [locales];
 
@@ -719,7 +716,7 @@ function compileAndEvaluateMessage<Vocabulary extends VocabularyBase, T>(
   catalog: Catalog<Vocabulary>,
   locale: string,
   id: string & keyof Vocabulary,
-  options: Omit<EvalOption<T>, "id" | "locale">
+  options: Omit<EvalOption<T>, "id" | "locale">,
 ) {
   try {
     return evaluateMessage<T>(catalog.getCompiledMessage(id), {

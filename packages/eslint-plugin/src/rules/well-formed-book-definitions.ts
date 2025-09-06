@@ -59,7 +59,7 @@ export const rule = createRule<Options, MessageIds>({
           ? resolveAsLocation(
               context.getSourceCode().scopeManager!,
               context.getFilename(),
-              node
+              node,
             )
           : undefined;
       if (!catalogLocation) {
@@ -102,7 +102,7 @@ export const rule = createRule<Options, MessageIds>({
         const catalogLocation = getCatalogRef(
           context.getSourceCode().scopeManager!,
           context.getFilename(),
-          prop
+          prop,
         );
         if (!catalogLocation) {
           context.report({
@@ -123,7 +123,7 @@ export const rule = createRule<Options, MessageIds>({
 
 function checkTypeParameter(
   context: Readonly<TSESLint.RuleContext<MessageIds, []>>,
-  node: TSESTree.NewExpression
+  node: TSESTree.NewExpression,
 ) {
   const typeParameters =
     node.typeArguments ??
@@ -144,7 +144,7 @@ function checkTypeParameter(
   }
   const resolved = resolveTypeLevelVariable(
     context.getSourceCode().scopeManager!,
-    typeParam.typeName
+    typeParam.typeName,
   );
   if (!resolved) {
     context.report({

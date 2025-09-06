@@ -52,7 +52,7 @@ export function getRule(cb: BookDefCallback) {
             ? resolveAsLocation(
                 context.getSourceCode().scopeManager!,
                 context.getFilename(),
-                node
+                node,
               )
             : undefined;
         if (!bookLocation) return;
@@ -71,7 +71,7 @@ export function getRule(cb: BookDefCallback) {
           const catalogLocation = getCatalogRef(
             context.getSourceCode().scopeManager!,
             context.getFilename(),
-            prop
+            prop,
           );
           if (!catalogLocation) continue;
           catalogLinks.push({

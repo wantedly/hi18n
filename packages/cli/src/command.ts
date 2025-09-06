@@ -6,7 +6,7 @@ export async function hi18n(
   argv?: readonly string[],
   cwd: string = process.cwd(),
   output?: OutputConfiguration,
-  overrideExit?: boolean
+  overrideExit?: boolean,
 ) {
   const program = new Command();
 
@@ -22,7 +22,7 @@ export async function hi18n(
     .option("--exclude <files...>")
     .option(
       "-c, --check",
-      "report errors if one or more files would be changed"
+      "report errors if one or more files would be changed",
     )
     .action(syncCommand);
 
@@ -33,7 +33,7 @@ export async function hi18n(
     options: {
       exclude?: string[];
       check?: boolean;
-    }
+    },
   ) {
     await sync({
       cwd,

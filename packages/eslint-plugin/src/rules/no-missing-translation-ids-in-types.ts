@@ -55,7 +55,7 @@ export const rule = createRule<Options, MessageIds>({
           *fix(fixer) {
             const candidates = collectCandidates(
               context.getSourceCode(),
-              objinfo.signatures
+              objinfo.signatures,
             );
             const candidateIndices = new Map<string, number>();
             for (let i = 0; i < candidates.length; i++) {
@@ -97,7 +97,7 @@ export const rule = createRule<Options, MessageIds>({
                     indent = lineIndent(context.getSourceCode(), openBrace) + 2;
                   }
                   const text = `\n${" ".repeat(indent)}${JSON.stringify(
-                    missingId
+                    missingId,
                   )}: Message;`;
                   const token = context
                     .getSourceCode()
@@ -111,7 +111,7 @@ export const rule = createRule<Options, MessageIds>({
                       : lastCandidate.commentedOut[0]!
                   ).loc.start.column;
                   const text = `\n${" ".repeat(indent)}${JSON.stringify(
-                    missingId
+                    missingId,
                   )}: Message;`;
                   const node = extendNode(
                     context.getSourceCode(),
@@ -119,7 +119,7 @@ export const rule = createRule<Options, MessageIds>({
                       ? lastCandidate.node
                       : lastCandidate.commentedOut[
                           lastCandidate.commentedOut.length - 1
-                        ]!
+                        ]!,
                   );
                   yield fixer.insertTextAfterRange(node.range, text);
                 }
@@ -153,11 +153,11 @@ type CommentedOutCandidate = {
 
 function* unCommentCandidate(
   fixer: TSESLint.RuleFixer,
-  candidate: Candidate
+  candidate: Candidate,
 ): Generator<TSESLint.RuleFix> {
   if (candidate.node) return;
   const trimStart = Math.min(
-    ...candidate.commentedOut.map((c) => /^\s*/.exec(c.value)![0].length)
+    ...candidate.commentedOut.map((c) => /^\s*/.exec(c.value)![0].length),
   );
   for (const comment of candidate.commentedOut) {
     const value = comment.value.substring(trimStart).trimEnd();
@@ -167,21 +167,21 @@ function* unCommentCandidate(
 
 function collectCandidates(
   sourceCode: TSESLint.SourceCode,
-  signatures: TSESTree.TypeElement[]
+  signatures: TSESTree.TypeElement[],
 ): Candidate[] {
   const candidateNodes: Candidate[] = [];
   for (const signature of signatures) {
     const precedingComments = getPrecedingComments(sourceCode, signature);
     const { parts: commentedOutCandidates, rest: trueComments } = parseComments(
       precedingComments,
-      parsePart
+      parsePart,
     );
     candidateNodes.push(
       ...commentedOutCandidates.map((c) => ({
         id: getStaticKey(c.node)!,
         commentedOut: c.commentedOut,
         precedingComments: c.leadingComments,
-      }))
+      })),
     );
 
     if (signature.type !== "TSPropertySignature") continue;
@@ -197,14 +197,14 @@ function collectCandidates(
     const lastComments = getLastComments(sourceCode, signatures);
     const { parts: commentedOutCandidates } = parseComments(
       lastComments,
-      parsePart
+      parsePart,
     );
     candidateNodes.push(
       ...commentedOutCandidates.map((c) => ({
         id: getStaticKey(c.node)!,
         commentedOut: c.commentedOut,
         precedingComments: c.leadingComments,
-      }))
+      })),
     );
   }
   return candidateNodes;
@@ -221,7 +221,7 @@ function parsePart(parser: Parser): TSESTree.TSPropertySignature {
 
 function getPrecedingComments(
   sourceCode: TSESLint.SourceCode,
-  node: TSESTree.Node
+  node: TSESTree.Node,
 ): TSESTree.Comment[] {
   const comments: TSESTree.Comment[] = [];
   let lastLine: number = -1;
@@ -250,7 +250,7 @@ function getPrecedingComments(
 
 function getLastComments(
   sourceCode: TSESLint.SourceCode,
-  nodes: TSESTree.Node[]
+  nodes: TSESTree.Node[],
 ): TSESTree.Comment[] {
   if (nodes.length === 0) return [];
   const lastNode = nodes[nodes.length - 1]!;
@@ -283,7 +283,7 @@ function getLastComments(
 
 function extendNode(
   sourceCode: Readonly<TSESLint.SourceCode>,
-  node: TSESTree.Node | TSESTree.Comment
+  node: TSESTree.Node | TSESTree.Comment,
 ): TSESTree.Node | TSESTree.Comment | TSESTree.Token {
   const maybePunct = sourceCode.getTokenAfter(node, { includeComments: false });
   let lastToken: TSESTree.Node | TSESTree.Comment | TSESTree.Token =

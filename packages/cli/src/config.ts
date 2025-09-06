@@ -12,7 +12,7 @@ export type ParserDefinition = ESLintParser | GenericParser;
 export type ESLintParser = {
   parseForESLint: (
     source: string,
-    options: TSESLint.ParserOptions
+    options: TSESLint.ParserOptions,
   ) => ESLintParserResult<TSESTree.Program>;
 };
 export type GenericParser = {
@@ -130,7 +130,7 @@ export async function loadConfig(cwd: string): Promise<Config> {
     DEFAULT_PARSER_OPTIONS;
   const extensions = expandExtensions(config["extensions"]);
   const extensionsToRemove = expandExtensionsToRemove(
-    config["extensionsToRemove"]
+    config["extensionsToRemove"],
   );
   const baseUrl = expandBaseUrl(config["baseUrl"], filepath);
   const paths = config["paths"];
@@ -159,7 +159,7 @@ export async function loadConfig(cwd: string): Promise<Config> {
 
 function resolveParser(
   parser: ParserSpec | undefined,
-  filepath: string
+  filepath: string,
 ): TSESLint.Parser.LooseParserModule {
   if (typeof parser === "string") {
     const parserPath = resolve.sync(parser, {
@@ -176,7 +176,7 @@ function resolveParser(
 
 function resolveConnector(
   connector: ConnectorSpec | undefined,
-  filepath: string
+  filepath: string,
 ): ConnectorDependency | undefined {
   if (connector === "@hi18n/cli/json-mf-connector") {
     return jsonMfConnector;
@@ -195,22 +195,22 @@ function resolveConnector(
 function expandExtensions(extensions: string[] | undefined): string[] {
   if (extensions === undefined) return DEFAULT_EXTENSIONS;
   return extensions.flatMap((ext) =>
-    ext === "..." ? DEFAULT_EXTENSIONS : [ext]
+    ext === "..." ? DEFAULT_EXTENSIONS : [ext],
   );
 }
 
 function expandExtensionsToRemove(
-  extensionsToRemove: string[] | undefined
+  extensionsToRemove: string[] | undefined,
 ): string[] {
   if (extensionsToRemove === undefined) return DEFAULT_EXTENSIONS_TO_REMOVE;
   return extensionsToRemove.flatMap((ext) =>
-    ext === "..." ? DEFAULT_EXTENSIONS_TO_REMOVE : [ext]
+    ext === "..." ? DEFAULT_EXTENSIONS_TO_REMOVE : [ext],
   );
 }
 
 function expandBaseUrl(
   baseUrl: string | undefined,
-  filepath: string
+  filepath: string,
 ): string | undefined {
   if (baseUrl === undefined) return undefined;
   return path.resolve(path.dirname(filepath), baseUrl);
@@ -257,7 +257,7 @@ function oneof<Types extends any[]>(
 }
 
 function isLooseParserModule(
-  x: unknown
+  x: unknown,
 ): x is TSESLint.Parser.LooseParserModule {
   const xx = x as Record<string, unknown>;
   return (

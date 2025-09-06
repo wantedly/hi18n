@@ -3,16 +3,16 @@ import { resolveAsLocation, serializedLocations } from "./def-location.js";
 
 export function queryUsedTranslationIds<
   TMessageIds extends string,
-  TOptions extends readonly unknown[]
+  TOptions extends readonly unknown[],
 >(
   context: Readonly<TSESLint.RuleContext<TMessageIds, TOptions>>,
   node: TSESTree.Node,
-  doLookup: boolean
+  doLookup: boolean,
 ): string[] | undefined {
   const usedIdsMap: unknown = context.settings["@hi18n/used-translation-ids"];
   if (usedIdsMap === undefined)
     throw new Error(
-      'settings["@hi18n/used-translation-ids"] not found\nNote: this rule is for an internal use.'
+      'settings["@hi18n/used-translation-ids"] not found\nNote: this rule is for an internal use.',
     );
   if (!isObject(usedIdsMap)) throw new Error("Invalid usedIds");
 
@@ -21,7 +21,7 @@ export function queryUsedTranslationIds<
       ? resolveAsLocation(
           context.getSourceCode().scopeManager!,
           context.getFilename(),
-          node
+          node,
         )
       : undefined;
   if (!nodeLocation) return undefined;
@@ -30,7 +30,7 @@ export function queryUsedTranslationIds<
     const linkageMap: unknown = context.settings["@hi18n/linkage"];
     if (linkageMap === undefined)
       throw new Error(
-        'settings["@hi18n/linkage"] not found\nNote: this rule is for an internal use.'
+        'settings["@hi18n/linkage"] not found\nNote: this rule is for an internal use.',
       );
     if (!isObject(linkageMap)) throw new Error("Invalid linkage map");
 

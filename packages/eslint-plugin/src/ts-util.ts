@@ -11,7 +11,7 @@ export type TypeDeclarator =
 
 export function resolveTypeLevelVariable(
   scopeManager: TSESLint.Scope.ScopeManager,
-  node: TSESTree.EntityName
+  node: TSESTree.EntityName,
 ): TypeDeclarator | undefined {
   if (node.type === "TSQualifiedName" || node.type === "ThisExpression")
     return undefined;
@@ -21,7 +21,7 @@ export function resolveTypeLevelVariable(
 
 function findTypeLevelVariable(
   scope: TSESLint.Scope.Scope,
-  name: string
+  name: string,
 ): TypeDeclarator | undefined {
   let currentScope: TSESLint.Scope.Scope | null = scope;
   while (currentScope) {
@@ -33,11 +33,11 @@ function findTypeLevelVariable(
             stmtBase.type === "ExportNamedDeclaration" && stmtBase.declaration
               ? stmtBase.declaration
               : stmtBase.type === "ExportDefaultDeclaration" &&
-                ["ClassDeclaration", "TSInterfaceDeclaration"].includes(
-                  stmtBase.declaration.type
-                )
-              ? stmtBase.declaration
-              : stmtBase;
+                  ["ClassDeclaration", "TSInterfaceDeclaration"].includes(
+                    stmtBase.declaration.type,
+                  )
+                ? stmtBase.declaration
+                : stmtBase;
           switch (stmt.type) {
             case "TSInterfaceDeclaration":
             case "TSTypeAliasDeclaration":
@@ -82,7 +82,7 @@ export function extractAsObjectType(decl: TypeDeclarator):
 
 export function findTypeDefinition(
   scopeManager: TSESLint.Scope.ScopeManager,
-  node: TSESTree.NewExpression
+  node: TSESTree.NewExpression,
 ): {
   body: TSESTree.TSInterfaceBody | TSESTree.TSTypeLiteral;
   signatures: TSESTree.TypeElement[];
@@ -106,7 +106,7 @@ export function findTypeDefinition(
 }
 
 export function findTypeParameter(
-  node: TSESTree.Node
+  node: TSESTree.Node,
 ): TSESTree.TSTypeReference | null {
   if (node.type !== "NewExpression") return null;
   const typeParameters =

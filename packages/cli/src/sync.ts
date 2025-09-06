@@ -52,13 +52,13 @@ export async function sync(options: Options) {
       "@hi18n": {
         rules: {
           "collect-translation-ids": getCollectTranslationIdsRule((record) =>
-            translationUsages.push(record)
+            translationUsages.push(record),
           ),
           "collect-book-definitions": getCollectBookDefinitionsRule((record) =>
-            bookDefs.push(record)
+            bookDefs.push(record),
           ),
           "collect-catalog-definitions": getCollectCatalogDefinitionsRule(
-            (record) => catalogDefs.push(record)
+            (record) => catalogDefs.push(record),
           ),
           "no-missing-translation-ids": noMissingTranslationIdsRule,
           "no-unused-translation-ids": noUnusedTranslationIdsRule,
@@ -80,7 +80,7 @@ export async function sync(options: Options) {
         cwd: projectPath,
         nodir: true,
         ignore: exclude,
-      }))
+      })),
     );
   }
   for (const relative of files) {
@@ -99,7 +99,7 @@ export async function sync(options: Options) {
           },
         },
       ],
-      { filename }
+      { filename },
     );
     checkMessages(relative, messages);
   }
@@ -117,7 +117,7 @@ export async function sync(options: Options) {
           extensions: config.extensions,
         },
         config.baseUrl,
-        config.paths
+        config.paths,
       );
       loc.path = resolved;
     }
@@ -132,10 +132,10 @@ export async function sync(options: Options) {
   for (const bookDef of bookDefs) {
     const bookLocNames = serializedLocations(bookDef.bookLocation);
     const concatenatedTranslationIds = bookLocNames.flatMap((locName) =>
-      hasOwn(usedTranslationIds, locName) ? usedTranslationIds[locName]! : []
+      hasOwn(usedTranslationIds, locName) ? usedTranslationIds[locName]! : [],
     );
     const uniqueTranslationIds = Array.from(
-      new Set(concatenatedTranslationIds)
+      new Set(concatenatedTranslationIds),
     ).sort();
     for (const locName of bookLocNames) {
       setRecordValue(usedTranslationIds, locName, uniqueTranslationIds);
@@ -152,7 +152,7 @@ export async function sync(options: Options) {
             extensions: config.extensions,
           },
           config.baseUrl,
-          config.paths
+          config.paths,
         );
         loc.path = resolved;
       }
@@ -168,7 +168,7 @@ export async function sync(options: Options) {
   if (config.connector) {
     const c = config.connector.connector(
       config.configPath,
-      config.connectorOptions
+      config.connectorOptions,
     );
     if (c.importData) {
       const data = await c.importData();
@@ -186,7 +186,7 @@ export async function sync(options: Options) {
     let current = await fs.promises.readFile(rewriteTargetFile, "utf-8");
 
     function applyFix(
-      rules: Partial<Record<string, TSESLint.SharedConfig.RuleEntry>>
+      rules: Partial<Record<string, TSESLint.SharedConfig.RuleEntry>>,
     ): boolean {
       const report = linter.verifyAndFix(
         current,
@@ -202,7 +202,7 @@ export async function sync(options: Options) {
             },
           },
         ],
-        { filename: rewriteTargetFile }
+        { filename: rewriteTargetFile },
       );
       checkMessages(rewriteTargetFile, report.messages);
       if (report.fixed) {
@@ -219,7 +219,7 @@ export async function sync(options: Options) {
     if (current !== original) {
       if (options.checkOnly) {
         throw new Error(
-          `Found diff in ${path.relative(projectPath, rewriteTargetFile)}`
+          `Found diff in ${path.relative(projectPath, rewriteTargetFile)}`,
         );
       }
       await fs.promises.writeFile(rewriteTargetFile, current, "utf-8");
@@ -229,7 +229,7 @@ export async function sync(options: Options) {
 
 function checkMessages(
   filepath: string,
-  messages: TSESLint.Linter.LintMessage[]
+  messages: TSESLint.Linter.LintMessage[],
 ) {
   for (const message of messages) {
     if (/^Definition for rule .* was not found\.$/.test(message.message)) {
@@ -263,7 +263,7 @@ async function resolveWithFallback(
   id: string,
   opts: resolve.AsyncOpts,
   baseUrl?: string,
-  paths?: Record<string, string[]>
+  paths?: Record<string, string[]>,
 ): Promise<ResolveResult> {
   if (baseUrl && isPackageLikePath(id)) {
     const matchers = Object.entries(paths ?? {});
@@ -283,7 +283,7 @@ async function resolveWithFallback(
         try {
           return await resolveAsPromise(
             path.resolve(baseUrl, candidate.replace("*", replacement)),
-            opts
+            opts,
           );
         } catch (_e) {
           // Likely MODULE_NOT_FOUND
@@ -296,7 +296,7 @@ async function resolveWithFallback(
 
 function resolveAsPromise(
   id: string,
-  opts: resolve.AsyncOpts
+  opts: resolve.AsyncOpts,
 ): Promise<ResolveResult> {
   return new Promise((resolvePromise, rejectPromise) => {
     resolve(id, opts, (err, resolved, pkg) => {

@@ -6,19 +6,19 @@ import { ErrorHandler } from "./error-handling.js";
 describe("evaluageMessage", () => {
   it("evaluates a string", () => {
     expect(evaluateMessage("Hello, world!", { locale: "en" })).toBe(
-      "Hello, world!"
+      "Hello, world!",
     );
     expect(evaluateMessage("こんにちは世界!", { locale: "ja" })).toBe(
-      "こんにちは世界!"
+      "こんにちは世界!",
     );
   });
 
   it("evaluates an array", () => {
     expect(evaluateMessage(["Hello, ", "world!"], { locale: "en" })).toBe(
-      "Hello, world!"
+      "Hello, world!",
     );
     expect(evaluateMessage(["こんにちは", "世界!"], { locale: "ja" })).toBe(
-      "こんにちは世界!"
+      "こんにちは世界!",
     );
   });
 
@@ -27,21 +27,21 @@ describe("evaluageMessage", () => {
       evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
         locale: "en",
         params: { name: "John" },
-      })
+      }),
     ).toBe("Hello, John!");
     expect(() =>
       evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
         id: "greeting.named",
         locale: "en",
         params: {},
-      })
+      }),
     ).toThrow("Missing argument: name");
     expect(() =>
       evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
         id: "greeting.named",
         locale: "en",
         params: { name: 42 },
-      })
+      }),
     ).toThrow("Invalid argument name: expected string, got 42");
   });
 
@@ -55,20 +55,20 @@ describe("evaluageMessage", () => {
       " pommes",
     ];
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 42 } })).toBe(
-      "42 apples"
+      "42 apples",
     );
     expect(() => evaluateMessage(msg1, { locale: "en", params: {} })).toThrow(
-      "Missing argument: count"
+      "Missing argument: count",
     );
     expect(() =>
-      evaluateMessage(msg1, { locale: "en", params: { count: "foo" } })
+      evaluateMessage(msg1, { locale: "en", params: { count: "foo" } }),
     ).toThrow("Invalid argument count: expected number, got foo");
 
     expect(
-      evaluateMessage(msg1, { locale: "en", params: { count: 12345 } })
+      evaluateMessage(msg1, { locale: "en", params: { count: 12345 } }),
     ).toBe("12,345 apples");
     expect(
-      evaluateMessage(msg2, { locale: "fr", params: { count: 12345 } })
+      evaluateMessage(msg2, { locale: "fr", params: { count: 12345 } }),
     ).toBe("12\u202F345 pommes");
   });
 
@@ -80,10 +80,10 @@ describe("evaluageMessage", () => {
       argStyle: "integer",
     };
     expect(evaluateMessage(msg1, { locale: "en", params: { foo: 42 } })).toBe(
-      "42"
+      "42",
     );
     expect(evaluateMessage(msg1, { locale: "en", params: { foo: 42.1 } })).toBe(
-      "42"
+      "42",
     );
   });
 
@@ -95,7 +95,7 @@ describe("evaluageMessage", () => {
       argStyle: "percent",
     };
     expect(evaluateMessage(msg1, { locale: "en", params: { foo: 0.42 } })).toBe(
-      "42%"
+      "42%",
     );
   });
 
@@ -124,7 +124,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           params: { count: 42 },
           handleError,
-        })
+        }),
       ).toBe("42 apples");
 
       expect(
@@ -132,14 +132,14 @@ describe("evaluageMessage", () => {
           locale: "en",
           params: { count: 12345 },
           handleError,
-        })
+        }),
       ).toBe("12345 apples");
       expect(
         evaluateMessage(msg2, {
           locale: "fr",
           params: { count: 12345 },
           handleError,
-        })
+        }),
       ).toBe("12345 pommes");
 
       expect(handleError.mock.calls).toEqual([
@@ -162,14 +162,14 @@ describe("evaluageMessage", () => {
           locale: "en",
           params: { foo: 42 },
           handleError,
-        })
+        }),
       ).toBe("42");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { foo: 42.1 },
           handleError,
-        })
+        }),
       ).toBe("42");
 
       expect(handleError.mock.calls).toEqual([
@@ -193,7 +193,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("Jan 2, 2006");
     }
     {
@@ -208,7 +208,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("1/2/06");
     }
     {
@@ -223,7 +223,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("Jan 2, 2006");
     }
     {
@@ -238,7 +238,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("January 2, 2006");
     }
     {
@@ -253,7 +253,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("Monday, January 2, 2006");
     }
 
@@ -268,7 +268,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("3:04:05 PM");
     }
     {
@@ -283,7 +283,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("3:04 PM");
     }
     {
@@ -298,7 +298,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe("3:04:05 PM");
     }
     {
@@ -313,14 +313,14 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe(
         /^v18/.test(
           (globalThis as unknown as { process: { version: string } }).process
-            .version
+            .version,
         )
           ? "3:04:05 PM GMT-7"
-          : "3:04:05 PM MST"
+          : "3:04:05 PM MST",
       );
     }
     {
@@ -335,14 +335,14 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: date },
-        })
+        }),
       ).toBe(
         /^v18/.test(
           (globalThis as unknown as { process: { version: string } }).process
-            .version
+            .version,
         )
           ? "3:04:05 PM GMT-07:00"
-          : "3:04:05 PM Mountain Standard Time"
+          : "3:04:05 PM Mountain Standard Time",
       );
     }
   });
@@ -367,7 +367,7 @@ describe("evaluageMessage", () => {
           locale: "en",
           timeZone: "MST",
           params: { foo: dateFake },
-        })
+        }),
       ).toBe("Jan 2, 2006");
     }
   });
@@ -406,43 +406,43 @@ describe("evaluageMessage", () => {
       ],
     };
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 0 } })).toBe(
-      "There are 0 apples."
+      "There are 0 apples.",
     );
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 1 } })).toBe(
-      "There is 1 apple."
+      "There is 1 apple.",
     );
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 2 } })).toBe(
-      "There are 2 apples."
+      "There are 2 apples.",
     );
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 3 } })).toBe(
-      "There are 3 apples."
+      "There are 3 apples.",
     );
     expect(
-      evaluateMessage(msg1, { locale: "en", params: { count: 12341 } })
+      evaluateMessage(msg1, { locale: "en", params: { count: 12341 } }),
     ).toBe("There are 12,341 apples.");
     expect(
-      evaluateMessage(msg1, { locale: "en", params: { count: 12345 } })
+      evaluateMessage(msg1, { locale: "en", params: { count: 12345 } }),
     ).toBe("There are 12,345 apples.");
     expect(evaluateMessage(msg2, { locale: "ru", params: { count: 0 } })).toBe(
-      "Там 0 яблок."
+      "Там 0 яблок.",
     );
     expect(evaluateMessage(msg2, { locale: "ru", params: { count: 1 } })).toBe(
-      "Там 1 яблоко."
+      "Там 1 яблоко.",
     );
     expect(evaluateMessage(msg2, { locale: "ru", params: { count: 3 } })).toBe(
-      "Там 3 яблока."
+      "Там 3 яблока.",
     );
     expect(evaluateMessage(msg2, { locale: "ru", params: { count: 5 } })).toBe(
-      "Там 5 яблок."
+      "Там 5 яблок.",
     );
     expect(
-      evaluateMessage(msg2, { locale: "ru", params: { count: 12341 } })
+      evaluateMessage(msg2, { locale: "ru", params: { count: 12341 } }),
     ).toBe("Там 12\xA0341 яблоко.");
     expect(
-      evaluateMessage(msg2, { locale: "ru", params: { count: 12343 } })
+      evaluateMessage(msg2, { locale: "ru", params: { count: 12343 } }),
     ).toBe("Там 12\xA0343 яблока.");
     expect(
-      evaluateMessage(msg2, { locale: "ru", params: { count: 12345 } })
+      evaluateMessage(msg2, { locale: "ru", params: { count: 12345 } }),
     ).toBe("Там 12\xA0345 яблок.");
   });
 
@@ -483,25 +483,25 @@ describe("evaluageMessage", () => {
       ],
     };
     expect(
-      evaluateMessage(msg1, { locale: "en", params: { count: 0, name: "" } })
+      evaluateMessage(msg1, { locale: "en", params: { count: 0, name: "" } }),
     ).toBe("Connected to no one");
     expect(
       evaluateMessage(msg1, {
         locale: "en",
         params: { count: 1, name: "John" },
-      })
+      }),
     ).toBe("Connected to John");
     expect(
       evaluateMessage(msg1, {
         locale: "en",
         params: { count: 2, name: "John" },
-      })
+      }),
     ).toBe("Connected to John and 1 other");
     expect(
       evaluateMessage(msg1, {
         locale: "en",
         params: { count: 3, name: "John" },
-      })
+      }),
     ).toBe("Connected to John and 2 others");
   });
 
@@ -555,91 +555,91 @@ describe("evaluageMessage", () => {
           locale: "en",
           params: { count: 0 },
           handleError,
-        })
+        }),
       ).toBe("There are 0 apples.");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 1 },
           handleError,
-        })
+        }),
       ).toBe("There are 1 apples.");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 2 },
           handleError,
-        })
+        }),
       ).toBe("There are 2 apples.");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 3 },
           handleError,
-        })
+        }),
       ).toBe("There are 3 apples.");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 12341 },
           handleError,
-        })
+        }),
       ).toBe("There are 12,341 apples.");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 12345 },
           handleError,
-        })
+        }),
       ).toBe("There are 12,345 apples.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 0 },
           handleError,
-        })
+        }),
       ).toBe("Там 0 яблок.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 1 },
           handleError,
-        })
+        }),
       ).toBe("Там 1 яблок.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 3 },
           handleError,
-        })
+        }),
       ).toBe("Там 3 яблок.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 5 },
           handleError,
-        })
+        }),
       ).toBe("Там 5 яблок.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 12341 },
           handleError,
-        })
+        }),
       ).toBe("Там 12\xA0341 яблок.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 12343 },
           handleError,
-        })
+        }),
       ).toBe("Там 12\xA0343 яблок.");
       expect(
         evaluateMessage(msg2, {
           locale: "ru",
           params: { count: 12345 },
           handleError,
-        })
+        }),
       ).toBe("Там 12\xA0345 яблок.");
     });
 
@@ -685,28 +685,28 @@ describe("evaluageMessage", () => {
           locale: "en",
           params: { count: 0, name: "" },
           handleError,
-        })
+        }),
       ).toBe("Connected to no one");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 1, name: "John" },
           handleError,
-        })
+        }),
       ).toBe("Connected to John");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 2, name: "John" },
           handleError,
-        })
+        }),
       ).toBe("Connected to John and 1 others");
       expect(
         evaluateMessage(msg1, {
           locale: "en",
           params: { count: 3, name: "John" },
           handleError,
-        })
+        }),
       ).toBe("Connected to John and 2 others");
     });
   });
@@ -749,7 +749,7 @@ describe("evaluageMessage", () => {
         },
         collect,
         wrap,
-      })
+      }),
     ).toEqual([
       "Click ",
       {
@@ -838,7 +838,7 @@ describe("evaluageMessage", () => {
         },
         collect,
         wrap,
-      })
+      }),
     ).toEqual([
       "You have 1 new message. ",
       {
@@ -858,7 +858,7 @@ describe("evaluageMessage", () => {
         },
         collect,
         wrap,
-      })
+      }),
     ).toEqual([
       "You have 1 new message. ",
       {
@@ -878,7 +878,7 @@ describe("evaluageMessage", () => {
         },
         collect,
         wrap,
-      })
+      }),
     ).toEqual([
       "You have 2 new messages. ",
       {

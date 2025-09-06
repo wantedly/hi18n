@@ -19,7 +19,7 @@ export class MessageError extends Error {
       cause: Error;
       locale?: string | undefined;
       id: string;
-    }
+    },
   ) {
     const { locale, id, ...restOptions } = options;
 
@@ -27,7 +27,7 @@ export class MessageError extends Error {
 
     super(
       `Error translating ${id}${inLocale}: ${options.cause.message}`,
-      restOptions
+      restOptions,
     );
     this.locale = locale;
     this.id = id;
@@ -78,7 +78,7 @@ export class MissingLocaleError extends Error {
     options: ErrorOptions & {
       locale: string;
       availableLocales: readonly string[];
-    }
+    },
   ) {
     const { locale, availableLocales, ...restOptions } = options;
 
@@ -123,7 +123,7 @@ export class MissingArgumentError extends MessageEvaluationError {
   constructor(
     options: ErrorOptions & {
       argName: string | number;
-    }
+    },
   ) {
     const { argName, ...restOptions } = options;
     super(`Missing argument: ${argName}`, restOptions);
@@ -148,13 +148,13 @@ export class ArgumentTypeError extends MessageEvaluationError {
       argName: string | number;
       expectedType: string;
       got: unknown;
-    }
+    },
   ) {
     const { argName, expectedType, got, ...restOptions } = options;
     super(
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       `Invalid argument ${argName}: expected ${expectedType}, got ${got}`,
-      restOptions
+      restOptions,
     );
     this.argName = argName;
     this.expectedType = expectedType;

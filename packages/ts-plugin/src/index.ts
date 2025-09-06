@@ -23,11 +23,11 @@ function init(modules: { typescript: typeof import("typescript") }) {
 
     proxy.getQuickInfoAtPosition = (
       fileName: string,
-      position: number
+      position: number,
     ): ts.QuickInfo | undefined => {
       const prior = info.languageService.getQuickInfoAtPosition(
         fileName,
-        position
+        position,
       );
       if (prior) return prior;
 
@@ -62,7 +62,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
     function resolveTranslation(
       program: ts.Program,
       sourceFile: ts.SourceFile,
-      targetNode: ts.Node
+      targetNode: ts.Node,
     ): MessageCandidate[] | undefined {
       // Check if it is in the form of `t("example/greeting", ...)`
       if (!ts.isStringLiteral(targetNode)) return undefined;
@@ -94,7 +94,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
       // Like `"example/greeting": msg("Hello, world!")` in `type Vocabulary = { ... }`
       const translationSymbol = typeChecker.getPropertyOfType(
         vocabularyType,
-        translationId
+        translationId,
       );
       if (!translationSymbol) return undefined;
       const translationDecl = (translationSymbol.getDeclarations() ?? [])[0];
@@ -103,7 +103,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
       // Find definitions of the messages
       const messages = info.languageService.getImplementationAtPosition(
         translationDecl.getSourceFile().fileName,
-        translationDecl.getStart()
+        translationDecl.getStart(),
       );
       if (!messages) return undefined;
       const foundCandidates: MessageCandidate[] = [];
@@ -129,7 +129,7 @@ function init(modules: { typescript: typeof import("typescript") }) {
 
         let locale = "unknown";
         const localeMatch = /([^/]+)\.[mc]?[tj]sx?$/.exec(
-          messageTextNode.getSourceFile().fileName
+          messageTextNode.getSourceFile().fileName,
         );
         if (localeMatch && localeMatch[1] !== "index") {
           locale = localeMatch[1]!;
@@ -164,7 +164,7 @@ function setupProxy<T>(original: T): T {
   const proxy = Object.create(null) as Record<string, unknown>;
   for (const [k, v] of Object.entries(original as object) as [
     string,
-    unknown
+    unknown,
   ][]) {
     if (typeof v === "function") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
@@ -180,7 +180,7 @@ function setupProxy<T>(original: T): T {
 function findNode(
   typescript: typeof import("typescript"),
   sourceFile: ts.SourceFile,
-  position: number
+  position: number,
 ): ts.Node | undefined {
   function find(node: ts.Node): ts.Node | undefined {
     if (position >= node.getStart() && position < node.getEnd()) {

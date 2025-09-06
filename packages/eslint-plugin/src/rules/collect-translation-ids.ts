@@ -49,7 +49,7 @@ export function getRule(collectIdsCallback: CollectTranslationIdsCallback) {
         const bookLocation = lookupDefinitionSource(
           context.getSourceCode().scopeManager!,
           context.getFilename(),
-          bookNode
+          bookNode,
         );
         if (!bookLocation) return;
         collectIdsCallback({

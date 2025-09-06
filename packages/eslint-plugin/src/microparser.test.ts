@@ -35,22 +35,22 @@ describe("isTSSignature", () => {
     expect(isTSSignature("foo: Message<{}>")).toBe(true);
     expect(isTSSignature("foo: Message<{ foo: number }>")).toBe(true);
     expect(isTSSignature("foo: Message<{ foo: number, bar: number }>")).toBe(
-      true
+      true,
     );
     expect(isTSSignature("foo: Message<{ foo: number, bar: number, }>")).toBe(
-      true
+      true,
     );
     expect(isTSSignature("foo: Message<{ foo: number; bar: number }>")).toBe(
-      true
+      true,
     );
     expect(isTSSignature("foo: Message<{ foo: number; bar: number; }>")).toBe(
-      true
+      true,
     );
     expect(isTSSignature("foo: Message<{ foo: number\nbar: number }>")).toBe(
-      true
+      true,
     );
     expect(isTSSignature("foo: Message<{ foo: number\nbar: number\n }>")).toBe(
-      true
+      true,
     );
   });
 });
@@ -168,7 +168,7 @@ function loc(
   startLine: number,
   startColumn: number,
   endLine: number,
-  endColumn: number
+  endColumn: number,
 ) {
   return {
     start: { line: startLine, column: startColumn },

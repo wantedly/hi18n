@@ -46,7 +46,7 @@ export const rule = createRule<Options, MessageIds>({
           ? resolveAsLocation(
               context.getSourceCode().scopeManager!,
               context.getFilename(),
-              node
+              node,
             )
           : undefined;
       if (!catalogLocation) {

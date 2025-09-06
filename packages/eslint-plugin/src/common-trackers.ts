@@ -12,7 +12,7 @@ export function bookTracker(): Tracker {
         path: ["0"],
       },
     ],
-    "book"
+    "book",
   );
   return tracker;
 }
@@ -57,7 +57,7 @@ export function translationCallTracker(): Tracker {
         path: ["0"],
       },
     ],
-    "translatorObject"
+    "translatorObject",
   );
   tracker.watchMember('import("@hi18n/react")', "useI18n");
   tracker.watchCall(
@@ -68,7 +68,7 @@ export function translationCallTracker(): Tracker {
         path: ["0"],
       },
     ],
-    "translatorObject"
+    "translatorObject",
   );
   tracker.watchMember("translatorObject", "t", "translate");
   tracker.watchMember("translate", "todo", "translate");
@@ -80,7 +80,7 @@ export function translationCallTracker(): Tracker {
         path: ["0"],
       },
     ],
-    "translation"
+    "translation",
   );
   tracker.watchMember('import("@hi18n/core")', "translationId");
   tracker.watchCall(
@@ -95,7 +95,7 @@ export function translationCallTracker(): Tracker {
         path: ["1"],
       },
     ],
-    "translation"
+    "translation",
   );
   tracker.watchMember('import("@hi18n/react")', "Translate");
   tracker.watchMember('import("@hi18n/react").Translate', "Todo");
@@ -111,7 +111,7 @@ export function translationCallTracker(): Tracker {
         path: ["id"],
       },
     ],
-    "translation"
+    "translation",
   );
   tracker.watchJSXElement(
     'import("@hi18n/react").Translate.Todo',
@@ -125,7 +125,7 @@ export function translationCallTracker(): Tracker {
         path: ["id"],
       },
     ],
-    "translation"
+    "translation",
   );
   return tracker;
 }
@@ -164,7 +164,7 @@ export function linguiTracker(): Tracker {
         path: ["components"],
       },
     ],
-    "translationJSX"
+    "translationJSX",
   );
   return tracker;
 }

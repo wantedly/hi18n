@@ -16,7 +16,7 @@ export function convertMessage(msg: I18nMessage): string {
     return convertSingleMessage(msg);
   } else {
     const usedKeys = pluralKeys.filter(
-      (k) => typeof msg[k] === "string" && msg[k] !== msg.other
+      (k) => typeof msg[k] === "string" && msg[k] !== msg.other,
     );
     if (usedKeys.length === 0) {
       return convertSingleMessage(msg.other);
@@ -68,7 +68,7 @@ export function isMessage(obj: unknown): obj is I18nMessage {
     (isObject(obj) &&
       typeof obj["other"] === "string" &&
       pluralKeys.every(
-        (k) => obj[k] === undefined || typeof obj[k] === "string"
+        (k) => obj[k] === undefined || typeof obj[k] === "string",
       ))
   );
 }

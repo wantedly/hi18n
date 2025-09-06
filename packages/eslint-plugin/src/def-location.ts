@@ -21,7 +21,7 @@ export function serializedLocations(loc: DefLocation): string[] {
 export function resolveAsLocation(
   scopeManager: TSESLint.Scope.ScopeManager,
   path: string,
-  expr: TSESTree.Expression
+  expr: TSESTree.Expression,
 ): DefLocation | undefined {
   let localName: string | undefined = undefined;
   const exportNames: string[] = [];
@@ -32,7 +32,7 @@ export function resolveAsLocation(
     expr.parent.parent &&
     expr.parent.parent.type === "VariableDeclaration" &&
     (expr.parent.parent.declarations as TSESTree.Node[]).includes(
-      expr.parent
+      expr.parent,
     ) &&
     expr.parent.id.type === "Identifier"
   ) {
@@ -100,7 +100,7 @@ export function serializeReference(ref: DefReference) {
 export function lookupDefinitionSource(
   scopeManager: TSESLint.Scope.ScopeManager,
   base: string,
-  ident: TSESTree.Identifier
+  ident: TSESTree.Identifier,
 ): DefReference | undefined {
   const variable = resolveVariable(scopeManager, ident);
   if (!variable) return undefined;
