@@ -56,7 +56,7 @@
   "devDependencies": {
     "@hi18n/core": "*",
     "@hi18n/dev-utils": "*",
-    "@types/glob": "^8.0.0",
+    "@types/glob": "^8.1.0",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^22.18.1",
     "rimraf": "^3.0.2",

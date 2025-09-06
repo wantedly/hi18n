@@ -653,7 +653,7 @@ __metadata:
     "@hi18n/tools-core": "npm:^0.1.6"
     "@types/eslint": "npm:^9.6.1"
     "@types/espree": "npm:^10.1.0"
-    "@types/glob": "npm:^8.0.0"
+    "@types/glob": "npm:^8.1.0"
     "@types/resolve": "npm:^1.20.6"
     "@typescript-eslint/parser": "npm:^8.42.0"
     "@typescript-eslint/utils": "npm:^8.42.0"
@@ -677,7 +677,7 @@ __metadata:
     "@hi18n/core": "npm:*"
     "@hi18n/dev-utils": "npm:*"
     "@hi18n/tools-core": "npm:^0.1.6"
-    "@types/glob": "npm:^8.0.0"
+    "@types/glob": "npm:^8.1.0"
     "@types/js-yaml": "npm:^4.0.5"
     "@types/node": "npm:^22.18.1"
     glob: "npm:^8.0.3"
@@ -703,7 +703,7 @@ __metadata:
   resolution: "@hi18n/dev-utils@workspace:packages/dev-utils"
   dependencies:
     "@types/fs-extra": "npm:^11.0.4"
-    "@types/glob": "npm:^8.0.0"
+    "@types/glob": "npm:^8.1.0"
     commander: "npm:^9.2.0"
     fs-extra: "npm:^11.0.0"
     glob: "npm:^8.0.1"
@@ -1210,13 +1210,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/glob@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "@types/glob@npm:8.0.0"
+"@types/glob@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "@types/glob@npm:8.1.0"
   dependencies:
-    "@types/minimatch": "npm:*"
+    "@types/minimatch": "npm:^5.1.2"
     "@types/node": "npm:*"
-  checksum: 10/1817b05f5a8aed851d102a65b5e926d5c777bef927ea62b36d635860eef5364f2046bb5a692d135b6f2b28f34e4a9d44ade9396122c0845bcc7636d35f624747
+  checksum: 10/9101f3a9061e40137190f70626aa0e202369b5ec4012c3fabe6f5d229cce04772db9a94fa5a0eb39655e2e4ad105c38afbb4af56a56c0996a8c7d4fc72350e3d
   languageName: node
   linkType: hard
 
@@ -1243,10 +1243,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/minimatch@npm:*":
-  version: 3.0.5
-  resolution: "@types/minimatch@npm:3.0.5"
-  checksum: 10/c41d136f67231c3131cf1d4ca0b06687f4a322918a3a5adddc87ce90ed9dbd175a3610adee36b106ae68c0b92c637c35e02b58c8a56c424f71d30993ea220b92
+"@types/minimatch@npm:^5.1.2":
+  version: 5.1.2
+  resolution: "@types/minimatch@npm:5.1.2"
+  checksum: 10/94db5060d20df2b80d77b74dd384df3115f01889b5b6c40fa2dfa27cfc03a68fb0ff7c1f2a0366070263eb2e9d6bfd8c87111d4bc3ae93c3f291297c1bf56c85
   languageName: node
   linkType: hard
 
