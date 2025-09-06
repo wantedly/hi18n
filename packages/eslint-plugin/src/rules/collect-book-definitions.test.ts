@@ -40,7 +40,7 @@ describe("collect-book-definitions", () => {
         ja: catalogJa,
       });
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -85,7 +85,7 @@ describe("collect-book-definitions", () => {
         ja: catalogJa,
       });
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -134,7 +134,7 @@ describe("collect-book-definitions", () => {
         ja: catalogJa,
       });
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {
@@ -175,7 +175,7 @@ describe("collect-book-definitions", () => {
         ja: () => import("./ja"),
       });
     `,
-      getConfig(collected)
+      getConfig(collected),
     );
     expect(collected).toEqual([
       {

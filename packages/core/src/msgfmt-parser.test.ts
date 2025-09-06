@@ -12,7 +12,7 @@ describe("parseMessage", () => {
 
   it("parses texts with single quotes", () => {
     expect(parseMessage("I'm not a fond of this syntax.")).toBe(
-      "I'm not a fond of this syntax."
+      "I'm not a fond of this syntax.",
     );
     expect(parseMessage("a'b {name} c'd")).toEqual([
       "a'b ",
@@ -23,14 +23,14 @@ describe("parseMessage", () => {
 
   it("parses texts with double quotes", () => {
     expect(parseMessage("I''m not a fond of this syntax.")).toBe(
-      "I'm not a fond of this syntax."
+      "I'm not a fond of this syntax.",
     );
   });
 
   it("parses quoted texts", () => {
     expect(parseMessage("'{foo}'")).toBe("{foo}");
     expect(parseMessage("foo, '{bar}', '{}#|', '{a''b}', ''''")).toBe(
-      "foo, {bar}, {}#|, {a'b}, ''"
+      "foo, {bar}, {}#|, {a'b}, ''",
     );
     // They are always quotable although conditional
     expect(parseMessage("'# {}' '| {}'")).toBe("# {} | {}");
@@ -87,36 +87,36 @@ describe("parseMessage", () => {
 
   it("errors on invalid noneArg", () => {
     expect(() => parseMessage("{")).toThrow(
-      "Unexpected token EOF (expected number, identifier)"
+      "Unexpected token EOF (expected number, identifier)",
     );
     expect(() => parseMessage("{$")).toThrow(
-      "Unexpected token $ (expected number, identifier)"
+      "Unexpected token $ (expected number, identifier)",
     );
     expect(() => parseMessage("{123foo}")).toThrow("Invalid number: 123foo");
     expect(() => parseMessage("{0123}")).toThrow("Invalid number: 0123");
     expect(() => parseMessage("{foo")).toThrow(
-      "Unexpected token EOF (expected }, ,)"
+      "Unexpected token EOF (expected }, ,)",
     );
     expect(() => parseMessage("{foo%")).toThrow(
-      "Unexpected token % (expected }, ,)"
+      "Unexpected token % (expected }, ,)",
     );
   });
 
   it("errors on invalid argType", () => {
     expect(() => parseMessage("{foo,}")).toThrow(
-      "Unexpected token } (expected identifier)"
+      "Unexpected token } (expected identifier)",
     );
     expect(() => parseMessage("{foo,$}")).toThrow(
-      "Unexpected token $ (expected identifier)"
+      "Unexpected token $ (expected identifier)",
     );
     expect(() => parseMessage("{foo,integer}")).toThrow(
-      /Invalid argType: integer/
+      /Invalid argType: integer/,
     );
     expect(() => parseMessage("{foo,number$}")).toThrow(
-      "Unexpected token $ (expected }, ,)"
+      "Unexpected token $ (expected }, ,)",
     );
     expect(() => parseMessage("{foo,number")).toThrow(
-      "Unexpected token EOF (expected }, ,)"
+      "Unexpected token EOF (expected }, ,)",
     );
   });
 
@@ -202,31 +202,31 @@ describe("parseMessage", () => {
 
   it("errors on invalid styles", () => {
     expect(() => parseMessage("{foo,number,$}")).toThrow(
-      "Unexpected token $ (expected identifier, ::)"
+      "Unexpected token $ (expected identifier, ::)",
     );
     expect(() => parseMessage("{foo,number,foobar}")).toThrow(
-      "Invalid argStyle for number: foobar"
+      "Invalid argStyle for number: foobar",
     );
     expect(() => parseMessage("{foo,number,integer$}")).toThrow(
-      "Unexpected token $ (expected })"
+      "Unexpected token $ (expected })",
     );
     expect(() => parseMessage("{foo,date,integer}")).toThrow(
-      "Invalid argStyle for date: integer"
+      "Invalid argStyle for date: integer",
     );
     expect(() => parseMessage("{foo,number,full}")).toThrow(
-      "Invalid argStyle for number: full"
+      "Invalid argStyle for number: full",
     );
     expect(() => parseMessage("{foo,spellout,integer}")).toThrow(
-      "Invalid argStyle for spellout: integer"
+      "Invalid argStyle for spellout: integer",
     );
     expect(() => parseMessage("{foo,date,::YYYYwwEEEE}")).toThrow(
-      "Invalid date skeleton: YYYY"
+      "Invalid date skeleton: YYYY",
     );
   });
 
   it("errors on choiceArg", () => {
     expect(() => parseMessage("{foo,choice,0#zero|1#one}")).toThrow(
-      /choice is not supported/
+      /choice is not supported/,
     );
   });
 
@@ -247,7 +247,7 @@ describe("parseMessage", () => {
       ],
     });
     expect(
-      parseMessage(" { foo , plural , one { an apple } other { apples } } ")
+      parseMessage(" { foo , plural , one { an apple } other { apples } } "),
     ).toEqual([
       " ",
       {
@@ -268,7 +268,7 @@ describe("parseMessage", () => {
       " ",
     ]);
     expect(
-      parseMessage("{foo,plural,=1{bar}=2{barbar}other{barbarbar}}")
+      parseMessage("{foo,plural,=1{bar}=2{barbar}other{barbarbar}}"),
     ).toEqual({
       type: "Plural",
       name: "foo",
@@ -290,8 +290,8 @@ describe("parseMessage", () => {
     });
     expect(
       parseMessage(
-        " { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } "
-      )
+        " { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } ",
+      ),
     ).toEqual([
       " ",
       {
@@ -316,7 +316,7 @@ describe("parseMessage", () => {
       " ",
     ]);
     expect(
-      parseMessage("{foo,plural,offset:1 one{an apple}other{apples}}")
+      parseMessage("{foo,plural,offset:1 one{an apple}other{apples}}"),
     ).toEqual({
       type: "Plural",
       name: "foo",
@@ -334,8 +334,8 @@ describe("parseMessage", () => {
     });
     expect(
       parseMessage(
-        " { foo , plural , offset:1 one { an apple } other { apples } } "
-      )
+        " { foo , plural , offset:1 one { an apple } other { apples } } ",
+      ),
     ).toEqual([
       " ",
       {
@@ -371,7 +371,7 @@ describe("parseMessage", () => {
       ],
     });
     expect(
-      parseMessage(" { foo , plural , one { # apple } other { # apples } } ")
+      parseMessage(" { foo , plural , one { # apple } other { # apples } } "),
     ).toEqual([
       " ",
       {
@@ -395,53 +395,53 @@ describe("parseMessage", () => {
 
   it("errors on invalid pluralArg", () => {
     expect(() => parseMessage("{foo,plural")).toThrow(
-      "Unexpected token EOF (expected ,)"
+      "Unexpected token EOF (expected ,)",
     );
     expect(() => parseMessage("{foo,plural%")).toThrow(
-      "Unexpected token % (expected ,)"
+      "Unexpected token % (expected ,)",
     );
     expect(() => parseMessage("{foo,plural}")).toThrow(
-      "Unexpected token } (expected ,)"
+      "Unexpected token } (expected ,)",
     );
     expect(() => parseMessage("{foo,plural,$}")).toThrow(
-      "Unexpected token $ (expected offset:, identifier, =, })"
+      "Unexpected token $ (expected offset:, identifier, =, })",
     );
     expect(() => parseMessage("{foo,plural,}")).toThrow("No branch found");
     expect(() => parseMessage("{foo,plural,=foo{}other{}}")).toThrow(
-      "Unexpected token identifier (expected number)"
+      "Unexpected token identifier (expected number)",
     );
     expect(() => parseMessage("{foo,plural,= 42{}other{}}")).toThrow(
-      "No space allowed here"
+      "No space allowed here",
     );
     expect(() => parseMessage("{foo,plural,one other{}}")).toThrow(
-      "Unexpected token identifier (expected {)"
+      "Unexpected token identifier (expected {)",
     );
     expect(() => parseMessage("{foo,plural,=42 other{}")).toThrow(
-      "Unexpected token identifier (expected {)"
+      "Unexpected token identifier (expected {)",
     );
     expect(() => parseMessage("{foo,plural,one?{}other{}}")).toThrow(
-      "Unexpected token ? (expected {)"
+      "Unexpected token ? (expected {)",
     );
     expect(() => parseMessage("{foo,plural,42{}other{}}")).toThrow(
-      "Unexpected token number (expected offset:, identifier, =, })"
+      "Unexpected token number (expected offset:, identifier, =, })",
     );
     expect(() => parseMessage("{foo,plural,one{},other{}}")).toThrow(
-      "Unexpected token , (expected identifier, =, })"
+      "Unexpected token , (expected identifier, =, })",
     );
     expect(() => parseMessage("{foo,plural,one{}other{")).toThrow(
-      "Unexpected token EOF (expected })"
+      "Unexpected token EOF (expected })",
     );
     expect(() => parseMessage("{foo,plural,one{}other{'}}")).toThrow(
-      /Unclosed quoted string/
+      /Unclosed quoted string/,
     );
     expect(() => parseMessage("{foo,plural,one{}other{},}")).toThrow(
-      "Unexpected token , (expected identifier, =, })"
+      "Unexpected token , (expected identifier, =, })",
     );
     expect(() => parseMessage("{foo,plural,one{}other}")).toThrow(
-      "Unexpected token } (expected {)"
+      "Unexpected token } (expected {)",
     );
     expect(() => parseMessage("{foo,plural,one{}}")).toThrow(
-      /Last selector should be other/
+      /Last selector should be other/,
     );
   });
 
@@ -482,32 +482,32 @@ describe("parseMessage", () => {
 
   it("errors on invalid elementArg", () => {
     expect(() => parseMessage("<$foo></foo>")).toThrow(
-      "Unexpected token $ (expected number, identifier)"
+      "Unexpected token $ (expected number, identifier)",
     );
     expect(() => parseMessage("<foo$></foo>")).toThrow(
-      "Unexpected token $ (expected /, >)"
+      "Unexpected token $ (expected /, >)",
     );
     expect(() => parseMessage("<foo></$foo>")).toThrow(
-      "Unexpected token $ (expected number, identifier)"
+      "Unexpected token $ (expected number, identifier)",
     );
     expect(() => parseMessage("<foo></foo$>")).toThrow(
-      "Unexpected token $ (expected >)"
+      "Unexpected token $ (expected >)",
     );
     expect(() => parseMessage("<foo/$>")).toThrow(
-      "Unexpected token $ (expected >)"
+      "Unexpected token $ (expected >)",
     );
     expect(() => parseMessage("<foo>")).toThrow(
-      "Unexpected token EOF (expected <)"
+      "Unexpected token EOF (expected <)",
     );
     expect(() => parseMessage("</foo>")).toThrow("Found an unmatching <");
     expect(() => parseMessage("< foo></foo>")).toThrow("No space allowed here");
     expect(() => parseMessage("<foo></ foo>")).toThrow("No space allowed here");
     expect(() => parseMessage("<foo>< /foo>")).toThrow(
-      "Unexpected token / (expected number, identifier)"
+      "Unexpected token / (expected number, identifier)",
     );
     expect(() => parseMessage("<foo/ >")).toThrow("No space allowed here");
     expect(() => parseMessage("<foo></bar>")).toThrow(
-      "Tag foo closed with a different name: bar"
+      "Tag foo closed with a different name: bar",
     );
     expect(() => parseMessage("<0123/>")).toThrow("Invalid number: 0123");
     expect(() => parseMessage("<123foo/>")).toThrow("Invalid number: 123foo");

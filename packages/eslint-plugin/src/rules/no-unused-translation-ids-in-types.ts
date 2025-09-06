@@ -36,7 +36,7 @@ export const rule = createRule<Options, MessageIds>({
       if (node.type !== "NewExpression") throw new Error("Not a NewExpression");
       const objinfo = findTypeDefinition(
         context.getSourceCode().scopeManager!,
-        node
+        node,
       );
       if (!objinfo) return;
 

@@ -12,7 +12,7 @@ describe("convertMessage", () => {
 
   it("escapes symbols", () => {
     expect(convertMessage("{a< >foo} bar %{name} 'foo'")).toBe(
-      "'{'a'<' >foo'}' bar {name} ''foo''"
+      "'{'a'<' >foo'}' bar {name} ''foo''",
     );
   });
 
@@ -25,7 +25,7 @@ describe("convertMessage", () => {
       convertMessage({
         one: "%{count} apples",
         other: "%{count} apples",
-      })
+      }),
     ).toBe("{count} apples");
   });
 
@@ -34,7 +34,7 @@ describe("convertMessage", () => {
       convertMessage({
         one: "%{count} apple",
         other: "%{count} apples",
-      })
+      }),
     ).toBe("{count, plural, one {# apple} other {# apples}}");
   });
 
@@ -43,9 +43,9 @@ describe("convertMessage", () => {
       convertMessage({
         one: "You gave %{name} %{count} apple",
         other: "You gave %{name} %{count} apples",
-      })
+      }),
     ).toBe(
-      "{count, plural, one {You gave {name} # apple} other {You gave {name} # apples}}"
+      "{count, plural, one {You gave {name} # apple} other {You gave {name} # apples}}",
     );
   });
 });

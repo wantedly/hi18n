@@ -1,7 +1,7 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 export function getImportName(
-  spec: TSESTree.ImportSpecifier | TSESTree.ImportDefaultSpecifier
+  spec: TSESTree.ImportSpecifier | TSESTree.ImportDefaultSpecifier,
 ): string {
   if (spec.type === "ImportSpecifier") {
     return nameOf(spec.imported);
@@ -11,7 +11,7 @@ export function getImportName(
 }
 
 export function getStaticMemKey(
-  mem: TSESTree.MemberExpression | TSESTree.JSXMemberExpression
+  mem: TSESTree.MemberExpression | TSESTree.JSXMemberExpression,
 ): string | null {
   if (mem.type !== "JSXMemberExpression" && mem.computed) {
     if (
@@ -45,7 +45,7 @@ export function getStaticKey(
   prop:
     | TSESTree.Property
     | TSESTree.MethodDefinition
-    | TSESTree.TSPropertySignature
+    | TSESTree.TSPropertySignature,
 ): string | null {
   if (prop.computed) {
     return null;
@@ -69,7 +69,7 @@ export function getStaticKey(
 
 export function resolveImportedVariable(
   scopeManager: TSESLint.Scope.ScopeManager,
-  node: TSESTree.Identifier
+  node: TSESTree.Identifier,
 ):
   | (TSESLint.Scope.Definition & {
       type: typeof TSESLint.Scope.DefinitionType.ImportBinding;
@@ -79,16 +79,16 @@ export function resolveImportedVariable(
   if (!variable) return undefined;
   return variable.defs.find(
     (
-      def
+      def,
     ): def is TSESLint.Scope.Definition & {
       type: typeof TSESLint.Scope.DefinitionType.ImportBinding;
-    } => def.type === "ImportBinding"
+    } => def.type === "ImportBinding",
   );
 }
 
 export function resolveVariable(
   scopeManager: TSESLint.Scope.ScopeManager,
-  node: TSESTree.Identifier | TSESTree.JSXIdentifier
+  node: TSESTree.Identifier | TSESTree.JSXIdentifier,
 ): TSESLint.Scope.Variable | undefined {
   const scope = nearestScope(scopeManager, node);
   return findVariable(scope, node.name);
@@ -96,7 +96,7 @@ export function resolveVariable(
 
 function findVariable(
   scope: TSESLint.Scope.Scope,
-  name: string
+  name: string,
 ): TSESLint.Scope.Variable | undefined {
   let currentScope: TSESLint.Scope.Scope | null = scope;
   while (currentScope) {
@@ -109,7 +109,7 @@ function findVariable(
 
 export function nearestScope(
   scopeManager: TSESLint.Scope.ScopeManager,
-  node: TSESTree.Node
+  node: TSESTree.Node,
 ): TSESLint.Scope.Scope {
   let currentNode: TSESTree.Node | undefined = node;
   while (currentNode) {
@@ -139,7 +139,7 @@ export function commentOut(text: string, indent: number): string {
 
 export function lineIndent(
   sourceCode: TSESLint.SourceCode,
-  token: TSESTree.Token
+  token: TSESTree.Token,
 ): number {
   const line = sourceCode.lines[token.loc.start.line - 1];
   if (typeof line !== "string") return 0;
@@ -147,7 +147,7 @@ export function lineIndent(
 }
 
 export function nameOf(
-  node: TSESTree.Identifier | TSESTree.StringLiteral
+  node: TSESTree.Identifier | TSESTree.StringLiteral,
 ): string {
   if (node.type === "Literal") {
     return node.value;

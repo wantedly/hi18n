@@ -76,7 +76,7 @@ function parseMessage_(this: Parser, allowHash: boolean): CompiledMessage {
         break;
       default:
         throw new Error(
-          `Bug: invalid syntax character: ${this.src[this.pos]!}`
+          `Bug: invalid syntax character: ${this.src[this.pos]!}`,
         );
     }
     pushString(buf, parseMessageText.call(this, allowHash));
@@ -173,7 +173,7 @@ function parseArgument(this: Parser): CompiledMessage {
           switch (
             nextToken.call<Parser, [readonly ["}", ","]], ["}" | ",", string]>(
               this,
-              ["}", ","] as const
+              ["}", ","] as const,
             )[0]
           ) {
             case "}":
@@ -189,7 +189,7 @@ function parseArgument(this: Parser): CompiledMessage {
                   const argStyle = argStyleToken[1];
                   if (ARG_STYLES[argType].indexOf(argStyle) === -1) {
                     throw new ParseError(
-                      `Invalid argStyle for ${argType}: ${argStyle}`
+                      `Invalid argStyle for ${argType}: ${argStyle}`,
                     );
                   }
                   nextToken.call(this, ["}"] as const);
@@ -284,7 +284,7 @@ function parseElement(this: Parser, allowHash: boolean): ElementArg {
   nextToken.call(this, [">"]);
   if (name !== closingName) {
     throw new ParseError(
-      `Tag ${name} closed with a different name: ${closingName}`
+      `Tag ${name} closed with a different name: ${closingName}`,
     );
   }
   return {
@@ -301,7 +301,7 @@ function parseArgNameOrNumber(this: Parser, noSpace = false): number | string {
   const [kind, token] = nextToken.call(
     this,
     ["number", "identifier"] as const,
-    noSpace ? ["number", "identifier"] : undefined
+    noSpace ? ["number", "identifier"] : undefined,
   );
   if (kind === "number") return parseNumber(token);
   return token;
@@ -310,12 +310,12 @@ function parseArgNameOrNumber(this: Parser, noSpace = false): number | string {
 function nextToken<E extends readonly string[]>(
   this: Parser,
   expected: E,
-  noWhitespace?: string[]
+  noWhitespace?: string[],
 ): [E[number], string] {
   const [kind, token, foundWhitespace] = nextTokenImpl.call(this);
   if (expected.indexOf(kind) === -1)
     throw new ParseError(
-      `Unexpected token ${kind} (expected ${expected.join(", ")})`
+      `Unexpected token ${kind} (expected ${expected.join(", ")})`,
     );
   if (noWhitespace && foundWhitespace && noWhitespace.indexOf(kind) !== -1)
     throw new ParseError("No space allowed here");
@@ -398,7 +398,7 @@ function parseDateSkeleton(skeleton: string) {
   }
   if (requiredDateFields.every((f) => options[f] === undefined)) {
     throw new ParseError(
-      `Insufficient fields in the date skeleton: ${skeleton}`
+      `Insufficient fields in the date skeleton: ${skeleton}`,
     );
   }
   return options as Intl.DateTimeFormatOptions;

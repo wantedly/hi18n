@@ -42,7 +42,7 @@ const catalogEn = new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg(
-    "{count,plural,one{There is # apple.}other{There are # apples.}}"
+    "{count,plural,one{There is # apple.}other{There are # apples.}}",
   ),
   // An example of not-yet-translated texts
   "example/additional": msg.todo("日本限定企画!"),
@@ -95,7 +95,7 @@ describe("Book", () => {
       // @ts-expect-error
       t("example/non-existent-translation-id");
     }).toThrow(
-      "Error translating example/non-existent-translation-id in en: Missing translation"
+      "Error translating example/non-existent-translation-id in en: Missing translation",
     );
   });
 
@@ -103,7 +103,7 @@ describe("Book", () => {
     {
       const { t } = getTranslator(book, "ja");
       expect(t("example/greeting2", { name: "太郎" })).toBe(
-        "こんにちは、太郎さん!"
+        "こんにちは、太郎さん!",
       );
     }
     {
@@ -117,14 +117,14 @@ describe("Book", () => {
       const { t } = getTranslator(book, "ja");
       expect(t("example/apples", { count: 1 })).toBe("リンゴは1個あります。");
       expect(t("example/apples", { count: 12345 })).toBe(
-        "リンゴは12,345個あります。"
+        "リンゴは12,345個あります。",
       );
     }
     {
       const { t } = getTranslator(book, "en");
       expect(t("example/apples", { count: 1 })).toBe("There is 1 apple.");
       expect(t("example/apples", { count: 12345 })).toBe(
-        "There are 12,345 apples."
+        "There are 12,345 apples.",
       );
     }
   });
@@ -135,13 +135,13 @@ describe("Book", () => {
       // @ts-expect-error
       t("example/greeting2");
     }).toThrow(
-      "Error translating example/greeting2 in en: Missing argument: name"
+      "Error translating example/greeting2 in en: Missing argument: name",
     );
     expect(() => {
       // @ts-expect-error
       t("example/greeting2", {});
     }).toThrow(
-      "Error translating example/greeting2 in en: Missing argument: name"
+      "Error translating example/greeting2 in en: Missing argument: name",
     );
   });
 
@@ -151,7 +151,7 @@ describe("Book", () => {
       // @ts-expect-error
       t("example/greeting2", { name: 42 });
     }).toThrow(
-      "Error translating example/greeting2 in en: Invalid argument name: expected string, got 42"
+      "Error translating example/greeting2 in en: Invalid argument name: expected string, got 42",
     );
   });
 
@@ -160,28 +160,28 @@ describe("Book", () => {
     {
       const { t } = getTranslator(book, "en");
       expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
-        "Today is Jan 2, 2006."
+        "Today is Jan 2, 2006.",
       );
       expect(t("example/date2", { today: date, timeZone: "MST" })).toMatch(
-        /^(Today is January 2, 3:04 PM\.|Today is January 2 at 3:04 PM\.)$/
+        /^(Today is January 2, 3:04 PM\.|Today is January 2 at 3:04 PM\.)$/,
       );
     }
     {
       const { t } = getTranslator(book, "ja");
       expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
-        "今日は2006/01/02です。"
+        "今日は2006/01/02です。",
       );
       expect(t("example/date2", { today: date, timeZone: "MST" })).toBe(
-        "今日は1月2日 15:04です。"
+        "今日は1月2日 15:04です。",
       );
     }
     {
       const { t } = getTranslator(book, "ja");
       expect(t("example/date", { today: date, timeZone: "JST" })).toBe(
-        "今日は2006/01/03です。"
+        "今日は2006/01/03です。",
       );
       expect(t("example/date2", { today: date, timeZone: "JST" })).toBe(
-        "今日は1月3日 7:04です。"
+        "今日は1月3日 7:04です。",
       );
     }
   });
@@ -190,13 +190,13 @@ describe("Book", () => {
     const { t } = getTranslator(book, "en");
     const date = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
     expect(t("example/date", { today: date, timeZone: "MST" })).toBe(
-      "Today is Jan 2, 2006."
+      "Today is Jan 2, 2006.",
     );
     expect(() => {
       // @ts-expect-error
       t("example/date", { today: date });
     }).toThrow(
-      "Error translating example/date in en: Missing argument: timeZone"
+      "Error translating example/date in en: Missing argument: timeZone",
     );
   });
 
@@ -217,13 +217,13 @@ describe("Book", () => {
       const id: TranslationId<Vocabulary> = translationId(
         book,
         // @ts-expect-error
-        "example/non-existent-translation-id"
+        "example/non-existent-translation-id",
       );
       const { t } = getTranslator(book, "en");
       expect(() => {
         t.dynamic(id);
       }).toThrow(
-        "Error translating example/non-existent-translation-id in en: Missing translation"
+        "Error translating example/non-existent-translation-id in en: Missing translation",
       );
     });
 
@@ -245,14 +245,14 @@ describe("Book", () => {
         const { t } = getTranslator(book, "ja");
         expect(t.dynamic(id, { count: 1 })).toBe("リンゴは1個あります。");
         expect(t.dynamic(id, { count: 12345 })).toBe(
-          "リンゴは12,345個あります。"
+          "リンゴは12,345個あります。",
         );
       }
       {
         const { t } = getTranslator(book, "en");
         expect(t.dynamic(id, { count: 1 })).toBe("There is 1 apple.");
         expect(t.dynamic(id, { count: 12345 })).toBe(
-          "There are 12,345 apples."
+          "There are 12,345 apples.",
         );
       }
     });
@@ -264,13 +264,13 @@ describe("Book", () => {
         // @ts-expect-error
         t.dynamic(id);
       }).toThrow(
-        "Error translating example/greeting2 in en: Missing argument: name"
+        "Error translating example/greeting2 in en: Missing argument: name",
       );
       expect(() => {
         // @ts-expect-error
         t.dynamic(id, {});
       }).toThrow(
-        "Error translating example/greeting2 in en: Missing argument: name"
+        "Error translating example/greeting2 in en: Missing argument: name",
       );
     });
 
@@ -281,7 +281,7 @@ describe("Book", () => {
         // @ts-expect-error
         t.dynamic(id, { name: 42 });
       }).toThrow(
-        "Error translating example/greeting2 in en: Invalid argument name: expected string, got 42"
+        "Error translating example/greeting2 in en: Invalid argument name: expected string, got 42",
       );
     });
   });
@@ -297,13 +297,13 @@ describe("Book", () => {
     it("Discards parameters", () => {
       const { t } = getTranslator(book, "ja");
       expect(t.todo("example/greeting", { name: "John" })).toBe(
-        "[TODO: example/greeting]"
+        "[TODO: example/greeting]",
       );
       expect(t.todo("example/greeting2", { name: "John" })).toBe(
-        "[TODO: example/greeting2]"
+        "[TODO: example/greeting2]",
       );
       expect(t.todo("example/foobar", { name: "John" })).toBe(
-        "[TODO: example/foobar]"
+        "[TODO: example/foobar]",
       );
     });
   });
@@ -316,7 +316,7 @@ describe("Book", () => {
           ja: catalogJa,
           en: catalogEn,
         },
-        { handleError }
+        { handleError },
       );
       expect(() => getTranslator(book, [])).toThrow(NoLocaleError);
       expect(handleError).not.toHaveBeenCalled();
@@ -329,7 +329,7 @@ describe("Book", () => {
           ja: catalogJa,
           en: catalogEn,
         },
-        { handleError, implicitLocale: "en" }
+        { handleError, implicitLocale: "en" },
       );
       expect(() => getTranslator(book, [])).not.toThrow();
       expect(handleError).toHaveBeenCalledWith(new NoLocaleError(), "error");
@@ -345,13 +345,13 @@ describe("Book", () => {
           ja: catalogJa,
           en: catalogEn,
         },
-        { handleError }
+        { handleError },
       );
       expect(() => getTranslator(book, "foo")).toThrow(
         new MissingLocaleError({
           locale: "foo",
           availableLocales: ["ja", "en"],
-        })
+        }),
       );
       expect(handleError).not.toHaveBeenCalled();
     });
@@ -363,7 +363,7 @@ describe("Book", () => {
           ja: catalogJa,
           en: catalogEn,
         },
-        { handleError, implicitLocale: "en" }
+        { handleError, implicitLocale: "en" },
       );
       expect(() => getTranslator(book, ["foo"])).not.toThrow();
       expect(handleError).toHaveBeenCalledWith(
@@ -371,7 +371,7 @@ describe("Book", () => {
           locale: "foo",
           availableLocales: ["ja", "en"],
         }),
-        "error"
+        "error",
       );
 
       const { t } = getTranslator(book, ["foo"]);
@@ -388,7 +388,7 @@ describe("Book", () => {
           ja: catalogJa,
           en: catalogEn,
         },
-        { handleError }
+        { handleError },
       );
 
       const { t } = getTranslator(book, "en");
@@ -401,7 +401,7 @@ describe("Book", () => {
           cause: new MissingTranslationError(),
           id: "example/nonexistent",
           locale: "en",
-        })
+        }),
       );
       expect(handleError.mock.lastCall?.[1]).toEqual("error");
       // expect(handleError).toHaveBeenCalledWith(
@@ -424,13 +424,13 @@ describe("Book", () => {
           ja: catalogJa,
           en: catalogEn,
         },
-        { handleError }
+        { handleError },
       );
 
       const { t } = getTranslator(book, "en");
       // @ts-expect-error it is deliberate
       expect(t("example/greeting2", { name: null })).toBe(
-        "[example/greeting2]"
+        "[example/greeting2]",
       );
 
       expect(handleError).toHaveBeenCalled();
@@ -442,11 +442,11 @@ describe("Book", () => {
           //   got: null,
           // }),
           cause: new MessageEvaluationError(
-            "Invalid argument name: expected string, got null"
+            "Invalid argument name: expected string, got null",
           ),
           id: "example/greeting2",
           locale: "en",
-        })
+        }),
       );
       expect(handleError.mock.lastCall?.[1]).toEqual("error");
       // expect(handleError).toHaveBeenCalledWith(
@@ -529,7 +529,7 @@ describe("Book", () => {
       await book.loadCatalog("ja");
 
       expect(() => getTranslator(book, "en", { throwPromise: true })).toThrow(
-        Promise
+        Promise,
       );
     });
 
@@ -560,7 +560,7 @@ describe("Book", () => {
         en: () => Promise.resolve({ default: catalogEn }),
       });
       await expect(book.loadCatalog("ja")).rejects.toThrow(
-        "Locale mismatch: expected ja, got en"
+        "Locale mismatch: expected ja, got en",
       );
     });
 

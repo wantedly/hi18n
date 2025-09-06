@@ -54,7 +54,7 @@ export const rule = createRule<Options, MessageIds>({
 
       const expectedParamsResult = getExpectedComponentParams(
         checker,
-        tscTagNode
+        tscTagNode,
       );
       if (!expectedParamsResult) {
         context.report({
@@ -69,12 +69,12 @@ export const rule = createRule<Options, MessageIds>({
 
       const argsFromChildren = getComponentArgsFromChildren(
         checker,
-        tscElementNode
+        tscElementNode,
       );
 
       // Find missing params
       const foundArgNames = new Set(
-        argsFromProps.concat(argsFromChildren.map(([key]) => key))
+        argsFromProps.concat(argsFromChildren.map(([key]) => key)),
       );
       const missingParamNames: string[] = [];
       for (const expectedParam of expectedComponentParams) {
@@ -116,7 +116,7 @@ export const rule = createRule<Options, MessageIds>({
 
 function getExpectedComponentParams(
   checker: ts.TypeChecker,
-  tscTagNode: ts.JsxOpeningLikeElement
+  tscTagNode: ts.JsxOpeningLikeElement,
 ): [string[], string[]] | undefined {
   // Reference to the Translate component (with its resolved type arguments)
   const sig = checker.getResolvedSignature(tscTagNode);
@@ -132,7 +132,7 @@ function getExpectedComponentParams(
   // It is TranslateProps<Vocabulary, Id>
   const propsType = checker.getTypeOfSymbolAtLocation(
     sig.parameters[0]!,
-    tscTagNode
+    tscTagNode,
   );
 
   // Get MessageArguments<Vocabulary[Id], React.ReactElement>
@@ -155,7 +155,7 @@ function getExpectedComponentParams(
 // TranslateProps<Vocabulary, Id> -> MessageArguments<Vocabulary[Id], React.ReactElement>
 function getRealMessageParamsFromProps(
   checker: ts.TypeChecker,
-  ty: ts.Type
+  ty: ts.Type,
 ): ts.Type | undefined {
   // Check if it is TranslateProps<Vocabulary, Id>
   if (!extractTypeAlias(ty, "TranslateProps", 2)) return undefined;
@@ -179,7 +179,7 @@ function getRealMessageParamsFromProps(
 
 function getComponentArgsFromProps(
   checker: ts.TypeChecker,
-  tscTagNode: ts.JsxOpeningLikeElement
+  tscTagNode: ts.JsxOpeningLikeElement,
 ): string[] {
   const args: string[] = [];
   for (const prop of tscTagNode.attributes.properties) {
@@ -200,7 +200,7 @@ function getComponentArgsFromProps(
 
 function getComponentArgsFromChildren(
   _checker: ts.TypeChecker,
-  tscElementNode: ts.JsxElement | ts.JsxSelfClosingElement
+  tscElementNode: ts.JsxElement | ts.JsxSelfClosingElement,
 ): [string, ts.JsxElement | ts.JsxSelfClosingElement][] {
   let counter = 0;
   const args: [string, ts.JsxElement | ts.JsxSelfClosingElement][] = [];
@@ -224,7 +224,7 @@ function getComponentArgsFromChildren(
 function extractTypeAlias(
   ty: ts.Type,
   name: string,
-  length: number
+  length: number,
 ): readonly ts.Type[] | undefined {
   if (ty.aliasSymbol) {
     if (ty.aliasSymbol.getName() !== name) return undefined;
@@ -273,7 +273,7 @@ function findKey(tag: ts.JsxOpeningLikeElement): string | undefined {
 }
 
 function getOpenTag(
-  elem: ts.JsxElement | ts.JsxSelfClosingElement
+  elem: ts.JsxElement | ts.JsxSelfClosingElement,
 ): ts.JsxOpeningLikeElement {
   if (ts.isJsxSelfClosingElement(elem)) {
     return elem;

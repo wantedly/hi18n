@@ -26,7 +26,7 @@ export function connector(configPath: string, params: unknown): ConnectorObj {
 
         const comma = j + 1 === ids.length ? "" : ",";
         json += `    ${JSON.stringify(id)}: ${JSON.stringify(
-          msg.raw
+          msg.raw,
         )}${comma}\n`;
       });
       const comma = i + 1 === locales.length ? "" : ",";

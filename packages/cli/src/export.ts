@@ -37,7 +37,7 @@ export async function export_(options: Options) {
       "@hi18n": {
         rules: {
           "collect-catalog-definitions": getCollectCatalogDefinitionsRule(
-            (record) => catalogDefs.push(record)
+            (record) => catalogDefs.push(record),
           ),
         },
       },
@@ -53,7 +53,7 @@ export async function export_(options: Options) {
         cwd,
         nodir: true,
         ignore: exclude,
-      }))
+      })),
     );
   }
   for (const relative of files) {
@@ -75,7 +75,7 @@ export async function export_(options: Options) {
           },
         },
       ],
-      { filename }
+      { filename },
     );
     checkMessages(relative, messages);
   }
@@ -92,7 +92,7 @@ export async function export_(options: Options) {
   }
   const c = config.connector.connector(
     config.configPath,
-    config.connectorOptions
+    config.connectorOptions,
   );
   if (!c.exportData) {
     throw new Error("This connector doesn't support exporting");
@@ -103,7 +103,7 @@ export async function export_(options: Options) {
 
 function checkMessages(
   filepath: string,
-  messages: TSESLint.Linter.LintMessage[]
+  messages: TSESLint.Linter.LintMessage[],
 ) {
   for (const message of messages) {
     if (/^Definition for rule .* was not found\.$/.test(message.message)) {

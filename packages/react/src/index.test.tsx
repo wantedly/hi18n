@@ -44,25 +44,25 @@ const catalogJa = new Catalog<Vocabulary>("ja", {
   "example/link": msg("<0>こちら</0>をクリック!"),
   "example/link2": msg("<link>こちら</link>をクリック!"),
   "example/multi": msg(
-    "<strong>決定ボタン</strong>または<strong>Enter</strong>を押してください"
+    "<strong>決定ボタン</strong>または<strong>Enter</strong>を押してください",
   ),
   "example/message-link": msg(
-    "{newMessages,number}件のメッセージがあります。 <0>{messages,number}件の全てのメッセージを見る</0>"
+    "{newMessages,number}件のメッセージがあります。 <0>{messages,number}件の全てのメッセージを見る</0>",
   ),
 });
 const catalogEn = new Catalog<Vocabulary>("en", {
   "example/greeting": msg("Hello!"),
   "example/greeting2": msg("Hello, {name}!"),
   "example/apples": msg(
-    "{count,plural,one{There is # apple.}other{There are # apples.}}"
+    "{count,plural,one{There is # apple.}other{There are # apples.}}",
   ),
   "example/link": msg("Click <0>here</0>!"),
   "example/link2": msg("Click <link>here</link>!"),
   "example/multi": msg(
-    "Press the <strong>OK button</strong> or the <strong>Enter</strong> key."
+    "Press the <strong>OK button</strong> or the <strong>Enter</strong> key.",
   ),
   "example/message-link": msg(
-    "You have {newMessages,plural,one{# new message}other{# new messages}}. <0>See all the {messages,plural,one{# message}other{# messages}}</0>."
+    "You have {newMessages,plural,one{# new message}other{# new messages}}. <0>See all the {messages,plural,one{# message}other{# messages}}</0>.",
   ),
 });
 const book = new Book<Vocabulary>({
@@ -89,10 +89,10 @@ describe("useLocales", () => {
     render(
       <LocaleProvider locales={["en", "ja", "zh-CN"]}>
         <ListLocales />
-      </LocaleProvider>
+      </LocaleProvider>,
     );
     expect(
-      screen.queryByText("Locale 1 is en. Locale 2 is ja. Locale 3 is zh-CN.")
+      screen.queryByText("Locale 1 is en. Locale 2 is ja. Locale 3 is zh-CN."),
     ).toBeInTheDocument();
   });
 
@@ -105,10 +105,10 @@ describe("useLocales", () => {
       render(
         <LocaleProvider locales={["en", "ja", "zh-CN"]}>
           <LocaleLength />
-        </LocaleProvider>
+        </LocaleProvider>,
       );
       expect(
-        screen.queryByText("It has 3 locales in context.")
+        screen.queryByText("It has 3 locales in context."),
       ).toBeInTheDocument();
       cleanup();
     }
@@ -116,17 +116,17 @@ describe("useLocales", () => {
       render(
         <LocaleProvider locales={[]}>
           <LocaleLength />
-        </LocaleProvider>
+        </LocaleProvider>,
       );
       expect(
-        screen.queryByText("It has 0 locales in context.")
+        screen.queryByText("It has 0 locales in context."),
       ).toBeInTheDocument();
       cleanup();
     }
     {
       render(<LocaleLength />);
       expect(
-        screen.queryByText("It has 0 locales in context.")
+        screen.queryByText("It has 0 locales in context."),
       ).toBeInTheDocument();
       cleanup();
     }
@@ -145,7 +145,7 @@ describe("useLocales", () => {
     render(
       <LocaleProvider locales={["en", "ja", "zh-CN"]}>
         <Counter />
-      </LocaleProvider>
+      </LocaleProvider>,
     );
     expect(screen.queryByText("count = 0")).toBeInTheDocument();
     act(() => increment());
@@ -166,10 +166,10 @@ describe("useLocales", () => {
           value={["en", "ja", "zh-CN"] as string | string[] as string}
         >
           <LocaleLength />
-        </LocaleContext.Provider>
+        </LocaleContext.Provider>,
       );
       expect(
-        screen.queryByText("It has 3 locales in context.")
+        screen.queryByText("It has 3 locales in context."),
       ).toBeInTheDocument();
       cleanup();
     }
@@ -177,10 +177,10 @@ describe("useLocales", () => {
       render(
         <LocaleContext.Provider value={[] as string | string[] as string}>
           <LocaleLength />
-        </LocaleContext.Provider>
+        </LocaleContext.Provider>,
       );
       expect(
-        screen.queryByText("It has 0 locales in context.")
+        screen.queryByText("It has 0 locales in context."),
       ).toBeInTheDocument();
       cleanup();
     }
@@ -196,10 +196,10 @@ describe("useI18n", () => {
     render(
       <LocaleProvider locales="ja">
         <Greeter />
-      </LocaleProvider>
+      </LocaleProvider>,
     );
     expect(
-      screen.queryByRole("link", { name: /こんにちは!/i })
+      screen.queryByRole("link", { name: /こんにちは!/i }),
     ).toBeInTheDocument();
   });
 
@@ -216,7 +216,7 @@ describe("useI18n", () => {
     render(
       <LocaleProvider locales={["en", "ja", "zh-CN"]}>
         <Counter />
-      </LocaleProvider>
+      </LocaleProvider>,
     );
     expect(screen.queryByText("count = 0")).toBeInTheDocument();
     act(() => increment());
@@ -242,17 +242,17 @@ describe("useI18n", () => {
           <Suspense fallback="not loaded yet">
             <Greeter />
           </Suspense>
-        </LocaleProvider>
+        </LocaleProvider>,
       ));
     });
     expect(
-      screen.queryByRole("link", { name: /こんにちは!/i })
+      screen.queryByRole("link", { name: /こんにちは!/i }),
     ).not.toBeInTheDocument();
     expect(container).toHaveTextContent("not loaded yet");
 
     // Wait until loaded
     expect(
-      await screen.findByRole("link", { name: /こんにちは!/i })
+      await screen.findByRole("link", { name: /こんにちは!/i }),
     ).toBeInTheDocument();
   });
 });
@@ -265,16 +265,16 @@ describe("Translate", () => {
           <Translate book={book} id="example/link">
             <a href="https://example.com/" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
       expect(
-        screen.queryByRole("link", { name: /こちら/i })
+        screen.queryByRole("link", { name: /こちら/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -285,14 +285,14 @@ describe("Translate", () => {
           <Translate book={book} id="example/link">
             <a href="https://example.com/" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("Click here!");
       expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -305,16 +305,16 @@ describe("Translate", () => {
           <Translate book={book} id="example/link2">
             <a key="link" href="https://example.com/" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
       expect(
-        screen.queryByRole("link", { name: /こちら/i })
+        screen.queryByRole("link", { name: /こちら/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -325,14 +325,14 @@ describe("Translate", () => {
           <Translate book={book} id="example/link2">
             <a key="link" href="https://example.com/" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("Click here!");
       expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -345,16 +345,16 @@ describe("Translate", () => {
             id="example/link2"
             link={<a href="https://example.com/" />}
           />
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
       expect(
-        screen.queryByRole("link", { name: /こちら/i })
+        screen.queryByRole("link", { name: /こちら/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -367,14 +367,14 @@ describe("Translate", () => {
             id="example/link2"
             link={<a href="https://example.com/" />}
           />
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("Click here!");
       expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -387,7 +387,7 @@ describe("Translate", () => {
         <Translate book={book} id="example/multi">
           <strong key="strong" />
         </Translate>
-      </LocaleProvider>
+      </LocaleProvider>,
     );
     // React calls console.error() when key uniqueness is violated
     expect(error).not.toHaveBeenCalled();
@@ -405,17 +405,17 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "5件のメッセージがあります。 10件の全てのメッセージを見る"
+        "5件のメッセージがあります。 10件の全てのメッセージを見る",
       );
       expect(
-        screen.queryByRole("link", { name: /10件の全てのメッセージを見る/i })
+        screen.queryByRole("link", { name: /10件の全てのメッセージを見る/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /10件の全てのメッセージを見る/i })
+        screen.getByRole("link", { name: /10件の全てのメッセージを見る/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -431,17 +431,17 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "You have 1 new message. See all the 1 message."
+        "You have 1 new message. See all the 1 message.",
       );
       expect(
-        screen.queryByRole("link", { name: /See all the 1 message/i })
+        screen.queryByRole("link", { name: /See all the 1 message/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /See all the 1 message/i })
+        screen.getByRole("link", { name: /See all the 1 message/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -457,17 +457,17 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "You have 1 new message. See all the 10 messages."
+        "You have 1 new message. See all the 10 messages.",
       );
       expect(
-        screen.queryByRole("link", { name: /See all the 10 messages/i })
+        screen.queryByRole("link", { name: /See all the 10 messages/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /See all the 10 messages/i })
+        screen.getByRole("link", { name: /See all the 10 messages/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -483,17 +483,17 @@ describe("Translate", () => {
           >
             <a href="https://example.com/messages" />
           </Translate>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "You have 5 new messages. See all the 10 messages."
+        "You have 5 new messages. See all the 10 messages.",
       );
       expect(
-        screen.queryByRole("link", { name: /See all the 10 messages/i })
+        screen.queryByRole("link", { name: /See all the 10 messages/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /See all the 10 messages/i })
+        screen.getByRole("link", { name: /See all the 10 messages/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -502,7 +502,7 @@ describe("Translate", () => {
   it("renders the node within renderInElement", () => {
     let node: React.ReactNode = [];
     const RecordNode: React.FC<{ children?: React.ReactNode | undefined }> = (
-      props
+      props,
     ) => {
       node = props.children;
       return <>{props.children}</>;
@@ -516,25 +516,25 @@ describe("Translate", () => {
         >
           <a href="https://example.com/" />
         </Translate>
-      </LocaleProvider>
+      </LocaleProvider>,
     );
 
     expect(container).toHaveTextContent("こちらをクリック!");
     expect(screen.queryByRole("link", { name: /こちら/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
       "href",
-      "https://example.com/"
+      "https://example.com/",
     );
     // Ensure the node **after translation** had been passed
     expect(
-      prettyFormat(node, { plugins: [prettyFormatPlugins.ReactElement] })
+      prettyFormat(node, { plugins: [prettyFormatPlugins.ReactElement] }),
     ).toEqual(
       prettyFormat(
         <>
           <a href="https://example.com/">こちら</a>をクリック!
         </>,
-        { plugins: [prettyFormatPlugins.ReactElement] }
-      )
+        { plugins: [prettyFormatPlugins.ReactElement] },
+      ),
     );
   });
 
@@ -552,17 +552,17 @@ describe("Translate", () => {
               <a href="https://example.com/" />
             </Translate>
           </Suspense>
-        </LocaleProvider>
+        </LocaleProvider>,
       ));
     });
     expect(
-      screen.queryByRole("link", { name: /こちら/i })
+      screen.queryByRole("link", { name: /こちら/i }),
     ).not.toBeInTheDocument();
     expect(container).toHaveTextContent("not loaded yet");
 
     // Wait until loaded
     expect(
-      await screen.findByRole("link", { name: /こちら/i })
+      await screen.findByRole("link", { name: /こちら/i }),
     ).toBeInTheDocument();
   });
 });
@@ -577,16 +577,16 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id}>
             <a href="https://example.com/" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
       expect(
-        screen.queryByRole("link", { name: /こちら/i })
+        screen.queryByRole("link", { name: /こちら/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -597,14 +597,14 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id}>
             <a href="https://example.com/" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("Click here!");
       expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -619,16 +619,16 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id}>
             <a key="link" href="https://example.com/" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
       expect(
-        screen.queryByRole("link", { name: /こちら/i })
+        screen.queryByRole("link", { name: /こちら/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -639,14 +639,14 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id}>
             <a key="link" href="https://example.com/" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("Click here!");
       expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -659,16 +659,16 @@ describe("Translate.Dynamic", () => {
             id={id}
             link={<a href="https://example.com/" />}
           />
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("こちらをクリック!");
       expect(
-        screen.queryByRole("link", { name: /こちら/i })
+        screen.queryByRole("link", { name: /こちら/i }),
       ).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /こちら/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -681,14 +681,14 @@ describe("Translate.Dynamic", () => {
             id={id}
             link={<a href="https://example.com/" />}
           />
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent("Click here!");
       expect(screen.queryByRole("link", { name: /here/i })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: /here/i })).toHaveAttribute(
         "href",
-        "https://example.com/"
+        "https://example.com/",
       );
       cleanup();
     }
@@ -702,17 +702,17 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id} messages={10} newMessages={5}>
             <a href="https://example.com/messages" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "5件のメッセージがあります。 10件の全てのメッセージを見る"
+        "5件のメッセージがあります。 10件の全てのメッセージを見る",
       );
       expect(
-        screen.queryByRole("link", { name: /10件の全てのメッセージを見る/i })
+        screen.queryByRole("link", { name: /10件の全てのメッセージを見る/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /10件の全てのメッセージを見る/i })
+        screen.getByRole("link", { name: /10件の全てのメッセージを見る/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -723,17 +723,17 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id} messages={1} newMessages={1}>
             <a href="https://example.com/messages" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "You have 1 new message. See all the 1 message."
+        "You have 1 new message. See all the 1 message.",
       );
       expect(
-        screen.queryByRole("link", { name: /See all the 1 message/i })
+        screen.queryByRole("link", { name: /See all the 1 message/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /See all the 1 message/i })
+        screen.getByRole("link", { name: /See all the 1 message/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -744,17 +744,17 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id} messages={10} newMessages={1}>
             <a href="https://example.com/messages" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "You have 1 new message. See all the 10 messages."
+        "You have 1 new message. See all the 10 messages.",
       );
       expect(
-        screen.queryByRole("link", { name: /See all the 10 messages/i })
+        screen.queryByRole("link", { name: /See all the 10 messages/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /See all the 10 messages/i })
+        screen.getByRole("link", { name: /See all the 10 messages/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -765,17 +765,17 @@ describe("Translate.Dynamic", () => {
           <Translate.Dynamic book={book} id={id} messages={10} newMessages={5}>
             <a href="https://example.com/messages" />
           </Translate.Dynamic>
-        </LocaleProvider>
+        </LocaleProvider>,
       );
 
       expect(container).toHaveTextContent(
-        "You have 5 new messages. See all the 10 messages."
+        "You have 5 new messages. See all the 10 messages.",
       );
       expect(
-        screen.queryByRole("link", { name: /See all the 10 messages/i })
+        screen.queryByRole("link", { name: /See all the 10 messages/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /See all the 10 messages/i })
+        screen.getByRole("link", { name: /See all the 10 messages/i }),
       ).toHaveAttribute("href", "https://example.com/messages");
       cleanup();
     }
@@ -789,7 +789,7 @@ describe("Translate.Todo", () => {
         <Translate.Todo book={book} id="example/foobar">
           <a href="https://example.com/" />
         </Translate.Todo>
-      </LocaleProvider>
+      </LocaleProvider>,
     );
 
     expect(container).toHaveTextContent("[TODO: example/foobar]");

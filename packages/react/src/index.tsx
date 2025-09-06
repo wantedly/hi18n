@@ -78,9 +78,9 @@ export function useLocales(): string[] {
       Array.isArray(localesConcat)
         ? localesConcat
         : localesConcat === ""
-        ? []
-        : localesConcat.split("\n"),
-    [localesConcat]
+          ? []
+          : localesConcat.split("\n"),
+    [localesConcat],
   );
   return locales;
 }
@@ -117,12 +117,12 @@ export function useLocales(): string[] {
  *   ```
  */
 export function useI18n<M extends VocabularyBase>(
-  book: Book<M>
+  book: Book<M>,
 ): TranslatorObject<M> {
   const locales = useLocales();
   const i18n = React.useMemo(
     () => getTranslator(book, locales, { throwPromise: true }),
-    [book, locales]
+    [book, locales],
   );
   return i18n;
 }
@@ -131,7 +131,7 @@ export type BaseTranslateProps<
   Vocabulary extends VocabularyBase,
   // TODO: restrict to string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  K extends keyof any
+  K extends keyof any,
 > = {
   /**
    * The book to look up in for the translation.
@@ -179,7 +179,7 @@ export type BaseTranslateProps<
 export type TranslateProps<
   M extends VocabularyBase,
   // TODO: restrict to string
-  K extends keyof M
+  K extends keyof M,
 > = BaseTranslateProps<M, K> &
   PartialForComponents<MessageArguments<M[K], React.ReactElement>>;
 
@@ -240,7 +240,7 @@ type ComponentKeys<T, K extends keyof T = keyof T> = K extends unknown
  *   ```
  */
 export function Translate<M extends VocabularyBase, K extends string & keyof M>(
-  props: TranslateProps<M, K>
+  props: TranslateProps<M, K>,
 ): React.ReactElement | null {
   const { book, id, children, renderInElement, ...params } = props;
   extractComponents(children, params, { length: 0 });
@@ -255,7 +255,7 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
     id,
     interpolator,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    params as any
+    params as any,
   );
   if (renderInElement) {
     return React.cloneElement(renderInElement, {}, <>{translatedChildren}</>);
@@ -266,7 +266,7 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
 
 export type DynamicTranslateProps<
   Vocabulary extends VocabularyBase,
-  Args
+  Args,
 > = BaseTranslateProps<Vocabulary, TranslationId<Vocabulary, Args>> &
   PartialForComponents<InstantiateComponentTypes<Args, React.ReactElement>>;
 
@@ -286,7 +286,7 @@ export type DynamicTranslateProps<
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 Translate.Dynamic = Translate as <Vocabulary extends VocabularyBase, Args = {}>(
-  props: DynamicTranslateProps<Vocabulary, Args>
+  props: DynamicTranslateProps<Vocabulary, Args>,
 ) => React.ReactElement | null;
 
 export type TodoTranslateProps<Vocabulary extends VocabularyBase> =
@@ -308,7 +308,7 @@ export type TodoTranslateProps<Vocabulary extends VocabularyBase> =
  *   ```
  */
 Translate.Todo = function Todo<Vocabulary extends VocabularyBase>(
-  props: TodoTranslateProps<Vocabulary>
+  props: TodoTranslateProps<Vocabulary>,
 ): React.ReactElement | null {
   return <>[TODO: {props.id}]</>;
 };
@@ -319,7 +319,7 @@ Translate.Todo = function Todo<Vocabulary extends VocabularyBase>(
 function extractComponents(
   node: React.ReactNode,
   params: Record<string | number, unknown>,
-  state: { length: number }
+  state: { length: number },
 ) {
   if (React.isValidElement(node)) {
     if (node.key != null) {
@@ -331,7 +331,7 @@ function extractComponents(
     extractComponents(
       (node.props as { children?: React.ReactElement }).children,
       params,
-      state
+      state,
     );
   } else if (Array.isArray(node)) {
     for (const child of node) {
@@ -343,7 +343,7 @@ function extractComponents(
 function fillComponentKeys(params: Record<string | number, unknown>) {
   for (const [key, value] of Object.entries(
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    params as Record<string | number, {} | null | undefined>
+    params as Record<string | number, {} | null | undefined>,
   )) {
     if (!React.isValidElement(value)) continue;
     if (value.key == null) {
@@ -381,7 +381,7 @@ function getInterpolator(): ComponentInterpolator<
 
   function wrap(
     component: React.ReactElement,
-    message: React.ReactNode
+    message: React.ReactNode,
   ): React.ReactNode {
     const newKey = generateKey(`${component.key}`);
     return React.cloneElement(component, { key: newKey }, message);

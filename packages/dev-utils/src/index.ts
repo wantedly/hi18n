@@ -12,13 +12,13 @@ export function initFixtures(dir: string) {
   async function withProject<T>(
     fixtureName: string,
     expectName: string,
-    cb: (cwd: string) => Promise<T>
+    cb: (cwd: string) => Promise<T>,
   ): Promise<T> {
     return await withTemp(async (tempdir: string) => {
       const inputDir = path.resolve(fixturesDir, `${fixtureName}/input`);
       const expectDir = path.resolve(
         fixturesDir,
-        `${fixtureName}/expect-${expectName}`
+        `${fixtureName}/expect-${expectName}`,
       );
       const outputDir = path.join(tempdir, "project");
       await fse.copy(inputDir, outputDir);
@@ -71,7 +71,7 @@ export function initFixtures(dir: string) {
           console.log("Updated the snapshots");
         } else if (process.env["SAVE_SNAPSHOTS"]) {
           const outputSaveDir = await fs.promises.mkdtemp(
-            path.resolve(fixturesDir, `${fixtureName}/output-`)
+            path.resolve(fixturesDir, `${fixtureName}/output-`),
           );
           await fse.copy(outputDir, outputSaveDir);
           message += `\nSaved the output to: ${outputSaveDir}`;
@@ -91,7 +91,7 @@ export function initFixtures(dir: string) {
 
 async function withTemp<T>(cb: (tempdir: string) => Promise<T>): Promise<T> {
   const tempdir = await fs.promises.mkdtemp(
-    path.join(os.tmpdir(), "hi18n-test-")
+    path.join(os.tmpdir(), "hi18n-test-"),
   );
   let result: T;
   try {

@@ -19,7 +19,7 @@ type ParsedPart<T> = {
 
 export function parseComments<T>(
   comments: TSESTree.Comment[],
-  parse: (parser: Parser) => T
+  parse: (parser: Parser) => T,
 ): ParseCommentsResult<T> {
   const tokens: TSESTree.Token[] = [];
   const commentTokenIndex: number[] = [];
@@ -303,7 +303,7 @@ export class Parser {
               range: argument.range,
               parent: null as unknown as TSESTree.CallExpression,
             }
-          : argument
+          : argument,
       );
       if (this.tryPunct(")")) {
         break;
@@ -502,7 +502,7 @@ export class Parser {
   }
   isPunct(
     punct: string,
-    token = this.nextToken()
+    token = this.nextToken(),
   ): token is TSESTree.Token & { type: "Punctuator" } {
     return token.type === "Punctuator" && token.value === punct;
   }
@@ -553,7 +553,7 @@ export function tokenizeComment(comment: TSESTree.Comment): TSESTree.Token[] {
 export function tokenize(
   text: string,
   pos: TSESTree.Position = { line: 1, column: 0 },
-  idxBase = 0
+  idxBase = 0,
 ): TSESTree.Token[] {
   let idx = 0;
   function advance(text: string) {
@@ -615,14 +615,14 @@ export function tokenize(
       default:
         if (/[\t\v\f\uFEFF\p{Zs}\r\n\u2028\u2029]/u.test(ch)) {
           const match = /^[\t\v\f\uFEFF\p{Zs}\r\n\u2028\u2029]+/u.exec(
-            text.substring(idx)
+            text.substring(idx),
           )!;
           advance(match[0]);
           continue;
         } else if (/[\p{ID_Start}$_\\]/u.test(ch)) {
           const match =
             /^(?:[\p{ID_Start}$_]|\\u\{[0-9a-fA-F]+\}|\\u[0-9a-fA-F]{4})(?:[\p{ID_Continue}$_\u200C\u200D]|\\u\{[0-9a-fA-F]+\}|\\u[0-9a-fA-F]{4})*/u.exec(
-              text.substring(idx)
+              text.substring(idx),
             );
           if (!match) throw new ParseError();
           advance(match[0]);
@@ -733,7 +733,7 @@ function evalIdentifier(raw: string) {
   return raw.replaceAll(/\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]+\}/g, (esc) => {
     if (esc.startsWith("\\u{")) {
       return String.fromCodePoint(
-        parseInt(esc.substring(3, esc.length - 1), 16)
+        parseInt(esc.substring(3, esc.length - 1), 16),
       );
     } else {
       return String.fromCharCode(parseInt(esc.substring(2), 16));
@@ -749,7 +749,7 @@ function evalString(raw: string) {
       (esc) => {
         if (esc.startsWith("\\u{")) {
           return String.fromCodePoint(
-            parseInt(esc.substring(3, esc.length - 1), 16)
+            parseInt(esc.substring(3, esc.length - 1), 16),
           );
         } else if (esc.startsWith("\\u") || esc.startsWith("\\x")) {
           return String.fromCharCode(parseInt(esc.substring(2), 16));
@@ -766,7 +766,7 @@ function evalString(raw: string) {
         } else {
           return esc[1]!;
         }
-      }
+      },
     );
 }
 

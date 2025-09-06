@@ -5,7 +5,7 @@ export function getCatalogRef(
   scopeManager: TSESLint.Scope.ScopeManager,
   base: string,
   // Support MethodDefinition for compat
-  prop: TSESTree.ObjectLiteralElement | TSESTree.MethodDefinition
+  prop: TSESTree.ObjectLiteralElement | TSESTree.MethodDefinition,
 ): DefReference | undefined {
   if (!(prop.type === "Property" || prop.type === "MethodDefinition")) {
     return undefined;
@@ -15,7 +15,7 @@ export function getCatalogRef(
     const catalogLocation = lookupDefinitionSource(
       scopeManager,
       base,
-      prop.value
+      prop.value,
     );
     if (catalogLocation) {
       return catalogLocation;
@@ -31,7 +31,7 @@ export function getCatalogRef(
 
 function dynamicImportRef(
   base: string,
-  fn: TSESTree.FunctionLike
+  fn: TSESTree.FunctionLike,
 ): DefReference | undefined {
   const expr = immediateBody(fn);
   if (!expr) return undefined;
@@ -53,7 +53,7 @@ function dynamicImportRef(
 }
 
 function immediateBody(
-  fn: TSESTree.FunctionLike
+  fn: TSESTree.FunctionLike,
 ): TSESTree.Expression | undefined {
   if (!fn.body) {
     // declaration only

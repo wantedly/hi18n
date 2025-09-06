@@ -6,5 +6,5 @@ export type PluginDocs = {
 
 export const createRule = ESLintUtils.RuleCreator<PluginDocs>(
   (name) =>
-    `https://github.com/wantedly/hi18n/blob/master/packages/eslint-plugin/src/rules/${name}.ts`
+    `https://github.com/wantedly/hi18n/blob/master/packages/eslint-plugin/src/rules/${name}.ts`,
 );

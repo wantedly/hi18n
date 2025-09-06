@@ -5,7 +5,7 @@ exports.parse = function (_source, options) {
   fs.writeFileSync(
     path.resolve(__dirname, "parser-was-called.txt"),
     options["foo"],
-    "utf-8"
+    "utf-8",
   );
   return {
     type: "Program",

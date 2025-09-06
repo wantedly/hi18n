@@ -58,7 +58,7 @@ export function getRule(cb: CatalogDefCallback) {
               ? resolveAsLocation(
                   context.getSourceCode().scopeManager!,
                   context.getFilename(),
-                  node
+                  node,
                 )
               : undefined;
           if (!catalogLocation) return;
@@ -82,7 +82,7 @@ export function getRule(cb: CatalogDefCallback) {
             catalogLocation,
             messages,
           });
-        }
+        },
       );
       return {
         ImportDeclaration(node) {

@@ -38,7 +38,7 @@ export function connector(configPath: string, params: unknown): ConnectorObj {
 
     for (const file of filelist) {
       const yamlData = yaml.load(
-        await fs.promises.readFile(path.resolve(root, file), "utf-8")
+        await fs.promises.readFile(path.resolve(root, file), "utf-8"),
       );
       if (!isObject(yamlData)) continue;
 

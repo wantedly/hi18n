@@ -21,13 +21,13 @@ export type EvalOption<T> = {
 export function evaluateMessage<T = string>(
   msg: CompiledMessage,
   options: EvalOption<T>,
-  numberValue?: number | bigint
+  numberValue?: number | bigint,
 ): T | string {
   if (typeof msg === "string") {
     return msg;
   } else if (Array.isArray(msg)) {
     const reduced = reduceSubmessages(
-      msg.map((part) => evaluateMessage(part, options, numberValue))
+      msg.map((part) => evaluateMessage(part, options, numberValue)),
     );
     if (typeof reduced === "string") {
       return reduced;
@@ -35,7 +35,7 @@ export function evaluateMessage<T = string>(
     const { collect } = options;
     if (!collect)
       throw new MessageEvaluationError(
-        "Invalid message: not a default-collectable message"
+        "Invalid message: not a default-collectable message",
       );
     return collect(reduced);
   } else if (msg.type === "Var") {
@@ -49,7 +49,7 @@ export function evaluateMessage<T = string>(
         if (typeof value !== "string")
           throw new MessageEvaluationError(
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-base-to-string
-            `Invalid argument ${msg.name}: expected string, got ${value}`
+            `Invalid argument ${msg.name}: expected string, got ${value}`,
           );
         return value;
       case "number": {
@@ -81,13 +81,13 @@ export function evaluateMessage<T = string>(
         ) {
           (options.handleError ?? defaultErrorHandler)(
             new Error("Missing Intl.NumberFormat"),
-            "warn"
+            "warn",
           );
           return `${modifiedValue}`;
         }
         // TODO: allow injecting polyfill
         return new Intl.NumberFormat(options.locale, formatOptions).format(
-          modifiedValue
+          modifiedValue,
         );
       }
       case "date":
@@ -119,7 +119,7 @@ export function evaluateMessage<T = string>(
         }
         // TODO: allow injecting polyfill
         return new Intl.DateTimeFormat(options.locale, formatOptions).format(
-          value
+          value,
         );
       }
       default:
@@ -148,7 +148,7 @@ export function evaluateMessage<T = string>(
       if (typeof Intl === "undefined" || !Intl.PluralRules) {
         (options.handleError ?? defaultErrorHandler)(
           new Error("Missing Intl.PluralRules"),
-          "warn"
+          "warn",
         );
         return "other";
       }
@@ -166,7 +166,7 @@ export function evaluateMessage<T = string>(
       }
     }
     throw new MessageEvaluationError(
-      `Non-exhaustive plural branches for ${value}`
+      `Non-exhaustive plural branches for ${value}`,
     );
   } else if (msg.type === "Number" && numberValue !== undefined) {
     // TODO: allow injecting polyfill
@@ -175,7 +175,7 @@ export function evaluateMessage<T = string>(
     const { wrap } = options;
     if (!wrap)
       throw new MessageEvaluationError(
-        "Invalid message: unexpected elementArg"
+        "Invalid message: unexpected elementArg",
       );
     const value = (options.params ?? {})[msg.name];
     if (value === undefined)
@@ -186,14 +186,14 @@ export function evaluateMessage<T = string>(
       value,
       msg.message !== undefined
         ? evaluateMessage(msg.message, options, numberValue)
-        : undefined
+        : undefined,
     );
   }
   throw new MessageEvaluationError("Invalid message");
 }
 
 function reduceSubmessages<T>(
-  submessages: (T | string)[]
+  submessages: (T | string)[],
 ): string | (T | string)[] {
   if (submessages.every((x): x is string => typeof x === "string")) {
     return submessages.join("");
