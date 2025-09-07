@@ -1,5 +1,11 @@
 # `@hi18n/connector-i18n-js`
 
+## 0.1.7
+
+### Patch Changes
+
+- c9ef838: chore(deps): bump glob from v8 to v10
+
 ## 0.1.6
 
 ### Patch Changes

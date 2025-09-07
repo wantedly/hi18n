@@ -1,5 +1,13 @@
 # `@hi18n/cli`
 
+## 0.2.1
+
+### Patch Changes
+
+- e7dfa54: chore(deps): remove remaining Babel dependencies
+- 6392809: chore(deps): bump commander from v9 to v13
+- c9ef838: chore(deps): bump glob from v8 to v10
+
 ## 0.2.0
 
 ### Migration Guide
