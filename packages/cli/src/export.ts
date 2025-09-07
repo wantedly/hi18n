@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import util from "node:util";
-import glob from "glob";
+import { glob } from "glob";
 import { TSESLint } from "@typescript-eslint/utils";
 import {
   getCollectCatalogDefinitionsRule,
@@ -49,10 +48,10 @@ export async function export_(options: Options) {
   const files: string[] = [];
   for (const includeGlob of include) {
     files.push(
-      ...(await util.promisify(glob)(includeGlob, {
+      ...(await glob(includeGlob, {
         cwd,
         nodir: true,
-        ignore: exclude,
+        ignore: exclude ?? [],
       })),
     );
   }

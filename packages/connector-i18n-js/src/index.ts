@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import util from "node:util";
-import glob from "glob";
+import { glob } from "glob";
 import yaml from "js-yaml";
 import { Hi18nData, Hi18nCatalogData, ConnectorObj } from "@hi18n/tools-core";
 import { convertMessage, isMessage } from "./message.js";
@@ -25,7 +24,7 @@ export function connector(configPath: string, params: unknown): ConnectorObj {
   async function importData(): Promise<Hi18nData> {
     const files = new Set<string>();
     for (const pattern of include) {
-      const globbed = await util.promisify(glob)(pattern, {
+      const globbed = await glob(pattern, {
         cwd: root,
       });
       for (const file of globbed) {

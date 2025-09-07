@@ -50,13 +50,12 @@
   },
   "dependencies": {
     "@hi18n/tools-core": "^0.1.6",
-    "glob": "^8.0.3",
+    "glob": "^10.4.5",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@hi18n/core": "*",
     "@hi18n/dev-utils": "*",
-    "@types/glob": "^8.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^22.18.1",
     "rimraf": "^3.0.2",
