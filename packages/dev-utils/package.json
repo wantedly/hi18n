@@ -49,7 +49,7 @@
     "tsc": "tsc"
   },
   "dependencies": {
-    "commander": "^9.2.0",
+    "commander": "^13.1.0",
     "fs-extra": "^11.0.0",
     "glob": "^10.4.5"
   },
