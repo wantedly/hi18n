@@ -2,8 +2,7 @@ import fs from "node:fs";
 import fse from "fs-extra";
 import os from "node:os";
 import path from "node:path";
-import glob from "glob";
-import util from "node:util";
+import { glob } from "glob";
 import { OutputConfiguration } from "commander";
 
 export function initFixtures(dir: string) {
@@ -24,11 +23,11 @@ export function initFixtures(dir: string) {
       await fse.copy(inputDir, outputDir);
       const result = await cb(outputDir);
 
-      const files1 = await util.promisify(glob)("**/*", {
+      const files1 = await glob("**/*", {
         cwd: expectDir,
         dot: true,
       });
-      const files2 = await util.promisify(glob)("**/*", {
+      const files2 = await glob("**/*", {
         cwd: outputDir,
         dot: true,
       });

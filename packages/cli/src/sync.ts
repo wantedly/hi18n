@@ -1,8 +1,7 @@
 import { TSESLint } from "@typescript-eslint/utils";
 import fs from "node:fs";
-import glob from "glob";
+import { glob } from "glob";
 import path from "node:path";
-import util from "node:util";
 import resolve from "resolve";
 import {
   getCollectBookDefinitionsRule,
@@ -76,10 +75,10 @@ export async function sync(options: Options) {
   const files: string[] = [];
   for (const includeGlob of include) {
     files.push(
-      ...(await util.promisify(glob)(includeGlob, {
+      ...(await glob(includeGlob, {
         cwd: projectPath,
         nodir: true,
-        ignore: exclude,
+        ignore: exclude ?? [],
       })),
     );
   }
