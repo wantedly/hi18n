@@ -2,9 +2,8 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import js from "@eslint/js";
 import globals from "globals";
-import jest from "eslint-plugin-jest";
+import vitest from "@vitest/eslint-plugin";
 import ts from "typescript-eslint";
-// @ts-expect-error probably package.json issue
 import tsParser from "@typescript-eslint/parser";
 import eslintConfigPrettier from "eslint-config-prettier";
 import react from "eslint-plugin-react";
@@ -29,6 +28,7 @@ export default defineConfig([
         },
         rules: reactHooks.configs.recommended.rules,
       },
+      vitest.configs.recommended,
     ],
   },
   {
@@ -37,11 +37,6 @@ export default defineConfig([
   },
   globalIgnores([".yarn", "**/dist", "**/src/__fixtures__/**/*"]),
   {
-    plugins: {
-      // TODO: replace jest -> vitest once we have ESLint upgraded
-      jest,
-    },
-
     linterOptions: {
       reportUnusedDisableDirectives: true,
     },
@@ -52,8 +47,8 @@ export default defineConfig([
     },
 
     settings: {
-      jest: {
-        version: 29,
+      vitest: {
+        typecheck: true,
       },
       node: {
         version: ">= 18.0.0",
@@ -64,7 +59,7 @@ export default defineConfig([
     },
   },
   {
-    files: ["**/*.ts"],
+    files: ["**/*.@(ts|cts|mts|tsx)"],
     ignores: ["**/*.d.ts"],
 
     languageOptions: {
@@ -109,6 +104,22 @@ export default defineConfig([
       "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
 
+      "vitest/expect-expect": [
+        "error",
+        {
+          // withProject is defined in packages/dev-utils
+          // expectType is used within msgfmt-parser-types tests, but it can probably be
+          // migrated to use expectTypeOf from vitest.
+          assertFunctionNames: [
+            "expect",
+            "assert",
+            "withProject",
+            "expectType",
+          ],
+          additionalTestBlockFunctions: [],
+        },
+      ],
+
       "n/no-missing-import": "off",
       "n/no-unsupported-features/es-syntax": "off",
     },
@@ -126,8 +137,6 @@ export default defineConfig([
       "node/no-unpublished-import": "off",
       "node/no-unpublished-require": "off",
     },
-
-    extends: [jest.configs["flat/recommended"]],
   },
   {
     files: ["eslint.config.js"],

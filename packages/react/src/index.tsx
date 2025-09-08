@@ -254,7 +254,7 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
   >(
     id,
     interpolator,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     params as any,
   );
   if (renderInElement) {
@@ -346,6 +346,7 @@ function extractComponents(
     );
   } else if (Array.isArray(node)) {
     for (const child of node) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       extractComponents(child, params, state);
     }
   }
