@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/react",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Message internationalization meets immutability and type-safety - runtime for React",
   "keywords": [
     "intl",
