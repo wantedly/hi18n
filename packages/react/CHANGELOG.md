@@ -1,5 +1,21 @@
 # `@hi18n/react`
 
+## 1.0.0
+
+### Minor Changes
+
+- 90223e7: fix(react)!: restrict key type
+- 893fd17: fix(react)!: change how locales are propagated
+- 63c91ed: chore(react)!: promote @hi18n/core as a peer dependency
+
+### Patch Changes
+
+- Updated dependencies [1ddccf8]
+- Updated dependencies [d44fd6d]
+- Updated dependencies [893fd17]
+  - @hi18n/core@0.2.0
+  - @hi18n/react-context@0.2.0
+
 ## 0.1.11
 
 ### Patch Changes

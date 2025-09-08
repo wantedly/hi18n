@@ -1,5 +1,12 @@
 # `@hi18n/core`
 
+## 0.2.0
+
+### Minor Changes
+
+- 1ddccf8: BREAKING CHANGE: remove deprecated Catalog constructor overload
+- d44fd6d: feat(core)!: require use of msg()
+
 ## 0.1.16
 
 ### Patch Changes

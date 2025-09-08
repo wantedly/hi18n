@@ -1,5 +1,11 @@
 # `@hi18n/react-context`
 
+## 0.2.0
+
+### Minor Changes
+
+- 893fd17: fix(react)!: change how locales are propagated
+
 ## 0.1.3
 
 ### Patch Changes
