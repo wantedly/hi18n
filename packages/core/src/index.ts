@@ -27,15 +27,23 @@ declare const messageBrandSymbol: unique symbol;
 declare const translationIdBrandSymbol: unique symbol;
 
 /**
- * A subtype of `string` that represents translation messages.
+ * An opaque type that represents translation messages.
  *
  * @param Args parameters required by this message
  *
  * @since 0.1.0 (`@hi18n/core`)
  */
-export type Message<Args = {}> = string & {
+export type Message<Args = {}> = {
   [messageBrandSymbol]: (args: Args) => void;
 };
+
+type InternalMessage = {
+  type: "Msg";
+  value: string;
+};
+function InternalMessage(value: string): InternalMessage {
+  return { type: "Msg", value };
+}
 
 /**
  * A base type for a vocabulary.
@@ -111,9 +119,7 @@ export type SimpleMessageKeys<
   : never;
 
 /**
- * Infers the appropriate type for the translated message.
- *
- * At runtime, it just returns the first argument.
+ * Wraps a MessageFormat message string in a wrapper object.
  *
  * @param s the translated message
  * @returns the first argument
@@ -128,7 +134,7 @@ export type SimpleMessageKeys<
  *   ```
  */
 export function msg<S extends string>(s: S): InferredMessageType<S> {
-  return s as InferredMessageType<S>;
+  return InternalMessage(s) as InferredMessageType<S>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -138,8 +144,6 @@ export declare namespace msg {
 
 /**
  * Same as {@link msg} but can be used to indicate an untranslated state.
- *
- * At runtime, it just returns the first argument.
  *
  * @param s the translated message
  * @returns the first argument
@@ -154,7 +158,7 @@ export declare namespace msg {
  *   ```
  */
 msg.todo = function todo<S extends string>(s: S): InferredMessageType<S> {
-  return s as InferredMessageType<S>;
+  return InternalMessage(s) as InferredMessageType<S>;
 } satisfies unknown;
 
 /**
@@ -400,6 +404,15 @@ export class Catalog<Vocabulary extends VocabularyBase> {
       this.locale = locale;
       this.data = data!;
     }
+    // Migration work enabled in v0.2.0.
+    // TODO: remove it in 0.3.0 and interpret string messages as raw messages.
+    for (const [key, message] of Object.entries(this.data)) {
+      if (typeof message === "string") {
+        throw new TypeError(
+          `Translated message must be created with msg() (key: ${key})`,
+        );
+      }
+    }
   }
 
   getCompiledMessage(id: string & keyof Vocabulary): CompiledMessage {
@@ -407,8 +420,10 @@ export class Catalog<Vocabulary extends VocabularyBase> {
       if (!hasOwn(this.data, id)) {
         throw new MissingTranslationError();
       }
-      const msg = this.data[id];
-      this._compiled[id] = parseMessage(msg);
+      const msg: Message<unknown> = this.data[id];
+      this._compiled[id] = parseMessage(
+        (msg as unknown as InternalMessage).value,
+      );
     }
     return this._compiled[id]!;
   }
