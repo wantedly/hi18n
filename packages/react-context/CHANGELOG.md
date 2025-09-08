@@ -2,6 +2,12 @@
 
 ## 0.2.0
 
+### Migration Guide
+
+The context type is now `readonly string[]` rather than `string`.
+
+The change should not bother you because you should be using it through `@hi18n/react`.
+
 ### Minor Changes
 
 - 893fd17: fix(react)!: change how locales are propagated
