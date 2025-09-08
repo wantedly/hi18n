@@ -1,10 +1,10 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { rule as ruleMigrateFromLingui } from "./rules/migrate-from-lingui.js";
-import { rule as ruleNoDynamicTranslationIds } from "./rules/no-dynamic-translation-ids.js";
-import { rule as ruleReactComponentParams } from "./rules/react-component-params.js";
-import { rule as ruleWellFormedBookDefinitions } from "./rules/well-formed-book-definitions.js";
-import { rule as ruleWellFormedBookReferences } from "./rules/well-formed-book-references.js";
-import { rule as ruleWellFormedCatalogDefinitions } from "./rules/well-formed-catalog-definitions.js";
+import { rule as ruleMigrateFromLingui } from "./rules/migrate-from-lingui.ts";
+import { rule as ruleNoDynamicTranslationIds } from "./rules/no-dynamic-translation-ids.ts";
+import { rule as ruleReactComponentParams } from "./rules/react-component-params.ts";
+import { rule as ruleWellFormedBookDefinitions } from "./rules/well-formed-book-definitions.ts";
+import { rule as ruleWellFormedBookReferences } from "./rules/well-formed-book-references.ts";
+import { rule as ruleWellFormedCatalogDefinitions } from "./rules/well-formed-catalog-definitions.ts";
 import type { ESLint, Linter } from "eslint";
 
 export type Plugin = TSESLint.FlatConfig.Plugin &

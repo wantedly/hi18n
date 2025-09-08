@@ -5,7 +5,7 @@ import {
   getStaticKey,
   getStaticMemKey,
   resolveVariable,
-} from "./util.js";
+} from "./util.ts";
 
 export class Tracker {
   watchingImports: Record<string, string[]> = {};

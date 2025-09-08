@@ -17,7 +17,7 @@ import {
   type CatalogDef,
   type TranslationUsage,
 } from "@hi18n/eslint-plugin/internal-rules";
-import { loadConfig } from "./config.js";
+import { loadConfig } from "./config.ts";
 
 export type Options = {
   cwd: string;

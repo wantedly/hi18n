@@ -1,12 +1,12 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getStaticKey } from "../util.js";
-import { bookTracker } from "../common-trackers.js";
+import { getStaticKey } from "../util.ts";
+import { bookTracker } from "../common-trackers.ts";
 import {
   type DefLocation,
   type DefReference,
   resolveAsLocation,
-} from "../def-location.js";
-import { getCatalogRef } from "../book-util.js";
+} from "../def-location.ts";
+import { getCatalogRef } from "../book-util.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 export type BookDef = {

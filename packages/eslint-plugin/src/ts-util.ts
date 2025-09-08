@@ -1,5 +1,5 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { nearestScope } from "./util.js";
+import { nearestScope } from "./util.ts";
 
 export type TypeDeclarator =
   | TSESTree.TSInterfaceDeclaration

@@ -1,7 +1,7 @@
 import { afterAll, describe, it } from "vitest";
 import * as tsParser from "@typescript-eslint/parser";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import { rule } from "./no-unused-translation-ids-in-types.js";
+import { rule } from "./no-unused-translation-ids-in-types.ts";
 
 RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;

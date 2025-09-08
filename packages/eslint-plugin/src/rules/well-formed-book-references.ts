@@ -1,7 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { translationCallTracker } from "../common-trackers.js";
-import { lookupDefinitionSource } from "../def-location.js";
-import { capturedRoot } from "../tracker.js";
+import { translationCallTracker } from "../common-trackers.ts";
+import { lookupDefinitionSource } from "../def-location.ts";
+import { capturedRoot } from "../tracker.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "clarify-book-reference";

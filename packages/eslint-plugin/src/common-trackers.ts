@@ -1,4 +1,4 @@
-import { type CaptureMap, type GeneralizedNode, Tracker } from "./tracker.js";
+import { type CaptureMap, type GeneralizedNode, Tracker } from "./tracker.ts";
 
 export function bookTracker(): Tracker {
   const tracker = new Tracker();

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseMessage } from "./msgfmt-parser.js";
+import { parseMessage } from "./msgfmt-parser.ts";
 
 describe("parseMessage", () => {
   it("parses plain texts", () => {

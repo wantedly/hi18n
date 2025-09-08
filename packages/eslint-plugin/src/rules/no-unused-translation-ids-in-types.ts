@@ -1,8 +1,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { commentOut, getStaticKey } from "../util.js";
-import { findTypeDefinition } from "../ts-util.js";
-import { bookTracker } from "../common-trackers.js";
-import { queryUsedTranslationIds } from "../used-ids.js";
+import { commentOut, getStaticKey } from "../util.ts";
+import { findTypeDefinition } from "../ts-util.ts";
+import { bookTracker } from "../common-trackers.ts";
+import { queryUsedTranslationIds } from "../used-ids.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "unused-translation-id";

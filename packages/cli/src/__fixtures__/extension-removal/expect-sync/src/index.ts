@@ -1,6 +1,6 @@
 import { getTranslator, translationId } from "@hi18n/core";
 // Intentionally having .js extension
-import { book } from "./locale/index.js";
+import { book } from "./locale/index.ts";
 
 const { t } = getTranslator(book, "ja");
 t("example/greeting");

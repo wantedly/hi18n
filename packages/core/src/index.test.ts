@@ -16,7 +16,7 @@ import {
   MessageEvaluationError,
   MissingTranslationError,
   preloadCatalogs,
-} from "./index.js";
+} from "./index.ts";
 
 const nodeVersion = (globalThis as unknown as { process: { version: string } })
   .process.version;

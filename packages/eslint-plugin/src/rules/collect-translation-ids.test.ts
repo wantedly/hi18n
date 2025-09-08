@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import { type TranslationUsage, getRule } from "./collect-translation-ids.js";
+import { type TranslationUsage, getRule } from "./collect-translation-ids.ts";
 
 function getConfig(collected: TranslationUsage[]): TSESLint.FlatConfig.Config {
   return {

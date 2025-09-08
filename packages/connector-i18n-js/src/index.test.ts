@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import path from "node:path";
-import { connector } from "./index.js";
+import { connector } from "./index.ts";
 
 describe("importData", () => {
   it("imports data from config/locales", async () => {

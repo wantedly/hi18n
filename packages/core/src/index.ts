@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 
-import type { CompiledMessage } from "./msgfmt.js";
-import { type EvalOption, evaluateMessage } from "./msgfmt-eval.js";
-import { parseMessage } from "./msgfmt-parser.js";
+import type { CompiledMessage } from "./msgfmt.ts";
+import { type EvalOption, evaluateMessage } from "./msgfmt-eval.ts";
+import { parseMessage } from "./msgfmt-parser.ts";
 import type {
   ComponentPlaceholder,
   InferredMessageType,
-} from "./msgfmt-parser-types.js";
+} from "./msgfmt-parser-types.ts";
 import {
   MessageError,
   MissingLocaleError,
   MissingTranslationError,
   NoLocaleError,
-} from "./errors.js";
+} from "./errors.ts";
 import {
   defaultErrorHandler,
   type ErrorHandler,
   type ErrorLevel,
-} from "./error-handling.js";
+} from "./error-handling.ts";
 
-export type { ComponentPlaceholder } from "./msgfmt-parser-types.js";
-export * from "./errors.js";
-export * from "./error-handling.js";
+export type { ComponentPlaceholder } from "./msgfmt-parser-types.ts";
+export * from "./errors.ts";
+export * from "./error-handling.ts";
 
 declare const messageBrandSymbol: unique symbol;
 declare const translationIdBrandSymbol: unique symbol;

@@ -1,8 +1,8 @@
 import path from "node:path";
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { linguiTracker } from "../common-trackers.js";
-import { capturedRoot } from "../tracker.js";
-import { getStaticKey, nameOf } from "../util.js";
+import { linguiTracker } from "../common-trackers.ts";
+import { capturedRoot } from "../tracker.ts";
+import { getStaticKey, nameOf } from "../util.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "migrate-trans-jsx" | "migrate-underscore";

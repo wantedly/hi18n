@@ -2,7 +2,7 @@ import { afterAll, describe, it } from "vitest";
 import * as espree from "espree";
 import * as tsParser from "@typescript-eslint/parser";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import { rule } from "./well-formed-book-definitions.js";
+import { rule } from "./well-formed-book-definitions.ts";
 
 RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;

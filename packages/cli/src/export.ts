@@ -6,7 +6,7 @@ import {
   getCollectCatalogDefinitionsRule,
   type CatalogDef,
 } from "@hi18n/eslint-plugin/internal-rules";
-import { loadConfig } from "./config.js";
+import { loadConfig } from "./config.ts";
 import type { Hi18nCatalogData } from "@hi18n/tools-core";
 
 export type Options = {

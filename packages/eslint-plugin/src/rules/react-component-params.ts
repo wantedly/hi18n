@@ -1,6 +1,6 @@
 import { ESLintUtils, TSESTree, type TSESLint } from "@typescript-eslint/utils";
 import * as ts from "typescript";
-import { translationCallTracker } from "../common-trackers.js";
+import { translationCallTracker } from "../common-trackers.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds =
