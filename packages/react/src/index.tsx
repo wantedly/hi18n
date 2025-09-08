@@ -129,9 +129,7 @@ export function useI18n<M extends VocabularyBase>(
 
 export type BaseTranslateProps<
   Vocabulary extends VocabularyBase,
-  // TODO: restrict to string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  K extends keyof any,
+  K extends string,
 > = {
   /**
    * The book to look up in for the translation.
@@ -178,8 +176,7 @@ export type BaseTranslateProps<
 
 export type TranslateProps<
   M extends VocabularyBase,
-  // TODO: restrict to string
-  K extends keyof M,
+  K extends keyof M & string,
 > = BaseTranslateProps<M, K> &
   PartialForComponents<MessageArguments<M[K], React.ReactElement>>;
 
