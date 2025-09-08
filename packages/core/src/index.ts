@@ -258,12 +258,9 @@ export class Book<Vocabulary extends VocabularyBase> {
       if (typeof catalog === "function") continue;
 
       this.catalogs[locale] = catalog;
-      // @ts-expect-error deliberately breaking privacy
-      if (catalog._looseLocale) {
-        catalog.locale = locale;
-      } else if (catalog.locale !== locale) {
+      if (catalog.locale !== locale) {
         throw new Error(
-          `Locale mismatch: expected ${locale}, got ${catalog.locale!}`,
+          `Locale mismatch: expected ${locale}, got ${catalog.locale}`,
         );
       }
     }
@@ -290,12 +287,9 @@ export class Book<Vocabulary extends VocabularyBase> {
     if (typeof loader !== "function") return;
 
     const { default: catalog } = await loader();
-    // @ts-expect-error deliberately breaking privacy
-    if (catalog._looseLocale) {
-      catalog.locale = locale;
-    } else if (catalog.locale !== locale) {
+    if (catalog.locale !== locale) {
       throw new Error(
-        `Locale mismatch: expected ${locale}, got ${catalog.locale!}`,
+        `Locale mismatch: expected ${locale}, got ${catalog.locale}`,
       );
     }
     if (this.catalogs[locale] != null) return;
@@ -376,34 +370,19 @@ export type CatalogLoader<Vocabulary extends VocabularyBase> = () => Promise<{
  *   ```
  */
 export class Catalog<Vocabulary extends VocabularyBase> {
-  // TODO: make it non-nullish and readonly in 0.2.0
-  public locale?: string | undefined;
+  public readonly locale: string;
   public readonly data: Readonly<Vocabulary>;
-  // TODO: remove it in 0.2.0
-  private _looseLocale = false;
   private _compiled: Record<string, CompiledMessage> = {};
   /**
    * @since 0.1.6 (`@hi18n/core`)
    */
-  constructor(locale: string, data: Readonly<Vocabulary>);
-  /**
-   * @deprecated deprecated from 0.1.6. Please specify the locale.
-   * @since 0.1.0 (`@hi18n/core`)
-   */
-  constructor(data: Readonly<Vocabulary>);
-  constructor(
-    locale: string | Readonly<Vocabulary>,
-    data?: Readonly<Vocabulary>,
-  ) {
-    if (typeof locale === "object") {
-      // For backwards-compatibility
-      // TODO: remove it in 0.2.0
-      this.data = locale;
-      this._looseLocale = true;
-    } else {
-      this.locale = locale;
-      this.data = data!;
+  constructor(locale: string, data: Readonly<Vocabulary>) {
+    if (typeof locale !== "string") {
+      throw new TypeError("locale must be a string");
     }
+    this.locale = locale;
+    this.data = data!;
+
     // Migration work enabled in v0.2.0.
     // TODO: remove it in 0.3.0 and interpret string messages as raw messages.
     for (const [key, message] of Object.entries(this.data)) {
