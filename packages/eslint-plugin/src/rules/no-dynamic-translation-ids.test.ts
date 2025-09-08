@@ -1,7 +1,7 @@
 import { afterAll, describe, it } from "vitest";
 import * as espree from "espree";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import { rule } from "./no-dynamic-translation-ids.js";
+import { rule } from "./no-dynamic-translation-ids.ts";
 
 RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;

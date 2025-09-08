@@ -1,8 +1,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { getStaticKey } from "../util.js";
-import { catalogTracker, getCatalogData } from "../common-trackers.js";
-import { capturedRoot } from "../tracker.js";
-import { resolveAsLocation } from "../def-location.js";
+import { getStaticKey } from "../util.ts";
+import { catalogTracker, getCatalogData } from "../common-trackers.ts";
+import { capturedRoot } from "../tracker.ts";
+import { resolveAsLocation } from "../def-location.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds =

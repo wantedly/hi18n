@@ -2,7 +2,7 @@ import path from "node:path";
 import { afterAll, describe, it } from "vitest";
 import * as tsParser from "@typescript-eslint/parser";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import { rule } from "./react-component-params.js";
+import { rule } from "./react-component-params.ts";
 
 RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;

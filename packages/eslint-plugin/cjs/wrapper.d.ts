@@ -8,4 +8,4 @@ export type {
   Config,
   LegacyConfig,
   SharedConfigs,
-} from "./dist/index.js";
+} from "./dist/index.ts";

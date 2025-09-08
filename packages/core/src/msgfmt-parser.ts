@@ -1,4 +1,4 @@
-import { ParseError } from "./errors.js";
+import { ParseError } from "./errors.ts";
 import type {
   ArgType,
   CompiledMessage,
@@ -6,7 +6,7 @@ import type {
   PluralArg,
   PluralBranch,
   VarArg,
-} from "./msgfmt.js";
+} from "./msgfmt.ts";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
 

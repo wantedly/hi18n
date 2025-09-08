@@ -1,8 +1,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { catalogTracker, getCatalogData } from "../common-trackers.js";
-import { type DefLocation, resolveAsLocation } from "../def-location.js";
-import { type CaptureMap } from "../tracker.js";
-import { getStaticKey } from "../util.js";
+import { catalogTracker, getCatalogData } from "../common-trackers.ts";
+import { type DefLocation, resolveAsLocation } from "../def-location.ts";
+import { type CaptureMap } from "../tracker.ts";
+import { getStaticKey } from "../util.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 export type CatalogDef = {

@@ -1,8 +1,8 @@
 import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
-import { getStaticKey, lineIndent } from "../util.js";
-import { catalogTracker, getCatalogData } from "../common-trackers.js";
-import { parseComments, ParseError, Parser } from "../microparser.js";
-import { queryUsedTranslationIds } from "../used-ids.js";
+import { getStaticKey, lineIndent } from "../util.ts";
+import { catalogTracker, getCatalogData } from "../common-trackers.ts";
+import { parseComments, ParseError, Parser } from "../microparser.ts";
+import { queryUsedTranslationIds } from "../used-ids.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "missing-translation-ids";

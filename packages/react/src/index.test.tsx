@@ -15,7 +15,7 @@ import {
   translationId,
   type TranslatorObject,
 } from "@hi18n/core";
-import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
+import { LocaleProvider, Translate, useI18n, useLocales } from "./index.tsx";
 import type { ComponentPlaceholder } from "@hi18n/core";
 import { LocaleContext } from "@hi18n/react-context";
 

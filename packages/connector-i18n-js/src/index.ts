@@ -7,7 +7,7 @@ import type {
   Hi18nCatalogData,
   ConnectorObj,
 } from "@hi18n/tools-core";
-import { convertMessage, isMessage } from "./message.js";
+import { convertMessage, isMessage } from "./message.ts";
 
 export function connector(configPath: string, params: unknown): ConnectorObj {
   const { root: relativeRoot = ".", include = ["config/locales/*.yml"] } =

@@ -1,7 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { commentOut, getStaticKey } from "../util.js";
-import { catalogTracker, getCatalogData } from "../common-trackers.js";
-import { queryUsedTranslationIds } from "../used-ids.js";
+import { commentOut, getStaticKey } from "../util.ts";
+import { catalogTracker, getCatalogData } from "../common-trackers.ts";
+import { queryUsedTranslationIds } from "../used-ids.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "unused-translation-id";

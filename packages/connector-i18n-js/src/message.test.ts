@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { convertMessage } from "./message.js";
+import { convertMessage } from "./message.ts";
 
 describe("convertMessage", () => {
   it("converts a simple message", () => {

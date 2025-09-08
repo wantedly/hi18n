@@ -1,7 +1,7 @@
 import { afterAll, describe, it } from "vitest";
 import * as espree from "espree";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import { rule } from "./migrate-from-lingui.js";
+import { rule } from "./migrate-from-lingui.ts";
 
 RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;

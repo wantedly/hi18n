@@ -7,7 +7,7 @@ import {
 } from "@typescript-eslint/utils";
 import resolve from "resolve";
 import type { Connector } from "@hi18n/tools-core";
-import * as jsonMfConnector from "./json-mf-connector.js";
+import * as jsonMfConnector from "./json-mf-connector.ts";
 
 const explorer = cosmiconfig("hi18n");
 

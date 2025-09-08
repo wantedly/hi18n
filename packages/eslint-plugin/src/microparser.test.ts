@@ -4,7 +4,7 @@ import {
   isTSSignature,
   ParseError,
   tokenize,
-} from "./microparser.js";
+} from "./microparser.ts";
 
 describe("isProperty", () => {
   it("parses a property", () => {
