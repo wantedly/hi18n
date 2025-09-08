@@ -381,7 +381,7 @@ export class Catalog<Vocabulary extends VocabularyBase> {
       throw new TypeError("locale must be a string");
     }
     this.locale = locale;
-    this.data = data!;
+    this.data = data;
 
     // Migration work enabled in v0.2.0.
     // TODO: remove it in 0.3.0 and interpret string messages as raw messages.
