@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/connector-i18n-js",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Converter between i18n-js and @hi18n/core",
   "keywords": [
     "intl",

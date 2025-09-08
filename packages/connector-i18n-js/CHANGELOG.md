@@ -1,5 +1,12 @@
 # `@hi18n/connector-i18n-js`
 
+## 0.1.8
+
+### Patch Changes
+
+- e40e31c: chore(ts): enable verbatimModuleSyntax and isolatedDeclarations
+- 40b5c82: chore(ts): import ts files as \*.ts
+
 ## 0.1.7
 
 ### Patch Changes
