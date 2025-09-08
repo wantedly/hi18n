@@ -1,5 +1,15 @@
 # `@hi18n/cli`
 
+## 0.2.2
+
+### Patch Changes
+
+- e40e31c: chore(ts): enable verbatimModuleSyntax and isolatedDeclarations
+- 40b5c82: chore(ts): import ts files as \*.ts
+- Updated dependencies [e40e31c]
+- Updated dependencies [40b5c82]
+  - @hi18n/eslint-plugin@0.2.3
+
 ## 0.2.1
 
 ### Patch Changes

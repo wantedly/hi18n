@@ -1,5 +1,11 @@
 # `@hi18n/ts-plugin`
 
+## 0.1.5
+
+### Patch Changes
+
+- e40e31c: chore(ts): enable verbatimModuleSyntax and isolatedDeclarations
+
 ## 0.1.4
 
 ### Patch Changes

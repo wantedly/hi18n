@@ -1,5 +1,14 @@
 # `@hi18n/react`
 
+## 0.1.11
+
+### Patch Changes
+
+- e40e31c: chore(ts): enable verbatimModuleSyntax and isolatedDeclarations
+- Updated dependencies [e40e31c]
+- Updated dependencies [40b5c82]
+  - @hi18n/core@0.1.16
+
 ## 0.1.10
 
 ### Patch Changes
