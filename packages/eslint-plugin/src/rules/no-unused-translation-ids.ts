@@ -2,12 +2,17 @@ import type { TSESLint } from "@typescript-eslint/utils";
 import { commentOut, getStaticKey } from "../util.js";
 import { catalogTracker, getCatalogData } from "../common-trackers.js";
 import { queryUsedTranslationIds } from "../used-ids.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "unused-translation-id";
 type Options = [];
 
-export const rule = createRule<Options, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  Options,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<Options, MessageIds>({
   name: "no-unused-translation-ids",
   meta: {
     type: "suggestion",

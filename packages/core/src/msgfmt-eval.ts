@@ -1,10 +1,10 @@
-import { defaultErrorHandler, ErrorHandler } from "./error-handling.js";
+import { defaultErrorHandler, type ErrorHandler } from "./error-handling.js";
 import {
   ArgumentTypeError,
   MessageEvaluationError,
   MissingArgumentError,
 } from "./errors.js";
-import { CompiledMessage } from "./msgfmt.js";
+import type { CompiledMessage } from "./msgfmt.js";
 
 export type EvalOption<T> = {
   id?: string | undefined;

@@ -4,12 +4,17 @@ import { bookTracker } from "../common-trackers.js";
 import { findTypeDefinition } from "../ts-util.js";
 import { parseComments, ParseError, Parser } from "../microparser.js";
 import { queryUsedTranslationIds } from "../used-ids.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "missing-translation-ids";
 type Options = [];
 
-export const rule = createRule<Options, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  Options,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<Options, MessageIds>({
   name: "no-missing-translation-ids-in-types",
   meta: {
     type: "suggestion",

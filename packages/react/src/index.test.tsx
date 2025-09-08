@@ -10,13 +10,13 @@ import prettyFormat_, { plugins as prettyFormatPlugins } from "pretty-format";
 import {
   Book,
   Catalog,
-  Message,
+  type Message,
   msg,
   translationId,
-  TranslatorObject,
+  type TranslatorObject,
 } from "@hi18n/core";
 import { LocaleProvider, Translate, useI18n, useLocales } from "./index.js";
-import { ComponentPlaceholder } from "@hi18n/core";
+import type { ComponentPlaceholder } from "@hi18n/core";
 import { LocaleContext } from "@hi18n/react-context";
 
 const prettyFormat = prettyFormat_ as {

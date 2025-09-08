@@ -1,4 +1,4 @@
-import { Command, OutputConfiguration } from "commander";
+import { Command, type OutputConfiguration } from "commander";
 import { export_ } from "./export.js";
 import { sync } from "./sync.js";
 
@@ -7,7 +7,7 @@ export async function hi18n(
   cwd: string = process.cwd(),
   output?: OutputConfiguration,
   overrideExit?: boolean,
-) {
+): Promise<void> {
   const program = new Command();
 
   program.name("hi18n").description("CLI for managing translations with hi18n");

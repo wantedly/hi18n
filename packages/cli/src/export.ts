@@ -4,16 +4,16 @@ import { glob } from "glob";
 import { TSESLint } from "@typescript-eslint/utils";
 import {
   getCollectCatalogDefinitionsRule,
-  CatalogDef,
+  type CatalogDef,
 } from "@hi18n/eslint-plugin/internal-rules";
 import { loadConfig } from "./config.js";
-import { Hi18nCatalogData } from "@hi18n/tools-core";
+import type { Hi18nCatalogData } from "@hi18n/tools-core";
 
 export type Options = {
   cwd: string;
 };
 
-export async function export_(options: Options) {
+export async function export_(options: Options): Promise<void> {
   const { cwd } = options;
   const config = await loadConfig(cwd);
   const include = config.include;

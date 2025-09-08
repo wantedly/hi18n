@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 
-import { CompiledMessage } from "./msgfmt.js";
-import { EvalOption, evaluateMessage } from "./msgfmt-eval.js";
+import type { CompiledMessage } from "./msgfmt.js";
+import { type EvalOption, evaluateMessage } from "./msgfmt-eval.js";
 import { parseMessage } from "./msgfmt-parser.js";
 import type {
   ComponentPlaceholder,
@@ -15,8 +15,8 @@ import {
 } from "./errors.js";
 import {
   defaultErrorHandler,
-  ErrorHandler,
-  ErrorLevel,
+  type ErrorHandler,
+  type ErrorLevel,
 } from "./error-handling.js";
 
 export type { ComponentPlaceholder } from "./msgfmt-parser-types.js";
@@ -131,6 +131,11 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
   return s as InferredMessageType<S>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace msg {
+  export function todo<S extends string>(s: S): InferredMessageType<S>;
+}
+
 /**
  * Same as {@link msg} but can be used to indicate an untranslated state.
  *
@@ -150,7 +155,7 @@ export function msg<S extends string>(s: S): InferredMessageType<S> {
  */
 msg.todo = function todo<S extends string>(s: S): InferredMessageType<S> {
   return s as InferredMessageType<S>;
-};
+} satisfies unknown;
 
 /**
  * Marks a translation id as dynamically used with {@link CompoundTranslatorFunction.dynamic t.dynamic}.
@@ -293,7 +298,7 @@ export class Book<Vocabulary extends VocabularyBase> {
     this.catalogs[locale] = catalog;
   }
 
-  public handleError(e: Error, level: ErrorLevel) {
+  public handleError(e: Error, level: ErrorLevel): void {
     (this._handleError ?? defaultErrorHandler)(e, level);
   }
 }

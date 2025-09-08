@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vitest } from "vitest";
-import { CompiledMessage } from "./msgfmt.js";
+import type { CompiledMessage } from "./msgfmt.js";
 import { evaluateMessage } from "./msgfmt-eval.js";
-import { ErrorHandler } from "./error-handling.js";
+import type { ErrorHandler } from "./error-handling.js";
 
 describe("evaluageMessage", () => {
   it("evaluates a string", () => {

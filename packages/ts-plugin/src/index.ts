@@ -5,10 +5,12 @@ type Config = {
   locales: string[];
 };
 
-function init(modules: { typescript: typeof import("typescript") }) {
+function init(modules: { typescript: typeof import("typescript") }): {
+  create: (info: ts.server.PluginCreateInfo) => ts.LanguageService;
+} {
   const ts = modules.typescript;
 
-  function create(info: ts.server.PluginCreateInfo) {
+  function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     info.project.projectService.logger.info("Setting up @hi18n/ts-plugin");
 
     const localesToShow = (info.config as Config).locales || ["en"];

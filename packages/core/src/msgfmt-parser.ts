@@ -1,5 +1,5 @@
 import { ParseError } from "./errors.js";
-import {
+import type {
   ArgType,
   CompiledMessage,
   ElementArg,

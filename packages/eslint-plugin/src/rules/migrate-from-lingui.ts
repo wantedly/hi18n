@@ -3,7 +3,7 @@ import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { linguiTracker } from "../common-trackers.js";
 import { capturedRoot } from "../tracker.js";
 import { getStaticKey, nameOf } from "../util.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "migrate-trans-jsx" | "migrate-underscore";
 type OptionList = [Options];
@@ -12,7 +12,12 @@ type Options = {
   bookPath: string;
 };
 
-export const rule = createRule<OptionList, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  OptionList,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<OptionList, MessageIds>({
   name: "migrate-from-lingui",
   meta: {
     type: "problem",

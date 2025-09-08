@@ -9,7 +9,7 @@ import { bookTracker } from "../common-trackers.js";
 import { capturedRoot } from "../tracker.js";
 import { resolveAsLocation } from "../def-location.js";
 import { getCatalogRef } from "../book-util.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds =
   | "expose-book"
@@ -21,7 +21,12 @@ type MessageIds =
   | "catalog-type-must-contain-only-simple-signatures";
 type Options = [];
 
-export const rule = createRule<Options, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  Options,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<Options, MessageIds>({
   name: "well-formed-book-definitions",
   meta: {
     type: "problem",

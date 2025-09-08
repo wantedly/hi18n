@@ -3,7 +3,7 @@ import { getStaticKey } from "../util.js";
 import { catalogTracker, getCatalogData } from "../common-trackers.js";
 import { capturedRoot } from "../tracker.js";
 import { resolveAsLocation } from "../def-location.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds =
   | "expose-catalog"
@@ -12,7 +12,12 @@ type MessageIds =
   | "catalog-data-invalid-id";
 type Options = [];
 
-export const rule = createRule<Options, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  Options,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<Options, MessageIds>({
   name: "well-formed-catalog-definitions",
   meta: {
     type: "problem",

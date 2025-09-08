@@ -3,9 +3,17 @@ import fse from "fs-extra";
 import os from "node:os";
 import path from "node:path";
 import { glob } from "glob";
-import { OutputConfiguration } from "commander";
+import type { OutputConfiguration } from "commander";
 
-export function initFixtures(dir: string) {
+export type InitFixturesResult = {
+  withProject: <T>(
+    fixtureName: string,
+    expectName: string,
+    cb: (cwd: string) => Promise<T>,
+  ) => Promise<T>;
+};
+
+export function initFixtures(dir: string): InitFixturesResult {
   const fixturesDir = path.resolve(dir, "__fixtures__");
 
   async function withProject<T>(
