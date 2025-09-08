@@ -2,12 +2,12 @@ import type { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { getStaticKey } from "../util.js";
 import { bookTracker } from "../common-trackers.js";
 import {
-  DefLocation,
-  DefReference,
+  type DefLocation,
+  type DefReference,
   resolveAsLocation,
 } from "../def-location.js";
 import { getCatalogRef } from "../book-util.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 export type BookDef = {
   bookLocation: DefLocation;
@@ -22,7 +22,9 @@ export type BookDefCallback = (record: BookDef) => void;
 type MessageIds = never;
 type Options = [];
 
-export function getRule(cb: BookDefCallback) {
+export function getRule(
+  cb: BookDefCallback,
+): TSESLint.RuleModule<MessageIds, Options, PluginDocs, TSESLint.RuleListener> {
   if (typeof cb !== "function") {
     throw new Error("invalid callback");
   }

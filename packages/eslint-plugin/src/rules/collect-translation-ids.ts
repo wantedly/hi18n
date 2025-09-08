@@ -1,7 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { translationCallTracker } from "../common-trackers.js";
-import { DefReference, lookupDefinitionSource } from "../def-location.js";
-import { createRule } from "./create-rule.ts";
+import { type DefReference, lookupDefinitionSource } from "../def-location.js";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 export type TranslationUsage = {
   id: string;
@@ -12,7 +12,9 @@ export type CollectTranslationIdsCallback = (record: TranslationUsage) => void;
 type MessageIds = never;
 type Options = [];
 
-export function getRule(collectIdsCallback: CollectTranslationIdsCallback) {
+export function getRule(
+  collectIdsCallback: CollectTranslationIdsCallback,
+): TSESLint.RuleModule<MessageIds, Options, PluginDocs, TSESLint.RuleListener> {
   if (typeof collectIdsCallback !== "function") {
     throw new Error("invalid callback");
   }

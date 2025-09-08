@@ -502,7 +502,7 @@ export class Parser {
   }
   isPunct(
     punct: string,
-    token = this.nextToken(),
+    token: TSESTree.Token | { type: "EOF" } = this.nextToken(),
   ): token is TSESTree.Token & { type: "Punctuator" } {
     return token.type === "Punctuator" && token.value === punct;
   }
@@ -514,7 +514,7 @@ export class Parser {
       return false;
     }
   }
-  expectPunct(punct: string) {
+  expectPunct(punct: string): void {
     if (!this.tryPunct(punct)) throw new ParseError();
   }
   isSemi(): boolean {
@@ -534,7 +534,7 @@ export class Parser {
       return this.isSemi();
     }
   }
-  expectSemi() {
+  expectSemi(): void {
     if (!this.trySemi()) throw new ParseError();
   }
 }

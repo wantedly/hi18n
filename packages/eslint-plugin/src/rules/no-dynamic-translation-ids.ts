@@ -1,12 +1,17 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { translationCallTracker } from "../common-trackers.js";
 import { capturedRoot } from "../tracker.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds = "no-dynamic-keys";
 type Options = [];
 
-export const rule = createRule<Options, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  Options,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<Options, MessageIds>({
   name: "no-dynamic-translation-ids",
   meta: {
     type: "problem",

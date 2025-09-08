@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TSESLint } from "@typescript-eslint/utils";
-import { CatalogDef, getRule } from "./collect-catalog-definitions.js";
+import { type CatalogDef, getRule } from "./collect-catalog-definitions.js";
 
 function getConfig(
   collected: CatalogDef[],

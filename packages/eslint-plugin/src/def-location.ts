@@ -89,7 +89,7 @@ export type DefReference =
       localName: string;
     };
 
-export function serializeReference(ref: DefReference) {
+export function serializeReference(ref: DefReference): string {
   if (ref.path !== undefined) {
     return `${ref.path}?exported=${ref.exportName}`;
   } else {

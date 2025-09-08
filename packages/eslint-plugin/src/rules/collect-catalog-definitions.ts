@@ -1,9 +1,9 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { catalogTracker, getCatalogData } from "../common-trackers.js";
-import { DefLocation, resolveAsLocation } from "../def-location.js";
-import { CaptureMap } from "../tracker.js";
+import { type DefLocation, resolveAsLocation } from "../def-location.js";
+import { type CaptureMap } from "../tracker.js";
 import { getStaticKey } from "../util.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 export type CatalogDef = {
   locale?: string | undefined;
@@ -22,7 +22,14 @@ export type OptionList = [Options?];
 
 type MessageIds = never;
 
-export function getRule(cb: CatalogDefCallback) {
+export function getRule(
+  cb: CatalogDefCallback,
+): TSESLint.RuleModule<
+  MessageIds,
+  OptionList,
+  PluginDocs,
+  TSESLint.RuleListener
+> {
   if (typeof cb !== "function") {
     throw new Error("invalid callback");
   }

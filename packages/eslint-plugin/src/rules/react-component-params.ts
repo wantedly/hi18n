@@ -1,7 +1,7 @@
 import { ESLintUtils, TSESTree, type TSESLint } from "@typescript-eslint/utils";
 import * as ts from "typescript";
 import { translationCallTracker } from "../common-trackers.js";
-import { createRule } from "./create-rule.ts";
+import { createRule, type PluginDocs } from "./create-rule.ts";
 
 type MessageIds =
   | "invalid-signature"
@@ -9,7 +9,12 @@ type MessageIds =
   | "extra-component-argument";
 type Options = [];
 
-export const rule = createRule<Options, MessageIds>({
+export const rule: TSESLint.RuleModule<
+  MessageIds,
+  Options,
+  PluginDocs,
+  TSESLint.RuleListener
+> = createRule<Options, MessageIds>({
   name: "react-component-params",
   meta: {
     type: "problem",

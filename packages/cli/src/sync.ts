@@ -13,9 +13,9 @@ import {
   noUnusedTranslationIdsRule,
   serializedLocations,
   serializeReference,
-  BookDef,
-  CatalogDef,
-  TranslationUsage,
+  type BookDef,
+  type CatalogDef,
+  type TranslationUsage,
 } from "@hi18n/eslint-plugin/internal-rules";
 import { loadConfig } from "./config.js";
 
@@ -26,7 +26,7 @@ export type Options = {
   checkOnly?: boolean | undefined;
 };
 
-export async function sync(options: Options) {
+export async function sync(options: Options): Promise<void> {
   const {
     cwd: projectPath,
     include: includeFromOpt,

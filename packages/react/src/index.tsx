@@ -2,13 +2,13 @@ import React from "react";
 import { LocaleContext } from "@hi18n/react-context";
 import {
   Book,
-  VocabularyBase,
-  TranslationId,
-  TranslatorObject,
-  MessageArguments,
+  type VocabularyBase,
+  type TranslationId,
+  type TranslatorObject,
+  type MessageArguments,
   getTranslator,
-  InstantiateComponentTypes,
-  ComponentInterpolator,
+  type InstantiateComponentTypes,
+  type ComponentInterpolator,
 } from "@hi18n/core";
 
 export { LocaleContext } from "@hi18n/react-context";
@@ -264,6 +264,17 @@ export function Translate<M extends VocabularyBase, K extends string & keyof M>(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export declare namespace Translate {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  export function Dynamic<Vocabulary extends VocabularyBase, Args = {}>(
+    props: DynamicTranslateProps<Vocabulary, Args>,
+  ): React.ReactElement | null;
+  export function Todo<Vocabulary extends VocabularyBase>(
+    props: TodoTranslateProps<Vocabulary>,
+  ): React.ReactElement | null;
+}
+
 export type DynamicTranslateProps<
   Vocabulary extends VocabularyBase,
   Args,
@@ -311,7 +322,7 @@ Translate.Todo = function Todo<Vocabulary extends VocabularyBase>(
   props: TodoTranslateProps<Vocabulary>,
 ): React.ReactElement | null {
   return <>[TODO: {props.id}]</>;
-};
+} satisfies unknown;
 
 // <Translate>foo<a/> <strong>bar</strong> </Translate> => { 0: <a/>, 1: <strong/> }
 // <Translate><strong><em></em></strong></Translate> => { 0: <strong/>, 1: <em/> }

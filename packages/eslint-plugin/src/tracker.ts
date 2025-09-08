@@ -14,7 +14,7 @@ export class Tracker {
   jsxClosure?: Set<string> | undefined;
   jsxBindings?: Map<TSESLint.Scope.Variable, TSESTree.JSXIdentifier[]>;
 
-  watchImport(source: string, watchAs: string = `import("${source}")`) {
+  watchImport(source: string, watchAs: string = `import("${source}")`): void {
     if (Object.prototype.hasOwnProperty.call(this.watchingImports, source)) {
       this.watchingImports[source]!.push(watchAs);
     } else {
@@ -26,7 +26,7 @@ export class Tracker {
     resName: string,
     memberName: string,
     watchAs: string = `${resName}.${memberName}`,
-  ) {
+  ): void {
     const res = this.getResourceHooks(resName);
     if (Object.prototype.hasOwnProperty.call(res.members, memberName)) {
       res.members[memberName]!.push(watchAs);
@@ -40,7 +40,7 @@ export class Tracker {
     resName: string,
     captures: CaptureSpec[] = [],
     watchAs: string = `${resName}()`,
-  ) {
+  ): void {
     const resHooks = this.getResourceHooks(resName);
     resHooks.calls.push({ resName: watchAs, captures });
   }
@@ -48,7 +48,7 @@ export class Tracker {
     resName: string,
     captures: CaptureSpec[] = [],
     watchAs: string = `new ${resName}()`,
-  ) {
+  ): void {
     const resHooks = this.getResourceHooks(resName);
     resHooks.constructs.push({ resName: watchAs, captures });
   }
@@ -56,7 +56,7 @@ export class Tracker {
     resName: string,
     captures: CaptureSpec[] = [],
     watchAs: string = `<${resName} />`,
-  ) {
+  ): void {
     const resHooks = this.getResourceHooks(resName);
     resHooks.jsxElements.push({ resName: watchAs, captures });
     // Invalidate
@@ -79,10 +79,10 @@ export class Tracker {
   listen(
     resName: string,
     listener: (node: TSESTree.Node, captured: CaptureMap) => void,
-  ) {
+  ): void {
     this.getResourceHooks(resName).listeners.push(listener);
   }
-  private fire(res: Resource, node: TSESTree.Node) {
+  private fire(res: Resource, node: TSESTree.Node): void {
     for (const resName of res.resNames) {
       for (const listener of this.getResourceHooks(resName).listeners) {
         listener(node, res.captured);
@@ -93,7 +93,7 @@ export class Tracker {
   trackImport(
     scopeManager: TSESLint.Scope.ScopeManager,
     node: TSESTree.ImportDeclaration,
-  ) {
+  ): void {
     if (typeof node.source.value !== "string") return;
     if (
       !Object.prototype.hasOwnProperty.call(

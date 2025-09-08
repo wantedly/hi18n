@@ -15,7 +15,7 @@ export type ErrorHandler = (e: Error, level: ErrorLevel) => void;
  *
  * @since 0.1.7 (`@hi18n/core`)
  */
-export function defaultErrorHandler(e: Error, level: ErrorLevel) {
+export function defaultErrorHandler(e: Error, level: ErrorLevel): void {
   switch (level) {
     case "error":
       throw e;
