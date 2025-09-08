@@ -1,5 +1,55 @@
 # `@hi18n/core`
 
+## 0.2.0
+
+### Migration Guide
+
+#### Removed deprecated Catalog constructor overload
+
+Now you cannot do this:
+
+```typescript
+const catalogEn = new Catalog<Vocabulary>({
+  "example/greeting": msg("Hello, {name}!"),
+});
+```
+
+Instead, put the language tag in the first argument.
+It should match the tag used when building the Book instance.
+
+```typescript
+const catalogEn = new Catalog<Vocabulary>("en", {
+  "example/greeting": msg("Hello, {name}!"),
+});
+```
+
+#### Use of `msg()` is now mandatory when building a Catalog
+
+Now you cannot do this:
+
+```javascript
+import { Catalog } from "@hi18n/core";
+
+const catalogEn = new Catalog("en", {
+  "example/greeting": "Hello, {name}!",
+});
+```
+
+Instead, you must wrap the message in `msg()` utility.
+
+```javascript
+import { Catalog, msg } from "@hi18n/core";
+
+const catalogEn = new Catalog("en", {
+  "example/greeting": msg("Hello, {name}!"),
+});
+```
+
+### Minor Changes
+
+- 1ddccf8: BREAKING CHANGE: remove deprecated Catalog constructor overload
+- d44fd6d: feat(core)!: require use of msg()
+
 ## 0.1.16
 
 ### Patch Changes

@@ -1,5 +1,40 @@
 # `@hi18n/react`
 
+## 0.2.0
+
+### Migration Guide
+
+#### `@hi18n/core` is now a peer dependency and requires v0.2.0 or later
+
+Now `@hi18n/core` is a peer dependency.
+
+This means effectively nothing to you because you should already be depending on `@hi18n/core`
+due to the library's nature.
+
+Additionally, it requires v0.2.0 or later. See `@hi18n/core`'s changelog for migrating it.
+
+#### Changes in context propagation
+
+`@hi18n/react` now puts an array of locales directly, rather than concatenating them into one string.
+
+Therefore, the same context cannot be shared between `@hi18n/react >= 0.2.0` and `@hi18n/react < 0.1.7`.
+
+Due to type changes, you also need to update `@hi18n/react-context`.
+
+### Minor Changes
+
+- 90223e7: fix(react)!: restrict key type
+- 893fd17: fix(react)!: change how locales are propagated
+- 63c91ed: chore(react)!: promote @hi18n/core as a peer dependency
+
+### Patch Changes
+
+- Updated dependencies [1ddccf8]
+- Updated dependencies [d44fd6d]
+- Updated dependencies [893fd17]
+  - @hi18n/core@0.2.0
+  - @hi18n/react-context@0.2.0
+
 ## 0.1.11
 
 ### Patch Changes
