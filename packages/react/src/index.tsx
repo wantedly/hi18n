@@ -39,8 +39,12 @@ export const LocaleProvider: React.FC<{
   const concatenatedLocales = Array.isArray(locales)
     ? locales.join("\n")
     : locales;
+  const memoizedLocales = React.useMemo(
+    () => (concatenatedLocales === "" ? [] : concatenatedLocales.split("\n")),
+    [concatenatedLocales],
+  );
   return (
-    <LocaleContext.Provider value={concatenatedLocales}>
+    <LocaleContext.Provider value={memoizedLocales}>
       {children}
     </LocaleContext.Provider>
   );
@@ -71,8 +75,10 @@ export const LocaleProvider: React.FC<{
 export function useLocales(): string[] {
   // Extending string -> string | readonly string[]
   // to future-proof changes in how context is propagated.
-  const localesConcat: string | readonly string[] =
-    React.useContext(LocaleContext);
+  // Also, removing "readonly" here to correctly type Array.isArray assertion.
+  const localesConcat: string | string[] = React.useContext(LocaleContext) as
+    | string
+    | string[];
   const locales = React.useMemo(
     () =>
       Array.isArray(localesConcat)
