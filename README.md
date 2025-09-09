@@ -219,7 +219,7 @@ Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/
 - Interpolation: `Hello, {name}!`
 - Interleaving with markups: `Please <link>read the license agreement</link> before continuing.`
 
-See [formatting.md](docs/formatting.md) for more details.
+See [msgfmt.md](docs/msgfmt.md) for more details.
 
 ## Loading only a specific language
 
