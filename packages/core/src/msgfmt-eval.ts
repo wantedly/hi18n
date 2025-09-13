@@ -63,8 +63,8 @@ export function evaluateMessage<T = string>(
         }
         const offsetValue =
           typeof value === "bigint"
-            ? value - BigInt(msg.subtract ?? 0)
-            : value - (msg.subtract ?? 0);
+            ? value - BigInt(msg.subtract)
+            : value - msg.subtract;
         // TODO: Remove this fallback because it is nowadays widely supported.
         if (typeof Intl === "undefined" || !Intl.NumberFormat) {
           const fallback = numberFormatFallback(offsetValue, msg.argStyle);
@@ -117,9 +117,9 @@ export function evaluateMessage<T = string>(
       });
     }
     if (typeof value === "number") {
-      relativeValue = value - (msg.subtract ?? 0);
+      relativeValue = value - msg.subtract;
     } else if (typeof value === "bigint") {
-      relativeValue = value - BigInt(msg.subtract ?? 0);
+      relativeValue = value - BigInt(msg.subtract);
     } else {
       throw new ArgumentTypeError({
         argName: msg.name,
