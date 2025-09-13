@@ -1,49 +1,38 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 
-import type { CompiledMessage } from "./msgfmt.ts";
+import {
+  DeferredParseError,
+  destringify,
+  type CompiledMessage,
+} from "./msgfmt.ts";
 import { type EvalOption, evaluateMessage } from "./msgfmt-eval.ts";
 import { parseMessage } from "./msgfmt-parser.ts";
-import type {
-  ComponentPlaceholder,
-  InferredMessageType,
-} from "./msgfmt-parser-types.ts";
+import type { InferredMessageType } from "./msgfmt-parser-types.ts";
 import {
   MessageError,
   MissingLocaleError,
   MissingTranslationError,
   NoLocaleError,
+  ParseError,
 } from "./errors.ts";
 import {
   defaultErrorHandler,
   type ErrorHandler,
   type ErrorLevel,
 } from "./error-handling.ts";
+import {
+  unwrap,
+  wrap,
+  type ComponentPlaceholder,
+  type Message,
+} from "./opaque.ts";
+import { msg as msgTag } from "./msg.ts";
 
-export type { ComponentPlaceholder } from "./msgfmt-parser-types.ts";
+export type { ComponentPlaceholder, Message } from "./opaque.ts";
 export * from "./errors.ts";
 export * from "./error-handling.ts";
 
-declare const messageBrandSymbol: unique symbol;
 declare const translationIdBrandSymbol: unique symbol;
-
-/**
- * An opaque type that represents translation messages.
- *
- * @param Args parameters required by this message
- *
- * @since 0.1.0 (`@hi18n/core`)
- */
-export type Message<Args = {}> = {
-  [messageBrandSymbol]: (args: Args) => void;
-};
-
-type InternalMessage = {
-  type: "Msg";
-  value: string;
-};
-function InternalMessage(value: string): InternalMessage {
-  return { type: "Msg", value };
-}
 
 /**
  * A base type for a vocabulary.
@@ -118,13 +107,18 @@ export type SimpleMessageKeys<
     : never
   : never;
 
+// TODO: remove `msg` compat function in 0.3.0
+
+// TODO: deprecate the function once the ESLint part is ready.
 /**
  * Wraps a MessageFormat message string in a wrapper object.
  *
  * @param s the translated message
- * @returns the first argument
+ * @returns the compiled message object
  *
  * @since 0.1.0 (`@hi18n/core`)
+ *
+ * You can also use the `mf1` function from `@hi18n/core/msg` instead.
  *
  * @example
  *   ```ts
@@ -133,32 +127,93 @@ export type SimpleMessageKeys<
  *   });
  *   ```
  */
-export function msg<S extends string>(s: S): InferredMessageType<S> {
-  return InternalMessage(s) as InferredMessageType<S>;
+export function msg<S extends string>(s: S): InferredMessageType<S>;
+
+// TODO: deprecate the function once the ESLint part is ready.
+/**
+ * A tagged template function to construct a type-safe message object.
+ *
+ * Note the difference from the `msg` function used in a functional way
+ * (i.e. `msg("...")`):
+ *
+ * - The functional form takes a single string argument
+ *   and parses it as an ICU MessageFormat 1.0 message.
+ * - This overload is a tagged template function that takes
+ *   template strings and embedded expressions. The string parts
+ *   are treated as literal strings, so MessageFormat escapes are not interpreted.
+ *   Instead, you can use other helper functions from `@hi18n/core/msg`
+ *   (e.g. `arg`) to construct complex messages.
+ *
+ * You can also use the `msg` template tag from `@hi18n/core/msg` instead.
+ *
+ * @since 0.2.1 (`@hi18n/core`)
+ *
+ * @example
+ *   ```ts
+ *   const catalogEn = new Catalog("en", {
+ *     greeting: msg`Hello, ${arg("name")}!`,
+ *   });
+ *   ```
+ */
+export function msg<const Exprs extends Message<never>[]>(
+  strings: TemplateStringsArray,
+  ...exprs: Exprs
+): Message<Exprs extends Message<infer T>[] ? { [K in keyof T]: T[K] } : never>;
+
+export function msg(
+  x: string | TemplateStringsArray,
+  ...exprs: Message<never>[]
+): Message<never> {
+  if (Array.isArray(x)) {
+    const strings = x as TemplateStringsArray;
+    if (Array.isArray(strings.raw)) {
+      return msgTag(strings, ...exprs);
+    }
+  }
+
+  const s = x as string;
+  try {
+    return wrap(destringify(parseMessage(s)));
+  } catch (e) {
+    if (e instanceof ParseError) {
+      return wrap(DeferredParseError(s, e));
+    }
+    throw e;
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export declare namespace msg {
+  /**
+   * Same as {@link msg} but can be used to indicate an untranslated state.
+   *
+   * @param s the translated message
+   * @returns the first argument
+   *
+   * @since 0.1.3 (`@hi18n/core`)
+   *
+   * @deprecated use the `todo` function from `@hi18n/core/msg` (which is a simple identity function)
+   *   combined with `mf1` from `@hi18n/core/msg` instead.
+   *
+   * @example
+   *   ```ts
+   *   export default new Book<Vocabulary>({
+   *     "example/greeting": msg.todo("Hello, {name}!"),
+   *   });
+   *   ```
+   */
   export function todo<S extends string>(s: S): InferredMessageType<S>;
 }
 
-/**
- * Same as {@link msg} but can be used to indicate an untranslated state.
- *
- * @param s the translated message
- * @returns the first argument
- *
- * @since 0.1.3 (`@hi18n/core`)
- *
- * @example
- *   ```ts
- *   export default new Book<Vocabulary>({
- *     "example/greeting": msg.todo("Hello, {name}!"),
- *   });
- *   ```
- */
 msg.todo = function todo<S extends string>(s: S): InferredMessageType<S> {
-  return InternalMessage(s) as InferredMessageType<S>;
+  try {
+    return wrap(destringify(parseMessage(s))) as InferredMessageType<S>;
+  } catch (e) {
+    if (e instanceof ParseError) {
+      return wrap(DeferredParseError(s, e)) as InferredMessageType<S>;
+    }
+    throw e;
+  }
 } satisfies unknown;
 
 /**
@@ -372,7 +427,6 @@ export type CatalogLoader<Vocabulary extends VocabularyBase> = () => Promise<{
 export class Catalog<Vocabulary extends VocabularyBase> {
   public readonly locale: string;
   public readonly data: Readonly<Vocabulary>;
-  private _compiled: Record<string, CompiledMessage> = {};
   /**
    * @since 0.1.6 (`@hi18n/core`)
    */
@@ -395,16 +449,10 @@ export class Catalog<Vocabulary extends VocabularyBase> {
   }
 
   getCompiledMessage(id: string & keyof Vocabulary): CompiledMessage {
-    if (!hasOwn(this._compiled, id)) {
-      if (!hasOwn(this.data, id)) {
-        throw new MissingTranslationError();
-      }
-      const msg: Message<unknown> = this.data[id];
-      this._compiled[id] = parseMessage(
-        (msg as unknown as InternalMessage).value,
-      );
+    if (!hasOwn(this.data, id)) {
+      throw new MissingTranslationError();
     }
-    return this._compiled[id]!;
+    return unwrap(this.data[id]);
   }
 }
 

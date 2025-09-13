@@ -1,4 +1,4 @@
-# Message syntax
+# Message syntax (MessageFormat 1.0)
 
 Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/).
 

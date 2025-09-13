@@ -1,11 +1,13 @@
 import { ParseError } from "./errors.ts";
-import type {
-  ArgType,
-  CompiledMessage,
-  ElementArg,
-  PluralArg,
-  PluralBranch,
-  VarArg,
+import {
+  DateTimeArg,
+  NumberArg,
+  StringArg,
+  type CompiledMessage,
+  type ElementArg,
+  type PluralArg,
+  type PluralBranch,
+  type VarArg,
 } from "./msgfmt.ts";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
@@ -15,15 +17,9 @@ export function parseMessage(msg: string): CompiledMessage {
   return parseMessageEOF.call(createParser(msg));
 }
 
-const ARG_TYPES = ["number", "date", "time", "spellout", "ordinal", "duration"];
-const ARG_STYLES: Record<ArgType, string[]> = {
-  number: ["integer", "currency", "percent"],
-  date: ["short", "medium", "long", "full"],
-  time: ["short", "medium", "long", "full"],
-  spellout: [],
-  ordinal: [],
-  duration: [],
-};
+type ArgType = "number" | "date" | "time";
+
+const ARG_TYPES = ["number", "date", "time"];
 
 // References for ICU MessageFormat syntax:
 // https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/MessageFormat.html
@@ -44,7 +40,7 @@ function createParser(src: string): Parser {
 }
 
 function parseMessageEOF(this: Parser): CompiledMessage {
-  const msg = parseMessage_.call(this, false);
+  const msg = parseMessage_.call(this);
   if (this.pos < this.src.length) {
     throw new ParseError(`Found an unmatching ${this.src[this.pos]!}`);
   }
@@ -53,16 +49,19 @@ function parseMessageEOF(this: Parser): CompiledMessage {
 
 // message = messageText (argument messageText)*
 // The grammar doesn't mention it but it should also have '#' as a special interpolation.
-function parseMessage_(this: Parser, allowHash: boolean): CompiledMessage {
+function parseMessage_(this: Parser, hashSubst?: VarArg): CompiledMessage {
   const buf: CompiledMessage[] = [];
-  pushString(buf, parseMessageText.call(this, allowHash));
+  pushString(buf, parseMessageText.call(this, hashSubst == null));
   outer: while (this.pos < this.src.length && this.src[this.pos] !== "}") {
     switch (this.src[this.pos]) {
       case "{":
         buf.push(parseArgument.call(this));
         break;
       case "#":
-        buf.push({ type: "Number" });
+        if (!hashSubst) {
+          throw new Error("Bug: # found outside plural argument");
+        }
+        buf.push(hashSubst);
         this.pos++;
         break;
       case "<":
@@ -71,7 +70,7 @@ function parseMessage_(this: Parser, allowHash: boolean): CompiledMessage {
           break outer;
         } else {
           // <tag> or <tag/>
-          buf.push(parseElement.call(this, allowHash));
+          buf.push(parseElement.call(this, hashSubst));
         }
         break;
       default:
@@ -79,7 +78,7 @@ function parseMessage_(this: Parser, allowHash: boolean): CompiledMessage {
           `Bug: invalid syntax character: ${this.src[this.pos]!}`,
         );
     }
-    pushString(buf, parseMessageText.call(this, allowHash));
+    pushString(buf, parseMessageText.call(this, hashSubst == null));
   }
   return reduceMessage(buf);
 }
@@ -152,7 +151,7 @@ function parseArgument(this: Parser): CompiledMessage {
     ] as const)[0]
   ) {
     case "}":
-      return { type: "Var", name };
+      return StringArg(name);
     case ",": {
       const argType_ = nextToken.call(this, ["identifier"] as const)[1];
       switch (argType_) {
@@ -177,7 +176,7 @@ function parseArgument(this: Parser): CompiledMessage {
             )[0]
           ) {
             case "}":
-              return { type: "Var", name, argType };
+              return fromArgTypeAndStyle(name, argType, undefined);
             case ",": {
               const argStyleToken = nextToken.call<
                 Parser,
@@ -187,18 +186,8 @@ function parseArgument(this: Parser): CompiledMessage {
               switch (argStyleToken[0]) {
                 case "identifier": {
                   const argStyle = argStyleToken[1];
-                  if (ARG_STYLES[argType].indexOf(argStyle) === -1) {
-                    throw new ParseError(
-                      `Invalid argStyle for ${argType}: ${argStyle}`,
-                    );
-                  }
                   nextToken.call(this, ["}"] as const);
-                  return {
-                    type: "Var",
-                    name,
-                    argType,
-                    argStyle,
-                  } as VarArg;
+                  return fromArgTypeAndStyle(name, argType, argStyle);
                 }
                 case "::": {
                   if (argType !== "date") {
@@ -209,12 +198,7 @@ function parseArgument(this: Parser): CompiledMessage {
                   ] as const)[1];
                   const dateTimeFormat = parseDateSkeleton(skeletonText);
                   nextToken.call(this, ["}"] as const);
-                  return {
-                    type: "Var",
-                    name,
-                    argType,
-                    argStyle: dateTimeFormat,
-                  } as VarArg;
+                  return DateTimeArg(name, dateTimeFormat);
                 }
               }
             }
@@ -222,6 +206,50 @@ function parseArgument(this: Parser): CompiledMessage {
         }
       }
     }
+  }
+}
+
+function fromArgTypeAndStyle(
+  name: string | number,
+  argType: ArgType,
+  argStyle: string | undefined,
+): VarArg {
+  switch (argType) {
+    case "number":
+      switch (argStyle) {
+        case undefined:
+          return NumberArg(name, {});
+        case "integer":
+          return NumberArg(name, { maximumFractionDigits: 0 });
+        case "percent":
+          return NumberArg(name, { style: "percent" });
+        default:
+          throw new ParseError(`Invalid argStyle for number: ${argStyle}`);
+      }
+    case "date":
+      switch (argStyle) {
+        case undefined:
+        case "short":
+        case "medium":
+        case "long":
+        case "full":
+          return DateTimeArg(name, { dateStyle: argStyle ?? "medium" });
+        default:
+          throw new ParseError(`Invalid argStyle for date: ${argStyle}`);
+      }
+    case "time":
+      switch (argStyle) {
+        case undefined:
+        case "short":
+        case "medium":
+        case "long":
+        case "full":
+          return DateTimeArg(name, { timeStyle: argStyle ?? "medium" });
+        default:
+          throw new ParseError(`Invalid argStyle for time: ${argStyle}`);
+      }
+    default:
+      throw new TypeError(`Unknown argType: ${argType as string}`);
   }
 }
 
@@ -252,7 +280,8 @@ function parsePluralArgument(this: Parser, name: string | number): PluralArg {
       selector = token[1];
     }
     nextToken.call(this, ["{"]);
-    const message = parseMessage_.call(this, false);
+    const hashSubst = NumberArg(name, {}, { subtract: offset ?? 0 });
+    const message = parseMessage_.call(this, hashSubst);
     nextToken.call(this, ["}"]);
     branches.push({ selector, message });
     token = nextToken.call(this, ["identifier", "=", "}"] as const);
@@ -260,11 +289,12 @@ function parsePluralArgument(this: Parser, name: string | number): PluralArg {
   if (branches.length === 0) throw new ParseError("No branch found");
   if (branches[branches.length - 1]!.selector !== "other")
     throw new ParseError("Last selector should be other");
-  return { type: "Plural", name, offset, branches };
+  const fallback = branches.pop()!.message;
+  return { type: "Plural", name, subtract: offset ?? 0, branches, fallback };
 }
 
 // <tag>message</tag> or <tag/>
-function parseElement(this: Parser, allowHash: boolean): ElementArg {
+function parseElement(this: Parser, hashSubst?: VarArg): ElementArg {
   this.pos++; // Eat <
   const name = parseArgNameOrNumber.call(this, true);
   if (nextToken.call(this, ["/", ">"] as const)[0] === "/") {
@@ -277,7 +307,7 @@ function parseElement(this: Parser, allowHash: boolean): ElementArg {
     };
   }
   // <tag>message</tag>
-  const message = parseMessage_.call(this, allowHash);
+  const message = parseMessage_.call(this, hashSubst);
   nextToken.call(this, ["<"]);
   nextToken.call(this, ["/"], ["/"]);
   const closingName = parseArgNameOrNumber.call(this, true);

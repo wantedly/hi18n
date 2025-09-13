@@ -3,10 +3,7 @@
 // The parser algorithm is written to vastly match what is implemented in ./msgfmt-parser.ts, but with a few differences.
 
 import type { Message } from "./index.ts";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const componentPlaceholderSymbol: unique symbol;
-export type ComponentPlaceholder = typeof componentPlaceholderSymbol;
+import type { ComponentPlaceholder } from "./opaque.ts";
 
 export type ParseResult<
   Accum,

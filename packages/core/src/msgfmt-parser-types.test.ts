@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
 import { describe, it } from "vitest";
-import type { Message } from "./index.ts";
-import type {
-  ComponentPlaceholder,
-  InferredMessageType,
-  ParseError,
-} from "./msgfmt-parser-types.ts";
+import type { ComponentPlaceholder, Message } from "./opaque.ts";
+import type { InferredMessageType, ParseError } from "./msgfmt-parser-types.ts";
 
 describe("InferredMessageType", () => {
   it("infers no arguments", () => {

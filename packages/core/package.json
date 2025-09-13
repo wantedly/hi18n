@@ -30,13 +30,20 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts"
+    "!src/**/*.test.ts",
+    "msg.d.ts"
   ],
   "type": "module",
   "main": "./cjs/dist/index.js",
   "exports": {
-    "require": "./cjs/dist/index.js",
-    "default": "./dist/index.js"
+    ".": {
+      "require": "./cjs/dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./msg": {
+      "require": "./cjs/dist/msg.js",
+      "default": "./dist/msg.js"
+    }
   },
   "sideEffects": false,
   "scripts": {

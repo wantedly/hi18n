@@ -4,6 +4,7 @@ import {
   MessageEvaluationError,
   MissingArgumentError,
 } from "./errors.ts";
+import { parseMessage } from "./msgfmt-parser.ts";
 import type { CompiledMessage } from "./msgfmt.ts";
 
 export type EvalOption<T> = {
@@ -45,7 +46,7 @@ export function evaluateMessage<T = string>(
         argName: msg.name,
       });
     switch (msg.argType) {
-      case undefined:
+      case "string":
         if (typeof value !== "string")
           throw new MessageEvaluationError(
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-base-to-string
@@ -60,38 +61,27 @@ export function evaluateMessage<T = string>(
             got: value,
           });
         }
-        const formatOptions: Intl.NumberFormatOptions = {};
-        let modifiedValue = value;
-        switch (msg.argStyle) {
-          case "integer":
-            // https://github.com/openjdk/jdk/blob/739769c8fc4b496f08a92225a12d07414537b6c0/src/java.base/share/classes/sun/util/locale/provider/NumberFormatProviderImpl.java#L196-L198
-            formatOptions.maximumFractionDigits = 0;
-            if (typeof value === "number") modifiedValue = Math.round(value);
-            break;
-          case "currency":
-            // Need to provide an appropriate currency from somewhere
-            throw new Error("Unimplemented: argStyle=currency");
-          case "percent":
-            formatOptions.style = msg.argStyle;
-            break;
-        }
-        if (
-          (typeof Intl === "undefined" || !Intl.NumberFormat) &&
-          (msg.argStyle === undefined || msg.argStyle === "integer")
-        ) {
-          (options.handleError ?? defaultErrorHandler)(
-            new Error("Missing Intl.NumberFormat"),
-            "warn",
-          );
-          return `${modifiedValue}`;
+        const offsetValue =
+          typeof value === "bigint"
+            ? value - BigInt(msg.subtract ?? 0)
+            : value - (msg.subtract ?? 0);
+        // TODO: Remove this fallback because it is nowadays widely supported.
+        if (typeof Intl === "undefined" || !Intl.NumberFormat) {
+          const fallback = numberFormatFallback(offsetValue, msg.argStyle);
+          if (fallback != null) {
+            (options.handleError ?? defaultErrorHandler)(
+              new Error("Missing Intl.NumberFormat"),
+              "warn",
+            );
+            return fallback;
+          }
         }
         // TODO: allow injecting polyfill
-        return new Intl.NumberFormat(options.locale, formatOptions).format(
-          modifiedValue,
+        return new Intl.NumberFormat(options.locale, msg.argStyle).format(
+          offsetValue,
         );
       }
-      case "date":
-      case "time": {
+      case "datetime": {
         if (!isDateLike(value)) {
           throw new ArgumentTypeError({
             argName: msg.name,
@@ -106,24 +96,17 @@ export function evaluateMessage<T = string>(
         }
         const formatOptions: Intl.DateTimeFormatOptions = {
           timeZone: options.timeZone,
+          ...msg.argStyle,
         };
-        if (typeof msg.argStyle === "object") {
-          // parsed object from the skeleton
-          Object.assign(formatOptions, msg.argStyle);
-        } else {
-          if (msg.argType === "date") {
-            formatOptions.dateStyle = msg.argStyle ?? "medium";
-          } else {
-            formatOptions.timeStyle = msg.argStyle ?? "medium";
-          }
-        }
         // TODO: allow injecting polyfill
         return new Intl.DateTimeFormat(options.locale, formatOptions).format(
           value,
         );
       }
       default:
-        throw new Error(`Unimplemented: argType=${msg.argType ?? "string"}`);
+        throw new Error(
+          `Unimplemented: argType=${((msg as { argType: never }).argType as string) ?? "string"}`,
+        );
     }
   } else if (msg.type === "Plural") {
     const value = (options.params ?? {})[msg.name];
@@ -134,9 +117,9 @@ export function evaluateMessage<T = string>(
       });
     }
     if (typeof value === "number") {
-      relativeValue = value - (msg.offset ?? 0);
+      relativeValue = value - (msg.subtract ?? 0);
     } else if (typeof value === "bigint") {
-      relativeValue = value - BigInt(msg.offset ?? 0);
+      relativeValue = value - BigInt(msg.subtract ?? 0);
     } else {
       throw new ArgumentTypeError({
         argName: msg.name,
@@ -145,6 +128,7 @@ export function evaluateMessage<T = string>(
       });
     }
     const rule: string = (() => {
+      // TODO: Remove this fallback because it is nowadays widely supported.
       if (typeof Intl === "undefined" || !Intl.PluralRules) {
         (options.handleError ?? defaultErrorHandler)(
           new Error("Missing Intl.PluralRules"),
@@ -157,20 +141,11 @@ export function evaluateMessage<T = string>(
       return pluralRules.select(Number(relativeValue));
     })();
     for (const branch of msg.branches) {
-      if (
-        branch.selector === Number(value) ||
-        branch.selector === rule ||
-        branch.selector === "other"
-      ) {
+      if (branch.selector === Number(value) || branch.selector === rule) {
         return evaluateMessage(branch.message, options, relativeValue);
       }
     }
-    throw new MessageEvaluationError(
-      `Non-exhaustive plural branches for ${value}`,
-    );
-  } else if (msg.type === "Number" && numberValue !== undefined) {
-    // TODO: allow injecting polyfill
-    return new Intl.NumberFormat(options.locale).format(numberValue);
+    return evaluateMessage(msg.fallback, options, relativeValue);
   } else if (msg.type === "Element") {
     const { wrap } = options;
     if (!wrap)
@@ -188,8 +163,61 @@ export function evaluateMessage<T = string>(
         ? evaluateMessage(msg.message, options, numberValue)
         : undefined,
     );
+  } else if (msg.type === "DeferredParseError") {
+    // Try to reproduce the parse error to produce a more useful stack trace.
+    parseMessage(msg.sourceText);
+    // Fallback: re-throw the original error.
+    throw msg.error;
   }
   throw new MessageEvaluationError("Invalid message");
+}
+
+function numberFormatFallback(
+  value: number | bigint,
+  options: Intl.NumberFormatOptions,
+): string | undefined {
+  const {
+    style = "decimal",
+    minimumIntegerDigits,
+    minimumFractionDigits,
+    maximumFractionDigits,
+    minimumSignificantDigits,
+    maximumSignificantDigits,
+    roundingPriority,
+    roundingIncrement,
+    roundingMode,
+    trailingZeroDisplay,
+    notation,
+    compactDisplay,
+    useGrouping,
+    signDisplay,
+  } = options;
+
+  if (
+    style !== "decimal" ||
+    minimumIntegerDigits != null ||
+    minimumFractionDigits != null ||
+    (maximumFractionDigits != null && maximumFractionDigits !== 0) ||
+    minimumSignificantDigits != null ||
+    maximumSignificantDigits != null ||
+    roundingPriority != null ||
+    roundingIncrement != null ||
+    roundingMode != null ||
+    trailingZeroDisplay != null ||
+    notation != null ||
+    compactDisplay != null ||
+    useGrouping != null ||
+    signDisplay != null
+  ) {
+    return undefined;
+  }
+  if (typeof value === "bigint") {
+    return `${value}`;
+  } else if (maximumFractionDigits === 0) {
+    return `${Math.round(value)}`;
+  } else {
+    return `${value}`;
+  }
 }
 
 function reduceSubmessages<T>(
