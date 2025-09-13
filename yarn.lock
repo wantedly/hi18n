@@ -653,7 +653,7 @@ __metadata:
     "@hi18n/tools-core": "npm:^0.1.6"
     "@types/eslint": "npm:^9.6.1"
     "@types/espree": "npm:^10.1.0"
-    "@types/node": "npm:^22.18.1"
+    "@types/node": "npm:^22.18.3"
     "@types/resolve": "npm:^1.20.6"
     "@typescript-eslint/parser": "npm:^8.42.0"
     "@typescript-eslint/utils": "npm:^8.42.0"
@@ -678,7 +678,7 @@ __metadata:
     "@hi18n/dev-utils": "npm:*"
     "@hi18n/tools-core": "npm:^0.1.6"
     "@types/js-yaml": "npm:^4.0.5"
-    "@types/node": "npm:^22.18.1"
+    "@types/node": "npm:^22.18.3"
     glob: "npm:^10.4.5"
     js-yaml: "npm:^4.1.0"
     rimraf: "npm:^3.0.2"
@@ -720,7 +720,7 @@ __metadata:
     "@hi18n/react-context": "npm:*"
     "@types/eslint": "npm:^9.6.1"
     "@types/espree": "npm:^10.1.0"
-    "@types/node": "npm:^22.18.1"
+    "@types/node": "npm:^22.18.3"
     "@typescript-eslint/parser": "npm:^8.42.0"
     "@typescript-eslint/rule-tester": "npm:^8.42.0"
     "@typescript-eslint/types": "npm:^8.42.0"
@@ -790,7 +790,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/ts-plugin@workspace:packages/ts-plugin"
   dependencies:
-    "@types/node": "npm:^22.18.1"
+    "@types/node": "npm:^22.18.3"
     rimraf: "npm:^3.0.2"
     typescript: "npm:^5.9.2"
   languageName: unknown
@@ -1253,12 +1253,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.18.1":
-  version: 22.18.1
-  resolution: "@types/node@npm:22.18.1"
+"@types/node@npm:*, @types/node@npm:^22.18.3":
+  version: 22.18.3
+  resolution: "@types/node@npm:22.18.3"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10/da67f3c3fa4107fbca704e7a71fee36c27f3b6f44af1c466cd5c71eab76a9ffcd6a16f3b97d1e757b9763f1fa1085eebb60cb648c272e36794aca7305b2a15d9
+  checksum: 10/6acec9f6efbd1afe7bb4168ccbec60933a6c5562e8d2cd3912e4ec4c291fbafd3c75c939d478f20156dc808b6533685b59e202a2b952964b3fac2be5d3ed4f11
   languageName: node
   linkType: hard
 
