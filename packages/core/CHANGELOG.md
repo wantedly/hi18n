@@ -1,5 +1,11 @@
 # `@hi18n/core`
 
+## 0.2.1
+
+### Patch Changes
+
+- 28fb275: feat(core): add new message builder
+
 ## 0.2.0
 
 ### Migration Guide

@@ -1,6 +1,6 @@
 {
   "name": "@hi18n/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Message internationalization meets immutability and type-safety - core runtime",
   "keywords": [
     "intl",
