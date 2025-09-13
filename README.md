@@ -17,13 +17,14 @@ yarn add -D @hi18n/cli
 Put the following file named like `src/locale/index.ts`:
 
 ```typescript
-import { Book, Catalog, Message, msg } from "@hi18n/core";
+import { Book, Catalog, Message } from "@hi18n/core";
+import { msg, arg } from "@hi18n/core/msg";
 
 type Vocabulary = {
   "example/greeting": Message<{ name: string }>;
 };
 const catalogEn = new Catalog<Vocabulary>("en", {
-  "example/greeting": msg("Hello, {name}!"),
+  "example/greeting": msg`Hello, ${arg("name")}!"`,
 });
 export const book = new Book<Vocabulary>({ en: catalogEn });
 ```
@@ -213,13 +214,18 @@ const { t } = useI18n(book);
 
 ## Message syntax
 
-Message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/).
+We have two syntaxes for messages.
 
-- Simple message: `Hello, world!`
-- Interpolation: `Hello, {name}!`
-- Interleaving with markups: `Please <link>read the license agreement</link> before continuing.`
+- The JavaScript DSL can be used to build type-safe messages.
+  - Simple message: ``msg`Hello, world!` ``
+  - Interpolation: ``msg`Hello, ${arg("name")}!` ``
+  - Interleaving with markups: ``msg`Please ${tag("link")(msg`read the license agreement`)} before continuing.`
+- In the MessageFormat syntax, a message roughly resembles [ICU MessageFormat](https://unicode-org.github.io/icu/userguide/format_parse/messages/).
+  - Simple message: `Hello, world!`
+  - Interpolation: `Hello, {name}!`
+  - Interleaving with markups: `Please <link>read the license agreement</link> before continuing.`
 
-See [msgfmt.md](docs/msgfmt.md) for more details.
+See [formatting.md](docs/formatting.md) for more details.
 
 ## Loading only a specific language
 

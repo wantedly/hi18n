@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vitest } from "vitest";
-import type { CompiledMessage } from "./msgfmt.ts";
+import {
+  DateTimeArg,
+  ElementArg,
+  NumberArg,
+  PluralArg,
+  StringArg,
+  type CompiledMessage,
+} from "./msgfmt.ts";
 import { evaluateMessage } from "./msgfmt-eval.ts";
 import type { ErrorHandler } from "./error-handling.ts";
 
@@ -24,20 +31,20 @@ describe("evaluageMessage", () => {
 
   it("evaluates simple interpolation", () => {
     expect(
-      evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
+      evaluateMessage(["Hello, ", StringArg("name"), "!"], {
         locale: "en",
         params: { name: "John" },
       }),
     ).toBe("Hello, John!");
     expect(() =>
-      evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
+      evaluateMessage(["Hello, ", StringArg("name"), "!"], {
         id: "greeting.named",
         locale: "en",
         params: {},
       }),
     ).toThrow("Missing argument: name");
     expect(() =>
-      evaluateMessage(["Hello, ", { type: "Var", name: "name" }, "!"], {
+      evaluateMessage(["Hello, ", StringArg("name"), "!"], {
         id: "greeting.named",
         locale: "en",
         params: { name: 42 },
@@ -46,14 +53,8 @@ describe("evaluageMessage", () => {
   });
 
   it("evaluates number interpolation", () => {
-    const msg1: CompiledMessage = [
-      { type: "Var", name: "count", argType: "number" },
-      " apples",
-    ];
-    const msg2: CompiledMessage = [
-      { type: "Var", name: "count", argType: "number" },
-      " pommes",
-    ];
+    const msg1: CompiledMessage = [NumberArg("count", {}), " apples"];
+    const msg2: CompiledMessage = [NumberArg("count", {}), " pommes"];
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 42 } })).toBe(
       "42 apples",
     );
@@ -73,12 +74,9 @@ describe("evaluageMessage", () => {
   });
 
   it("evaluates integer styles", () => {
-    const msg1: CompiledMessage = {
-      type: "Var",
-      name: "foo",
-      argType: "number",
-      argStyle: "integer",
-    };
+    const msg1: CompiledMessage = NumberArg("foo", {
+      maximumFractionDigits: 0,
+    });
     expect(evaluateMessage(msg1, { locale: "en", params: { foo: 42 } })).toBe(
       "42",
     );
@@ -88,12 +86,7 @@ describe("evaluageMessage", () => {
   });
 
   it("evaluates percent styles", () => {
-    const msg1: CompiledMessage = {
-      type: "Var",
-      name: "foo",
-      argType: "number",
-      argStyle: "percent",
-    };
+    const msg1: CompiledMessage = NumberArg("foo", { style: "percent" });
     expect(evaluateMessage(msg1, { locale: "en", params: { foo: 0.42 } })).toBe(
       "42%",
     );
@@ -111,14 +104,8 @@ describe("evaluageMessage", () => {
 
     it("evaluates number interpolation", () => {
       const handleError = vitest.fn<ErrorHandler>();
-      const msg1: CompiledMessage = [
-        { type: "Var", name: "count", argType: "number" },
-        " apples",
-      ];
-      const msg2: CompiledMessage = [
-        { type: "Var", name: "count", argType: "number" },
-        " pommes",
-      ];
+      const msg1: CompiledMessage = [NumberArg("count", {}), " apples"];
+      const msg2: CompiledMessage = [NumberArg("count", {}), " pommes"];
       expect(
         evaluateMessage(msg1, {
           locale: "en",
@@ -151,12 +138,9 @@ describe("evaluageMessage", () => {
 
     it("evaluates integer styles", () => {
       const handleError = vitest.fn<ErrorHandler>();
-      const msg1: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "number",
-        argStyle: "integer",
-      };
+      const msg1: CompiledMessage = NumberArg("foo", {
+        maximumFractionDigits: 0,
+      });
       expect(
         evaluateMessage(msg1, {
           locale: "en",
@@ -183,11 +167,7 @@ describe("evaluageMessage", () => {
     const date = new Date(Date.UTC(2006, 0, 2, 22, 4, 5, 999));
 
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "date",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { dateStyle: "medium" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -197,12 +177,7 @@ describe("evaluageMessage", () => {
       ).toBe("Jan 2, 2006");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "date",
-        argStyle: "short",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { dateStyle: "short" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -212,12 +187,7 @@ describe("evaluageMessage", () => {
       ).toBe("1/2/06");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "date",
-        argStyle: "medium",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { dateStyle: "medium" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -227,12 +197,7 @@ describe("evaluageMessage", () => {
       ).toBe("Jan 2, 2006");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "date",
-        argStyle: "long",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { dateStyle: "long" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -242,12 +207,7 @@ describe("evaluageMessage", () => {
       ).toBe("January 2, 2006");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "date",
-        argStyle: "full",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { dateStyle: "full" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -258,11 +218,7 @@ describe("evaluageMessage", () => {
     }
 
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "time",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { timeStyle: "medium" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -272,12 +228,7 @@ describe("evaluageMessage", () => {
       ).toBe("3:04:05 PM");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "time",
-        argStyle: "short",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { timeStyle: "short" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -287,12 +238,7 @@ describe("evaluageMessage", () => {
       ).toBe("3:04 PM");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "time",
-        argStyle: "medium",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { timeStyle: "medium" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -302,12 +248,7 @@ describe("evaluageMessage", () => {
       ).toBe("3:04:05 PM");
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "time",
-        argStyle: "long",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { timeStyle: "long" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -324,12 +265,7 @@ describe("evaluageMessage", () => {
       );
     }
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "time",
-        argStyle: "full",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { timeStyle: "full" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -357,11 +293,7 @@ describe("evaluageMessage", () => {
     }
 
     {
-      const msg: CompiledMessage = {
-        type: "Var",
-        name: "foo",
-        argType: "date",
-      };
+      const msg: CompiledMessage = DateTimeArg("foo", { dateStyle: "medium" });
       expect(
         evaluateMessage(msg, {
           locale: "en",
@@ -373,38 +305,30 @@ describe("evaluageMessage", () => {
   });
 
   it("evaluates plural interpolation", () => {
-    const msg1: CompiledMessage = {
-      type: "Plural",
-      name: "count",
-      branches: [
+    const msg1: CompiledMessage = PluralArg(
+      "count",
+      [
         {
           selector: "one",
-          message: ["There is ", { type: "Number" }, " apple."],
-        },
-        {
-          selector: "other",
-          message: ["There are ", { type: "Number" }, " apples."],
+          message: ["There is ", NumberArg("count", {}), " apple."],
         },
       ],
-    };
-    const msg2: CompiledMessage = {
-      type: "Plural",
-      name: "count",
-      branches: [
+      ["There are ", NumberArg("count", {}), " apples."],
+    );
+    const msg2: CompiledMessage = PluralArg(
+      "count",
+      [
         {
           selector: "one",
-          message: ["Там ", { type: "Number" }, " яблоко."],
+          message: ["Там ", NumberArg("count", {}), " яблоко."],
         },
         {
           selector: "few",
-          message: ["Там ", { type: "Number" }, " яблока."],
-        },
-        {
-          selector: "other",
-          message: ["Там ", { type: "Number" }, " яблок."],
+          message: ["Там ", NumberArg("count", {}), " яблока."],
         },
       ],
-    };
+      ["Там ", NumberArg("count", {}), " яблок."],
+    );
     expect(evaluateMessage(msg1, { locale: "en", params: { count: 0 } })).toBe(
       "There are 0 apples.",
     );
@@ -447,41 +371,37 @@ describe("evaluageMessage", () => {
   });
 
   it("evaluates plural interpolation with offsets", () => {
-    const msg1: CompiledMessage = {
-      type: "Plural",
-      name: "count",
-      offset: 1,
-      branches: [
+    const msg1: CompiledMessage = PluralArg(
+      "count",
+      [
         {
           selector: 0,
           message: ["Connected to no one"],
         },
         {
           selector: 1,
-          message: ["Connected to ", { type: "Var", name: "name" }],
+          message: ["Connected to ", StringArg("name")],
         },
         {
           selector: "one",
           message: [
             "Connected to ",
-            { type: "Var", name: "name" },
+            StringArg("name"),
             " and ",
-            { type: "Number" },
+            NumberArg("count", {}, { subtract: 1 }),
             " other",
           ],
         },
-        {
-          selector: "other",
-          message: [
-            "Connected to ",
-            { type: "Var", name: "name" },
-            " and ",
-            { type: "Number" },
-            " others",
-          ],
-        },
       ],
-    };
+      [
+        "Connected to ",
+        StringArg("name"),
+        " and ",
+        NumberArg("count", {}, { subtract: 1 }),
+        " others",
+      ],
+      { subtract: 1 },
+    );
     expect(
       evaluateMessage(msg1, { locale: "en", params: { count: 0, name: "" } }),
     ).toBe("Connected to no one");
@@ -518,38 +438,30 @@ describe("evaluageMessage", () => {
 
     it("evaluates plural interpolation", () => {
       const handleError = vitest.fn<ErrorHandler>();
-      const msg1: CompiledMessage = {
-        type: "Plural",
-        name: "count",
-        branches: [
+      const msg1: CompiledMessage = PluralArg(
+        "count",
+        [
           {
             selector: "one",
-            message: ["There is ", { type: "Number" }, " apple."],
-          },
-          {
-            selector: "other",
-            message: ["There are ", { type: "Number" }, " apples."],
+            message: ["There is ", NumberArg("count", {}), " apple."],
           },
         ],
-      };
-      const msg2: CompiledMessage = {
-        type: "Plural",
-        name: "count",
-        branches: [
+        ["There are ", NumberArg("count", {}), " apples."],
+      );
+      const msg2: CompiledMessage = PluralArg(
+        "count",
+        [
           {
             selector: "one",
-            message: ["Там ", { type: "Number" }, " яблоко."],
+            message: ["Там ", NumberArg("count", {}), " яблоко."],
           },
           {
             selector: "few",
-            message: ["Там ", { type: "Number" }, " яблока."],
-          },
-          {
-            selector: "other",
-            message: ["Там ", { type: "Number" }, " яблок."],
+            message: ["Там ", NumberArg("count", {}), " яблока."],
           },
         ],
-      };
+        ["Там ", NumberArg("count", {}), " яблок."],
+      );
       expect(
         evaluateMessage(msg1, {
           locale: "en",
@@ -645,41 +557,37 @@ describe("evaluageMessage", () => {
 
     it("evaluates plural interpolation with offsets", () => {
       const handleError = vitest.fn<ErrorHandler>();
-      const msg1: CompiledMessage = {
-        type: "Plural",
-        name: "count",
-        offset: 1,
-        branches: [
+      const msg1: CompiledMessage = PluralArg(
+        "count",
+        [
           {
             selector: 0,
             message: ["Connected to no one"],
           },
           {
             selector: 1,
-            message: ["Connected to ", { type: "Var", name: "name" }],
+            message: ["Connected to ", StringArg("name")],
           },
           {
             selector: "one",
             message: [
               "Connected to ",
-              { type: "Var", name: "name" },
+              StringArg("name"),
               " and ",
-              { type: "Number" },
+              NumberArg("count", {}, { subtract: 1 }),
               " other",
             ],
           },
-          {
-            selector: "other",
-            message: [
-              "Connected to ",
-              { type: "Var", name: "name" },
-              " and ",
-              { type: "Number" },
-              " others",
-            ],
-          },
         ],
-      };
+        [
+          "Connected to ",
+          StringArg("name"),
+          " and ",
+          NumberArg("count", {}, { subtract: 1 }),
+          " others",
+        ],
+        { subtract: 1 },
+      );
       expect(
         evaluateMessage(msg1, {
           locale: "en",
@@ -762,70 +670,30 @@ describe("evaluageMessage", () => {
 
     const msg2: CompiledMessage = [
       "You have ",
-      {
-        type: "Plural",
-        name: "newMessages",
-        branches: [
+      PluralArg(
+        "newMessages",
+        [
           {
             selector: "one",
-            message: [
-              {
-                type: "Var",
-                name: "newMessages",
-                argType: "number",
-              },
-              " new message",
-            ],
-          },
-          {
-            selector: "other",
-            message: [
-              {
-                type: "Var",
-                name: "newMessages",
-                argType: "number",
-              },
-              " new messages",
-            ],
+            message: [NumberArg("newMessages", {}), " new message"],
           },
         ],
-      },
+        [NumberArg("newMessages", {}), " new messages"],
+      ),
       ". ",
-      {
-        type: "Element",
-        name: 0,
-        message: [
-          "See all the ",
-          {
-            type: "Plural",
-            name: "messages",
-            branches: [
-              {
-                selector: "one",
-                message: [
-                  {
-                    type: "Var",
-                    name: "messages",
-                    argType: "number",
-                  },
-                  " message",
-                ],
-              },
-              {
-                selector: "other",
-                message: [
-                  {
-                    type: "Var",
-                    name: "messages",
-                    argType: "number",
-                  },
-                  " messages",
-                ],
-              },
-            ],
-          },
-        ],
-      },
+      ElementArg(0, [
+        "See all the ",
+        PluralArg(
+          "messages",
+          [
+            {
+              selector: "one",
+              message: [NumberArg("messages", {}), " message"],
+            },
+          ],
+          [NumberArg("messages", {}), " messages"],
+        ),
+      ]),
       ".",
     ];
     expect(
