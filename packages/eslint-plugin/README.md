@@ -26,6 +26,14 @@ export default [
   // Useful if TypeScript is configured in your project
   hi18n.configs["flat/recommended-type-checked-only"],
 
+  {
+    settings: {
+      hi18n: {
+        version: "0.2.1",
+      },
+    },
+  },
+
   // ...
 ];
 ```
