@@ -25,4 +25,5 @@ export * from "./msg/tagged-template.ts";
 export * from "./msg/branch.ts";
 export * from "./msg/mf1.ts";
 export * from "./msg/plural.ts";
+export * from "./msg/tag.ts";
 export * from "./msg/todo.ts";

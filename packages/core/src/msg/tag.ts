@@ -10,7 +10,7 @@ import { validateName } from "./util.ts";
 /**
  * An intermediary builder for constructing a marked-up message.
  *
- * @since 0.2.1 (`@hi18n/core`)
+ * @since 0.2.2 (`@hi18n/core`)
  */
 export type ElementBuilder<Name extends string | number> = <Args>(
   submessage?: Message<Args>,
@@ -23,7 +23,7 @@ export type ElementBuilder<Name extends string | number> = <Args>(
  * @param name the name of the argument representing the element
  * @returns a builder function that takes a submessage
  *
- * @since 0.2.1 (`@hi18n/core`)
+ * @since 0.2.2 (`@hi18n/core`)
  *
  * @example
  *   ```ts
