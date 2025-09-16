@@ -1,5 +1,11 @@
 # `@hi18n/core`
 
+## 0.2.3
+
+### Patch Changes
+
+- ccb20f3: fix(core): check template escape correctness
+
 ## 0.2.2
 
 ### Patch Changes
