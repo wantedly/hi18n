@@ -1,5 +1,11 @@
 # `@hi18n/core`
 
+## 0.2.2
+
+### Patch Changes
+
+- 7ab7369: fix(core): add missing export of tag
+
 ## 0.2.1
 
 ### Patch Changes
