@@ -48,4 +48,10 @@ describe("msg tag", () => {
       NumberArg("age", {}),
     ]);
   });
+
+  it("throws SyntaxError when there is an invalid JS escape sequence", () => {
+    expect(() => {
+      const _msg = msg`\u`;
+    }).toThrow(SyntaxError);
+  });
 });
