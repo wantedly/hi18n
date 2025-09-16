@@ -32,7 +32,11 @@ export function msg<const Exprs extends Message<never>[]>(
 > {
   const parts: CompiledMessage[] = [];
   for (let i = 0; i < strings.length; i++) {
-    pushPart(parts, strings[i]!);
+    const quasi = strings[i];
+    if (quasi == null) {
+      throw new SyntaxError("Invalid escape sequence in template string");
+    }
+    pushPart(parts, quasi);
     if (i < exprs.length) {
       pushPart(parts, unwrap(exprs[i]!));
     }
