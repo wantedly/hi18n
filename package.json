@@ -14,7 +14,7 @@
     "lint": "yarn build && yarn lint:nobuild",
     "lint:nobuild": "yarn eslint .",
     "test": "yarn build && yarn test:nobuild",
-    "test:nobuild": "yarn workspaces foreach -Ap --exclude root run test --watch=false",
+    "test:nobuild": "yarn vitest",
     "tsc": "yarn build && yarn tsc:nobuild",
     "tsc:nobuild": "yarn workspaces foreach -Ap --exclude root run tsc"
   },
@@ -30,9 +30,11 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.3.0",
+    "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.42.0"
+    "typescript-eslint": "^8.42.0",
+    "vitest": "^3.2.4"
   },
   "resolutions": {
     "pretty-format/react-is": "^19.0.0",

@@ -4996,9 +4996,11 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^5.2.0"
     globals: "npm:^16.3.0"
+    jsdom: "npm:^26.1.0"
     prettier: "npm:^3.6.2"
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:^8.42.0"
+    vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
 
