@@ -1,5 +1,11 @@
 # `@hi18n/core`
 
+## 0.2.4
+
+### Patch Changes
+
+- da85d77: fix(core): transpile class static initialization blocks
+
 ## 0.2.3
 
 ### Patch Changes
