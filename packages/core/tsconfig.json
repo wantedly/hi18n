@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    // https://caniuse.com/mdn-javascript_classes_static_initialization_blocks
     "target": "es2021",
     "lib": ["esnext", "dom"]
   },
