@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "es2021",
-    "lib": ["esnext", "dom"],
+    "lib": ["esnext", "dom"]
   },
   "exclude": ["dist/**/*", "cjs/dist/**/*"]
 }
