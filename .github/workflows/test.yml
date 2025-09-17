@@ -23,6 +23,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
       - run: yarn build
-      - run: yarn test:nobuild
+      - run: yarn test:nobuild --watch=false
       - run: yarn lint:nobuild
       - run: yarn fmt:check
