@@ -1,5 +1,5 @@
 import { TSESTree, type TSESLint } from "@typescript-eslint/utils";
-import { catalogTracker } from "../common-trackers.ts";
+import { catalogTracker, getCatalogData } from "../common-trackers.ts";
 import { createRule, type PluginDocs } from "./create-rule.ts";
 import type { Diagnostic } from "../msg-parser/diagnostic.ts";
 import { parseJSAsMessage } from "../msg-parser/jsdsl-parser.ts";
@@ -42,7 +42,7 @@ export const rule: TSESLint.RuleModule<
   create(context): TSESLint.RuleListener {
     const tracker = catalogTracker();
     tracker.listen('new import("@hi18n/core").Catalog()', (_node, captured) => {
-      const catalogDataNode = captured["catalogData"]!;
+      const catalogDataNode = getCatalogData(captured);
       if (catalogDataNode.type !== "ObjectExpression") {
         return;
       }

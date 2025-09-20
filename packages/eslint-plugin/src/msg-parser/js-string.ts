@@ -142,3 +142,16 @@ export type JSConcatPart = {
 export function JSConcatPart(loc: TSESTree.SourceLocation): JSConcatPart {
   return { type: "JSConcat", value: "", loc };
 }
+
+export function jsStringLoc(s: JSString): TSESTree.SourceLocation | undefined {
+  let start: TSESTree.Position | null = null;
+  let end: TSESTree.Position | null = null;
+  for (const part of s) {
+    if (part.type === "UnknownJSStringPart" || part.type == "ExternalString") {
+      continue;
+    }
+    start ??= part.loc.start;
+    end = part.loc.end;
+  }
+  return start && end ? { start, end } : undefined;
+}

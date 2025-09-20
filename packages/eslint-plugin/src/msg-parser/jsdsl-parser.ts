@@ -19,7 +19,7 @@ export function parseJSAsMessage(
 ): MessageNode {
   const nodeAsString = parseJSString(node);
   if (isStringType(nodeAsString)) {
-    return PlaintextNode(nodeAsString);
+    return PlaintextNode("js", nodeAsString);
   }
   switch (node.type) {
     case "CallExpression": {
@@ -63,7 +63,7 @@ function parseMsgTagged(
   const subnodes: MessageNode[] = [];
   for (let i = 0; i < parsedQuasis.length; i++) {
     const quasi = parsedQuasis[i]!;
-    appendSubnode(subnodes, PlaintextNode(quasi));
+    appendSubnode(subnodes, PlaintextNode("js", quasi));
 
     if (i < node.quasi.expressions.length) {
       const expr = node.quasi.expressions[i]!;
@@ -86,7 +86,7 @@ function appendSubnode(subnodes: MessageNode[], node: MessageNode): void {
   const last = subnodes[subnodes.length - 1];
   if (last?.type === "Plaintext" && node.type === "Plaintext") {
     // Merge adjacent plaintext nodes
-    subnodes[subnodes.length - 1] = PlaintextNode(last.parts);
+    subnodes[subnodes.length - 1] = PlaintextNode("js", last.parts);
     return;
   }
   subnodes.push(node);

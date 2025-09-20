@@ -2,6 +2,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 import { rule as ruleMigrateFromLingui } from "./rules/migrate-from-lingui.ts";
 import { rule as ruleNoDynamicTranslationIds } from "./rules/no-dynamic-translation-ids.ts";
 import { rule as ruleNoInvalidEscape } from "./rules/no-invalid-escape.ts";
+import { rule as rulePreferMessageStyle } from "./rules/prefer-message-style.ts";
 import { rule as ruleReactComponentParams } from "./rules/react-component-params.ts";
 import { rule as ruleWellFormedBookDefinitions } from "./rules/well-formed-book-definitions.ts";
 import { rule as ruleWellFormedBookReferences } from "./rules/well-formed-book-references.ts";
@@ -83,6 +84,7 @@ const pluginContents: ModifiedPluginType = {
     "migrate-from-lingui": ruleMigrateFromLingui,
     "no-dynamic-translation-ids": ruleNoDynamicTranslationIds,
     "no-invalid-escape": ruleNoInvalidEscape,
+    "prefer-message-style": rulePreferMessageStyle,
     "react-component-params": ruleReactComponentParams,
     "well-formed-book-references": ruleWellFormedBookReferences,
     "well-formed-book-definitions": ruleWellFormedBookDefinitions,

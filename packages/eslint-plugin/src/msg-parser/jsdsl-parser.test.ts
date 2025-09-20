@@ -37,7 +37,7 @@ describe("parseJSAsMessage", () => {
     const msg = parseJSTextAsMessage(`"Hello, world!"`, diagnostics);
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
-      PlaintextNode([
+      PlaintextNode("js", [
         JSQuoteOpenPart('"', loc(1, 0, 1, 1)),
         JSVerbatimPart("Hello, world!", loc(1, 1, 1, 14)),
         JSQuoteClosePart('"', loc(1, 14, 1, 15)),
@@ -50,7 +50,7 @@ describe("parseJSAsMessage", () => {
     const msg = parseJSTextAsMessage("msg`Hello, world!`", diagnostics);
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
-      PlaintextNode([
+      PlaintextNode("js", [
         JSQuoteOpenPart("`", loc(1, 3, 1, 4)),
         JSVerbatimPart("Hello, world!", loc(1, 4, 1, 17)),
         JSQuoteClosePart("`", loc(1, 17, 1, 18)),
@@ -64,13 +64,13 @@ describe("parseJSAsMessage", () => {
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([
+        PlaintextNode("js", [
           JSQuoteOpenPart("`", loc(1, 3, 1, 4)),
           JSVerbatimPart("Hello, ", loc(1, 4, 1, 11)),
           JSQuoteClosePart("${", loc(1, 11, 1, 13)),
         ]),
         UnknownJSNode(noNode()),
-        PlaintextNode([
+        PlaintextNode("js", [
           JSQuoteOpenPart("}", loc(1, 17, 1, 18)),
           JSVerbatimPart("!", loc(1, 18, 1, 19)),
           JSQuoteClosePart("`", loc(1, 19, 1, 20)),

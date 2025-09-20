@@ -35,7 +35,7 @@ describe("parseMF1", () => {
     const msg = parseJSTextAsMessage(`msg("Hello, world!")`, diagnostics);
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
-      PlaintextNode([JSVerbatimPart("Hello, world!", loc(1, 5, 1, 18))]),
+      PlaintextNode("mf1", [JSVerbatimPart("Hello, world!", loc(1, 5, 1, 18))]),
     );
   });
 
@@ -44,7 +44,7 @@ describe("parseMF1", () => {
     const msg = parseJSTextAsMessage(`msg("He\\x6C\\x6Co")`, diagnostics);
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
-      PlaintextNode([
+      PlaintextNode("mf1", [
         JSVerbatimPart("He", loc(1, 5, 1, 7)),
         JSEscapePart("l", loc(1, 7, 1, 11)),
         JSEscapePart("l", loc(1, 11, 1, 15)),
@@ -58,7 +58,9 @@ describe("parseMF1", () => {
     const msg = parseJSTextAsMessage(`msg("Hello, I'm here.")`, diagnostics);
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
-      PlaintextNode([JSVerbatimPart("Hello, I'm here.", loc(1, 5, 1, 21))]),
+      PlaintextNode("mf1", [
+        JSVerbatimPart("Hello, I'm here.", loc(1, 5, 1, 21)),
+      ]),
     );
   });
 
@@ -67,7 +69,7 @@ describe("parseMF1", () => {
     const msg = parseJSTextAsMessage(`msg("Hello, I''m here.")`, diagnostics);
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
-      PlaintextNode([
+      PlaintextNode("mf1", [
         JSVerbatimPart("Hello, I", loc(1, 5, 1, 13)),
         MFEscapePart("'", [JSVerbatimPart("''", loc(1, 13, 1, 15))]),
         JSVerbatimPart("m here.", loc(1, 15, 1, 22)),
@@ -81,9 +83,9 @@ describe("parseMF1", () => {
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
+        PlaintextNode("mf1", [JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
         StringArgNode("name", [JSVerbatimPart("name", loc(1, 13, 1, 17))]),
-        PlaintextNode([JSVerbatimPart("!", loc(1, 18, 1, 19))]),
+        PlaintextNode("mf1", [JSVerbatimPart("!", loc(1, 18, 1, 19))]),
       ]),
     );
   });
@@ -97,9 +99,9 @@ describe("parseMF1", () => {
     expect(diagnostics).toEqual([]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
+        PlaintextNode("mf1", [JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
         StringArgNode("name", [JSVerbatimPart("name", loc(1, 15, 1, 19))]),
-        PlaintextNode([JSVerbatimPart("!", loc(1, 23, 1, 24))]),
+        PlaintextNode("mf1", [JSVerbatimPart("!", loc(1, 23, 1, 24))]),
       ]),
     );
   });
@@ -115,7 +117,7 @@ describe("parseMF1", () => {
     ]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
+        PlaintextNode("mf1", [JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
         InvalidArgNode(undefined, undefined),
       ]),
     );
@@ -132,7 +134,7 @@ describe("parseMF1", () => {
     ]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
+        PlaintextNode("mf1", [JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
         InvalidArgNode(undefined, undefined),
       ]),
     );
@@ -149,7 +151,7 @@ describe("parseMF1", () => {
     ]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
+        PlaintextNode("mf1", [JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
         InvalidArgNode("foo", [JSVerbatimPart("foo", loc(1, 13, 1, 16))]),
       ]),
     );
@@ -166,7 +168,7 @@ describe("parseMF1", () => {
     ]);
     expect(cleanse(msg)).toEqual<MessageNode>(
       MessageListNode([
-        PlaintextNode([JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
+        PlaintextNode("mf1", [JSVerbatimPart("Hello, ", loc(1, 5, 1, 12))]),
         InvalidArgNode("foo", [JSVerbatimPart("foo", loc(1, 13, 1, 16))]),
       ]),
     );

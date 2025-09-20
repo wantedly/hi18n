@@ -8,10 +8,11 @@ import {
   type MessageNode,
 } from "./ast.ts";
 import type { Diagnostic } from "./diagnostic.ts";
-import type {
-  JSString,
-  JSStringPart,
-  UnknownJSStringPart,
+import {
+  jsStringLoc,
+  type JSString,
+  type JSStringPart,
+  type UnknownJSStringPart,
 } from "./js-string.ts";
 
 export function parseMF1(
@@ -118,7 +119,7 @@ class Parser {
     if (parts.length === 0) {
       return [];
     }
-    return [PlaintextNode(parts)];
+    return [PlaintextNode("mf1", parts)];
   }
 
   #readVerbatimMessageText(
@@ -165,14 +166,14 @@ class Parser {
     if (tok0.type === "Eof") {
       this.#diagnostics.push({
         type: "UnterminatedArgumentInMF1",
-        loc: jsStringLoc(this.#substringParts(tok0.start, tok0.end)),
+        loc: jsStringLoc(this.#substringParts(tok0.start, tok0.end)) ?? NO_LOC,
       });
       this.#readPastArgumentCall(tok0);
       return InvalidArgNode(undefined, undefined);
     } else if (tok0.type !== "Identifier" && tok0.type !== "Number") {
       this.#diagnostics.push({
         type: "InvalidArgumentInMF1",
-        loc: jsStringLoc(this.#substringParts(tok0.start, tok0.end)),
+        loc: jsStringLoc(this.#substringParts(tok0.start, tok0.end)) ?? NO_LOC,
       });
       this.#readPastArgumentCall(tok0);
       return InvalidArgNode(undefined, undefined);
@@ -186,7 +187,7 @@ class Parser {
     } else if (tok1.type !== "Comma") {
       this.#diagnostics.push({
         type: "InvalidArgumentInMF1",
-        loc: jsStringLoc(this.#substringParts(tok1.start, tok1.end)),
+        loc: jsStringLoc(this.#substringParts(tok1.start, tok1.end)) ?? NO_LOC,
       });
       this.#readPastArgumentCall(tok1);
       return InvalidArgNode(name, nameParts);
@@ -242,7 +243,7 @@ class Parser {
         if (!/^(0|[1-9][0-9]*)$/.test(name)) {
           this.#diagnostics.push({
             type: "InvalidNumberInMF1",
-            loc: jsStringLoc(nameParts),
+            loc: jsStringLoc(nameParts) ?? NO_LOC,
           });
         }
         const num = parseInt(name, 10);
@@ -446,18 +447,7 @@ function UnknownToken(start: number, end: number): UnknownToken {
   return { type: "Unknown", start, end };
 }
 
-function jsStringLoc(s: JSString): TSESTree.SourceLocation {
-  let start: TSESTree.Position | null = null;
-  let end: TSESTree.Position | null = null;
-  for (const part of s) {
-    if (part.type === "UnknownJSStringPart" || part.type == "ExternalString") {
-      continue;
-    }
-    start ??= part.loc.start;
-    end = part.loc.end;
-  }
-  return {
-    start: start ?? { line: 0, column: 0 },
-    end: end ?? { line: 0, column: 0 },
-  };
-}
+const NO_LOC: TSESTree.SourceLocation = {
+  start: { line: 1, column: 0 },
+  end: { line: 1, column: 0 },
+};

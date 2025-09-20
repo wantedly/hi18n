@@ -20,15 +20,17 @@ export function MessageListNode(
 
 export type PlaintextNode = {
   type: "Plaintext";
+  style: "js" | "mf1";
   /**
    * The expression that yields a string.
    */
   parts: readonly (JSStringPart | MFEscapePart)[];
 };
 export function PlaintextNode(
+  style: "js" | "mf1",
   parts: readonly (JSStringPart | MFEscapePart)[],
 ): PlaintextNode {
-  return { type: "Plaintext", parts };
+  return { type: "Plaintext", style, parts };
 }
 
 export type MFEscapePart = {
@@ -72,4 +74,23 @@ export type UnknownJSNode = {
 };
 export function UnknownJSNode(node: TSESTree.Expression): UnknownJSNode {
   return { type: "UnknownJS", node };
+}
+
+export function extJSStringLoc(
+  s: readonly (JSStringPart | MFEscapePart)[],
+): TSESTree.SourceLocation | undefined {
+  let start: TSESTree.Position | null = null;
+  let end: TSESTree.Position | null = null;
+  for (const part of s) {
+    if (
+      part.type === "UnknownJSStringPart" ||
+      part.type == "ExternalString" ||
+      part.type === "MFEscape"
+    ) {
+      continue;
+    }
+    start ??= part.loc.start;
+    end = part.loc.end;
+  }
+  return start && end ? { start, end } : undefined;
 }
