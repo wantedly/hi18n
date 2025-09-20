@@ -5,6 +5,7 @@ export type MessageNode =
   | PlaintextNode
   | MessageListNode
   | ArgNode
+  | InvalidArgNode
   | UnknownJSNode;
 
 export type MessageListNode = {
@@ -43,10 +44,26 @@ export type ArgNode = StringArgNode;
 
 export type StringArgNode = {
   type: "StringArg";
-  name: JSString;
+  name: string | number;
+  nameParts: JSString;
 };
-export function StringArgNode(name: JSString): StringArgNode {
-  return { type: "StringArg", name };
+export function StringArgNode(
+  name: string | number,
+  nameParts: JSString,
+): StringArgNode {
+  return { type: "StringArg", name, nameParts };
+}
+
+export type InvalidArgNode = {
+  type: "InvalidArg";
+  name: string | number | undefined;
+  nameParts: JSString | undefined;
+};
+export function InvalidArgNode(
+  name: string | number | undefined,
+  nameParts: JSString | undefined,
+): InvalidArgNode {
+  return { type: "InvalidArg", name, nameParts };
 }
 
 export type UnknownJSNode = {

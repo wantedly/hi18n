@@ -5191,6 +5191,7 @@ __metadata:
   dependencies:
     "@changesets/cli": "patch:@changesets/cli@npm%3A2.29.6#~/.yarn/patches/@changesets-cli-npm-2.29.6-ac8361deb8.patch"
     "@eslint/js": "npm:^9.34.0"
+    "@types/semver": "npm:^7.7.1"
     "@typescript-eslint/parser": "npm:^8.42.0"
     "@vitest/coverage-v8": "npm:^3.2.4"
     "@vitest/eslint-plugin": "npm:^1.3.9"

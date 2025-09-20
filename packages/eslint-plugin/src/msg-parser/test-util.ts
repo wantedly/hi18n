@@ -53,7 +53,12 @@ export function cleanseMessageNode(node: MessageNode): MessageNode {
     case "StringArg":
       return {
         ...node,
-        name: cleanseJSString(node.name),
+        nameParts: cleanseJSString(node.nameParts),
+      };
+    case "InvalidArg":
+      return {
+        ...node,
+        nameParts: node.nameParts ? cleanseJSString(node.nameParts) : undefined,
       };
     case "UnknownJS":
       return {

@@ -10,4 +10,7 @@ export type DiagnosticType =
   | "NonOctalEscapeInTemplateString"
   | "IncompleteHexEscapeInTemplateString"
   | "IncompleteUnicodeEscapeInTemplateString"
-  | "CodePointOutOfRangeInTemplateString";
+  | "CodePointOutOfRangeInTemplateString"
+  | "UnterminatedArgumentInMF1"
+  | "InvalidArgumentInMF1"
+  | "InvalidNumberInMF1";

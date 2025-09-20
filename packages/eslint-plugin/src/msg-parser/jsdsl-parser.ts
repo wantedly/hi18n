@@ -40,7 +40,7 @@ export function parseJSAsMessage(
         if (!isStringType(parsedFirstArg)) {
           return UnknownJSNode(node);
         }
-        return parseMF1(parsedFirstArg);
+        return parseMF1(parsedFirstArg, diagnostics);
       }
       break;
     }

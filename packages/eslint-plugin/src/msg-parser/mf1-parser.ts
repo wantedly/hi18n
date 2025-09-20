@@ -1,17 +1,24 @@
+import type { TSESTree } from "@typescript-eslint/utils";
 import {
+  InvalidArgNode,
   MessageListNode,
   MFEscapePart,
   PlaintextNode,
+  StringArgNode,
   type MessageNode,
 } from "./ast.ts";
+import type { Diagnostic } from "./diagnostic.ts";
 import type {
   JSString,
   JSStringPart,
   UnknownJSStringPart,
 } from "./js-string.ts";
 
-export function parseMF1(input: JSString): MessageNode {
-  const parser = new Parser(input);
+export function parseMF1(
+  input: JSString,
+  diagnostics: Diagnostic[],
+): MessageNode {
+  const parser = new Parser(input, diagnostics);
   return parser.readTopLevelMessage();
 }
 
@@ -19,9 +26,10 @@ class Parser {
   #inputParts: JSString;
   #input: string;
   #replacements: Record<number, UnknownJSStringPart> = {};
+  #diagnostics: Diagnostic[];
   #pos = 0;
 
-  constructor(inputParts: JSString) {
+  constructor(inputParts: JSString, diagnostics: Diagnostic[]) {
     this.#inputParts = inputParts;
     this.#input = "";
     for (const inputPart of inputParts) {
@@ -32,6 +40,7 @@ class Parser {
         this.#input += inputPart.value;
       }
     }
+    this.#diagnostics = diagnostics;
   }
 
   readTopLevelMessage(): MessageNode {
@@ -64,7 +73,7 @@ class Parser {
       }
       if (ch === "{") {
         parts.push(this.#readArgumentCall());
-        break;
+        continue;
       }
       if (ch === "\uFFFC" && this.#replacements[this.#pos]) {
         throw new Error("TODO: parse unknown string syntax");
@@ -152,31 +161,103 @@ class Parser {
 
   #readArgumentCall(): MessageNode {
     this.#pos++; // Skip '{'
+    const tok0 = this.#nextToken();
+    if (tok0.type === "Eof") {
+      this.#diagnostics.push({
+        type: "UnterminatedArgumentInMF1",
+        loc: jsStringLoc(this.#substringParts(tok0.start, tok0.end)),
+      });
+      this.#readPastArgumentCall(tok0);
+      return InvalidArgNode(undefined, undefined);
+    } else if (tok0.type !== "Identifier" && tok0.type !== "Number") {
+      this.#diagnostics.push({
+        type: "InvalidArgumentInMF1",
+        loc: jsStringLoc(this.#substringParts(tok0.start, tok0.end)),
+      });
+      this.#readPastArgumentCall(tok0);
+      return InvalidArgNode(undefined, undefined);
+    }
+    const name = tok0.type === "Identifier" ? tok0.name : tok0.value;
+    const nameParts = this.#substringParts(tok0.start, tok0.end);
+    const tok1 = this.#nextToken();
+    if (tok1.type === "RBrace") {
+      // Simple argument
+      return StringArgNode(name, nameParts);
+    } else if (tok1.type !== "Comma") {
+      this.#diagnostics.push({
+        type: "InvalidArgumentInMF1",
+        loc: jsStringLoc(this.#substringParts(tok1.start, tok1.end)),
+      });
+      this.#readPastArgumentCall(tok1);
+      return InvalidArgNode(name, nameParts);
+    }
+    throw new Error("TODO: parse complex argument");
+  }
+
+  #readPastArgumentCall(errorToken: Token): void {
+    if (errorToken.type === "LBrace" || errorToken.type === "RBrace") {
+      this.#pos = errorToken.start;
+    }
+    let braceDepth = 1;
     while (this.#pos < this.#input.length) {
       const ch = this.#input[this.#pos]!;
-      if (/\s/.test(ch)) {
-        this.#pos++;
-        continue;
+      this.#pos++;
+      if (ch === "{") {
+        braceDepth++;
+      } else if (ch === "}") {
+        braceDepth--;
+        if (braceDepth === 0) {
+          return;
+        }
       }
-      break;
     }
   }
 
   #nextToken(): Token {
     this.#skipWhitespace();
+    const start = this.#pos;
     if (this.#pos >= this.#input.length) {
-      return EofToken();
+      return EofToken(start, this.#pos);
     }
     const ch = this.#input[this.#pos]!;
     if (ch === "{") {
       this.#pos++;
-      return LBraceToken();
+      return LBraceToken(start, this.#pos);
     } else if (ch === "}") {
       this.#pos++;
-      return RBraceToken();
+      return RBraceToken(start, this.#pos);
+    } else if (ch === ",") {
+      this.#pos++;
+      return CommaToken(start, this.#pos);
+    } else if (/[0-9a-zA-Z_]/.test(ch)) {
+      const isNumberLike = /[0-9]/.test(ch);
+      const start = this.#pos;
+      this.#pos++;
+      while (/[0-9a-zA-Z_]/.test(this.#input[this.#pos] ?? "\0")) {
+        this.#pos++;
+      }
+      const nameParts = this.#substringParts(start, this.#pos);
+      const name = this.#input.slice(start, this.#pos);
+      if (isNumberLike) {
+        if (!/^(0|[1-9][0-9]*)$/.test(name)) {
+          this.#diagnostics.push({
+            type: "InvalidNumberInMF1",
+            loc: jsStringLoc(nameParts),
+          });
+        }
+        const num = parseInt(name, 10);
+        return NumberToken(num, start, this.#pos);
+      } else {
+        return IdentifierToken(name, start, this.#pos);
+      }
     } else {
-      // TODO: implement other tokens
-      throw new Error(`Unexpected character: '${ch}'`);
+      while (
+        this.#pos < this.#input.length &&
+        !/[\s{},0-9a-zA-Z_]/.test(this.#input[this.#pos] ?? "\0")
+      ) {
+        this.#pos++;
+      }
+      return UnknownToken(start, this.#pos);
     }
   }
 
@@ -190,77 +271,193 @@ class Parser {
   }
 
   #substringParts(start: number, end: number): JSString {
+    if (start > end) {
+      return [];
+    }
+    const startBoundaryParts: JSStringPart[] = [];
+    const endBoundaryParts: JSStringPart[] = [];
     const parts: JSStringPart[] = [];
     let pos = 0;
     for (const inputPart of this.#inputParts) {
       // For UnknownJSStringPart, we put U+FFFC as a replacement.
       const len =
         inputPart.type === "UnknownJSStringPart" ? 1 : inputPart.value.length;
-      if (pos + len > start && pos < end) {
-        if (inputPart.type === "JSVerbatim") {
-          const subStart = Math.max(0, start - pos);
-          const subEnd = Math.min(len, end - pos);
-          if (subStart === 0 && subEnd === len) {
-            parts.push(inputPart);
-          } else if (subStart < subEnd) {
-            // TODO: handle verbatim newlines in template literals
-            parts.push({
-              ...inputPart,
-              value: inputPart.value.slice(subStart, subEnd),
-              loc: {
-                start: {
-                  line: inputPart.loc.start.line,
-                  column: inputPart.loc.start.column + subStart,
-                },
-                end: {
-                  line: inputPart.loc.start.line,
-                  column: inputPart.loc.start.column + subEnd,
-                },
-              },
-            });
-          }
-        } else if (
-          inputPart.type === "UnknownJSStringPart" ||
-          inputPart.type === "JSEmptyEscape" ||
-          inputPart.type === "JSQuoteOpen" ||
-          inputPart.type === "JSQuoteClose" ||
-          inputPart.type === "JSConcat"
-        ) {
-          parts.push(inputPart);
+      const partStart = pos;
+      const partEnd = pos + len;
+      pos += len;
+      if (partEnd < start || partStart > end) {
+        continue;
+      }
+      const subStart = Math.max(0, start - partStart);
+      const subEnd = Math.min(len, end - partStart);
+      let part: JSStringPart = inputPart;
+      if (inputPart.type === "JSVerbatim") {
+        if (subStart === 0 && subEnd === len) {
+          // Use the whole part
         } else {
-          const subStart = Math.max(0, start - pos);
-          const subEnd = Math.min(len, end - pos);
-          parts.push({
+          // TODO: handle verbatim newlines in template literals
+          part = {
             ...inputPart,
             value: inputPart.value.slice(subStart, subEnd),
-          });
+            loc: {
+              start: {
+                line: inputPart.loc.start.line,
+                column: inputPart.loc.start.column + subStart,
+              },
+              end: {
+                line: inputPart.loc.start.line,
+                column: inputPart.loc.start.column + subEnd,
+              },
+            },
+          };
         }
+      } else if (
+        inputPart.type === "UnknownJSStringPart" ||
+        inputPart.type === "JSEmptyEscape" ||
+        inputPart.type === "JSQuoteOpen" ||
+        inputPart.type === "JSQuoteClose" ||
+        inputPart.type === "JSConcat"
+      ) {
+        // Use the whole part
+      } else if (
+        inputPart.loc &&
+        subStart === subEnd &&
+        subEnd === inputPart.value.length
+      ) {
+        part = {
+          ...inputPart,
+          value: inputPart.value.slice(subStart, subEnd),
+          loc: {
+            start: inputPart.loc.end,
+            end: inputPart.loc.end,
+          },
+        };
+      } else if (inputPart.loc && subStart === subEnd && subStart === 0) {
+        part = {
+          ...inputPart,
+          value: inputPart.value.slice(subStart, subEnd),
+          loc: {
+            start: inputPart.loc.start,
+            end: inputPart.loc.start,
+          },
+        };
+      } else {
+        part = {
+          ...inputPart,
+          value: inputPart.value.slice(subStart, subEnd),
+        };
       }
-      pos += len;
+      if (partEnd === start) {
+        startBoundaryParts.push(part);
+      } else if (partStart === end) {
+        endBoundaryParts.push(part);
+      } else {
+        parts.push(part);
+      }
+    }
+    if (parts.length === 0) {
+      if (end === this.#input.length && startBoundaryParts.length > 0) {
+        return [startBoundaryParts.at(-1)!];
+      } else if (endBoundaryParts.length > 0) {
+        return [endBoundaryParts[0]!];
+      } else if (startBoundaryParts.length > 0) {
+        return [startBoundaryParts.at(-1)!];
+      }
     }
     return parts;
   }
 }
 
-type Token = LBraceToken | RBraceToken | EofToken;
+type Token =
+  | IdentifierToken
+  | NumberToken
+  | LBraceToken
+  | RBraceToken
+  | CommaToken
+  | EofToken
+  | UnknownToken;
+
+type IdentifierToken = {
+  type: "Identifier";
+  name: string;
+  start: number;
+  end: number;
+};
+function IdentifierToken(
+  name: string,
+  start: number,
+  end: number,
+): IdentifierToken {
+  return { type: "Identifier", name, start, end };
+}
+
+type NumberToken = {
+  type: "Number";
+  value: number;
+  start: number;
+  end: number;
+};
+function NumberToken(value: number, start: number, end: number): NumberToken {
+  return { type: "Number", value, start, end };
+}
 
 type LBraceToken = {
   type: "LBrace";
+  start: number;
+  end: number;
 };
-function LBraceToken(): LBraceToken {
-  return { type: "LBrace" };
+function LBraceToken(start: number, end: number): LBraceToken {
+  return { type: "LBrace", start, end };
 }
 
 type RBraceToken = {
   type: "RBrace";
+  start: number;
+  end: number;
 };
-function RBraceToken(): RBraceToken {
-  return { type: "RBrace" };
+function RBraceToken(start: number, end: number): RBraceToken {
+  return { type: "RBrace", start, end };
+}
+
+type CommaToken = {
+  type: "Comma";
+  start: number;
+  end: number;
+};
+function CommaToken(start: number, end: number): CommaToken {
+  return { type: "Comma", start, end };
 }
 
 type EofToken = {
   type: "Eof";
+  start: number;
+  end: number;
 };
-function EofToken(): EofToken {
-  return { type: "Eof" };
+function EofToken(start: number, end: number): EofToken {
+  return { type: "Eof", start, end };
+}
+
+type UnknownToken = {
+  type: "Unknown";
+  start: number;
+  end: number;
+};
+function UnknownToken(start: number, end: number): UnknownToken {
+  return { type: "Unknown", start, end };
+}
+
+function jsStringLoc(s: JSString): TSESTree.SourceLocation {
+  let start: TSESTree.Position | null = null;
+  let end: TSESTree.Position | null = null;
+  for (const part of s) {
+    if (part.type === "UnknownJSStringPart" || part.type == "ExternalString") {
+      continue;
+    }
+    start ??= part.loc.start;
+    end = part.loc.end;
+  }
+  return {
+    start: start ?? { line: 0, column: 0 },
+    end: end ?? { line: 0, column: 0 },
+  };
 }
