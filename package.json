@@ -7,7 +7,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "yarn workspaces foreach -Apt run build",
+    "build": "yarn workspaces foreach -Ap --topological-dev run build",
     "clean": "yarn workspaces foreach -Ap run clean",
     "fmt": "prettier -w .",
     "fmt:check": "prettier -c .",
