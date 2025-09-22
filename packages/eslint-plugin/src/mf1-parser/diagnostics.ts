@@ -1,0 +1,36 @@
+import type { Range } from "./msgfmt.ts";
+
+export type Diagnostic = UnexpectedTokenDiagnostic | OtherDiagnostic;
+
+export type UnexpectedTokenDiagnostic = {
+  type: "UnexpectedToken";
+  tokenDesc: string;
+  expected: readonly string[];
+  range: Range;
+};
+
+export type OtherDiagnostic = {
+  type: DiagnosticType;
+  range: Range;
+};
+
+export type DiagnosticType =
+  | "UnclosedQuotedString"
+  | "InvalidCharacter"
+  | "InvalidIdentifier"
+  | "InvalidNumber";
+
+export function diagnosticDescription(d: Diagnostic): string {
+  switch (d.type) {
+    case "UnclosedQuotedString":
+      return "Unclosed quoted string";
+    case "UnexpectedToken":
+      return `Unexpected token ${d.tokenDesc} (expected ${d.expected.join(", ")})`;
+    case "InvalidCharacter":
+      return "Invalid character";
+    case "InvalidIdentifier":
+      return "Invalid identifier";
+    case "InvalidNumber":
+      return "Invalid number";
+  }
+}
