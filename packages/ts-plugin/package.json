@@ -34,6 +34,9 @@
     "build:cjs": "tsc -p tsconfig.build-cjs.json",
     "build:esm": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist cjs/dist",
+    "fmt": "yarn workspace root prettier -w ./packages/ts-plugin",
+    "fmt:check": "yarn workspace root prettier -c ./packages/ts-plugin",
+    "lint": "yarn workspace root eslint ./packages/ts-plugin",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "tsc": "tsc"
   },
