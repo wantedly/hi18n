@@ -44,6 +44,9 @@
     "build:cjs": "tsc -p tsconfig.build-cjs.json",
     "build:esm": "tsc -p tsconfig.build.json",
     "clean": "rimraf dist cjs/dist",
+    "fmt": "yarn workspace root prettier -w ./packages/connector-i18n-js",
+    "fmt:check": "yarn workspace root prettier -c ./packages/connector-i18n-js",
+    "lint": "yarn workspace root eslint ./packages/connector-i18n-js",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
     "tsc": "tsc"
