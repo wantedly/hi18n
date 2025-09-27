@@ -649,8 +649,8 @@ __metadata:
   dependencies:
     "@hi18n/core": "npm:*"
     "@hi18n/dev-utils": "npm:*"
-    "@hi18n/eslint-plugin": "npm:^0.2.3"
-    "@hi18n/tools-core": "npm:^0.1.6"
+    "@hi18n/eslint-plugin": "npm:^0.2.4"
+    "@hi18n/tools-core": "npm:^0.1.7"
     "@types/eslint": "npm:^9.6.1"
     "@types/espree": "npm:^10.1.0"
     "@types/node": "npm:^22.18.1"
@@ -676,7 +676,7 @@ __metadata:
   dependencies:
     "@hi18n/core": "npm:*"
     "@hi18n/dev-utils": "npm:*"
-    "@hi18n/tools-core": "npm:^0.1.6"
+    "@hi18n/tools-core": "npm:^0.1.7"
     "@types/js-yaml": "npm:^4.0.5"
     "@types/node": "npm:^22.18.1"
     glob: "npm:^10.4.5"
@@ -687,7 +687,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/core@npm:*, @hi18n/core@npm:^0.2.0, @hi18n/core@workspace:packages/core":
+"@hi18n/core@npm:*, @hi18n/core@npm:^0.2.5, @hi18n/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@hi18n/core@workspace:packages/core"
   dependencies:
@@ -711,7 +711,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@hi18n/eslint-plugin@npm:^0.2.3, @hi18n/eslint-plugin@workspace:packages/eslint-plugin":
+"@hi18n/eslint-plugin@npm:^0.2.4, @hi18n/eslint-plugin@workspace:packages/eslint-plugin":
   version: 0.0.0-use.local
   resolution: "@hi18n/eslint-plugin@workspace:packages/eslint-plugin"
   dependencies:
@@ -755,7 +755,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/react@workspace:packages/react"
   dependencies:
-    "@hi18n/core": "npm:^0.2.0"
+    "@hi18n/core": "npm:^0.2.5"
     "@hi18n/react-context": "npm:^0.2.0"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.8.0"
@@ -770,13 +770,13 @@ __metadata:
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   peerDependencies:
-    "@hi18n/core": ^0.2.0
+    "@hi18n/core": ^0.2.5
     "@hi18n/react-context": ^0.2.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   languageName: unknown
   linkType: soft
 
-"@hi18n/tools-core@npm:^0.1.6, @hi18n/tools-core@workspace:packages/tools-core":
+"@hi18n/tools-core@npm:^0.1.7, @hi18n/tools-core@workspace:packages/tools-core":
   version: 0.0.0-use.local
   resolution: "@hi18n/tools-core@workspace:packages/tools-core"
   dependencies:
