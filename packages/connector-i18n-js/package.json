@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@hi18n/tools-core": "^0.1.6",
-    "glob": "^10.4.5",
+    "glob": "^10.4.5 || ^11.0.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
