@@ -221,18 +221,19 @@ class Parser {
       case ",": {
         const argType_ = this.#nextToken(["identifier"]).raw;
         switch (argType_) {
-          case "choice":
-            throw new ParseError("choice is not supported");
-            break;
           case "plural":
             return this.#parsePluralArgument(name, start);
-          case "select":
-          case "selectordinal":
-            throw new Error("Unimplemented: selectArg");
-            break;
           default: {
             if (ARG_TYPES.indexOf(argType_) === -1) {
-              throw new ParseError(`Invalid argType: ${argType_}`);
+              this.#diagnostics.push({
+                type: "UnexpectedArgType",
+                argType: argType_,
+                expected: ARG_TYPES,
+                range: [this.#pos - argType_.length, this.#pos],
+              });
+              throw new ArgumentParseError(
+                `Unexpected argument type ${argType_}`,
+              );
             }
             const argType = argType_ as ArgType;
             switch (this.#nextToken(["}", ","]).type) {

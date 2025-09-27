@@ -305,9 +305,19 @@ describe("parseMF1Message", () => {
       expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 7] }));
     });
 
-    it("throws an error on unknown argType", () => {
-      expect(() => parseMF1Message("{foo,integer}")).toThrow(
-        /Invalid argType: integer/,
+    it("reports an error on unknown argType", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{foo,integer}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgType",
+          argType: "integer",
+          expected: ["number", "date", "time"],
+          range: [5, 12],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 13] }),
       );
     });
 
@@ -386,22 +396,48 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on spellout argType (1)", () => {
-      expect(() => parseMF1Message("{2,spellout}")).toThrow(
-        "Invalid argType: spellout",
+    it("reports an error on spellout argType (1)", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{2,spellout}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgType",
+          argType: "spellout",
+          expected: ["number", "date", "time"],
+          range: [3, 11],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode(2, { range: [0, 12] }));
+    });
+
+    it("reports an error on spellout argType (2)", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "{foo,spellout,integer}",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgType",
+          argType: "spellout",
+          expected: ["number", "date", "time"],
+          range: [5, 13],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 22] }),
       );
     });
 
-    it("throws an error on spellout argType (2)", () => {
-      expect(() => parseMF1Message("{foo,spellout,integer}")).toThrow(
-        "Invalid argType: spellout",
-      );
-    });
-
-    it("throws an error on ordinal argType", () => {
-      expect(() => parseMF1Message("{ 0 , ordinal }")).toThrow(
-        "Invalid argType: ordinal",
-      );
+    it("reports an error on ordinal argType", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{ 0 , ordinal }");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgType",
+          argType: "ordinal",
+          expected: ["number", "date", "time"],
+          range: [6, 13],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode(0, { range: [0, 15] }));
     });
 
     it("parses integer style", () => {
@@ -526,10 +562,17 @@ describe("parseMF1Message", () => {
   });
 
   describe("duration argument parsing", () => {
-    it("throws an error on duration argType", () => {
-      expect(() => parseMF1Message("{1,duration}")).toThrow(
-        "Invalid argType: duration",
-      );
+    it("reports an error on duration argType", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{1,duration}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgType",
+          argType: "duration",
+          expected: ["number", "date", "time"],
+          range: [3, 11],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode(1, { range: [0, 12] }));
     });
   });
 

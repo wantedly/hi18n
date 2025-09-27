@@ -3,11 +3,19 @@ import type { Range } from "./msgfmt.ts";
 export type Diagnostic =
   | UnexpectedTokenDiagnostic
   | UnexpectedArgStyleDiagnostic
+  | UnexpectedArgTypeDiagnostic
   | OtherDiagnostic;
 
 export type UnexpectedTokenDiagnostic = {
   type: "UnexpectedToken";
   tokenDesc: string;
+  expected: readonly string[];
+  range: Range;
+};
+
+export type UnexpectedArgTypeDiagnostic = {
+  type: "UnexpectedArgType";
+  argType: string;
   expected: readonly string[];
   range: Range;
 };
@@ -37,6 +45,13 @@ export function diagnosticDescription(d: Diagnostic): string {
       return "Unclosed quoted string";
     case "UnexpectedToken":
       return `Unexpected token ${d.tokenDesc} (expected ${d.expected.join(", ")})`;
+    case "UnexpectedArgType":
+      if (d.argType === "choice") {
+        return `${d.argType} is not supported (expected ${d.expected.join(", ")})`;
+      } else if (d.argType === "select" || d.argType === "selectordinal") {
+        return `${d.argType} is not implemented yet (expected ${d.expected.join(", ")})`;
+      }
+      return `Unexpected argument type ${d.argType} (expected ${d.expected.join(", ")})`;
     case "UnexpectedArgStyle":
       return `Unexpected argument style ${d.argStyle} for argument type ${d.argType} (expected ${d.expected.join(", ")})`;
     case "InvalidCharacter":
