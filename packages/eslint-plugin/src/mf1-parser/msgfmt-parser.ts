@@ -455,7 +455,7 @@ class Parser {
     noWhitespace?: string[],
   ): Token & { type: E[number] } {
     const start = this.#pos;
-    const [token, foundWhitespace] = this.#nextTokenImpl();
+    const [token, space] = this.#nextTokenImpl();
     if (expected.indexOf(token.type) === -1) {
       if (token.type === "EOF") {
         this.#reportEOFError({
@@ -477,36 +477,30 @@ class Parser {
         `Unexpected token ${tokenDesc(token)} (expected ${expected.join(", ")})`,
       );
     }
-    if (
-      noWhitespace &&
-      foundWhitespace &&
-      noWhitespace.indexOf(token.type) !== -1
-    )
-      throw new ParseError("No space allowed here");
+    if (noWhitespace && space && noWhitespace.indexOf(token.type) !== -1) {
+      this.#diagnostics.push({
+        type: "InvalidSpaces",
+        range: space.range,
+      });
+    }
     return token;
   }
 
-  #nextTokenImpl(): [Token, boolean] {
-    const foundWhitespace = this.#skipWhitespace();
+  #nextTokenImpl(): [Token, Space | undefined] {
+    const space = this.#skipWhitespace();
     if (this.#pos >= this.#src.length)
-      return [
-        { type: "EOF", raw: "", range: [this.#pos, this.#pos] },
-        foundWhitespace,
-      ];
+      return [{ type: "EOF", raw: "", range: [this.#pos, this.#pos] }, space];
     const ch = this.#src[this.#pos]!;
     const start = this.#pos;
     let kind: Token["type"];
     if (this.#src.startsWith("offset:", this.#pos)) {
       kind = "offset:";
       this.#pos += "offset:".length;
-      return [
-        { type: kind, raw: "offset:", range: [start, this.#pos] },
-        foundWhitespace,
-      ];
+      return [{ type: kind, raw: "offset:", range: [start, this.#pos] }, space];
     }
     const maybeIdent = this.#maybeReadIdentLike();
     if (maybeIdent) {
-      return [maybeIdent, foundWhitespace];
+      return [maybeIdent, space];
     }
     if (this.#src.startsWith("::", this.#pos)) {
       kind = "::";
@@ -532,7 +526,7 @@ class Parser {
         raw: this.#src.substring(start, this.#pos),
         range: [start, this.#pos],
       },
-      foundWhitespace,
+      space,
     ];
   }
 
@@ -574,7 +568,7 @@ class Parser {
     }
   }
 
-  #skipWhitespace(): boolean {
+  #skipWhitespace(): Space | undefined {
     const start = this.#pos;
     const suffix = this.#src.substring(this.#pos);
     const match = /^[\s\p{Cc}\p{Cf}\p{Cn}]*/u.exec(suffix)!;
@@ -590,10 +584,14 @@ class Parser {
       });
       this.#pos += match[0].length;
       // Behave as if there was no space to avoid duplicated errors.
-      return false;
+      return undefined;
     }
     this.#pos += match[0].length;
-    return this.#pos > start;
+    if (this.#pos > start) {
+      return { range: [start, this.#pos] };
+    } else {
+      return undefined;
+    }
   }
 
   #reportEOFError(diagnostic: Diagnostic): void {
@@ -727,6 +725,8 @@ type Token =
     };
 
 type NumberToken = { type: "number"; value: number; range: Range };
+
+type Space = { range: Range };
 
 function tokenDesc(token: Token): string {
   if (token.type === "unknown") {

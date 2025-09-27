@@ -35,6 +35,7 @@ export type OtherDiagnostic = {
 
 export type DiagnosticType =
   | "UnclosedQuotedString"
+  | "InvalidSpaces"
   | "InvalidCharacter"
   | "InvalidIdentifier"
   | "InvalidNumber";
@@ -54,6 +55,8 @@ export function diagnosticDescription(d: Diagnostic): string {
       return `Unexpected argument type ${d.argType} (expected ${d.expected.join(", ")})`;
     case "UnexpectedArgStyle":
       return `Unexpected argument style ${d.argStyle} for argument type ${d.argType} (expected ${d.expected.join(", ")})`;
+    case "InvalidSpaces":
+      return "No spaces allowed here";
     case "InvalidCharacter":
       return "Invalid character";
     case "InvalidIdentifier":

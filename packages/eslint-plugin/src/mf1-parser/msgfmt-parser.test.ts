@@ -971,9 +971,23 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on = + spaces + number", () => {
-      expect(() => parseMF1Message("{foo,plural,= 42{}other{}}")).toThrow(
-        "No space allowed here",
+    it("reports an error on = + spaces + number", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "{foo,plural,= 42{}other{}}",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "InvalidSpaces",
+          range: [13, 14],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1PluralArgNode(
+          "foo",
+          [MF1PluralBranch(42, MF1TextNode("", { range: [17, 17] }))],
+          MF1TextNode("", { range: [24, 24] }),
+          { range: [0, 26] },
+        ),
       );
     });
 
@@ -1228,15 +1242,27 @@ describe("parseMF1Message", () => {
       expect(() => parseMF1Message("</foo>")).toThrow("Found an unmatching <");
     });
 
-    it("throws an error on < + space", () => {
-      expect(() => parseMF1Message("< foo></foo>")).toThrow(
-        "No space allowed here",
+    it("reports an error on < + space", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("< foo></foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        { type: "InvalidSpaces", range: [1, 2] },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", MF1TextNode("", { range: [6, 6] }), {
+          range: [0, 12],
+        }),
       );
     });
 
-    it("throws an error on </ + space", () => {
-      expect(() => parseMF1Message("<foo></ foo>")).toThrow(
-        "No space allowed here",
+    it("reports an error on </ + space", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></ foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        { type: "InvalidSpaces", range: [7, 8] },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
+          range: [0, 12],
+        }),
       );
     });
 
@@ -1246,8 +1272,14 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on tag name + / + space", () => {
-      expect(() => parseMF1Message("<foo/ >")).toThrow("No space allowed here");
+    it("reports an error on tag name + / + space", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo/ >");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        { type: "InvalidSpaces", range: [5, 6] },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", undefined, { range: [0, 7] }),
+      );
     });
 
     it("throws an error on unmatched closing tag name", () => {
