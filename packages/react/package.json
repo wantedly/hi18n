@@ -70,7 +70,7 @@
     "pretty-format": "^30.0.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }
