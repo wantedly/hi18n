@@ -1,5 +1,13 @@
 # `@hi18n/react`
 
+## 0.2.1
+
+### Patch Changes
+
+- ba03f1b: chore(monorepo): use references in tsconfig
+- Updated dependencies [ba03f1b]
+  - @hi18n/core@0.2.5
+
 ## 0.2.0
 
 ### Migration Guide

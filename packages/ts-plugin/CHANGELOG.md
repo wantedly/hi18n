@@ -1,5 +1,11 @@
 # `@hi18n/ts-plugin`
 
+## 0.1.6
+
+### Patch Changes
+
+- ba03f1b: chore(monorepo): use references in tsconfig
+
 ## 0.1.5
 
 ### Patch Changes
