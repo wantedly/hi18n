@@ -57,7 +57,7 @@
   "devDependencies": {
     "@hi18n/core": "*",
     "@hi18n/dev-utils": "*",
-    "@types/js-yaml": "^4.0.5",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.18.1",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2",
