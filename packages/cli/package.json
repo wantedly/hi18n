@@ -27,6 +27,7 @@
   "author": "Masaki Hara <ackie.h.gmai@gmail.com>",
   "license": "MIT",
   "files": [
+    "bin/hi18n.cjs",
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",

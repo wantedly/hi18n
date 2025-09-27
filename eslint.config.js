@@ -170,13 +170,6 @@ export default defineConfig([
     },
   },
   {
-    files: ["**/bin/hi18n.cjs"],
-    rules: {
-      // Ignoring it for now
-      "n/no-unpublished-bin": "off",
-    },
-  },
-  {
     extends: [eslintConfigPrettier],
   },
 ]);
