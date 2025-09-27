@@ -30,7 +30,7 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts",
+    "!**/*.test.*",
     "msg.d.ts"
   ],
   "type": "module",
@@ -47,16 +47,14 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
-    "build:cjs": "tsc -p tsconfig.build-cjs.json",
-    "build:esm": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist cjs/dist",
+    "build": "tsc --build",
+    "clean": "rimraf dist cjs/dist '*.tsbuildinfo'",
     "fmt": "yarn workspace root prettier -w ./packages/core",
     "fmt:check": "yarn workspace root prettier -c ./packages/core",
     "lint": "yarn workspace root eslint ./packages/core",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
-    "tsc": "tsc"
+    "tsc": "tsc --build"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",

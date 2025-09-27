@@ -32,7 +32,7 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts"
+    "!**/*.test.*"
   ],
   "type": "module",
   "main": "./cjs/wrapper.js",
@@ -47,16 +47,14 @@
     }
   },
   "scripts": {
-    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
-    "build:cjs": "tsc -p tsconfig.build-cjs.json",
-    "build:esm": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist cjs/dist",
+    "build": "tsc --build",
+    "clean": "rimraf dist cjs/dist '*.tsbuildinfo'",
     "fmt": "yarn workspace root prettier -w ./packages/eslint-plugin",
     "fmt:check": "yarn workspace root prettier -c ./packages/eslint-plugin",
     "lint": "yarn workspace root eslint ./packages/eslint-plugin",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
-    "tsc": "tsc"
+    "tsc": "tsc --build"
   },
   "dependencies": {
     "@typescript-eslint/utils": "^8.42.0",
