@@ -1,5 +1,11 @@
 # `@hi18n/eslint-plugin`
 
+## 0.2.4
+
+### Patch Changes
+
+- ba03f1b: chore(monorepo): use references in tsconfig
+
 ## 0.2.3
 
 ### Patch Changes

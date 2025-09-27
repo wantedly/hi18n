@@ -1,5 +1,11 @@
 # `@hi18n/core`
 
+## 0.2.5
+
+### Patch Changes
+
+- ba03f1b: chore(monorepo): use references in tsconfig
+
 ## 0.2.4
 
 ### Patch Changes
