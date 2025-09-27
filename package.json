@@ -13,6 +13,7 @@
     "fmt:check": "prettier -c .",
     "lint": "yarn build && yarn lint:nobuild",
     "lint:nobuild": "yarn eslint .",
+    "setup": "yarn install && husky",
     "test": "yarn build && yarn test:nobuild",
     "test:nobuild": "yarn vitest",
     "tsc": "tsc --build"
@@ -29,7 +30,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.3.0",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.2.1",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0",
