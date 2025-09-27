@@ -2,7 +2,17 @@
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "module": "commonjs",
+    "moduleResolution": "node10",
     "outDir": "./cjs/dist",
+    "tsBuildInfoFile": "./tsconfig.build-cjs.tsbuildinfo",
     "verbatimModuleSyntax": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.*", "src/__fixtures__/**/*"],
+  "references": [
+    { "path": "../eslint-plugin/tsconfig.build-cjs.json" },
+    { "path": "../tools-core/tsconfig.build-cjs.json" },
+    { "path": "../core/tsconfig.build-cjs.json" },
+    { "path": "../dev-utils/tsconfig.build-cjs.json" }
+  ]
 }

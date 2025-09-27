@@ -31,7 +31,7 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts"
+    "!**/*.test.*"
   ],
   "type": "module",
   "main": "./cjs/dist/index.js",
@@ -40,16 +40,14 @@
     "default": "./dist/index.js"
   },
   "scripts": {
-    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
-    "build:cjs": "tsc -p tsconfig.build-cjs.json",
-    "build:esm": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist cjs/dist",
+    "build": "tsc --build",
+    "clean": "rimraf dist cjs/dist '*.tsbuildinfo'",
     "fmt": "yarn workspace root prettier -w ./packages/dev-utils",
     "fmt:check": "yarn workspace root prettier -c ./packages/dev-utils",
     "lint": "yarn workspace root eslint ./packages/dev-utils",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
-    "tsc": "tsc"
+    "tsc": "tsc --build"
   },
   "dependencies": {
     "commander": "^13.1.0",

@@ -1,27 +1,25 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "esnext",
-    "useDefineForClassFields": true,
-    "module": "nodenext",
-    "jsx": "react-jsx",
-    "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true,
-    "noUncheckedSideEffectImports": true,
-
-    "noEmit": true,
-    "declaration": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "isolatedDeclarations": true,
-    "erasableSyntaxOnly": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-
-    "strict": true,
-    "exactOptionalPropertyTypes": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-
-    "skipLibCheck": true
-  }
+    "noEmit": true
+  },
+  "references": [
+    { "path": "./packages/core/tsconfig.build.json" },
+    { "path": "./packages/core/tsconfig.build-cjs.json" },
+    { "path": "./packages/react/tsconfig.build.json" },
+    { "path": "./packages/react/tsconfig.build-cjs.json" },
+    { "path": "./packages/eslint-plugin/tsconfig.build.json" },
+    { "path": "./packages/eslint-plugin/tsconfig.build-cjs.json" },
+    { "path": "./packages/dev-utils/tsconfig.build.json" },
+    { "path": "./packages/dev-utils/tsconfig.build-cjs.json" },
+    { "path": "./packages/tools-core/tsconfig.build.json" },
+    { "path": "./packages/tools-core/tsconfig.build-cjs.json" },
+    { "path": "./packages/cli/tsconfig.build.json" },
+    { "path": "./packages/cli/tsconfig.build-cjs.json" },
+    { "path": "./packages/connector-i18n-js/tsconfig.build.json" },
+    { "path": "./packages/connector-i18n-js/tsconfig.build-cjs.json" },
+    { "path": "./packages/ts-plugin/tsconfig.build.json" },
+    { "path": "./packages/ts-plugin/tsconfig.build-cjs.json" }
+  ],
+  "exclude": ["packages/*/dist/**/*", "packages/*/src"]
 }

@@ -30,7 +30,7 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts",
+    "!**/*.test.*",
     "!src/__fixtures__/**/*"
   ],
   "bin": {
@@ -43,16 +43,14 @@
     "default": "./dist/index.js"
   },
   "scripts": {
-    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
-    "build:cjs": "tsc -p tsconfig.build-cjs.json",
-    "build:esm": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist cjs/dist",
+    "build": "tsc --build",
+    "clean": "rimraf dist cjs/dist '*.tsbuildinfo'",
     "fmt": "yarn workspace root prettier -w ./packages/cli",
     "fmt:check": "yarn workspace root prettier -c ./packages/cli",
     "lint": "yarn workspace root eslint ./packages/cli",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
-    "tsc": "tsc"
+    "tsc": "tsc --build"
   },
   "dependencies": {
     "@hi18n/eslint-plugin": "^0.2.3",

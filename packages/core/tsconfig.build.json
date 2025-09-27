@@ -1,13 +1,11 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": false,
+    // https://caniuse.com/mdn-javascript_classes_static_initialization_blocks
+    "target": "es2021",
+
     "rootDir": "./src",
-    "outDir": "./dist",
-    "declaration": true,
-    "sourceMap": true,
-    "declarationMap": true
+    "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["**/*.test.ts"]
+  "include": ["src/**/*"]
 }

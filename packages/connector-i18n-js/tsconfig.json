@@ -1,4 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
-  "exclude": ["dist/**/*", "cjs/dist/**/*", "src/__fixtures__/**/*"]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "exclude": ["dist/**/*", "cjs/dist/**/*", "src/**/*"],
+  "references": [
+    { "path": "./tsconfig.build.json" },
+    { "path": "./tsconfig.build-cjs.json" }
+  ]
 }

@@ -32,8 +32,7 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts",
-    "!src/**/*.test.tsx"
+    "!**/*.test.*"
   ],
   "type": "module",
   "main": "./cjs/dist/index.js",
@@ -43,16 +42,14 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
-    "build:cjs": "tsc -p tsconfig.build-cjs.json",
-    "build:esm": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist cjs/dist",
+    "build": "tsc --build",
+    "clean": "rimraf dist cjs/dist '*.tsbuildinfo'",
     "fmt": "yarn workspace root prettier -w ./packages/react",
     "fmt:check": "yarn workspace root prettier -c ./packages/react",
     "lint": "yarn workspace root eslint ./packages/react",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
     "test": "vitest",
-    "tsc": "tsc"
+    "tsc": "tsc --build"
   },
   "dependencies": {
     "@types/react": "^16.8.3 || ^17.0.0 || ^18.0.0 || ^19.0.0"

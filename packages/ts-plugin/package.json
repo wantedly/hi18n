@@ -21,7 +21,7 @@
     "dist/**/*",
     "cjs/**/*",
     "src/**/*",
-    "!src/**/*.test.ts"
+    "!**/*.test.*"
   ],
   "type": "module",
   "main": "./cjs/wrapper.js",
@@ -30,15 +30,13 @@
     "default": "./dist/index.js"
   },
   "scripts": {
-    "build": "$npm_execpath run build:esm && $npm_execpath run build:cjs",
-    "build:cjs": "tsc -p tsconfig.build-cjs.json",
-    "build:esm": "tsc -p tsconfig.build.json",
-    "clean": "rimraf dist cjs/dist",
+    "build": "tsc --build",
+    "clean": "rimraf dist cjs/dist '*.tsbuildinfo'",
     "fmt": "yarn workspace root prettier -w ./packages/ts-plugin",
     "fmt:check": "yarn workspace root prettier -c ./packages/ts-plugin",
     "lint": "yarn workspace root eslint ./packages/ts-plugin",
     "prepack": "$npm_execpath run clean && $npm_execpath run build",
-    "tsc": "tsc"
+    "tsc": "tsc --build"
   },
   "devDependencies": {
     "@types/node": "^22.18.1",

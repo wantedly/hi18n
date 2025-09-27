@@ -1,13 +1,14 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": false,
     "rootDir": "./src",
-    "outDir": "./dist",
-    "declaration": true,
-    "sourceMap": true,
-    "declarationMap": true
+    "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["src/__fixtures__/**/*", "**/*.test.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["src/__fixtures__/**/*"],
+  "references": [
+    { "path": "../tools-core/tsconfig.build.json" },
+    { "path": "../core/tsconfig.build.json" },
+    { "path": "../dev-utils/tsconfig.build.json" }
+  ]
 }

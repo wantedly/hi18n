@@ -2,7 +2,12 @@
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
     "module": "commonjs",
+    "moduleResolution": "node10",
     "outDir": "./cjs/dist",
+    "tsBuildInfoFile": "./tsconfig.build-cjs.tsbuildinfo",
     "verbatimModuleSyntax": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.*"],
+  "references": [{ "path": "../core/tsconfig.build-cjs.json" }]
 }

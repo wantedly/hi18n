@@ -7,16 +7,15 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "yarn workspaces foreach -Ap --topological-dev run build",
-    "clean": "yarn workspaces foreach -Ap run clean",
+    "build": "tsc --build",
+    "clean": "yarn workspaces foreach -Ap run clean && rm -f '*.tsbuildinfo'",
     "fmt": "prettier -w .",
     "fmt:check": "prettier -c .",
     "lint": "yarn build && yarn lint:nobuild",
     "lint:nobuild": "yarn eslint .",
     "test": "yarn build && yarn test:nobuild",
     "test:nobuild": "yarn vitest",
-    "tsc": "yarn build && yarn tsc:nobuild",
-    "tsc:nobuild": "yarn workspaces foreach -Ap --exclude root run tsc"
+    "tsc": "tsc --build"
   },
   "devDependencies": {
     "@changesets/cli": "patch:@changesets/cli@npm%3A2.29.6#~/.yarn/patches/@changesets-cli-npm-2.29.6-ac8361deb8.patch",

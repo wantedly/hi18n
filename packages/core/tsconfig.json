@@ -1,9 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    // https://caniuse.com/mdn-javascript_classes_static_initialization_blocks
-    "target": "es2021",
-    "lib": ["esnext", "dom"]
+    "noEmit": true
   },
-  "exclude": ["dist/**/*", "cjs/dist/**/*"]
+  "exclude": ["dist/**/*", "cjs/dist/**/*", "src/**/*"],
+  "references": [
+    { "path": "./tsconfig.build.json" },
+    { "path": "./tsconfig.build-cjs.json" }
+  ]
 }
