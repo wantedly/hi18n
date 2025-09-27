@@ -414,9 +414,21 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on currency style", () => {
-      expect(() => parseMF1Message("{foo,number,currency}")).toThrow(
-        "Invalid argStyle for number: currency",
+    it("reports an error on currency style", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "{foo,number,currency}",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgStyle",
+          argType: "number",
+          argStyle: "currency",
+          expected: ["integer", "percent"],
+          range: [12, 20],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 21] }),
       );
     });
 
@@ -442,15 +454,56 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on unknown style name (1)", () => {
-      expect(() => parseMF1Message("{foo,number,foobar}")).toThrow(
-        "Invalid argStyle for number: foobar",
+    it("reports an error on unknown style name (1)", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "{foo,number,foobar}",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgStyle",
+          argType: "number",
+          argStyle: "foobar",
+          expected: ["integer", "percent"],
+          range: [12, 18],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 19] }),
       );
     });
 
-    it("throws an error on unknown style name (2)", () => {
-      expect(() => parseMF1Message("{foo,number,full}")).toThrow(
-        "Invalid argStyle for number: full",
+    it("reports an error on unknown style name (2)", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{foo,number,full}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgStyle",
+          argType: "number",
+          argStyle: "full",
+          expected: ["integer", "percent"],
+          range: [12, 16],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 17] }),
+      );
+    });
+
+    it("reports an error on skeleton style", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "{foo,number,::currency/USD}",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgStyle",
+          argType: "number",
+          argStyle: "::skeleton",
+          expected: ["integer", "percent"],
+          range: [12, 14],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 27] }),
       );
     });
 
@@ -556,9 +609,20 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on unknown style name", () => {
-      expect(() => parseMF1Message("{foo,date,integer}")).toThrow(
-        "Invalid argStyle for date: integer",
+    it("reports an error on unknown style name", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{foo,date,integer}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedArgStyle",
+          argType: "date",
+          argStyle: "integer",
+          expected: ["short", "medium", "long", "full", "::skeleton"],
+          range: [10, 17],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: [0, 18] }),
       );
     });
 

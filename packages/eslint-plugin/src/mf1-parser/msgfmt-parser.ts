@@ -42,6 +42,12 @@ type ArgType = "number" | "date" | "time";
 
 const ARG_TYPES = ["number", "date", "time"];
 
+const EXPECTED_ARG_STYLES: Record<ArgType, readonly string[]> = {
+  number: ["integer", "percent"],
+  date: ["short", "medium", "long", "full", "::skeleton"],
+  time: ["short", "medium", "long", "full"],
+};
+
 // References for ICU MessageFormat syntax:
 // https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/MessageFormat.html
 // https://unicode-org.github.io/icu/userguide/format_parse/messages/
@@ -231,24 +237,37 @@ class Parser {
             const argType = argType_ as ArgType;
             switch (this.#nextToken(["}", ","]).type) {
               case "}":
-                return fromArgTypeAndStyle(name, argType, undefined, [
-                  start,
-                  this.#pos,
-                ]);
+                return this.#fromArgTypeAndStyle(
+                  name,
+                  argType,
+                  undefined,
+                  [start, this.#pos],
+                  [0, 0],
+                );
               case ",": {
                 const argStyleToken = this.#nextToken(["identifier", "::"]);
                 switch (argStyleToken.type) {
                   case "identifier": {
                     const argStyle = argStyleToken.raw;
                     this.#nextToken(["}"]);
-                    return fromArgTypeAndStyle(name, argType, argStyle, [
-                      start,
-                      this.#pos,
-                    ]);
+                    return this.#fromArgTypeAndStyle(
+                      name,
+                      argType,
+                      argStyle,
+                      [start, this.#pos],
+                      argStyleToken.range,
+                    );
                   }
                   case "::": {
                     if (argType !== "date") {
-                      throw new ParseError(
+                      this.#diagnostics.push({
+                        type: "UnexpectedArgStyle",
+                        argType,
+                        argStyle: "::skeleton",
+                        expected: EXPECTED_ARG_STYLES[argType],
+                        range: [this.#pos - 2, this.#pos],
+                      });
+                      throw new ArgumentParseError(
                         `Invalid argStyle for ${argType}: ::`,
                       );
                     }
@@ -265,6 +284,93 @@ class Parser {
           }
         }
       }
+    }
+  }
+
+  #fromArgTypeAndStyle(
+    name: string | number,
+    argType: ArgType,
+    argStyle: string | undefined,
+    range: Range,
+    argStyleRange: Range,
+  ): MF1VarArgNode {
+    switch (argType) {
+      case "number": {
+        let derivedStyle: Intl.NumberFormatOptions;
+        switch (argStyle) {
+          case undefined:
+            derivedStyle = {};
+            break;
+          case "integer":
+            derivedStyle = { maximumFractionDigits: 0 };
+            break;
+          case "percent":
+            derivedStyle = { style: "percent" };
+            break;
+          default:
+            this.#diagnostics.push({
+              type: "UnexpectedArgStyle",
+              argType,
+              argStyle,
+              expected: EXPECTED_ARG_STYLES[argType],
+              range: argStyleRange,
+            });
+            throw new ArgumentParseError(
+              `Invalid argStyle for number: ${argStyle}`,
+            );
+        }
+        return MF1NumberArgNode(name, derivedStyle, { subtract: 0, range });
+      }
+      case "date":
+        switch (argStyle) {
+          case undefined:
+          case "short":
+          case "medium":
+          case "long":
+          case "full":
+            return MF1DateTimeArgNode(
+              name,
+              { dateStyle: argStyle ?? "medium" },
+              { range },
+            );
+          default:
+            this.#diagnostics.push({
+              type: "UnexpectedArgStyle",
+              argType,
+              argStyle,
+              expected: EXPECTED_ARG_STYLES[argType],
+              range: argStyleRange,
+            });
+            throw new ArgumentParseError(
+              `Invalid argStyle for date: ${argStyle}`,
+            );
+        }
+      case "time":
+        switch (argStyle) {
+          case undefined:
+          case "short":
+          case "medium":
+          case "long":
+          case "full":
+            return MF1DateTimeArgNode(
+              name,
+              { timeStyle: argStyle ?? "medium" },
+              { range },
+            );
+          default:
+            this.#diagnostics.push({
+              type: "UnexpectedArgStyle",
+              argType,
+              argStyle,
+              expected: EXPECTED_ARG_STYLES[argType],
+              range: argStyleRange,
+            });
+            throw new ArgumentParseError(
+              `Invalid argStyle for time: ${argStyle}`,
+            );
+        }
+      default:
+        throw new TypeError(`Unknown argType: ${argType as string}`);
     }
   }
 
@@ -382,14 +488,20 @@ class Parser {
   #nextTokenImpl(): [Token, boolean] {
     const foundWhitespace = this.#skipWhitespace();
     if (this.#pos >= this.#src.length)
-      return [{ type: "EOF", raw: "" }, foundWhitespace];
+      return [
+        { type: "EOF", raw: "", range: [this.#pos, this.#pos] },
+        foundWhitespace,
+      ];
     const ch = this.#src[this.#pos]!;
     const start = this.#pos;
     let kind: Token["type"];
     if (this.#src.startsWith("offset:", this.#pos)) {
       kind = "offset:";
       this.#pos += "offset:".length;
-      return [{ type: kind, raw: "offset:" }, foundWhitespace];
+      return [
+        { type: kind, raw: "offset:", range: [start, this.#pos] },
+        foundWhitespace,
+      ];
     }
     const maybeIdent = this.#maybeReadIdentLike();
     if (maybeIdent) {
@@ -414,7 +526,11 @@ class Parser {
       this.#pos++;
     }
     return [
-      { type: kind, raw: this.#src.substring(start, this.#pos) },
+      {
+        type: kind,
+        raw: this.#src.substring(start, this.#pos),
+        range: [start, this.#pos],
+      },
       foundWhitespace,
     ];
   }
@@ -437,7 +553,11 @@ class Parser {
         });
       }
       this.#pos += match[0].length;
-      return { type: "number", value: parseInt(match[0], 10) || 0 };
+      return {
+        type: "number",
+        value: parseInt(match[0], 10) || 0,
+        range: [start, this.#pos],
+      };
     } else {
       // Consider it an identifier
       // It should be /[\p{Pattern_Syntax}\p{Pattern_White_Space}]/u
@@ -449,7 +569,7 @@ class Parser {
         });
       }
       this.#pos += match[0].length;
-      return { type: "identifier", raw: match[0] };
+      return { type: "identifier", raw: match[0], range: [start, this.#pos] };
     }
   }
 
@@ -489,65 +609,6 @@ type ArgumentState = {
 class ArgumentParseError extends Error {
   static {
     this.prototype.name = "ArgumentParseError";
-  }
-}
-
-function fromArgTypeAndStyle(
-  name: string | number,
-  argType: ArgType,
-  argStyle: string | undefined,
-  range: Range,
-): MF1VarArgNode {
-  switch (argType) {
-    case "number": {
-      let derivedStyle: Intl.NumberFormatOptions;
-      switch (argStyle) {
-        case undefined:
-          derivedStyle = {};
-          break;
-        case "integer":
-          derivedStyle = { maximumFractionDigits: 0 };
-          break;
-        case "percent":
-          derivedStyle = { style: "percent" };
-          break;
-        default:
-          throw new ParseError(`Invalid argStyle for number: ${argStyle}`);
-      }
-      return MF1NumberArgNode(name, derivedStyle, { subtract: 0, range });
-    }
-    case "date":
-      switch (argStyle) {
-        case undefined:
-        case "short":
-        case "medium":
-        case "long":
-        case "full":
-          return MF1DateTimeArgNode(
-            name,
-            { dateStyle: argStyle ?? "medium" },
-            { range },
-          );
-        default:
-          throw new ParseError(`Invalid argStyle for date: ${argStyle}`);
-      }
-    case "time":
-      switch (argStyle) {
-        case undefined:
-        case "short":
-        case "medium":
-        case "long":
-        case "full":
-          return MF1DateTimeArgNode(
-            name,
-            { timeStyle: argStyle ?? "medium" },
-            { range },
-          );
-        default:
-          throw new ParseError(`Invalid argStyle for time: ${argStyle}`);
-      }
-    default:
-      throw new TypeError(`Unknown argType: ${argType as string}`);
   }
 }
 
@@ -661,9 +722,10 @@ type Token =
         | "EOF"
         | "unknown";
       raw: string;
+      range: Range;
     };
 
-type NumberToken = { type: "number"; value: number };
+type NumberToken = { type: "number"; value: number; range: Range };
 
 function tokenDesc(token: Token): string {
   if (token.type === "unknown") {
