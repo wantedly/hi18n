@@ -662,7 +662,7 @@ __metadata:
     eslint: "npm:^9.34.0"
     glob: "npm:^10.4.5"
     resolve: "npm:^1.22.0"
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   bin:
@@ -681,7 +681,7 @@ __metadata:
     "@types/node": "npm:^22.18.1"
     glob: "npm:^10.4.5"
     js-yaml: "npm:^4.1.0"
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
@@ -691,7 +691,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/core@workspace:packages/core"
   dependencies:
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
@@ -705,7 +705,7 @@ __metadata:
     commander: "npm:^13.1.0"
     fs-extra: "npm:^11.0.0"
     glob: "npm:^10.4.5"
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
@@ -728,7 +728,7 @@ __metadata:
     eslint: "npm:^9.34.0"
     eslint-visitor-keys: "npm:^4.2.1"
     espree: "npm:^10.4.0"
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   peerDependencies:
@@ -766,7 +766,7 @@ __metadata:
     pretty-format: "npm:^30.0.5"
     react: "npm:^19.1.1"
     react-dom: "npm:^19.1.1"
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   peerDependencies:
@@ -780,7 +780,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@hi18n/tools-core@workspace:packages/tools-core"
   dependencies:
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
     vitest: "npm:^3.2.4"
   languageName: unknown
@@ -791,7 +791,7 @@ __metadata:
   resolution: "@hi18n/ts-plugin@workspace:packages/ts-plugin"
   dependencies:
     "@types/node": "npm:^22.18.1"
-    rimraf: "npm:^3.0.2"
+    rimraf: "npm:^6.0.1"
     typescript: "npm:^5.9.2"
   languageName: unknown
   linkType: soft
@@ -846,6 +846,22 @@ __metadata:
     "@types/node":
       optional: true
   checksum: 10/d07419dc8448413071e6c674984505873510580b0e0ee81d488c1fea4372e30ee88aa124f76118899dccd58137b78f39d5d40efb2696d999df48c7420f1b6256
+  languageName: node
+  linkType: hard
+
+"@isaacs/balanced-match@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@isaacs/balanced-match@npm:4.0.1"
+  checksum: 10/102fbc6d2c0d5edf8f6dbf2b3feb21695a21bc850f11bc47c4f06aa83bd8884fde3fe9d6d797d619901d96865fdcb4569ac2a54c937992c48885c5e3d9967fe8
+  languageName: node
+  linkType: hard
+
+"@isaacs/brace-expansion@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@isaacs/brace-expansion@npm:5.0.0"
+  dependencies:
+    "@isaacs/balanced-match": "npm:^4.0.1"
+  checksum: 10/cf3b7f206aff12128214a1df764ac8cdbc517c110db85249b945282407e3dfc5c6e66286383a7c9391a059fc8e6e6a8ca82262fc9d2590bd615376141fbebd2d
   languageName: node
   linkType: hard
 
@@ -1677,14 +1693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-styles@npm:^6.1.0":
-  version: 6.2.1
-  resolution: "ansi-styles@npm:6.2.1"
-  checksum: 10/70fdf883b704d17a5dfc9cde206e698c16bcd74e7f196ab821511651aee4f9f76c9514bdfa6ca3a27b5e49138b89cb222a28caf3afe4567570139577f991df32
-  languageName: node
-  linkType: hard
-
-"ansi-styles@npm:^6.2.1":
+"ansi-styles@npm:^6.1.0, ansi-styles@npm:^6.2.1":
   version: 6.2.3
   resolution: "ansi-styles@npm:6.2.3"
   checksum: 10/c49dad7639f3e48859bd51824c93b9eb0db628afc243c51c3dd2410c4a15ede1a83881c6c7341aa2b159c4f90c11befb38f2ba848c07c66c9f9de4bcd7cb9f30
@@ -3030,7 +3039,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"foreground-child@npm:^3.1.0":
+"foreground-child@npm:^3.1.0, foreground-child@npm:^3.3.1":
   version: 3.3.1
   resolution: "foreground-child@npm:3.3.1"
   dependencies:
@@ -3238,6 +3247,22 @@ __metadata:
   bin:
     glob: dist/esm/bin.mjs
   checksum: 10/698dfe11828b7efd0514cd11e573eaed26b2dff611f0400907281ce3eab0c1e56143ef9b35adc7c77ecc71fba74717b510c7c223d34ca8a98ec81777b293d4ac
+  languageName: node
+  linkType: hard
+
+"glob@npm:^11.0.0":
+  version: 11.0.3
+  resolution: "glob@npm:11.0.3"
+  dependencies:
+    foreground-child: "npm:^3.3.1"
+    jackspeak: "npm:^4.1.1"
+    minimatch: "npm:^10.0.3"
+    minipass: "npm:^7.1.2"
+    package-json-from-dist: "npm:^1.0.0"
+    path-scurry: "npm:^2.0.0"
+  bin:
+    glob: dist/esm/bin.mjs
+  checksum: 10/2ae536c1360c0266b523b2bfa6aadc10144a8b7e08869b088e37ac3c27cd30774f82e4bfb291cde796776e878f9e13200c7ff44010eb7054e00f46f649397893
   languageName: node
   linkType: hard
 
@@ -3891,6 +3916,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jackspeak@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "jackspeak@npm:4.1.1"
+  dependencies:
+    "@isaacs/cliui": "npm:^8.0.2"
+  checksum: 10/ffceb270ec286841f48413bfb4a50b188662dfd599378ce142b6540f3f0a66821dc9dcb1e9ebc55c6c3b24dc2226c96e5819ba9bd7a241bd29031b61911718c7
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -4151,6 +4185,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lru-cache@npm:^11.0.0":
+  version: 11.2.2
+  resolution: "lru-cache@npm:11.2.2"
+  checksum: 10/fa7919fbf068a739f79a1ad461eb273514da7246cebb9dca68e3cd7ba19e3839e7e2aaecd9b72867e08038561eeb96941189e89b3d4091c75ced4f56c71c80db
+  languageName: node
+  linkType: hard
+
 "lru-cache@npm:^7.7.1":
   version: 7.7.3
   resolution: "lru-cache@npm:7.7.3"
@@ -4235,6 +4276,15 @@ __metadata:
   version: 1.0.1
   resolution: "min-indent@npm:1.0.1"
   checksum: 10/bfc6dd03c5eaf623a4963ebd94d087f6f4bbbfd8c41329a7f09706b0cb66969c4ddd336abeb587bc44bc6f08e13bf90f0b374f9d71f9f01e04adc2cd6f083ef1
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^10.0.3":
+  version: 10.0.3
+  resolution: "minimatch@npm:10.0.3"
+  dependencies:
+    "@isaacs/brace-expansion": "npm:^5.0.0"
+  checksum: 10/d5b8b2538b367f2cfd4aeef27539fddeee58d1efb692102b848e4a968a09780a302c530eb5aacfa8c57f7299155fb4b4e85219ad82664dcef5c66f657111d9b8
   languageName: node
   linkType: hard
 
@@ -4709,6 +4759,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path-scurry@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "path-scurry@npm:2.0.0"
+  dependencies:
+    lru-cache: "npm:^11.0.0"
+    minipass: "npm:^7.1.2"
+  checksum: 10/285ae0c2d6c34ae91dc1d5378ede21981c9a2f6de1ea9ca5a88b5a270ce9763b83dbadc7a324d512211d8d36b0c540427d3d0817030849d97a60fa840a2c59ec
+  languageName: node
+  linkType: hard
+
 "path-type@npm:^4.0.0":
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
@@ -5088,6 +5148,18 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 10/063ffaccaaaca2cfd0ef3beafb12d6a03dd7ff1260d752d62a6077b5dfff6ae81bea571f655bb6b589d366930ec1bdd285d40d560c0dae9b12f125e54eb743d5
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "rimraf@npm:6.0.1"
+  dependencies:
+    glob: "npm:^11.0.0"
+    package-json-from-dist: "npm:^1.0.0"
+  bin:
+    rimraf: dist/esm/bin.mjs
+  checksum: 10/0eb7edf08aa39017496c99ba675552dda11a20811ba78f8232da2ba945308c91e9cd673f95998b1a8202bc7436d33390831d23ea38ae52751038d56373ad99e2
   languageName: node
   linkType: hard
 
@@ -5660,16 +5732,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strip-ansi@npm:^7.0.1":
-  version: 7.1.0
-  resolution: "strip-ansi@npm:7.1.0"
-  dependencies:
-    ansi-regex: "npm:^6.0.1"
-  checksum: 10/475f53e9c44375d6e72807284024ac5d668ee1d06010740dec0b9744f2ddf47de8d7151f80e5f6190fc8f384e802fdf9504b76a7e9020c9faee7103623338be2
-  languageName: node
-  linkType: hard
-
-"strip-ansi@npm:^7.1.0":
+"strip-ansi@npm:^7.0.1, strip-ansi@npm:^7.1.0":
   version: 7.1.2
   resolution: "strip-ansi@npm:7.1.2"
   dependencies:

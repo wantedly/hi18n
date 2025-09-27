@@ -81,7 +81,7 @@
     "@typescript-eslint/types": "^8.42.0",
     "eslint": "^9.34.0",
     "espree": "^10.4.0",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }
