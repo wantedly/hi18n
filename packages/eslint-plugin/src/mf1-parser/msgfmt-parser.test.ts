@@ -669,9 +669,37 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on invalid date skeleton", () => {
-      expect(() => parseMF1Message("{foo,date,::YYYYwwEEEE}")).toThrow(
-        "Invalid date skeleton: YYYY",
+    it("reports an error on invalid date skeleton (1)", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "{foo,date,::YYYYwwEEEE}",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "InvalidDateSkeleton",
+          component: "YYYY",
+          range: [12, 22],
+        },
+        { type: "InvalidDateSkeleton", component: "ww", range: [12, 22] },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1DateTimeArgNode(
+          "foo",
+          {
+            weekday: "long",
+          },
+          { range: [0, 23] },
+        ),
+      );
+    });
+
+    it("reports an error on invalid date skeleton (2)", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{foo,date,::G}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        { type: "InsufficientFieldsInDateSkeleton", range: [12, 13] },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1DateTimeArgNode("foo", { era: "short" }, { range: [0, 14] }),
       );
     });
   });

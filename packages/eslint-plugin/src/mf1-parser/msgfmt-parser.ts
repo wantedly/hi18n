@@ -272,8 +272,11 @@ class Parser {
                         `Invalid argStyle for ${argType}: ::`,
                       );
                     }
-                    const skeletonText = this.#nextToken(["identifier"]).raw;
-                    const dateTimeFormat = parseDateSkeleton(skeletonText);
+                    const skeletonToken = this.#nextToken(["identifier"]);
+                    const dateTimeFormat = this.#parseDateSkeleton(
+                      skeletonToken.raw,
+                      skeletonToken.range,
+                    );
                     this.#nextToken(["}"]);
                     return MF1DateTimeArgNode(name, dateTimeFormat, {
                       range: [start, this.#pos],
@@ -594,6 +597,40 @@ class Parser {
     }
   }
 
+  #parseDateSkeleton(
+    skeleton: string,
+    skeletonRange: Range,
+  ): Intl.DateTimeFormatOptions {
+    const options: Record<string, string | number | undefined> = {};
+    // for (const match of skeleton.matchAll(/(.)\1*/g)) {
+    for (const match of skeletonTokens(skeleton)) {
+      if (Object.prototype.hasOwnProperty.call(dateTokenMap, match[1]!)) {
+        const array = dateTokenMap[match[1]!]!;
+        const value = array[match[0]!.length];
+        if (value !== "undefined") {
+          options[array[0]] = value;
+          if (/[hHkK]/.test(match[1]!)) {
+            options["hourCycle"] =
+              hourCycleMap[match[1] as "h" | "H" | "k" | "K"];
+          }
+          continue;
+        }
+      }
+      this.#diagnostics.push({
+        type: "InvalidDateSkeleton",
+        component: match[0]!,
+        range: skeletonRange,
+      });
+    }
+    if (requiredDateFields.every((f) => options[f] === undefined)) {
+      this.#diagnostics.push({
+        type: "InsufficientFieldsInDateSkeleton",
+        range: skeletonRange,
+      });
+    }
+    return options as Intl.DateTimeFormatOptions;
+  }
+
   #reportEOFError(diagnostic: Diagnostic): void {
     if (this.#hasReportedEOFError) return;
     this.#diagnostics.push(diagnostic);
@@ -623,32 +660,6 @@ function reduceMessage(msg: MF1Node[], range: Range): MF1Node {
 
 function pushString(buf: MF1Node[], msg: MF1TextNode) {
   if (msg.value !== "") buf.push(msg);
-}
-
-function parseDateSkeleton(skeleton: string) {
-  const options: Record<string, string | number | undefined> = {};
-  // for (const match of skeleton.matchAll(/(.)\1*/g)) {
-  for (const match of skeletonTokens(skeleton)) {
-    if (Object.prototype.hasOwnProperty.call(dateTokenMap, match[1]!)) {
-      const array = dateTokenMap[match[1]!]!;
-      const value = array[match[0]!.length];
-      if (value !== "undefined") {
-        options[array[0]] = value;
-        if (/[hHkK]/.test(match[1]!)) {
-          options["hourCycle"] =
-            hourCycleMap[match[1] as "h" | "H" | "k" | "K"];
-        }
-        continue;
-      }
-    }
-    throw new ParseError(`Invalid date skeleton: ${match[0]!}`);
-  }
-  if (requiredDateFields.every((f) => options[f] === undefined)) {
-    throw new ParseError(
-      `Insufficient fields in the date skeleton: ${skeleton}`,
-    );
-  }
-  return options as Intl.DateTimeFormatOptions;
 }
 
 function skeletonTokens(skeleton: string): [string?, string?][] {

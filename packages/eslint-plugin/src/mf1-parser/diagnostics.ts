@@ -4,6 +4,7 @@ export type Diagnostic =
   | UnexpectedTokenDiagnostic
   | UnexpectedArgStyleDiagnostic
   | UnexpectedArgTypeDiagnostic
+  | InvalidDateSkeletonDiagnostic
   | OtherDiagnostic;
 
 export type UnexpectedTokenDiagnostic = {
@@ -28,6 +29,12 @@ export type UnexpectedArgStyleDiagnostic = {
   range: Range;
 };
 
+export type InvalidDateSkeletonDiagnostic = {
+  type: "InvalidDateSkeleton";
+  component: string;
+  range: Range;
+};
+
 export type OtherDiagnostic = {
   type: DiagnosticType;
   range: Range;
@@ -38,7 +45,8 @@ export type DiagnosticType =
   | "InvalidSpaces"
   | "InvalidCharacter"
   | "InvalidIdentifier"
-  | "InvalidNumber";
+  | "InvalidNumber"
+  | "InsufficientFieldsInDateSkeleton";
 
 export function diagnosticDescription(d: Diagnostic): string {
   switch (d.type) {
@@ -63,5 +71,9 @@ export function diagnosticDescription(d: Diagnostic): string {
       return "Invalid identifier";
     case "InvalidNumber":
       return "Invalid number";
+    case "InvalidDateSkeleton":
+      return `Invalid date skeleton: ${d.component}`;
+    case "InsufficientFieldsInDateSkeleton":
+      return "Insufficient fields in the date skeleton";
   }
 }
