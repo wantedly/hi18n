@@ -14,6 +14,7 @@ import {
   MF1PluralBranch,
   MF1ElementArgNode,
   MF1InvalidArgNode,
+  MF1InvalidElementArgNode,
 } from "./msgfmt.ts";
 import type { Diagnostic } from "./diagnostics.ts";
 
@@ -1239,44 +1240,137 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on < + unknown symbol", () => {
-      expect(() => parseMF1Message("<$foo></foo>")).toThrow(
-        "Unexpected token $ (expected number, identifier)",
+    it("reports an error on < + unknown symbol", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<$foo></foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "$",
+          expected: ["number", "identifier"],
+          range: [1, 2],
+        },
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "</",
+          expected: ["EOF"],
+          range: [6, 8],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ConcatNode(
+          [
+            MF1InvalidElementArgNode(undefined, { range: [0, 6] }),
+            MF1TextNode("</foo>", { range: [6, 12] }),
+          ],
+          { range: [0, 12] },
+        ),
       );
     });
 
-    it("throws an error on tag name + unknown symbol", () => {
-      expect(() => parseMF1Message("<foo$></foo>")).toThrow(
-        "Unexpected token $ (expected /, >)",
+    it("reports an error on tag name + unknown symbol", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo$></foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "$",
+          expected: ["/", ">"],
+          range: [4, 5],
+        },
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "</",
+          expected: ["EOF"],
+          range: [6, 8],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ConcatNode(
+          [
+            MF1InvalidElementArgNode(undefined, { range: [0, 6] }),
+            MF1TextNode("</foo>", { range: [6, 12] }),
+          ],
+          { range: [0, 12] },
+        ),
       );
     });
 
-    it("throws an error on </ + unknown symbol", () => {
-      expect(() => parseMF1Message("<foo></$foo>")).toThrow(
-        "Unexpected token $ (expected number, identifier)",
+    it("reports an error on </ + unknown symbol", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></$foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "$",
+          expected: ["number", "identifier"],
+          range: [7, 8],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
+          range: [0, 12],
+        }),
       );
     });
 
-    it("throws an error on </ + tag name + unknown symbol", () => {
-      expect(() => parseMF1Message("<foo></foo$>")).toThrow(
-        "Unexpected token $ (expected >)",
+    it("reports an error on </ + tag name + unknown symbol", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></foo$>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "$",
+          expected: [">"],
+          range: [10, 11],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
+          range: [0, 12],
+        }),
       );
     });
 
-    it("throws an error on tag name + / + unknown symbol", () => {
-      expect(() => parseMF1Message("<foo/$>")).toThrow(
-        "Unexpected token $ (expected >)",
+    it("reports an error on tag name + / + unknown symbol", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo/$>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "$",
+          expected: [">"],
+          range: [5, 6],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidElementArgNode(undefined, { range: [0, 7] }),
       );
     });
 
-    it("throws an error on unclosed tag", () => {
-      expect(() => parseMF1Message("<foo>")).toThrow(
-        "Unexpected token EOF (expected <)",
+    it("reports an error on unclosed tag", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "EOF",
+          expected: ["<"],
+          range: [5, 5],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
+          range: [0, 5],
+        }),
       );
     });
 
-    it("throws an error on unopened closing tag", () => {
-      expect(() => parseMF1Message("</foo>")).toThrow("Found an unmatching <");
+    it("reports an error on unopened closing tag", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("</foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "</",
+          expected: ["EOF"],
+          range: [0, 2],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(MF1TextNode("</foo>", { range: [0, 6] }));
     });
 
     it("reports an error on < + space", () => {
@@ -1303,9 +1397,28 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on < + space + /", () => {
-      expect(() => parseMF1Message("<foo>< /foo>")).toThrow(
-        "Unexpected token / (expected number, identifier)",
+    it("reports an error on < + space + /", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo>< /foo>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "/",
+          expected: ["number", "identifier"],
+          range: [6, 8],
+        },
+        {
+          type: "UnexpectedToken",
+          tokenDesc: "EOF",
+          expected: ["<"],
+          range: [12, 12],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode(
+          "foo",
+          MF1InvalidElementArgNode(undefined, { range: [5, 12] }),
+          { range: [0, 12] },
+        ),
       );
     });
 
@@ -1319,15 +1432,49 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on unmatched closing tag name", () => {
-      expect(() => parseMF1Message("<foo></bar>")).toThrow(
-        "Tag foo closed with a different name: bar",
+    it("reports an error on unmatched closing tag name", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></bar>");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "MismatchedTag",
+          openTagName: "foo",
+          closeTagName: "bar",
+          range: [5, 11],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
+          range: [0, 11],
+        }),
       );
     });
 
-    it("throws an error on unopened closing tag in nested elements", () => {
-      expect(() => parseMF1Message("<foo><bar></foo></bar>")).toThrow(
-        "Tag bar closed with a different name: foo",
+    it("reports an error on unopened closing tag in nested elements", () => {
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+        "<foo><bar></foo></bar>",
+      );
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "MismatchedTag",
+          openTagName: "bar",
+          closeTagName: "foo",
+          range: [10, 16],
+        },
+        {
+          type: "MismatchedTag",
+          openTagName: "foo",
+          closeTagName: "bar",
+          range: [16, 22],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1ElementArgNode(
+          "foo",
+          MF1ElementArgNode("bar", MF1TextNode("", { range: [10, 10] }), {
+            range: [5, 16],
+          }),
+          { range: [0, 22] },
+        ),
       );
     });
 

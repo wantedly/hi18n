@@ -13,6 +13,7 @@ import {
   MF1ConcatNode,
   type Range,
   MF1InvalidArgNode,
+  MF1InvalidElementArgNode,
 } from "./msgfmt.ts";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
@@ -71,7 +72,7 @@ class Parser {
   }
 
   parseMessageEOF(): MF1Node {
-    const msg = this.#parseMessage_();
+    const msg = this.#parseMessage_("EOF");
     if (this.#pos < this.#src.length) {
       throw new ParseError(`Found an unmatching ${this.#src[this.#pos]!}`);
     }
@@ -80,10 +81,10 @@ class Parser {
 
   // message = messageText (argument messageText)*
   // The grammar doesn't mention it but it should also have '#' as a special interpolation.
-  #parseMessage_(hashSubst?: MF1VarArgNode): MF1Node {
+  #parseMessage_(expectDelim: ExpectDelim, hashSubst?: MF1VarArgNode): MF1Node {
     const start = this.#pos;
     const buf: MF1Node[] = [];
-    pushString(buf, this.#parseMessageText(hashSubst == null));
+    pushString(buf, this.#parseMessageText(expectDelim, hashSubst == null));
     outer: while (
       this.#pos < this.#src.length &&
       this.#src[this.#pos] !== "}"
@@ -116,7 +117,7 @@ class Parser {
             `Bug: invalid syntax character: ${this.#src[this.#pos]!}`,
           );
       }
-      pushString(buf, this.#parseMessageText(hashSubst == null));
+      pushString(buf, this.#parseMessageText(expectDelim, hashSubst == null));
     }
     return reduceMessage(buf, [start, this.#pos]);
   }
@@ -126,7 +127,7 @@ class Parser {
   // - plain message text
   // - quoted message text
   // - escaped quotes
-  #parseMessageText(allowHash: boolean): MF1TextNode {
+  #parseMessageText(expectDelim: ExpectDelim, allowHash: boolean): MF1TextNode {
     const start = this.#pos;
     let inQuote = false;
     let buf = this.#parseRawMessageText(inQuote);
@@ -159,6 +160,28 @@ class Parser {
         // A plain '#' character. It is special only within pluralStyle.
         buf += "#";
         this.#pos++;
+      } else if (this.#src[this.#pos] === "}" && expectDelim !== "}") {
+        this.#diagnostics.push({
+          type: "UnexpectedToken",
+          tokenDesc: "}",
+          expected: expectDelim ? [expectDelim] : ["EOF"],
+          range: [this.#pos, this.#pos + 1],
+        });
+        buf += "}";
+        this.#pos++;
+      } else if (
+        this.#src[this.#pos] === "<" &&
+        this.#src[this.#pos + 1] === "/" &&
+        expectDelim !== "</"
+      ) {
+        this.#diagnostics.push({
+          type: "UnexpectedToken",
+          tokenDesc: "</",
+          expected: [expectDelim],
+          range: [this.#pos, this.#pos + 2],
+        });
+        buf += "</";
+        this.#pos += 2;
       } else {
         // Syntax character ({, }, #, <)
         break;
@@ -195,7 +218,7 @@ class Parser {
       if (!(e instanceof ArgumentParseError)) {
         throw e;
       }
-      // Skipp to next '}'
+      // Skip to next '}'
       let depth = 1;
       while (this.#pos < this.#src.length && depth > 0) {
         const ch = this.#src[this.#pos]!;
@@ -401,7 +424,7 @@ class Parser {
       }
       this.#nextToken(["{"]);
       const hashSubst = MF1NumberArgNode(name, {}, { subtract: offset ?? 0 });
-      const message = this.#parseMessage_(hashSubst);
+      const message = this.#parseMessage_("}", hashSubst);
       this.#nextToken(["}"]);
       branches.push(MF1PluralBranch(selector, message));
       token = this.#nextToken(["identifier", "=", "}"]);
@@ -417,25 +440,59 @@ class Parser {
   }
 
   // <tag>message</tag> or <tag/>
-  #parseElement(hashSubst?: MF1VarArgNode): MF1ElementArgNode {
+  #parseElement(
+    hashSubst?: MF1VarArgNode,
+  ): MF1ElementArgNode | MF1InvalidElementArgNode {
     const start = this.#pos;
     this.#pos++; // Eat <
-    const name = this.#parseArgNameOrNumber(true);
-    if (this.#nextToken(["/", ">"]).type === "/") {
-      // <tag/>
-      this.#nextToken([">"], [">"]);
-      return MF1ElementArgNode(name, undefined, { range: [start, this.#pos] });
+    let name: string | number;
+    try {
+      name = this.#parseArgNameOrNumber(true);
+      if (this.#nextToken(["/", ">"]).type === "/") {
+        // <tag/>
+        this.#nextToken([">"], [">"]);
+        return MF1ElementArgNode(name, undefined, {
+          range: [start, this.#pos],
+        });
+      }
+    } catch (e) {
+      if (!(e instanceof ArgumentParseError)) {
+        throw e;
+      }
+      // Skip to next '>'
+      while (this.#pos < this.#src.length && this.#src[this.#pos] !== ">") {
+        this.#pos++;
+      }
+      if (this.#pos < this.#src.length) this.#pos++;
+      return MF1InvalidElementArgNode(undefined, {
+        range: [start, this.#pos],
+      });
     }
     // <tag>message</tag>
-    const message = this.#parseMessage_(hashSubst);
-    this.#nextToken(["<"]);
-    this.#nextToken(["/"], ["/"]);
-    const closingName = this.#parseArgNameOrNumber(true);
-    this.#nextToken([">"]);
-    if (name !== closingName) {
-      throw new ParseError(
-        `Tag ${name} closed with a different name: ${closingName}`,
-      );
+    const message = this.#parseMessage_("</", hashSubst);
+    try {
+      const closeTagStart = this.#pos;
+      this.#nextToken(["<"]);
+      this.#nextToken(["/"], ["/"]);
+      const closingName = this.#parseArgNameOrNumber(true);
+      this.#nextToken([">"]);
+      if (name !== closingName) {
+        this.#diagnostics.push({
+          type: "MismatchedTag",
+          openTagName: name,
+          closeTagName: closingName,
+          range: [closeTagStart, this.#pos],
+        });
+      }
+    } catch (e) {
+      if (!(e instanceof ArgumentParseError)) {
+        throw e;
+      }
+      // Skip to next '>'
+      while (this.#pos < this.#src.length && this.#src[this.#pos] !== ">") {
+        this.#pos++;
+      }
+      if (this.#pos < this.#src.length) this.#pos++;
     }
     return MF1ElementArgNode(name, message, { range: [start, this.#pos] });
   }
@@ -637,6 +694,8 @@ class Parser {
     this.#hasReportedEOFError = true;
   }
 }
+
+type ExpectDelim = "}" | "</" | "EOF";
 
 type ArgumentState = {
   name: string | number | undefined;

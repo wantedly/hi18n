@@ -5,6 +5,7 @@ export type Diagnostic =
   | UnexpectedArgStyleDiagnostic
   | UnexpectedArgTypeDiagnostic
   | InvalidDateSkeletonDiagnostic
+  | MismatchedTagDiagnostic
   | OtherDiagnostic;
 
 export type UnexpectedTokenDiagnostic = {
@@ -32,6 +33,13 @@ export type UnexpectedArgStyleDiagnostic = {
 export type InvalidDateSkeletonDiagnostic = {
   type: "InvalidDateSkeleton";
   component: string;
+  range: Range;
+};
+
+export type MismatchedTagDiagnostic = {
+  type: "MismatchedTag";
+  openTagName: string | number;
+  closeTagName: string | number;
   range: Range;
 };
 
@@ -73,6 +81,8 @@ export function diagnosticDescription(d: Diagnostic): string {
       return "Invalid number";
     case "InvalidDateSkeleton":
       return `Invalid date skeleton: ${d.component}`;
+    case "MismatchedTag":
+      return `Tag <${d.openTagName}> closed with a different name: </${d.closeTagName}>`;
     case "InsufficientFieldsInDateSkeleton":
       return "Insufficient fields in the date skeleton";
   }

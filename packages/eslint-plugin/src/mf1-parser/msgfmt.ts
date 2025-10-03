@@ -9,7 +9,8 @@ export type MF1Node =
   /* plural form selection */
   | MF1PluralArgNode
   /* component interpolation (<0>foo</0>) */
-  | MF1ElementArgNode;
+  | MF1ElementArgNode
+  | MF1InvalidElementArgNode;
 
 export type MF1TextNode = {
   type: "Text";
@@ -176,6 +177,22 @@ export function MF1ElementArgNode(
 ): MF1ElementArgNode {
   const { range } = options;
   return { type: "Element", name, message, range };
+}
+
+export type MF1InvalidElementArgNode = {
+  type: "InvalidElement";
+  name: string | number | undefined;
+  range: Range | undefined;
+};
+export type MF1InvalidElementArgNodeOptions = {
+  range?: Range;
+};
+export function MF1InvalidElementArgNode(
+  name: string | number | undefined,
+  options: MF1InvalidElementArgNodeOptions = {},
+): MF1InvalidElementArgNode {
+  const { range } = options;
+  return { type: "InvalidElement", name, range };
 }
 
 export type Range = [start: number, end: number];
