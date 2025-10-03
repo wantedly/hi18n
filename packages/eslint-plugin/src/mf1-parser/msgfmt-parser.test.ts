@@ -704,10 +704,19 @@ describe("parseMF1Message", () => {
     });
   });
 
-  it("throws an error on choiceArg", () => {
-    expect(() => parseMF1Message("{foo,choice,0#zero|1#one}")).toThrow(
-      /choice is not supported/,
+  it("reports an error on choiceArg", () => {
+    const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
+      "{foo,choice,0#zero|1#one}",
     );
+    expect(diagnostics).toEqual<readonly Diagnostic[]>([
+      {
+        type: "UnexpectedArgType",
+        argType: "choice",
+        expected: ["number", "date", "time"],
+        range: [5, 11],
+      },
+    ]);
+    expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 25] }));
   });
 
   describe("plural branch parsing", () => {
