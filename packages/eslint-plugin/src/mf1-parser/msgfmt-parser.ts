@@ -14,6 +14,7 @@ import {
   type Range,
   MF1InvalidArgNode,
   MF1InvalidElementArgNode,
+  MF1InvalidPluralArgNode,
 } from "./msgfmt.ts";
 
 const SIMPLE_MESSAGE = /^[^'{}<]*$/;
@@ -72,11 +73,20 @@ class Parser {
   }
 
   parseMessageEOF(): MF1Node {
-    const msg = this.#parseMessage_("EOF");
-    if (this.#pos < this.#src.length) {
-      throw new ParseError(`Found an unmatching ${this.#src[this.#pos]!}`);
+    try {
+      const msg = this.#parseMessage_("EOF");
+      if (this.#pos < this.#src.length) {
+        throw new TypeError(
+          `Bug: Found an unmatching ${this.#src[this.#pos]!}`,
+        );
+      }
+      return msg;
+    } catch (e) {
+      if (e instanceof ArgumentParseError) {
+        throw new TypeError("Bug: ArgumentParseError should not reach here");
+      }
+      throw e;
     }
-    return msg;
   }
 
   // message = messageText (argument messageText)*
@@ -406,7 +416,10 @@ class Parser {
   // selector = explicitValue | keyword
   // explicitValue = '=' number  // adjacent, no white space in between
   // keyword = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
-  #parsePluralArgument(name: string | number, start: number): MF1PluralArgNode {
+  #parsePluralArgument(
+    name: string | number,
+    start: number,
+  ): MF1PluralArgNode | MF1InvalidPluralArgNode {
     this.#nextToken([","]);
     let token = this.#nextToken(["offset:", "identifier", "=", "}"]);
     let offset: number | undefined = undefined;
@@ -426,12 +439,26 @@ class Parser {
       const hashSubst = MF1NumberArgNode(name, {}, { subtract: offset ?? 0 });
       const message = this.#parseMessage_("}", hashSubst);
       this.#nextToken(["}"]);
-      branches.push(MF1PluralBranch(selector, message));
+      branches.push(
+        MF1PluralBranch(selector, message, {
+          range: [token.range[0], this.#pos],
+        }),
+      );
       token = this.#nextToken(["identifier", "=", "}"]);
     }
-    if (branches.length === 0) throw new ParseError("No branch found");
-    if (branches[branches.length - 1]!.selector !== "other")
-      throw new ParseError("Last selector should be other");
+    if (branches.length === 0) {
+      this.#diagnostics.push({
+        type: "PluralLastSelector",
+        range: [start, this.#pos],
+      });
+      return MF1InvalidPluralArgNode(name, { range: [start, this.#pos] });
+    } else if (branches[branches.length - 1]!.selector !== "other") {
+      this.#diagnostics.push({
+        type: "PluralLastSelector",
+        range: branches[branches.length - 1]!.range!,
+      });
+      return MF1InvalidPluralArgNode(name, { range: [start, this.#pos] });
+    }
     const fallback = branches.pop()!.message;
     return MF1PluralArgNode(name, branches, fallback, {
       subtract: offset ?? 0,

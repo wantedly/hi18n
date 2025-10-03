@@ -54,7 +54,8 @@ export type DiagnosticType =
   | "InvalidCharacter"
   | "InvalidIdentifier"
   | "InvalidNumber"
-  | "InsufficientFieldsInDateSkeleton";
+  | "InsufficientFieldsInDateSkeleton"
+  | "PluralLastSelector";
 
 export function diagnosticDescription(d: Diagnostic): string {
   switch (d.type) {
@@ -85,5 +86,7 @@ export function diagnosticDescription(d: Diagnostic): string {
       return `Tag <${d.openTagName}> closed with a different name: </${d.closeTagName}>`;
     case "InsufficientFieldsInDateSkeleton":
       return "Insufficient fields in the date skeleton";
+    case "PluralLastSelector":
+      return "The last selector of plural must be 'other'";
   }
 }

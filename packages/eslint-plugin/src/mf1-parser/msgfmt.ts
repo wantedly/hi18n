@@ -8,6 +8,7 @@ export type MF1Node =
   | MF1InvalidArgNode
   /* plural form selection */
   | MF1PluralArgNode
+  | MF1InvalidPluralArgNode
   /* component interpolation (<0>foo</0>) */
   | MF1ElementArgNode
   | MF1InvalidElementArgNode;
@@ -142,6 +143,22 @@ export function MF1PluralArgNode(
 ): MF1PluralArgNode {
   const { subtract = 0, range } = options;
   return { type: "Plural", name, subtract, branches, fallback, range };
+}
+
+export type MF1InvalidPluralArgNode = {
+  type: "InvalidPlural";
+  name: string | number | undefined;
+  range: Range | undefined;
+};
+export type MF1InvalidPluralArgNodeOptions = {
+  range?: Range;
+};
+export function MF1InvalidPluralArgNode(
+  name: string | number | undefined,
+  options: MF1InvalidPluralArgNodeOptions = {},
+): MF1InvalidPluralArgNode {
+  const { range } = options;
+  return { type: "InvalidPlural", name, range };
 }
 
 export type MF1PluralBranch = {

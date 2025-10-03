@@ -15,6 +15,7 @@ import {
   MF1ElementArgNode,
   MF1InvalidArgNode,
   MF1InvalidElementArgNode,
+  MF1InvalidPluralArgNode,
 } from "./msgfmt.ts";
 import type { Diagnostic } from "./diagnostics.ts";
 
@@ -115,8 +116,12 @@ describe("parseMF1Message", () => {
     });
   });
 
-  it("throws an error on unclosed quoted strings", () => {
-    expect(() => parseMF1Message("'{foo}")).toThrow(/Unclosed quoted string/);
+  it("reports an error on unclosed quoted strings", () => {
+    const [msg, diagnostics] = parseMF1MessageWithDiagnostics("'{foo");
+    expect(diagnostics).toEqual<readonly Diagnostic[]>([
+      { type: "UnclosedQuotedString", range: [5, 5] },
+    ]);
+    expect(msg).toEqual<MF1Node>(MF1TextNode("{foo", { range: [0, 5] }));
   });
 
   describe("tokenization", () => {
@@ -731,6 +736,7 @@ describe("parseMF1Message", () => {
             MF1PluralBranch(
               "one",
               MF1TextNode("an apple", { range: [16, 24] }),
+              { range: [12, 25] },
             ),
           ],
           MF1TextNode("apples", { range: [31, 37] }),
@@ -754,6 +760,7 @@ describe("parseMF1Message", () => {
                 MF1PluralBranch(
                   "one",
                   MF1TextNode(" an apple ", { range: [23, 33] }),
+                  { range: [18, 34] },
                 ),
               ],
               MF1TextNode(" apples ", { range: [42, 50] }),
@@ -773,8 +780,12 @@ describe("parseMF1Message", () => {
         MF1PluralArgNode(
           "foo",
           [
-            MF1PluralBranch(1, MF1TextNode("bar", { range: [15, 18] })),
-            MF1PluralBranch(2, MF1TextNode("barbar", { range: [22, 28] })),
+            MF1PluralBranch(1, MF1TextNode("bar", { range: [15, 18] }), {
+              range: [12, 19],
+            }),
+            MF1PluralBranch(2, MF1TextNode("barbar", { range: [22, 28] }), {
+              range: [19, 29],
+            }),
           ],
           MF1TextNode("barbarbar", { range: [35, 44] }),
           { range: [0, 46] },
@@ -794,10 +805,13 @@ describe("parseMF1Message", () => {
             MF1PluralArgNode(
               "foo",
               [
-                MF1PluralBranch(1, MF1TextNode(" bar ", { range: [22, 27] })),
+                MF1PluralBranch(1, MF1TextNode(" bar ", { range: [22, 27] }), {
+                  range: [18, 28],
+                }),
                 MF1PluralBranch(
                   2,
                   MF1TextNode(" barbar ", { range: [33, 41] }),
+                  { range: [29, 42] },
                 ),
               ],
               MF1TextNode(" barbarbar ", { range: [50, 61] }),
@@ -820,6 +834,7 @@ describe("parseMF1Message", () => {
             MF1PluralBranch(
               "one",
               MF1TextNode("an apple", { range: [25, 33] }),
+              { range: [21, 34] },
             ),
           ],
           MF1TextNode("apples", { range: [40, 46] }),
@@ -843,6 +858,7 @@ describe("parseMF1Message", () => {
                 MF1PluralBranch(
                   "one",
                   MF1TextNode(" an apple ", { range: [32, 42] }),
+                  { range: [27, 43] },
                 ),
               ],
               MF1TextNode(" apples ", { range: [51, 59] }),
@@ -871,6 +887,7 @@ describe("parseMF1Message", () => {
                 ],
                 { range: [16, 23] },
               ),
+              { range: [12, 24] },
             ),
           ],
           MF1ConcatNode(
@@ -907,6 +924,7 @@ describe("parseMF1Message", () => {
                     ],
                     { range: [23, 32] },
                   ),
+                  { range: [18, 33] },
                 ),
               ],
               MF1ConcatNode(
@@ -988,8 +1006,18 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on plural + comma + RBrace", () => {
-      expect(() => parseMF1Message("{foo,plural,}")).toThrow("No branch found");
+    it("reports an error on plural + comma + RBrace", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{foo,plural,}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "PluralLastSelector",
+          range: [0, 13],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidPluralArgNode("foo", { range: [0, 13] }),
+      );
     });
 
     it("reports an error on = + identifier", () => {
@@ -1022,7 +1050,11 @@ describe("parseMF1Message", () => {
       expect(msg).toEqual<MF1Node>(
         MF1PluralArgNode(
           "foo",
-          [MF1PluralBranch(42, MF1TextNode("", { range: [17, 17] }))],
+          [
+            MF1PluralBranch(42, MF1TextNode("", { range: [17, 17] }), {
+              range: [12, 18],
+            }),
+          ],
           MF1TextNode("", { range: [24, 24] }),
           { range: [0, 26] },
         ),
@@ -1177,9 +1209,17 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on missing catch-all branch", () => {
-      expect(() => parseMF1Message("{foo,plural,one{}}")).toThrow(
-        /Last selector should be other/,
+    it("reports an error on missing catch-all branch", () => {
+      const [msg, diagnostics] =
+        parseMF1MessageWithDiagnostics("{foo,plural,one{}}");
+      expect(diagnostics).toEqual<readonly Diagnostic[]>([
+        {
+          type: "PluralLastSelector",
+          range: [12, 17],
+        },
+      ]);
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidPluralArgNode("foo", { range: [0, 18] }),
       );
     });
   });
@@ -1490,7 +1530,7 @@ describe("parseMF1Message", () => {
       );
     });
 
-    it("throws an error on invalid parameter name (followed by alpha)", () => {
+    it("reports an error on invalid parameter name (followed by alpha)", () => {
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<123foo />");
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidNumber", range: [1, 7] },
