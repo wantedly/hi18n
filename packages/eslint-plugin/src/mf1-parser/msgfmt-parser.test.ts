@@ -22,45 +22,50 @@ import type { Diagnostic } from "./diagnostics.ts";
 describe("parseMF1Message", () => {
   describe("plain text parsing", () => {
     it("parses the empty message", () => {
-      expect(parseMF1Message("")).toEqual<MF1Node>(
+      const src = "";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("", { range: [0, 0] }),
       );
     });
 
     it("parses unescaped ASCII texts", () => {
-      expect(parseMF1Message("Hello, world!")).toEqual<MF1Node>(
+      const src = "Hello, world!";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("Hello, world!", { range: [0, 13] }),
       );
     });
 
     it("parses unescaped non-ASCII texts", () => {
-      expect(parseMF1Message("こんにちは世界!")).toEqual<MF1Node>(
+      const src = "こんにちは世界!";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("こんにちは世界!", { range: [0, 8] }),
       );
     });
 
     it("parses unescaped ASCII texts with symbols", () => {
-      expect(parseMF1Message("1 + 1 = 2")).toEqual<MF1Node>(
+      const src = "1 + 1 = 2";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("1 + 1 = 2", { range: [0, 9] }),
       );
     });
 
     it("parses plain #", () => {
-      expect(parseMF1Message("#")).toEqual<MF1Node>(
+      const src = "#";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("#", { range: [0, 1] }),
       );
     });
 
     it("parses unescaped single quotes", () => {
-      expect(
-        parseMF1Message("I'm not a fond of this syntax."),
-      ).toEqual<MF1Node>(
+      const src = "I'm not a fond of this syntax.";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("I'm not a fond of this syntax.", { range: [0, 30] }),
       );
     });
 
-    it("parses a pair of unescapes single quotes", () => {
-      expect(parseMF1Message("a'b {name} c'd")).toEqual<MF1Node>(
+    it("parses a pair of unescaped single quotes", () => {
+      const src = "a'b {name} c'd";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("a'b ", { range: [0, 4] }),
@@ -73,42 +78,44 @@ describe("parseMF1Message", () => {
     });
 
     it("parses escaped single quotes", () => {
-      expect(
-        parseMF1Message("I''m not a fond of this syntax."),
-      ).toEqual<MF1Node>(
+      const src = "I''m not a fond of this syntax.";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("I'm not a fond of this syntax.", { range: [0, 31] }),
       );
     });
 
     it("parses quoted texts starting with RBrace", () => {
-      expect(parseMF1Message("'{foo}'")).toEqual<MF1Node>(
+      const src = "'{foo}'";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("{foo}", { range: [0, 7] }),
       );
     });
 
     it("parses quoted texts starting with various symbols", () => {
-      expect(
-        parseMF1Message("foo, '{bar}', '{}#|', '{a''b}', ''''"),
-      ).toEqual<MF1Node>(
+      const src = "foo, '{bar}', '{}#|', '{a''b}', ''''";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("foo, {bar}, {}#|, {a'b}, ''", { range: [0, 36] }),
       );
     });
 
     it("parses quoted texts starting with # or |", () => {
       // They are always quotable although conditional
-      expect(parseMF1Message("'# {}' '| {}'")).toEqual<MF1Node>(
+      const src = "'# {}' '| {}'";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("# {} | {}", { range: [0, 13] }),
       );
     });
 
     it("parses quoted texts starting with <", () => {
-      expect(parseMF1Message("'< {}'")).toEqual<MF1Node>(
+      const src = "'< {}'";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1TextNode("< {}", { range: [0, 6] }),
       );
     });
 
     it("reports an error on unclosed quoted texts", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("'{foo");
+      const src = "'{foo";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "UnclosedQuotedString", range: [5, 5] },
       ]);
@@ -117,7 +124,8 @@ describe("parseMF1Message", () => {
   });
 
   it("reports an error on unclosed quoted strings", () => {
-    const [msg, diagnostics] = parseMF1MessageWithDiagnostics("'{foo");
+    const src = "'{foo";
+    const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
     expect(diagnostics).toEqual<readonly Diagnostic[]>([
       { type: "UnclosedQuotedString", range: [5, 5] },
     ]);
@@ -126,19 +134,22 @@ describe("parseMF1Message", () => {
 
   describe("tokenization", () => {
     it("skips spaces", () => {
-      expect(parseMF1Message("{ foo }")).toEqual<MF1Node>(
+      const src = "{ foo }";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1StringArgNode("foo", { range: [0, 7] }),
       );
     });
 
     it("skips newlines", () => {
-      expect(parseMF1Message("{\nfoo\n}")).toEqual<MF1Node>(
+      const src = "{\nfoo\n}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1StringArgNode("foo", { range: [0, 7] }),
       );
     });
 
     it("reports errors on invalid controls", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{\x7Ffoo}");
+      const src = "{\x7Ffoo}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidCharacter", range: [1, 2] },
       ]);
@@ -146,7 +157,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports errors on invalid identifiers", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo🍺}");
+      const src = "{foo🍺}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidIdentifier", range: [1, 6] },
       ]);
@@ -156,7 +168,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports errors on invalid numbers (leading zero)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{0123}");
+      const src = "{0123}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidNumber", range: [1, 5] },
       ]);
@@ -166,13 +179,15 @@ describe("parseMF1Message", () => {
 
   describe("string argument parsing", () => {
     it("parses simple string arguments", () => {
-      expect(parseMF1Message("{foo}")).toEqual<MF1Node>(
+      const src = "{foo}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1StringArgNode("foo", { range: [0, 5] }),
       );
     });
 
     it("parses string arguments with texts and whitespaces (1)", () => {
-      expect(parseMF1Message("foo { foo }")).toEqual<MF1Node>(
+      const src = "foo { foo }";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("foo ", { range: [0, 4] }),
@@ -184,7 +199,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses string arguments with texts and whitespaces (2)", () => {
-      expect(parseMF1Message("foo { foo } bar { bar }")).toEqual<MF1Node>(
+      const src = "foo { foo } bar { bar }";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("foo ", { range: [0, 4] }),
@@ -198,7 +214,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses string arguments with numbered parameter names", () => {
-      expect(parseMF1Message("{2}{ 0 }, {1}")).toEqual<MF1Node>(
+      const src = "{2}{ 0 }, {1}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1StringArgNode(2, { range: [0, 3] }),
@@ -212,7 +229,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on LBrace + EOF", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{");
+      const src = "{";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -227,7 +245,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on LBrace + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{$");
+      const src = "{$";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -242,7 +261,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on invalid number (followed by alpha)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{123foo}");
+      const src = "{123foo}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidNumber", range: [1, 7] },
       ]);
@@ -250,7 +270,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on invalid number (leading zero)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{0123}");
+      const src = "{0123}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidNumber", range: [1, 5] },
       ]);
@@ -258,7 +279,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on LBrace + ident + EOF", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo");
+      const src = "{foo";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -271,7 +293,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on LBrace + ident + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo%");
+      const src = "{foo%";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -286,7 +309,8 @@ describe("parseMF1Message", () => {
 
   describe("type-specific argument parsing", () => {
     it("reports an error on LBrace + ident + comma + RBrace", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo,}");
+      const src = "{foo,}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -299,7 +323,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on LBrace + ident + comma + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo,$}");
+      const src = "{foo,$}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -312,8 +337,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unknown argType", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,integer}");
+      const src = "{foo,integer}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgType",
@@ -328,8 +353,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on argType + unknown symbol", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,number$}");
+      const src = "{foo,number$}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -344,7 +369,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on argType + EOF", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo,number");
+      const src = "{foo,number";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -361,13 +387,15 @@ describe("parseMF1Message", () => {
 
   describe("number argument parsing", () => {
     it("parses simple number arguments", () => {
-      expect(parseMF1Message("{foo,number}")).toEqual<MF1Node>(
+      const src = "{foo,number}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1NumberArgNode("foo", {}, { range: [0, 12] }),
       );
     });
 
     it("parses number arguments with texts and whitespaces (1)", () => {
-      expect(parseMF1Message("foo { foo , number }")).toEqual<MF1Node>(
+      const src = "foo { foo , number }";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("foo ", { range: [0, 4] }),
@@ -379,9 +407,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses number arguments with texts and whitespaces (2)", () => {
-      expect(
-        parseMF1Message("foo { foo , date } bar { bar , time }"),
-      ).toEqual<MF1Node>(
+      const src = "foo { foo , date } bar { bar , time }";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("foo ", { range: [0, 4] }),
@@ -403,7 +430,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on spellout argType (1)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{2,spellout}");
+      const src = "{2,spellout}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgType",
@@ -416,9 +444,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on spellout argType (2)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,spellout,integer}",
-      );
+      const src = "{foo,spellout,integer}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgType",
@@ -433,8 +460,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on ordinal argType", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{ 0 , ordinal }");
+      const src = "{ 0 , ordinal }";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgType",
@@ -447,7 +474,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses integer style", () => {
-      expect(parseMF1Message("{foo,number,integer}")).toEqual<MF1Node>(
+      const src = "{foo,number,integer}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1NumberArgNode(
           "foo",
           { maximumFractionDigits: 0 },
@@ -457,9 +485,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on currency style", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,number,currency}",
-      );
+      const src = "{foo,number,currency}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgStyle",
@@ -475,14 +502,15 @@ describe("parseMF1Message", () => {
     });
 
     it("parses percent style", () => {
-      expect(parseMF1Message("{foo,number,percent}")).toEqual<MF1Node>(
+      const src = "{foo,number,percent}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1NumberArgNode("foo", { style: "percent" }, { range: [0, 20] }),
       );
     });
 
     it("reports an error on unknown symbol style", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,number,$}");
+      const src = "{foo,number,$}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -497,9 +525,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unknown style name (1)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,number,foobar}",
-      );
+      const src = "{foo,number,foobar}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgStyle",
@@ -515,8 +542,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unknown style name (2)", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,number,full}");
+      const src = "{foo,number,full}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgStyle",
@@ -532,9 +559,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on skeleton style", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,number,::currency/USD}",
-      );
+      const src = "{foo,number,::currency/USD}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgStyle",
@@ -550,9 +576,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unknown symbol after style name", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,number,integer$}",
-      );
+      const src = "{foo,number,integer$}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -569,7 +594,8 @@ describe("parseMF1Message", () => {
 
   describe("duration argument parsing", () => {
     it("reports an error on duration argType", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{1,duration}");
+      const src = "{1,duration}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgType",
@@ -584,67 +610,78 @@ describe("parseMF1Message", () => {
 
   describe("date/time argument parsing", () => {
     it("parses simple date arguments", () => {
-      expect(parseMF1Message("{foo,date}")).toEqual<MF1Node>(
+      const src = "{foo,date}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { dateStyle: "medium" }, { range: [0, 10] }),
       );
     });
 
     it("parses short date style", () => {
-      expect(parseMF1Message("{foo,date,short}")).toEqual<MF1Node>(
+      const src = "{foo,date,short}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { dateStyle: "short" }, { range: [0, 16] }),
       );
     });
 
     it("parses medium date style", () => {
-      expect(parseMF1Message("{foo,date,medium}")).toEqual<MF1Node>(
+      const src = "{foo,date,medium}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { dateStyle: "medium" }, { range: [0, 17] }),
       );
     });
 
     it("parses long date style", () => {
-      expect(parseMF1Message("{foo,date,long}")).toEqual<MF1Node>(
+      const src = "{foo,date,long}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { dateStyle: "long" }, { range: [0, 15] }),
       );
     });
 
     it("parses full date style", () => {
-      expect(parseMF1Message("{foo,date,full}")).toEqual<MF1Node>(
+      const src = "{foo,date,full}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { dateStyle: "full" }, { range: [0, 15] }),
       );
     });
 
     it("parses simple time arguments", () => {
-      expect(parseMF1Message("{foo,time}")).toEqual<MF1Node>(
+      const src = "{foo,time}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { timeStyle: "medium" }, { range: [0, 10] }),
       );
     });
 
     it("parses short time style", () => {
-      expect(parseMF1Message("{foo,time,short}")).toEqual<MF1Node>(
+      const src = "{foo,time,short}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { timeStyle: "short" }, { range: [0, 16] }),
       );
     });
 
     it("parses medium time style", () => {
-      expect(parseMF1Message("{foo,time,medium}")).toEqual<MF1Node>(
+      const src = "{foo,time,medium}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { timeStyle: "medium" }, { range: [0, 17] }),
       );
     });
 
     it("parses long time style", () => {
-      expect(parseMF1Message("{foo,time,long}")).toEqual<MF1Node>(
+      const src = "{foo,time,long}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { timeStyle: "long" }, { range: [0, 15] }),
       );
     });
 
     it("parses full time style", () => {
-      expect(parseMF1Message("{foo,time,full}")).toEqual<MF1Node>(
+      const src = "{foo,time,full}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode("foo", { timeStyle: "full" }, { range: [0, 15] }),
       );
     });
 
     it("parses date skeleton style", () => {
-      expect(parseMF1Message("{foo,date,::MMMMdjmm}")).toEqual<MF1Node>(
+      const src = "{foo,date,::MMMMdjmm}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1DateTimeArgNode(
           "foo",
           {
@@ -659,8 +696,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unknown style name", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,date,integer}");
+      const src = "{foo,date,integer}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedArgStyle",
@@ -676,9 +713,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on invalid date skeleton (1)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,date,::YYYYwwEEEE}",
-      );
+      const src = "{foo,date,::YYYYwwEEEE}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "InvalidDateSkeleton",
@@ -699,8 +735,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on invalid date skeleton (2)", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,date,::G}");
+      const src = "{foo,date,::G}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InsufficientFieldsInDateSkeleton", range: [12, 13] },
       ]);
@@ -711,9 +747,8 @@ describe("parseMF1Message", () => {
   });
 
   it("reports an error on choiceArg", () => {
-    const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-      "{foo,choice,0#zero|1#one}",
-    );
+    const src = "{foo,choice,0#zero|1#one}";
+    const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
     expect(diagnostics).toEqual<readonly Diagnostic[]>([
       {
         type: "UnexpectedArgType",
@@ -727,9 +762,8 @@ describe("parseMF1Message", () => {
 
   describe("plural branch parsing", () => {
     it("parses simple plural branches", () => {
-      expect(
-        parseMF1Message("{foo,plural,one{an apple}other{apples}}"),
-      ).toEqual<MF1Node>(
+      const src = "{foo,plural,one{an apple}other{apples}}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1PluralArgNode(
           "foo",
           [
@@ -746,11 +780,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with spaces", () => {
-      expect(
-        parseMF1Message(
-          " { foo , plural , one { an apple } other { apples } } ",
-        ),
-      ).toEqual<MF1Node>(
+      const src = " { foo , plural , one { an apple } other { apples } } ";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode(" ", { range: [0, 1] }),
@@ -774,9 +805,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with exact matchers", () => {
-      expect(
-        parseMF1Message("{foo,plural,=1{bar}=2{barbar}other{barbarbar}}"),
-      ).toEqual<MF1Node>(
+      const src = "{foo,plural,=1{bar}=2{barbar}other{barbarbar}}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1PluralArgNode(
           "foo",
           [
@@ -794,11 +824,9 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with exact matchers and spaces", () => {
-      expect(
-        parseMF1Message(
-          " { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } ",
-        ),
-      ).toEqual<MF1Node>(
+      const src =
+        " { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } ";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode(" ", { range: [0, 1] }),
@@ -825,9 +853,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with offset", () => {
-      expect(
-        parseMF1Message("{foo,plural,offset:1 one{an apple}other{apples}}"),
-      ).toEqual<MF1Node>(
+      const src = "{foo,plural,offset:1 one{an apple}other{apples}}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1PluralArgNode(
           "foo",
           [
@@ -844,11 +871,9 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with offset and spaces", () => {
-      expect(
-        parseMF1Message(
-          " { foo , plural , offset:1 one { an apple } other { apples } } ",
-        ),
-      ).toEqual<MF1Node>(
+      const src =
+        " { foo , plural , offset:1 one { an apple } other { apples } } ";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode(" ", { range: [0, 1] }),
@@ -872,9 +897,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with #", () => {
-      expect(
-        parseMF1Message("{foo,plural,one{# apple}other{# apples}}"),
-      ).toEqual<MF1Node>(
+      const src = "{foo,plural,one{# apple}other{# apples}}";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1PluralArgNode(
           "foo",
           [
@@ -903,11 +927,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses plural branches with # and spaces", () => {
-      expect(
-        parseMF1Message(
-          " { foo , plural , one { # apple } other { # apples } } ",
-        ),
-      ).toEqual<MF1Node>(
+      const src = " { foo , plural , one { # apple } other { # apples } } ";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode(" ", { range: [0, 1] }),
@@ -945,7 +966,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on plural + EOF", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo,plural");
+      const src = "{foo,plural";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -960,8 +982,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on plural + unknown symbol", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,plural%}");
+      const src = "{foo,plural%}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -976,7 +998,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on plural + RBrace", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("{foo,plural}");
+      const src = "{foo,plural}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -991,8 +1014,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on plural + comma + unknown symbol", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,plural,$}");
+      const src = "{foo,plural,$}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1007,8 +1030,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on plural + comma + RBrace", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,plural,}");
+      const src = "{foo,plural,}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "PluralLastSelector",
@@ -1021,9 +1044,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on = + identifier", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,=foo{}other{}}",
-      );
+      const src = "{foo,plural,=foo{}other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1038,9 +1060,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on = + spaces + number", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,= 42{}other{}}",
-      );
+      const src = "{foo,plural,= 42{}other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "InvalidSpaces",
@@ -1062,9 +1083,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on identifier + identifier", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one other{}}",
-      );
+      const src = "{foo,plural,one other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1079,9 +1099,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on = + number + identifier", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,=42 other{}}",
-      );
+      const src = "{foo,plural,=42 other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1096,9 +1115,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on identifier + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one?{}other{}}",
-      );
+      const src = "{foo,plural,one?{}other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1113,9 +1131,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on number without =", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,42{}other{}}",
-      );
+      const src = "{foo,plural,42{}other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1130,9 +1147,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on extra commas between branches", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one{},other{}}",
-      );
+      const src = "{foo,plural,one{},other{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1147,9 +1163,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on an unterminated branch (1)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one{}other{",
-      );
+      const src = "{foo,plural,one{}other{";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1164,9 +1179,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on an unterminated branch (2)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one{}other{'}}",
-      );
+      const src = "{foo,plural,one{}other{'}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "UnclosedQuotedString", range: [26, 26] },
       ]);
@@ -1176,9 +1190,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on an extra comma at the end of the branches", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one{}other{},}",
-      );
+      const src = "{foo,plural,one{}other{},}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1193,9 +1206,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on missing branch body", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "{foo,plural,one{}other}",
-      );
+      const src = "{foo,plural,one{}other}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1210,8 +1222,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on missing catch-all branch", () => {
-      const [msg, diagnostics] =
-        parseMF1MessageWithDiagnostics("{foo,plural,one{}}");
+      const src = "{foo,plural,one{}}";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "PluralLastSelector",
@@ -1226,7 +1238,8 @@ describe("parseMF1Message", () => {
 
   describe("element parsing", () => {
     it("parses simple number-parameterized elements", () => {
-      expect(parseMF1Message("Click <0>here</0>!")).toEqual<MF1Node>(
+      const src = "Click <0>here</0>!";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("Click ", { range: [0, 6] }),
@@ -1241,7 +1254,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses elements with spaces", () => {
-      expect(parseMF1Message("Click <0 > here </0 > !")).toEqual<MF1Node>(
+      const src = "Click <0 > here </0 > !";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1TextNode("Click ", { range: [0, 6] }),
@@ -1256,7 +1270,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses nested elements with both identifier and number parameters", () => {
-      expect(parseMF1Message("<foo><3></3></foo>")).toEqual<MF1Node>(
+      const src = "<foo><3></3></foo>";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ElementArgNode(
           "foo",
           MF1ElementArgNode(3, MF1TextNode("", { range: [8, 8] }), {
@@ -1268,7 +1283,8 @@ describe("parseMF1Message", () => {
     });
 
     it("parses self-closing elements", () => {
-      expect(parseMF1Message("<foo/> and <bar />")).toEqual<MF1Node>(
+      const src = "<foo/> and <bar />";
+      expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
             MF1ElementArgNode("foo", undefined, { range: [0, 6] }),
@@ -1281,7 +1297,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on < + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<$foo></foo>");
+      const src = "<$foo></foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1308,7 +1325,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on tag name + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo$></foo>");
+      const src = "<foo$></foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1335,7 +1353,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on </ + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></$foo>");
+      const src = "<foo></$foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1352,7 +1371,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on </ + tag name + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></foo$>");
+      const src = "<foo></foo$>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1369,7 +1389,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on tag name + / + unknown symbol", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo/$>");
+      const src = "<foo/$>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1384,7 +1405,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unclosed tag", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo>");
+      const src = "<foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1401,7 +1423,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unopened closing tag", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("</foo>");
+      const src = "</foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1414,7 +1437,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on < + space", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("< foo></foo>");
+      const src = "< foo></foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidSpaces", range: [1, 2] },
       ]);
@@ -1426,7 +1450,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on </ + space", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></ foo>");
+      const src = "<foo></ foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidSpaces", range: [7, 8] },
       ]);
@@ -1438,7 +1463,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on < + space + /", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo>< /foo>");
+      const src = "<foo>< /foo>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "UnexpectedToken",
@@ -1463,7 +1489,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on tag name + / + space", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo/ >");
+      const src = "<foo/ >";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidSpaces", range: [5, 6] },
       ]);
@@ -1473,7 +1500,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unmatched closing tag name", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<foo></bar>");
+      const src = "<foo></bar>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "MismatchedTag",
@@ -1490,9 +1518,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on unopened closing tag in nested elements", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(
-        "<foo><bar></foo></bar>",
-      );
+      const src = "<foo><bar></foo></bar>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "MismatchedTag",
@@ -1519,7 +1546,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on invalid parameter name (leading zero)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<0123/>");
+      const src = "<0123/>";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidNumber", range: [1, 5] },
       ]);
@@ -1531,7 +1559,8 @@ describe("parseMF1Message", () => {
     });
 
     it("reports an error on invalid parameter name (followed by alpha)", () => {
-      const [msg, diagnostics] = parseMF1MessageWithDiagnostics("<123foo />");
+      const src = "<123foo />";
+      const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         { type: "InvalidNumber", range: [1, 7] },
       ]);
