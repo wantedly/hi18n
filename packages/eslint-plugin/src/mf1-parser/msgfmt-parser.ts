@@ -431,7 +431,9 @@ class Parser {
     while (token.type !== "}") {
       let selector: string | number;
       if (token.type === "=") {
-        selector = this.#nextToken(["number"], ["number"]).value;
+        const numToken = this.#nextToken(["number"]);
+        this.#disallowWhitespace(numToken);
+        selector = numToken.value;
       } else {
         selector = token.raw;
       }
@@ -477,7 +479,8 @@ class Parser {
       name = this.#parseArgNameOrNumber(true);
       if (this.#nextToken(["/", ">"]).type === "/") {
         // <tag/>
-        this.#nextToken([">"], [">"]);
+        const closeToken = this.#nextToken([">"]);
+        this.#disallowWhitespace(closeToken);
         return MF1ElementArgNode(name, undefined, {
           range: [start, this.#pos],
         });
@@ -500,7 +503,8 @@ class Parser {
     try {
       const closeTagStart = this.#pos;
       this.#nextToken(["<"]);
-      this.#nextToken(["/"], ["/"]);
+      const slashToken = this.#nextToken(["/"]);
+      this.#disallowWhitespace(slashToken);
       const closingName = this.#parseArgNameOrNumber(true);
       this.#nextToken([">"]);
       if (name !== closingName) {
@@ -528,10 +532,10 @@ class Parser {
   // argName = [^[[:Pattern_Syntax:][:Pattern_White_Space:]]]+
   // argNumber = '0' | ('1'..'9' ('0'..'9')*)
   #parseArgNameOrNumber(noSpace = false): number | string {
-    const token = this.#nextToken(
-      ["number", "identifier"],
-      noSpace ? ["number", "identifier"] : undefined,
-    );
+    const token = this.#nextToken(["number", "identifier"]);
+    if (noSpace) {
+      this.#disallowWhitespace(token);
+    }
     if (token.type === "number") return token.value;
     return token.raw;
   }
@@ -539,10 +543,9 @@ class Parser {
   #nextToken<const E extends readonly string[]>(
     this: Parser,
     expected: E,
-    noWhitespace?: string[],
   ): Token & { type: E[number] } {
     const start = this.#pos;
-    const [token, space] = this.#nextTokenImpl();
+    const token = this.#nextTokenImpl();
     if (expected.indexOf(token.type) === -1) {
       if (token.type === "EOF") {
         this.#reportEOFError({
@@ -564,30 +567,34 @@ class Parser {
         `Unexpected token ${tokenDesc(token)} (expected ${expected.join(", ")})`,
       );
     }
-    if (noWhitespace && space && noWhitespace.indexOf(token.type) !== -1) {
-      this.#diagnostics.push({
-        type: "InvalidSpaces",
-        range: space.range,
-      });
-    }
     return token;
   }
 
-  #nextTokenImpl(): [Token, Space | undefined] {
-    const space = this.#skipWhitespace();
+  #nextTokenImpl(): Token {
+    const whitespace = this.#skipWhitespace();
     if (this.#pos >= this.#src.length)
-      return [{ type: "EOF", raw: "", range: [this.#pos, this.#pos] }, space];
+      return {
+        type: "EOF",
+        raw: "",
+        whitespace,
+        range: [this.#pos, this.#pos],
+      };
     const ch = this.#src[this.#pos]!;
     const start = this.#pos;
     let kind: Token["type"];
     if (this.#src.startsWith("offset:", this.#pos)) {
       kind = "offset:";
       this.#pos += "offset:".length;
-      return [{ type: kind, raw: "offset:", range: [start, this.#pos] }, space];
+      return {
+        type: kind,
+        raw: "offset:",
+        whitespace,
+        range: [start, this.#pos],
+      };
     }
-    const maybeIdent = this.#maybeReadIdentLike();
+    const maybeIdent = this.#maybeReadIdentLike(whitespace);
     if (maybeIdent) {
-      return [maybeIdent, space];
+      return maybeIdent;
     }
     if (this.#src.startsWith("::", this.#pos)) {
       kind = "::";
@@ -607,17 +614,15 @@ class Parser {
       kind = "unknown";
       this.#pos++;
     }
-    return [
-      {
-        type: kind,
-        raw: this.#src.substring(start, this.#pos),
-        range: [start, this.#pos],
-      },
-      space,
-    ];
+    return {
+      type: kind,
+      raw: this.#src.substring(start, this.#pos),
+      whitespace,
+      range: [start, this.#pos],
+    };
   }
 
-  #maybeReadIdentLike(): Token | null {
+  #maybeReadIdentLike(whitespace: Space | undefined): Token | null {
     const start = this.#pos;
     const suffix = this.#src.substring(this.#pos);
     const match = /^(?:[^\p{Pattern_Syntax}\p{Pattern_White_Space}]|_)+/u.exec(
@@ -638,6 +643,7 @@ class Parser {
       return {
         type: "number",
         value: parseInt(match[0], 10) || 0,
+        whitespace,
         range: [start, this.#pos],
       };
     } else {
@@ -651,7 +657,21 @@ class Parser {
         });
       }
       this.#pos += match[0].length;
-      return { type: "identifier", raw: match[0], range: [start, this.#pos] };
+      return {
+        type: "identifier",
+        raw: match[0],
+        whitespace,
+        range: [start, this.#pos],
+      };
+    }
+  }
+
+  #disallowWhitespace(token: Token): void {
+    if (token.whitespace) {
+      this.#diagnostics.push({
+        type: "InvalidSpaces",
+        range: token.whitespace.range,
+      });
     }
   }
 
@@ -818,10 +838,16 @@ type Token =
         | "EOF"
         | "unknown";
       raw: string;
+      whitespace: Space | undefined;
       range: Range;
     };
 
-type NumberToken = { type: "number"; value: number; range: Range };
+type NumberToken = {
+  type: "number";
+  value: number;
+  whitespace: Space | undefined;
+  range: Range;
+};
 
 type Space = { range: Range };
 
