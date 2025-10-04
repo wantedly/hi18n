@@ -16,6 +16,7 @@ import {
   MF1InvalidArgNode,
   MF1InvalidElementArgNode,
   MF1InvalidPluralArgNode,
+  type Range,
 } from "./msgfmt.ts";
 import type { Diagnostic } from "./diagnostics.ts";
 
@@ -24,42 +25,44 @@ describe("parseMF1Message", () => {
     it("parses the empty message", () => {
       const src = "";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("", { range: [0, 0] }),
+        MF1TextNode("", { range: pos(src, "") }),
       );
     });
 
     it("parses unescaped ASCII texts", () => {
       const src = "Hello, world!";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("Hello, world!", { range: [0, 13] }),
+        MF1TextNode("Hello, world!", { range: pos(src, "Hello, world!") }),
       );
     });
 
     it("parses unescaped non-ASCII texts", () => {
       const src = "こんにちは世界!";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("こんにちは世界!", { range: [0, 8] }),
+        MF1TextNode("こんにちは世界!", { range: pos(src, "こんにちは世界!") }),
       );
     });
 
     it("parses unescaped ASCII texts with symbols", () => {
       const src = "1 + 1 = 2";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("1 + 1 = 2", { range: [0, 9] }),
+        MF1TextNode("1 + 1 = 2", { range: pos(src, "1 + 1 = 2") }),
       );
     });
 
     it("parses plain #", () => {
       const src = "#";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("#", { range: [0, 1] }),
+        MF1TextNode("#", { range: pos(src, "#") }),
       );
     });
 
     it("parses unescaped single quotes", () => {
       const src = "I'm not a fond of this syntax.";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("I'm not a fond of this syntax.", { range: [0, 30] }),
+        MF1TextNode("I'm not a fond of this syntax.", {
+          range: pos(src, "I'm not a fond of this syntax."),
+        }),
       );
     });
 
@@ -68,11 +71,11 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("a'b ", { range: [0, 4] }),
-            MF1StringArgNode("name", { range: [4, 10] }),
-            MF1TextNode(" c'd", { range: [10, 14] }),
+            MF1TextNode("a'b ", { range: pos(src, "a'b ") }),
+            MF1StringArgNode("name", { range: pos(src, "{name}") }),
+            MF1TextNode(" c'd", { range: pos(src, " c'd") }),
           ],
-          { range: [0, 14] },
+          { range: pos(src, "a'b {name} c'd") },
         ),
       );
     });
@@ -80,21 +83,25 @@ describe("parseMF1Message", () => {
     it("parses escaped single quotes", () => {
       const src = "I''m not a fond of this syntax.";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("I'm not a fond of this syntax.", { range: [0, 31] }),
+        MF1TextNode("I'm not a fond of this syntax.", {
+          range: pos(src, "I''m not a fond of this syntax."),
+        }),
       );
     });
 
     it("parses quoted texts starting with RBrace", () => {
       const src = "'{foo}'";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("{foo}", { range: [0, 7] }),
+        MF1TextNode("{foo}", { range: pos(src, "'{foo}'") }),
       );
     });
 
     it("parses quoted texts starting with various symbols", () => {
       const src = "foo, '{bar}', '{}#|', '{a''b}', ''''";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("foo, {bar}, {}#|, {a'b}, ''", { range: [0, 36] }),
+        MF1TextNode("foo, {bar}, {}#|, {a'b}, ''", {
+          range: pos(src, "foo, '{bar}', '{}#|', '{a''b}', ''''"),
+        }),
       );
     });
 
@@ -102,14 +109,14 @@ describe("parseMF1Message", () => {
       // They are always quotable although conditional
       const src = "'# {}' '| {}'";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("# {} | {}", { range: [0, 13] }),
+        MF1TextNode("# {} | {}", { range: pos(src, "'# {}' '| {}'") }),
       );
     });
 
     it("parses quoted texts starting with <", () => {
       const src = "'< {}'";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1TextNode("< {}", { range: [0, 6] }),
+        MF1TextNode("< {}", { range: pos(src, "'< {}'") }),
       );
     });
 
@@ -136,14 +143,14 @@ describe("parseMF1Message", () => {
     it("skips spaces", () => {
       const src = "{ foo }";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1StringArgNode("foo", { range: [0, 7] }),
+        MF1StringArgNode("foo", { range: pos(src, "{ foo }") }),
       );
     });
 
     it("skips newlines", () => {
       const src = "{\nfoo\n}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1StringArgNode("foo", { range: [0, 7] }),
+        MF1StringArgNode("foo", { range: pos(src, "{\nfoo\n}") }),
       );
     });
 
@@ -151,19 +158,21 @@ describe("parseMF1Message", () => {
       const src = "{\x7Ffoo}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidCharacter", range: [1, 2] },
+        { type: "InvalidCharacter", range: pos(src, "\x7F") },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1StringArgNode("foo", { range: [0, 6] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1StringArgNode("foo", { range: pos(src, "{\x7Ffoo}") }),
+      );
     });
 
     it("reports errors on invalid identifiers", () => {
       const src = "{foo🍺}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidIdentifier", range: [1, 6] },
+        { type: "InvalidIdentifier", range: pos(src, "foo🍺") },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1StringArgNode("foo🍺", { range: [0, 7] }),
+        MF1StringArgNode("foo🍺", { range: pos(src, "{foo🍺}") }),
       );
     });
 
@@ -171,9 +180,11 @@ describe("parseMF1Message", () => {
       const src = "{0123}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidNumber", range: [1, 5] },
+        { type: "InvalidNumber", range: pos(src, "0123") },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1StringArgNode(123, { range: [0, 6] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1StringArgNode(123, { range: pos(src, "{0123}") }),
+      );
     });
   });
 
@@ -181,7 +192,7 @@ describe("parseMF1Message", () => {
     it("parses simple string arguments", () => {
       const src = "{foo}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1StringArgNode("foo", { range: [0, 5] }),
+        MF1StringArgNode("foo", { range: pos(src, "{foo}") }),
       );
     });
 
@@ -190,10 +201,10 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("foo ", { range: [0, 4] }),
-            MF1StringArgNode("foo", { range: [4, 11] }),
+            MF1TextNode("foo ", { range: pos(src, "foo ") }),
+            MF1StringArgNode("foo", { range: pos(src, "{ foo }") }),
           ],
-          { range: [0, 11] },
+          { range: pos(src, "foo { foo }") },
         ),
       );
     });
@@ -203,12 +214,12 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("foo ", { range: [0, 4] }),
-            MF1StringArgNode("foo", { range: [4, 11] }),
-            MF1TextNode(" bar ", { range: [11, 16] }),
-            MF1StringArgNode("bar", { range: [16, 23] }),
+            MF1TextNode("foo ", { range: pos(src, "foo ") }),
+            MF1StringArgNode("foo", { range: pos(src, "{ foo }") }),
+            MF1TextNode(" bar ", { range: pos(src, " bar ") }),
+            MF1StringArgNode("bar", { range: pos(src, "{ bar }") }),
           ],
-          { range: [0, 23] },
+          { range: pos(src, "foo { foo } bar { bar }") },
         ),
       );
     });
@@ -218,12 +229,12 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1StringArgNode(2, { range: [0, 3] }),
-            MF1StringArgNode(0, { range: [3, 8] }),
-            MF1TextNode(", ", { range: [8, 10] }),
-            MF1StringArgNode(1, { range: [10, 13] }),
+            MF1StringArgNode(2, { range: pos(src, "{2}") }),
+            MF1StringArgNode(0, { range: pos(src, "{ 0 }") }),
+            MF1TextNode(", ", { range: pos(src, ", ") }),
+            MF1StringArgNode(1, { range: pos(src, "{1}") }),
           ],
-          { range: [0, 13] },
+          { range: pos(src, "{2}{ 0 }, {1}") },
         ),
       );
     });
@@ -236,11 +247,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: ["number", "identifier"],
-          range: [1, 1],
+          range: [src.length, src.length],
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode(undefined, { range: [0, 1] }),
+        MF1InvalidArgNode(undefined, { range: pos(src, "{") }),
       );
     });
 
@@ -252,11 +263,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["number", "identifier"],
-          range: [1, 2],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode(undefined, { range: [0, 2] }),
+        MF1InvalidArgNode(undefined, { range: pos(src, "{$") }),
       );
     });
 
@@ -264,18 +275,22 @@ describe("parseMF1Message", () => {
       const src = "{123foo}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidNumber", range: [1, 7] },
+        { type: "InvalidNumber", range: pos(src, "123foo") },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1StringArgNode(123, { range: [0, 8] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1StringArgNode(123, { range: pos(src, "{123foo}") }),
+      );
     });
 
     it("reports an error on invalid number (leading zero)", () => {
       const src = "{0123}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidNumber", range: [1, 5] },
+        { type: "InvalidNumber", range: pos(src, "0123") },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1StringArgNode(123, { range: [0, 6] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1StringArgNode(123, { range: pos(src, "{0123}") }),
+      );
     });
 
     it("reports an error on LBrace + ident + EOF", () => {
@@ -286,10 +301,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: ["}", ","],
-          range: [4, 4],
+          range: [src.length, src.length],
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 4] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo") }),
+      );
     });
 
     it("reports an error on LBrace + ident + unknown symbol", () => {
@@ -300,10 +317,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "%",
           expected: ["}", ","],
-          range: [4, 5],
+          range: pos(src, "%"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 5] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo%") }),
+      );
     });
   });
 
@@ -316,10 +335,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "}",
           expected: ["identifier"],
-          range: [5, 6],
+          range: pos(src, "}"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 6] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,}") }),
+      );
     });
 
     it("reports an error on LBrace + ident + comma + unknown symbol", () => {
@@ -330,10 +351,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["identifier"],
-          range: [5, 6],
+          range: pos(src, "$"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 7] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,$}") }),
+      );
     });
 
     it("reports an error on unknown argType", () => {
@@ -344,11 +367,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedArgType",
           argType: "integer",
           expected: ["number", "date", "time"],
-          range: [5, 12],
+          range: pos(src, "integer"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 13] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,integer}") }),
       );
     });
 
@@ -360,11 +383,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["}", ","],
-          range: [11, 12],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 13] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number$}") }),
       );
     });
 
@@ -376,11 +399,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: ["}", ","],
-          range: [11, 11],
+          range: [src.length, src.length],
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 11] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number") }),
       );
     });
   });
@@ -389,7 +412,7 @@ describe("parseMF1Message", () => {
     it("parses simple number arguments", () => {
       const src = "{foo,number}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1NumberArgNode("foo", {}, { range: [0, 12] }),
+        MF1NumberArgNode("foo", {}, { range: pos(src, "{foo,number}") }),
       );
     });
 
@@ -398,10 +421,14 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("foo ", { range: [0, 4] }),
-            MF1NumberArgNode("foo", {}, { range: [4, 20] }),
+            MF1TextNode("foo ", { range: pos(src, "foo ") }),
+            MF1NumberArgNode(
+              "foo",
+              {},
+              { range: pos(src, "{ foo , number }") },
+            ),
           ],
-          { range: [0, 20] },
+          { range: pos(src, "foo { foo , number }") },
         ),
       );
     });
@@ -411,20 +438,20 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("foo ", { range: [0, 4] }),
+            MF1TextNode("foo ", { range: pos(src, "foo ") }),
             MF1DateTimeArgNode(
               "foo",
               { dateStyle: "medium" },
-              { range: [4, 18] },
+              { range: pos(src, "{ foo , date }") },
             ),
-            MF1TextNode(" bar ", { range: [18, 23] }),
+            MF1TextNode(" bar ", { range: pos(src, " bar ") }),
             MF1DateTimeArgNode(
               "bar",
               { timeStyle: "medium" },
-              { range: [23, 37] },
+              { range: pos(src, "{ bar , time }") },
             ),
           ],
-          { range: [0, 37] },
+          { range: pos(src, "foo { foo , date } bar { bar , time }") },
         ),
       );
     });
@@ -437,10 +464,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedArgType",
           argType: "spellout",
           expected: ["number", "date", "time"],
-          range: [3, 11],
+          range: pos(src, "spellout"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode(2, { range: [0, 12] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode(2, { range: pos(src, "{2,spellout}") }),
+      );
     });
 
     it("reports an error on spellout argType (2)", () => {
@@ -451,11 +480,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedArgType",
           argType: "spellout",
           expected: ["number", "date", "time"],
-          range: [5, 13],
+          range: pos(src, "spellout"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 22] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,spellout,integer}") }),
       );
     });
 
@@ -467,10 +496,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedArgType",
           argType: "ordinal",
           expected: ["number", "date", "time"],
-          range: [6, 13],
+          range: pos(src, "ordinal"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode(0, { range: [0, 15] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode(0, { range: pos(src, "{ 0 , ordinal }") }),
+      );
     });
 
     it("parses integer style", () => {
@@ -479,7 +510,7 @@ describe("parseMF1Message", () => {
         MF1NumberArgNode(
           "foo",
           { maximumFractionDigits: 0 },
-          { range: [0, 20] },
+          { range: pos(src, "{foo,number,integer}") },
         ),
       );
     });
@@ -493,18 +524,22 @@ describe("parseMF1Message", () => {
           argType: "number",
           argStyle: "currency",
           expected: ["integer", "percent"],
-          range: [12, 20],
+          range: pos(src, "currency"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 21] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number,currency}") }),
       );
     });
 
     it("parses percent style", () => {
       const src = "{foo,number,percent}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1NumberArgNode("foo", { style: "percent" }, { range: [0, 20] }),
+        MF1NumberArgNode(
+          "foo",
+          { style: "percent" },
+          { range: pos(src, "{foo,number,percent}") },
+        ),
       );
     });
 
@@ -1572,3 +1607,31 @@ describe("parseMF1Message", () => {
     });
   });
 });
+
+type PosOptions = {
+  index?: number | undefined;
+  pre?: string | undefined;
+  post?: string | undefined;
+};
+
+const failRange: Range = [-1, -1];
+
+function pos(src: string, needle: string, options: PosOptions = {}): Range {
+  const { index = 0, pre = "", post = "" } = options;
+  const fullNeedle = `${pre}${needle}${post}`;
+  let start = 0;
+  for (let i = 0; i < index; i++) {
+    const found = src.indexOf(fullNeedle, start);
+    if (found === -1) {
+      return failRange;
+    }
+    // Not moving the position to the end of the found needle
+    // so that we can match "ab(abab)ab" as in "abababab".
+    start = found + 1;
+  }
+  const found = src.indexOf(fullNeedle, start);
+  if (found === -1) {
+    return failRange;
+  }
+  return [found + pre.length, found + fullNeedle.length - post.length];
+}
