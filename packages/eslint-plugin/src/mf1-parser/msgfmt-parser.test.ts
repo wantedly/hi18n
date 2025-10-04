@@ -124,9 +124,11 @@ describe("parseMF1Message", () => {
       const src = "'{foo";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "UnclosedQuotedString", range: [5, 5] },
+        { type: "UnclosedQuotedString", range: pos(src, "", { pre: "foo" }) },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1TextNode("{foo", { range: [0, 5] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1TextNode("{foo", { range: pos(src, "'{foo") }),
+      );
     });
   });
 
@@ -134,9 +136,11 @@ describe("parseMF1Message", () => {
     const src = "'{foo";
     const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
     expect(diagnostics).toEqual<readonly Diagnostic[]>([
-      { type: "UnclosedQuotedString", range: [5, 5] },
+      { type: "UnclosedQuotedString", range: pos(src, "", { pre: "foo" }) },
     ]);
-    expect(msg).toEqual<MF1Node>(MF1TextNode("{foo", { range: [0, 5] }));
+    expect(msg).toEqual<MF1Node>(
+      MF1TextNode("{foo", { range: pos(src, "'{foo") }),
+    );
   });
 
   describe("tokenization", () => {
@@ -551,11 +555,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["identifier", "::"],
-          range: [12, 13],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 14] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number,$}") }),
       );
     });
 
@@ -568,11 +572,11 @@ describe("parseMF1Message", () => {
           argType: "number",
           argStyle: "foobar",
           expected: ["integer", "percent"],
-          range: [12, 18],
+          range: pos(src, "foobar"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 19] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number,foobar}") }),
       );
     });
 
@@ -585,11 +589,11 @@ describe("parseMF1Message", () => {
           argType: "number",
           argStyle: "full",
           expected: ["integer", "percent"],
-          range: [12, 16],
+          range: pos(src, "full"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 17] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number,full}") }),
       );
     });
 
@@ -602,11 +606,13 @@ describe("parseMF1Message", () => {
           argType: "number",
           argStyle: "::skeleton",
           expected: ["integer", "percent"],
-          range: [12, 14],
+          range: pos(src, "::"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 27] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,number,::currency/USD}"),
+        }),
       );
     });
 
@@ -618,11 +624,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["}"],
-          range: [19, 20],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 21] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,number,integer$}") }),
       );
     });
   });
@@ -636,10 +642,12 @@ describe("parseMF1Message", () => {
           type: "UnexpectedArgType",
           argType: "duration",
           expected: ["number", "date", "time"],
-          range: [3, 11],
+          range: pos(src, "duration"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1InvalidArgNode(1, { range: [0, 12] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1InvalidArgNode(1, { range: pos(src, "{1,duration}") }),
+      );
     });
   });
 
@@ -647,70 +655,110 @@ describe("parseMF1Message", () => {
     it("parses simple date arguments", () => {
       const src = "{foo,date}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { dateStyle: "medium" }, { range: [0, 10] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { dateStyle: "medium" },
+          { range: pos(src, "{foo,date}") },
+        ),
       );
     });
 
     it("parses short date style", () => {
       const src = "{foo,date,short}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { dateStyle: "short" }, { range: [0, 16] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { dateStyle: "short" },
+          { range: pos(src, "{foo,date,short}") },
+        ),
       );
     });
 
     it("parses medium date style", () => {
       const src = "{foo,date,medium}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { dateStyle: "medium" }, { range: [0, 17] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { dateStyle: "medium" },
+          { range: pos(src, "{foo,date,medium}") },
+        ),
       );
     });
 
     it("parses long date style", () => {
       const src = "{foo,date,long}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { dateStyle: "long" }, { range: [0, 15] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { dateStyle: "long" },
+          { range: pos(src, "{foo,date,long}") },
+        ),
       );
     });
 
     it("parses full date style", () => {
       const src = "{foo,date,full}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { dateStyle: "full" }, { range: [0, 15] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { dateStyle: "full" },
+          { range: pos(src, "{foo,date,full}") },
+        ),
       );
     });
 
     it("parses simple time arguments", () => {
       const src = "{foo,time}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { timeStyle: "medium" }, { range: [0, 10] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { timeStyle: "medium" },
+          { range: pos(src, "{foo,time}") },
+        ),
       );
     });
 
     it("parses short time style", () => {
       const src = "{foo,time,short}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { timeStyle: "short" }, { range: [0, 16] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { timeStyle: "short" },
+          { range: pos(src, "{foo,time,short}") },
+        ),
       );
     });
 
     it("parses medium time style", () => {
       const src = "{foo,time,medium}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { timeStyle: "medium" }, { range: [0, 17] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { timeStyle: "medium" },
+          { range: pos(src, "{foo,time,medium}") },
+        ),
       );
     });
 
     it("parses long time style", () => {
       const src = "{foo,time,long}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { timeStyle: "long" }, { range: [0, 15] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { timeStyle: "long" },
+          { range: pos(src, "{foo,time,long}") },
+        ),
       );
     });
 
     it("parses full time style", () => {
       const src = "{foo,time,full}";
       expect(parseMF1Message(src)).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { timeStyle: "full" }, { range: [0, 15] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { timeStyle: "full" },
+          { range: pos(src, "{foo,time,full}") },
+        ),
       );
     });
 
@@ -725,7 +773,7 @@ describe("parseMF1Message", () => {
             minute: "2-digit",
             month: "long",
           },
-          { range: [0, 21] },
+          { range: pos(src, "{foo,date,::MMMMdjmm}") },
         ),
       );
     });
@@ -739,11 +787,11 @@ describe("parseMF1Message", () => {
           argType: "date",
           argStyle: "integer",
           expected: ["short", "medium", "long", "full", "::skeleton"],
-          range: [10, 17],
+          range: pos(src, "integer"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 18] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,date,integer}") }),
       );
     });
 
@@ -754,9 +802,13 @@ describe("parseMF1Message", () => {
         {
           type: "InvalidDateSkeleton",
           component: "YYYY",
-          range: [12, 22],
+          range: pos(src, "YYYYwwEEEE"),
         },
-        { type: "InvalidDateSkeleton", component: "ww", range: [12, 22] },
+        {
+          type: "InvalidDateSkeleton",
+          component: "ww",
+          range: pos(src, "YYYYwwEEEE"),
+        },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1DateTimeArgNode(
@@ -764,7 +816,7 @@ describe("parseMF1Message", () => {
           {
             weekday: "long",
           },
-          { range: [0, 23] },
+          { range: pos(src, "{foo,date,::YYYYwwEEEE}") },
         ),
       );
     });
@@ -773,10 +825,14 @@ describe("parseMF1Message", () => {
       const src = "{foo,date,::G}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InsufficientFieldsInDateSkeleton", range: [12, 13] },
+        { type: "InsufficientFieldsInDateSkeleton", range: pos(src, "G") },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1DateTimeArgNode("foo", { era: "short" }, { range: [0, 14] }),
+        MF1DateTimeArgNode(
+          "foo",
+          { era: "short" },
+          { range: pos(src, "{foo,date,::G}") },
+        ),
       );
     });
   });
@@ -789,10 +845,14 @@ describe("parseMF1Message", () => {
         type: "UnexpectedArgType",
         argType: "choice",
         expected: ["number", "date", "time"],
-        range: [5, 11],
+        range: pos(src, "choice"),
       },
     ]);
-    expect(msg).toEqual<MF1Node>(MF1InvalidArgNode("foo", { range: [0, 25] }));
+    expect(msg).toEqual<MF1Node>(
+      MF1InvalidArgNode("foo", {
+        range: pos(src, "{foo,choice,0#zero|1#one}"),
+      }),
+    );
   });
 
   describe("plural branch parsing", () => {
@@ -804,12 +864,12 @@ describe("parseMF1Message", () => {
           [
             MF1PluralBranch(
               "one",
-              MF1TextNode("an apple", { range: [16, 24] }),
-              { range: [12, 25] },
+              MF1TextNode("an apple", { range: pos(src, "an apple") }),
+              { range: pos(src, "one{an apple}") },
             ),
           ],
-          MF1TextNode("apples", { range: [31, 37] }),
-          { range: [0, 39] },
+          MF1TextNode("apples", { range: pos(src, "apples") }),
+          { range: pos(src, "{foo,plural,one{an apple}other{apples}}") },
         ),
       );
     });
@@ -819,22 +879,32 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode(" ", { range: [0, 1] }),
+            MF1TextNode(" ", { range: pos(src, " ") }),
             MF1PluralArgNode(
               "foo",
               [
                 MF1PluralBranch(
                   "one",
-                  MF1TextNode(" an apple ", { range: [23, 33] }),
-                  { range: [18, 34] },
+                  MF1TextNode(" an apple ", { range: pos(src, " an apple ") }),
+                  { range: pos(src, "one { an apple }") },
                 ),
               ],
-              MF1TextNode(" apples ", { range: [42, 50] }),
-              { range: [1, 53] },
+              MF1TextNode(" apples ", { range: pos(src, " apples ") }),
+              {
+                range: pos(
+                  src,
+                  "{ foo , plural , one { an apple } other { apples } }",
+                ),
+              },
             ),
-            MF1TextNode(" ", { range: [53, 54] }),
+            MF1TextNode(" ", { range: pos(src, " ", { pre: "} }" }) }),
           ],
-          { range: [0, 54] },
+          {
+            range: pos(
+              src,
+              " { foo , plural , one { an apple } other { apples } } ",
+            ),
+          },
         ),
       );
     });
@@ -845,15 +915,19 @@ describe("parseMF1Message", () => {
         MF1PluralArgNode(
           "foo",
           [
-            MF1PluralBranch(1, MF1TextNode("bar", { range: [15, 18] }), {
-              range: [12, 19],
+            MF1PluralBranch(1, MF1TextNode("bar", { range: pos(src, "bar") }), {
+              range: pos(src, "=1{bar}"),
             }),
-            MF1PluralBranch(2, MF1TextNode("barbar", { range: [22, 28] }), {
-              range: [19, 29],
-            }),
+            MF1PluralBranch(
+              2,
+              MF1TextNode("barbar", { range: pos(src, "barbar") }),
+              {
+                range: pos(src, "=2{barbar}"),
+              },
+            ),
           ],
-          MF1TextNode("barbarbar", { range: [35, 44] }),
-          { range: [0, 46] },
+          MF1TextNode("barbarbar", { range: pos(src, "barbarbar") }),
+          { range: pos(src, "{foo,plural,=1{bar}=2{barbar}other{barbarbar}}") },
         ),
       );
     });
@@ -864,25 +938,39 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode(" ", { range: [0, 1] }),
+            MF1TextNode(" ", { range: pos(src, " ") }),
             MF1PluralArgNode(
               "foo",
               [
-                MF1PluralBranch(1, MF1TextNode(" bar ", { range: [22, 27] }), {
-                  range: [18, 28],
-                }),
+                MF1PluralBranch(
+                  1,
+                  MF1TextNode(" bar ", { range: pos(src, " bar ") }),
+                  {
+                    range: pos(src, "=1 { bar }"),
+                  },
+                ),
                 MF1PluralBranch(
                   2,
-                  MF1TextNode(" barbar ", { range: [33, 41] }),
-                  { range: [29, 42] },
+                  MF1TextNode(" barbar ", { range: pos(src, " barbar ") }),
+                  { range: pos(src, "=2 { barbar }") },
                 ),
               ],
-              MF1TextNode(" barbarbar ", { range: [50, 61] }),
-              { range: [1, 64] },
+              MF1TextNode(" barbarbar ", { range: pos(src, " barbarbar ") }),
+              {
+                range: pos(
+                  src,
+                  "{ foo , plural , =1 { bar } =2 { barbar } other { barbarbar } }",
+                ),
+              },
             ),
-            MF1TextNode(" ", { range: [64, 65] }),
+            MF1TextNode(" ", { range: pos(src, " ", { pre: "} }" }) }),
           ],
-          { range: [0, 65] },
+          {
+            range: pos(
+              src,
+              " { foo , plural , =1 { bar } =2 { barbar } other { barbarbar } } ",
+            ),
+          },
         ),
       );
     });
@@ -895,12 +983,15 @@ describe("parseMF1Message", () => {
           [
             MF1PluralBranch(
               "one",
-              MF1TextNode("an apple", { range: [25, 33] }),
-              { range: [21, 34] },
+              MF1TextNode("an apple", { range: pos(src, "an apple") }),
+              { range: pos(src, "one{an apple}") },
             ),
           ],
-          MF1TextNode("apples", { range: [40, 46] }),
-          { subtract: 1, range: [0, 48] },
+          MF1TextNode("apples", { range: pos(src, "apples") }),
+          {
+            subtract: 1,
+            range: pos(src, "{foo,plural,offset:1 one{an apple}other{apples}}"),
+          },
         ),
       );
     });
@@ -911,22 +1002,33 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode(" ", { range: [0, 1] }),
+            MF1TextNode(" ", { range: pos(src, " ") }),
             MF1PluralArgNode(
               "foo",
               [
                 MF1PluralBranch(
                   "one",
-                  MF1TextNode(" an apple ", { range: [32, 42] }),
-                  { range: [27, 43] },
+                  MF1TextNode(" an apple ", { range: pos(src, " an apple ") }),
+                  { range: pos(src, "one { an apple }") },
                 ),
               ],
-              MF1TextNode(" apples ", { range: [51, 59] }),
-              { subtract: 1, range: [1, 62] },
+              MF1TextNode(" apples ", { range: pos(src, " apples ") }),
+              {
+                subtract: 1,
+                range: pos(
+                  src,
+                  "{ foo , plural , offset:1 one { an apple } other { apples } }",
+                ),
+              },
             ),
-            MF1TextNode(" ", { range: [62, 63] }),
+            MF1TextNode(" ", { range: pos(src, " ", { pre: "} }" }) }),
           ],
-          { range: [0, 63] },
+          {
+            range: pos(
+              src,
+              " { foo , plural , offset:1 one { an apple } other { apples } } ",
+            ),
+          },
         ),
       );
     });
@@ -941,22 +1043,29 @@ describe("parseMF1Message", () => {
               "one",
               MF1ConcatNode(
                 [
-                  MF1NumberArgNode("foo", {}, { range: [16, 17] }),
-                  MF1TextNode(" apple", { range: [17, 23] }),
+                  MF1NumberArgNode("foo", {}, { range: pos(src, "#") }),
+                  MF1TextNode(" apple", { range: pos(src, " apple") }),
                 ],
-                { range: [16, 23] },
+                { range: pos(src, "# apple") },
               ),
-              { range: [12, 24] },
+              { range: pos(src, "one{# apple}") },
             ),
           ],
           MF1ConcatNode(
             [
-              MF1NumberArgNode("foo", {}, { range: [30, 31] }),
-              MF1TextNode(" apples", { range: [31, 38] }),
+              MF1NumberArgNode(
+                "foo",
+                {},
+                { range: pos(src, "#", { index: 1 }) },
+              ),
+              MF1TextNode(" apples", { range: pos(src, " apples") }),
             ],
-            { range: [30, 38] },
+            { range: pos(src, "# apples") },
           ),
-          { subtract: 0, range: [0, 40] },
+          {
+            subtract: 0,
+            range: pos(src, "{foo,plural,one{# apple}other{# apples}}"),
+          },
         ),
       );
     });
@@ -966,7 +1075,7 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode(" ", { range: [0, 1] }),
+            MF1TextNode(" ", { range: pos(src, " ") }),
             MF1PluralArgNode(
               "foo",
               [
@@ -974,28 +1083,47 @@ describe("parseMF1Message", () => {
                   "one",
                   MF1ConcatNode(
                     [
-                      MF1TextNode(" ", { range: [23, 24] }),
-                      MF1NumberArgNode("foo", {}, { range: [24, 25] }),
-                      MF1TextNode(" apple ", { range: [25, 32] }),
+                      MF1TextNode(" ", {
+                        range: pos(src, " ", { pre: "one {" }),
+                      }),
+                      MF1NumberArgNode("foo", {}, { range: pos(src, "#") }),
+                      MF1TextNode(" apple ", { range: pos(src, " apple ") }),
                     ],
-                    { range: [23, 32] },
+                    { range: pos(src, " # apple ") },
                   ),
-                  { range: [18, 33] },
+                  { range: pos(src, "one { # apple }") },
                 ),
               ],
               MF1ConcatNode(
                 [
-                  MF1TextNode(" ", { range: [41, 42] }),
-                  MF1NumberArgNode("foo", {}, { range: [42, 43] }),
-                  MF1TextNode(" apples ", { range: [43, 51] }),
+                  MF1TextNode(" ", {
+                    range: pos(src, " ", { pre: "other {" }),
+                  }),
+                  MF1NumberArgNode(
+                    "foo",
+                    {},
+                    { range: pos(src, "#", { index: 1 }) },
+                  ),
+                  MF1TextNode(" apples ", { range: pos(src, " apples ") }),
                 ],
-                { range: [41, 51] },
+                { range: pos(src, " # apples ") },
               ),
-              { subtract: 0, range: [1, 54] },
+              {
+                subtract: 0,
+                range: pos(
+                  src,
+                  "{ foo , plural , one { # apple } other { # apples } }",
+                ),
+              },
             ),
-            MF1TextNode(" ", { range: [54, 55] }),
+            MF1TextNode(" ", { range: pos(src, " ", { pre: "} }" }) }),
           ],
-          { range: [0, 55] },
+          {
+            range: pos(
+              src,
+              " { foo , plural , one { # apple } other { # apples } } ",
+            ),
+          },
         ),
       );
     });
@@ -1008,11 +1136,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: [","],
-          range: [11, 11],
+          range: [src.length, src.length],
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 11] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,plural") }),
       );
     });
 
@@ -1024,11 +1152,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "%",
           expected: [","],
-          range: [11, 12],
+          range: pos(src, "%"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 13] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,plural%}") }),
       );
     });
 
@@ -1040,11 +1168,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "}",
           expected: [","],
-          range: [11, 12],
+          range: pos(src, "}"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 12] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,plural}") }),
       );
     });
 
@@ -1056,11 +1184,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["offset:", "identifier", "=", "}"],
-          range: [12, 13],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 14] }),
+        MF1InvalidArgNode("foo", { range: pos(src, "{foo,plural,$}") }),
       );
     });
 
@@ -1070,11 +1198,11 @@ describe("parseMF1Message", () => {
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "PluralLastSelector",
-          range: [0, 13],
+          range: pos(src, "{foo,plural,}"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidPluralArgNode("foo", { range: [0, 13] }),
+        MF1InvalidPluralArgNode("foo", { range: pos(src, "{foo,plural,}") }),
       );
     });
 
@@ -1086,11 +1214,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "identifier",
           expected: ["number"],
-          range: [13, 16],
+          range: pos(src, "foo", { index: 1 }),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 26] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,=foo{}other{}}"),
+        }),
       );
     });
 
@@ -1100,19 +1230,27 @@ describe("parseMF1Message", () => {
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "InvalidSpaces",
-          range: [13, 14],
+          range: pos(src, " ", { pre: "=" }),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1PluralArgNode(
           "foo",
           [
-            MF1PluralBranch(42, MF1TextNode("", { range: [17, 17] }), {
-              range: [12, 18],
-            }),
+            MF1PluralBranch(
+              42,
+              MF1TextNode("", {
+                range: pos(src, "", { pre: "= 42{" }),
+              }),
+              {
+                range: pos(src, "= 42{}"),
+              },
+            ),
           ],
-          MF1TextNode("", { range: [24, 24] }),
-          { range: [0, 26] },
+          MF1TextNode("", {
+            range: pos(src, "", { pre: "other{" }),
+          }),
+          { range: pos(src, "{foo,plural,= 42{}other{}}") },
         ),
       );
     });
@@ -1125,11 +1263,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "identifier",
           expected: ["{"],
-          range: [15, 21],
+          range: pos(src, " other"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 24] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one other{}}"),
+        }),
       );
     });
 
@@ -1141,11 +1281,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "identifier",
           expected: ["{"],
-          range: [15, 21],
+          range: pos(src, " other"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 24] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,=42 other{}}"),
+        }),
       );
     });
 
@@ -1157,11 +1299,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "?",
           expected: ["{"],
-          range: [15, 16],
+          range: pos(src, "?"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 26] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one?{}other{}}"),
+        }),
       );
     });
 
@@ -1173,11 +1317,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "number",
           expected: ["offset:", "identifier", "=", "}"],
-          range: [12, 14],
+          range: pos(src, "42"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 24] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,42{}other{}}"),
+        }),
       );
     });
 
@@ -1189,11 +1335,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: ",",
           expected: ["identifier", "=", "}"],
-          range: [17, 18],
+          range: pos(src, ",", { index: 2 }),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 26] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one{},other{}}"),
+        }),
       );
     });
 
@@ -1205,11 +1353,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: ["}"],
-          range: [23, 23],
+          range: [src.length, src.length],
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 23] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one{}other{"),
+        }),
       );
     });
 
@@ -1217,10 +1367,12 @@ describe("parseMF1Message", () => {
       const src = "{foo,plural,one{}other{'}}";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "UnclosedQuotedString", range: [26, 26] },
+        { type: "UnclosedQuotedString", range: [src.length, src.length] },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 26] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one{}other{'}}"),
+        }),
       );
     });
 
@@ -1232,11 +1384,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: ",",
           expected: ["identifier", "=", "}"],
-          range: [24, 25],
+          range: pos(src, ",", { index: 2 }),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 26] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one{}other{},}"),
+        }),
       );
     });
 
@@ -1248,11 +1402,13 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "}",
           expected: ["{"],
-          range: [22, 23],
+          range: pos(src, "}", { index: 1 }),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidArgNode("foo", { range: [0, 23] }),
+        MF1InvalidArgNode("foo", {
+          range: pos(src, "{foo,plural,one{}other}"),
+        }),
       );
     });
 
@@ -1262,11 +1418,13 @@ describe("parseMF1Message", () => {
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
         {
           type: "PluralLastSelector",
-          range: [12, 17],
+          range: pos(src, "one{}"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidPluralArgNode("foo", { range: [0, 18] }),
+        MF1InvalidPluralArgNode("foo", {
+          range: pos(src, "{foo,plural,one{}}"),
+        }),
       );
     });
   });
@@ -1277,13 +1435,17 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("Click ", { range: [0, 6] }),
-            MF1ElementArgNode(0, MF1TextNode("here", { range: [9, 13] }), {
-              range: [6, 17],
-            }),
-            MF1TextNode("!", { range: [17, 18] }),
+            MF1TextNode("Click ", { range: pos(src, "Click ") }),
+            MF1ElementArgNode(
+              0,
+              MF1TextNode("here", { range: pos(src, "here") }),
+              {
+                range: pos(src, "<0>here</0>"),
+              },
+            ),
+            MF1TextNode("!", { range: pos(src, "!") }),
           ],
-          { range: [0, 18] },
+          { range: pos(src, "Click <0>here</0>!") },
         ),
       );
     });
@@ -1293,13 +1455,17 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1TextNode("Click ", { range: [0, 6] }),
-            MF1ElementArgNode(0, MF1TextNode(" here ", { range: [10, 16] }), {
-              range: [6, 21],
-            }),
-            MF1TextNode(" !", { range: [21, 23] }),
+            MF1TextNode("Click ", { range: pos(src, "Click ") }),
+            MF1ElementArgNode(
+              0,
+              MF1TextNode(" here ", { range: pos(src, " here ") }),
+              {
+                range: pos(src, "<0 > here </0 >"),
+              },
+            ),
+            MF1TextNode(" !", { range: pos(src, " !") }),
           ],
-          { range: [0, 23] },
+          { range: pos(src, "Click <0 > here </0 > !") },
         ),
       );
     });
@@ -1309,10 +1475,16 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ElementArgNode(
           "foo",
-          MF1ElementArgNode(3, MF1TextNode("", { range: [8, 8] }), {
-            range: [5, 12],
-          }),
-          { range: [0, 18] },
+          MF1ElementArgNode(
+            3,
+            MF1TextNode("", {
+              range: pos(src, "", { pre: "<3>" }),
+            }),
+            {
+              range: pos(src, "<3></3>"),
+            },
+          ),
+          { range: pos(src, "<foo><3></3></foo>") },
         ),
       );
     });
@@ -1322,11 +1494,11 @@ describe("parseMF1Message", () => {
       expect(parseMF1Message(src)).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1ElementArgNode("foo", undefined, { range: [0, 6] }),
-            MF1TextNode(" and ", { range: [6, 11] }),
-            MF1ElementArgNode("bar", undefined, { range: [11, 18] }),
+            MF1ElementArgNode("foo", undefined, { range: pos(src, "<foo/>") }),
+            MF1TextNode(" and ", { range: pos(src, " and ") }),
+            MF1ElementArgNode("bar", undefined, { range: pos(src, "<bar />") }),
           ],
-          { range: [0, 18] },
+          { range: pos(src, "<foo/> and <bar />") },
         ),
       );
     });
@@ -1339,22 +1511,22 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["number", "identifier"],
-          range: [1, 2],
+          range: pos(src, "$"),
         },
         {
           type: "UnexpectedToken",
           tokenDesc: "</",
           expected: ["EOF"],
-          range: [6, 8],
+          range: pos(src, "</"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1InvalidElementArgNode(undefined, { range: [0, 6] }),
-            MF1TextNode("</foo>", { range: [6, 12] }),
+            MF1InvalidElementArgNode(undefined, { range: pos(src, "<$foo>") }),
+            MF1TextNode("</foo>", { range: pos(src, "</foo>") }),
           ],
-          { range: [0, 12] },
+          { range: pos(src, "<$foo></foo>") },
         ),
       );
     });
@@ -1367,22 +1539,22 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["/", ">"],
-          range: [4, 5],
+          range: pos(src, "$"),
         },
         {
           type: "UnexpectedToken",
           tokenDesc: "</",
           expected: ["EOF"],
-          range: [6, 8],
+          range: pos(src, "</"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1ConcatNode(
           [
-            MF1InvalidElementArgNode(undefined, { range: [0, 6] }),
-            MF1TextNode("</foo>", { range: [6, 12] }),
+            MF1InvalidElementArgNode(undefined, { range: pos(src, "<foo$>") }),
+            MF1TextNode("</foo>", { range: pos(src, "</foo>") }),
           ],
-          { range: [0, 12] },
+          { range: pos(src, "<foo$></foo>") },
         ),
       );
     });
@@ -1395,13 +1567,19 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: ["number", "identifier"],
-          range: [7, 8],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
-          range: [0, 12],
-        }),
+        MF1ElementArgNode(
+          "foo",
+          MF1TextNode("", {
+            range: pos(src, "", { pre: "<foo>" }),
+          }),
+          {
+            range: pos(src, "<foo></$foo>"),
+          },
+        ),
       );
     });
 
@@ -1413,13 +1591,19 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: [">"],
-          range: [10, 11],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
-          range: [0, 12],
-        }),
+        MF1ElementArgNode(
+          "foo",
+          MF1TextNode("", {
+            range: pos(src, "", { pre: "<foo>" }),
+          }),
+          {
+            range: pos(src, "<foo></foo$>"),
+          },
+        ),
       );
     });
 
@@ -1431,11 +1615,11 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "$",
           expected: [">"],
-          range: [5, 6],
+          range: pos(src, "$"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1InvalidElementArgNode(undefined, { range: [0, 7] }),
+        MF1InvalidElementArgNode(undefined, { range: pos(src, "<foo/$>") }),
       );
     });
 
@@ -1447,13 +1631,17 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: ["<"],
-          range: [5, 5],
+          range: [src.length, src.length],
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
-          range: [0, 5],
-        }),
+        MF1ElementArgNode(
+          "foo",
+          MF1TextNode("", { range: [src.length, src.length] }),
+          {
+            range: pos(src, "<foo>"),
+          },
+        ),
       );
     });
 
@@ -1465,22 +1653,33 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "</",
           expected: ["EOF"],
-          range: [0, 2],
+          range: pos(src, "</"),
         },
       ]);
-      expect(msg).toEqual<MF1Node>(MF1TextNode("</foo>", { range: [0, 6] }));
+      expect(msg).toEqual<MF1Node>(
+        MF1TextNode("</foo>", { range: pos(src, "</foo>") }),
+      );
     });
 
     it("reports an error on < + space", () => {
       const src = "< foo></foo>";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidSpaces", range: [1, 2] },
+        {
+          type: "InvalidSpaces",
+          range: pos(src, " ", { pre: "<" }),
+        },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", MF1TextNode("", { range: [6, 6] }), {
-          range: [0, 12],
-        }),
+        MF1ElementArgNode(
+          "foo",
+          MF1TextNode("", {
+            range: pos(src, "", { pre: "< foo>" }),
+          }),
+          {
+            range: pos(src, "< foo></foo>"),
+          },
+        ),
       );
     });
 
@@ -1488,12 +1687,21 @@ describe("parseMF1Message", () => {
       const src = "<foo></ foo>";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidSpaces", range: [7, 8] },
+        {
+          type: "InvalidSpaces",
+          range: pos(src, " ", { pre: "</" }),
+        },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
-          range: [0, 12],
-        }),
+        MF1ElementArgNode(
+          "foo",
+          MF1TextNode("", {
+            range: pos(src, "", { pre: "<foo>" }),
+          }),
+          {
+            range: pos(src, "<foo></ foo>"),
+          },
+        ),
       );
     });
 
@@ -1505,20 +1713,20 @@ describe("parseMF1Message", () => {
           type: "UnexpectedToken",
           tokenDesc: "/",
           expected: ["number", "identifier"],
-          range: [6, 8],
+          range: pos(src, " /"),
         },
         {
           type: "UnexpectedToken",
           tokenDesc: "EOF",
           expected: ["<"],
-          range: [12, 12],
+          range: [src.length, src.length],
         },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1ElementArgNode(
           "foo",
-          MF1InvalidElementArgNode(undefined, { range: [5, 12] }),
-          { range: [0, 12] },
+          MF1InvalidElementArgNode(undefined, { range: pos(src, "< /foo>") }),
+          { range: pos(src, "<foo>< /foo>") },
         ),
       );
     });
@@ -1527,10 +1735,13 @@ describe("parseMF1Message", () => {
       const src = "<foo/ >";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidSpaces", range: [5, 6] },
+        {
+          type: "InvalidSpaces",
+          range: pos(src, " ", { pre: "/" }),
+        },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", undefined, { range: [0, 7] }),
+        MF1ElementArgNode("foo", undefined, { range: pos(src, "<foo/ >") }),
       );
     });
 
@@ -1542,13 +1753,19 @@ describe("parseMF1Message", () => {
           type: "MismatchedTag",
           openTagName: "foo",
           closeTagName: "bar",
-          range: [5, 11],
+          range: pos(src, "</bar>"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
-        MF1ElementArgNode("foo", MF1TextNode("", { range: [5, 5] }), {
-          range: [0, 11],
-        }),
+        MF1ElementArgNode(
+          "foo",
+          MF1TextNode("", {
+            range: pos(src, "", { pre: "<foo>" }),
+          }),
+          {
+            range: pos(src, "<foo></bar>"),
+          },
+        ),
       );
     });
 
@@ -1560,22 +1777,28 @@ describe("parseMF1Message", () => {
           type: "MismatchedTag",
           openTagName: "bar",
           closeTagName: "foo",
-          range: [10, 16],
+          range: pos(src, "</foo>"),
         },
         {
           type: "MismatchedTag",
           openTagName: "foo",
           closeTagName: "bar",
-          range: [16, 22],
+          range: pos(src, "</bar>"),
         },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1ElementArgNode(
           "foo",
-          MF1ElementArgNode("bar", MF1TextNode("", { range: [10, 10] }), {
-            range: [5, 16],
-          }),
-          { range: [0, 22] },
+          MF1ElementArgNode(
+            "bar",
+            MF1TextNode("", {
+              range: pos(src, "", { pre: "<bar>" }),
+            }),
+            {
+              range: pos(src, "<bar></foo>"),
+            },
+          ),
+          { range: pos(src, "<foo><bar></foo></bar>") },
         ),
       );
     });
@@ -1584,11 +1807,11 @@ describe("parseMF1Message", () => {
       const src = "<0123/>";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidNumber", range: [1, 5] },
+        { type: "InvalidNumber", range: pos(src, "0123") },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1ElementArgNode(123, undefined, {
-          range: [0, 7],
+          range: pos(src, "<0123/>"),
         }),
       );
     });
@@ -1597,11 +1820,11 @@ describe("parseMF1Message", () => {
       const src = "<123foo />";
       const [msg, diagnostics] = parseMF1MessageWithDiagnostics(src);
       expect(diagnostics).toEqual<readonly Diagnostic[]>([
-        { type: "InvalidNumber", range: [1, 7] },
+        { type: "InvalidNumber", range: pos(src, "123foo") },
       ]);
       expect(msg).toEqual<MF1Node>(
         MF1ElementArgNode(123, undefined, {
-          range: [0, 10],
+          range: pos(src, "<123foo />"),
         }),
       );
     });
