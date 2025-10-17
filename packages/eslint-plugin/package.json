@@ -75,7 +75,7 @@
     "@hi18n/react-context": "*",
     "@types/eslint": "^9.6.1",
     "@types/espree": "^10.1.0",
-    "@types/node": "^22.18.1",
+    "@types/node": "^22.18.11",
     "@typescript-eslint/parser": "^8.42.0",
     "@typescript-eslint/rule-tester": "^8.42.0",
     "@typescript-eslint/types": "^8.42.0",
