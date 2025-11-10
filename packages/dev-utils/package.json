@@ -52,7 +52,7 @@
   "dependencies": {
     "commander": "^13.1.0",
     "fs-extra": "^11.0.0",
-    "glob": "^10.4.5"
+    "glob": "^10.4.5 || ^11.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
