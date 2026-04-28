@@ -41,5 +41,10 @@
   "resolutions": {
     "pretty-format/react-is": "^19.0.0",
     "eslint-visitor-keys@npm:^3.3.0": "patch:eslint-visitor-keys@npm%3A3.3.0#~/.yarn/patches/eslint-visitor-keys-npm-3.3.0-d329af7c8c.patch"
+  },
+  "dependenciesMeta": {
+    "esbuild": {
+      "built": true
+    }
   }
 }
