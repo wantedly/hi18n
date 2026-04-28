@@ -1,5 +1,13 @@
 # `@hi18n/connector-i18n-js`
 
+## 0.1.9
+
+### Patch Changes
+
+- ba03f1b: chore(monorepo): use references in tsconfig
+- Updated dependencies [ba03f1b]
+  - @hi18n/tools-core@0.1.7
+
 ## 0.1.8
 
 ### Patch Changes

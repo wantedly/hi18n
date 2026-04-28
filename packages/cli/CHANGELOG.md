@@ -1,5 +1,15 @@
 # `@hi18n/cli`
 
+## 0.2.3
+
+### Patch Changes
+
+- ba03f1b: chore(monorepo): use references in tsconfig
+- 8033fbc: chore(cli): clarify we publish bin files
+- Updated dependencies [ba03f1b]
+  - @hi18n/eslint-plugin@0.2.4
+  - @hi18n/tools-core@0.1.7
+
 ## 0.2.2
 
 ### Patch Changes
