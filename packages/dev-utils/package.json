@@ -57,7 +57,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "rimraf": "^3.0.2",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }
 }
