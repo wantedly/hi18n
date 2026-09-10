@@ -36,7 +36,7 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   },
   "resolutions": {
     "pretty-format/react-is": "^19.0.0",
