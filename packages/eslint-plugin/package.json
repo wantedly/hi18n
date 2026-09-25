@@ -83,6 +83,6 @@
     "espree": "^10.4.0",
     "rimraf": "^3.0.2",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   }
 }
